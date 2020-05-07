@@ -1,0 +1,12 @@
+/.idea/
+
+/security-app/security-app.iml
+/security-app/app.iml
+/security-app/target/
+/security-browser/target/
+/security-browser/security-browser.iml
+/security-browser/browser.iml
+/security-core/security-core.iml
+/security-core/target/
+/security-demo/security-demo.iml
+/security-demo/target/
