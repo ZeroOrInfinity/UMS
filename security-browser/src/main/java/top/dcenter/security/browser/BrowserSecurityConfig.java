@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.rememberme.JdbcTokenRepos
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.security.browser.authentication.BrowserAuthenticationFailureHandler;
 import top.dcenter.security.browser.authentication.BrowserAuthenticationSuccessHandler;
+import top.dcenter.security.core.authentication.mobile.SmsCodeAuthenticationSecurityConfig;
 import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.core.util.CastUtil;
 import top.dcenter.security.core.validate.code.ValidateCodeFilter;
@@ -47,6 +48,10 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
     private final BrowserAuthenticationFailureHandler browserAuthenticationFailureHandler;
     private final ValidateCodeFilter validateCodeFilter;
     private final DataSource dataSource;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired
+    private SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -119,7 +124,8 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
                 .authenticated()
                 // 配置 csrf
                 .and()
-                .csrf().disable();
+                .csrf().disable()
+                .apply(smsCodeAuthenticationSecurityConfig);
                 // 配置 session 策略
 //                .sessionManagement()
                 // 当设置为 1 时，同个用户登录会自动踢掉上一次的登录状态。

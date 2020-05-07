@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
+import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX;
 import static top.dcenter.security.core.consts.SecurityConstants.VALIDATE_CODE_PROCESSOR_SUFFIX;
 
 
@@ -38,7 +39,7 @@ public class ValidateCodeController {
      * @param response
      * @throws IOException
      */
-    @GetMapping("/code/{type}")
+    @GetMapping(DEFAULT_VALIDATE_CODE_URL_PREFIX + "{type}")
     public void createCode(@PathVariable("type") String type,
                                      HttpServletRequest request, HttpServletResponse response) {
 

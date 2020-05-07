@@ -45,5 +45,28 @@
             </tr>
         </table>
     </form>
+    <form action="/authentication/mobile" method="post">
+        <table>
+            <tr>
+                <td>手机号码：</td>
+                <td>
+                    <input type="tel" name="mobile" value="13345678980">
+                    <a href="/code/sms?mobile=13345678980" >发送验证码</a>
+                </td>
+            </tr>
+            <tr>
+                <td>手机验证码：</td>
+                <td>
+                    <input type="text" name="smsCode">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><input type="checkbox" name="remember-me" checked="true">记住我</input></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button type="submit">登录</button></td>
+            </tr>
+        </table>
+    </form>
 </body>
 </html>

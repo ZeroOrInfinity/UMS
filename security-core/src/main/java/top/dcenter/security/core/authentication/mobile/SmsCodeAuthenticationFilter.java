@@ -1,5 +1,6 @@
 package top.dcenter.security.core.authentication.mobile;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -18,6 +19,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REQUEST
  * @author zyw
  * @version V1.0  Created by 2020/5/7 15:34
  */
+@Slf4j
 public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     // ~ Static fields/initializers
     // =====================================================================================
@@ -58,7 +60,7 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
             mobile = "";
         }
 
-
+        log.error("SmsCodeAuthenticationFilter.attemptAuthentication");;
         mobile = mobile.trim();
 
         SmsCodeAuthenticationToken authRequest = new SmsCodeAuthenticationToken(mobile);
