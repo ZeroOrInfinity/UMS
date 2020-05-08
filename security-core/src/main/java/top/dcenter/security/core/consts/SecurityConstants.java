@@ -91,6 +91,12 @@ public class SecurityConstants {
     public static final String POST_METHOD = "POST";
 
 
+    /**
+     * The default name for remember me parameter name and remember me cookie name
+     */
+    public static final String DEFAULT_REMEMBER_ME_NAME = "remember-me";
+
+
 
 
 }

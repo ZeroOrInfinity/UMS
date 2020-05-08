@@ -33,6 +33,11 @@ public class ValidateCodeProperties {
     public class SmsCodeProperties {
 
         /**
+         * 设置记住我功能的 session 的缓存时长，默认 7 * 24 * 3600
+         */
+        private int rememberMeSeconds = 7 * 24 * 3600;
+
+        /**
          * 校验码的验证码长度，默认 6 位
          */
         private int length = 6;

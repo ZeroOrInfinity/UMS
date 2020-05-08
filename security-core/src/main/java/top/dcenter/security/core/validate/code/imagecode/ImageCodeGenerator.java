@@ -35,7 +35,10 @@ public class ImageCodeGenerator implements ValidateCodeGenerator<ImageCode> {
         int codeLength = imageProp.getLength();
 
         String code = CodeUtil.generateVerifyCode(codeLength);
-        log.debug("{} = {}", imageProp.getRequestParamImageCodeName(), code);
+        if (log.isDebugEnabled())
+        {
+            log.debug("{} = {}", imageProp.getRequestParamImageCodeName(), code);
+        }
         BufferedImage bufferedImage = ImageUtil.getBufferedImage(w, h, code);
         return new ImageCode(bufferedImage, code, expireIn);
     }

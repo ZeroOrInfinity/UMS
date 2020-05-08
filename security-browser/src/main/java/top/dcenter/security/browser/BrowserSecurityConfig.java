@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.rememberme.JdbcTokenRepos
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.security.browser.authentication.BrowserAuthenticationFailureHandler;
 import top.dcenter.security.browser.authentication.BrowserAuthenticationSuccessHandler;
-import top.dcenter.security.core.authentication.mobile.SmsCodeAuthenticationSecurityConfig;
+import top.dcenter.security.core.authentication.mobile.SmsCodeAuthenticationConfig;
 import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.core.util.CastUtil;
 import top.dcenter.security.core.validate.code.ValidateCodeFilter;
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REMEMBER_ME_NAME;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX;
 import static top.dcenter.security.core.consts.SecurityConstants.QUERY_REMEMBER_ME_TABLE_EXIST_SQL;
 import static top.dcenter.security.core.consts.SecurityConstants.RESULT_SET_COLUMN_INDEX;
@@ -50,7 +51,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
     private final DataSource dataSource;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
-    private SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
+    private SmsCodeAuthenticationConfig smsCodeAuthenticationConfig;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private UserDetailsService userDetailsService;
@@ -77,6 +78,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
 
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {
+        // TODO 自定义 remember 的持久化功能，添加持久化功能 spi 接口，实现缓存如redis或数据库jdbc通用，自定义持久化数据库表的创建，更新，删除语句，让用户更好自定义
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
         return tokenRepository;
@@ -113,6 +115,8 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
                 // rememberMe 功能
                 .and()
                 .rememberMe()
+                .rememberMeParameter(DEFAULT_REMEMBER_ME_NAME)
+                .rememberMeCookieName(browserProperties.getRememberMeCookieName())
                 .tokenRepository(persistentTokenRepository())
                 .tokenValiditySeconds(browserProperties.getRememberMeSeconds())
                 .userDetailsService(userDetailsService)
@@ -125,13 +129,19 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
                 // 配置 csrf
                 .and()
                 .csrf().disable()
-                .apply(smsCodeAuthenticationSecurityConfig);
-                // 配置 session 策略
-//                .sessionManagement()
+                .apply(smsCodeAuthenticationConfig);
+
+        // 配置 session 策略
+        if (browserProperties.getSessionNumberSetting())
+        {
+            // TODO Session 各种 Strategy 未配置
+            http.sessionManagement()
                 // 当设置为 1 时，同个用户登录会自动踢掉上一次的登录状态。
-//                .maximumSessions(1)
+                .maximumSessions(browserProperties.getMaximumSessions())
                 // 同个用户达到最大 maximumSession 后，自动拒绝用户在登录
-//                .maxSessionsPreventsLogin(true)
+                .maxSessionsPreventsLogin(browserProperties.getMaxSessionsPreventsLogin());
+        }
+
     }
 
     @Override

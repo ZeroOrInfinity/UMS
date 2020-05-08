@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE;
-import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REQUEST_PARAM_MOBILE_NAME;
 
 /**
  * @author zyw
@@ -24,7 +23,6 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
     // ~ Static fields/initializers
     // =====================================================================================
 
-    public static final String SMS_CODE_FORM_MOBILE_KEY = DEFAULT_REQUEST_PARAM_MOBILE_NAME;
     /**
      * request POST Method
      */
@@ -55,12 +53,12 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
         }
 
         String mobile = obtainMobile(request);
+        String rememberMe = request.getParameter("remember-me");
 
         if (mobile == null) {
             mobile = "";
         }
 
-        log.error("SmsCodeAuthenticationFilter.attemptAuthentication");;
         mobile = mobile.trim();
 
         SmsCodeAuthenticationToken authRequest = new SmsCodeAuthenticationToken(mobile);

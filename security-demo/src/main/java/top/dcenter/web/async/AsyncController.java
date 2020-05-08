@@ -36,7 +36,7 @@ public class AsyncController {
 //            TimeUnit.SECONDS.sleep(1);
 //            log.info("Callable 副线程关闭");
 //            return "success";
-//        };
+//        }
         log.info("AsyncController.order 主线程结束");
         return result;
     }

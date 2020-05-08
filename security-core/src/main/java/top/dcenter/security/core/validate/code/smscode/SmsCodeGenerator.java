@@ -29,7 +29,10 @@ public class SmsCodeGenerator implements ValidateCodeGenerator<ValidateCode> {
         int codeLength = smsCodeProp.getLength();
 
         String code = CodeUtil.generateNumberVerifyCode(codeLength);
-        log.debug("{} = {}", smsCodeProp.getRequestParamSmsCodeName(), code);
+        if (log.isDebugEnabled())
+        {
+            log.debug("{} = {}", smsCodeProp.getRequestParamSmsCodeName(), code);
+        }
         return new ValidateCode(code, expireIn);
     }
 

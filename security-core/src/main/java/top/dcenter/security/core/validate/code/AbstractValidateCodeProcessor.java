@@ -9,7 +9,6 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.enums.ValidateStatus;
-import top.dcenter.security.core.excception.ParameterErrorException;
 import top.dcenter.security.core.excception.ValidateCodeException;
 
 import java.util.Map;
@@ -36,7 +35,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     private Map<String, ValidateCodeGenerator> validateCodeGenerators;
 
     @Override
-    public ValidateStatus produce(ServletWebRequest request) throws ValidateCodeException {
+    public final ValidateStatus produce(ServletWebRequest request) throws ValidateCodeException {
         ValidateStatus validateStatus;
         try
         {

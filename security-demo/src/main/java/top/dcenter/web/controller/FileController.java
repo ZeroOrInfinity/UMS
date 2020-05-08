@@ -38,18 +38,19 @@ public class FileController {
     @PostMapping
     public FileInfo upload(MultipartFile file, HttpSession session) throws IOException {
         FileInfo fileInfo = new FileInfo();
-        log.info("name: {}, size: {}", file.getName(), file.getSize());
         String realPath = session.getServletContext().getRealPath("/");
-        log.info("getOriginalFilename = {}", file.getOriginalFilename());
+        String realFileName = file.getOriginalFilename();
         Path localPath = Paths.get(realPath + FileSystems.getDefault().getSeparator()
-                                           + Instant.now().toEpochMilli() + file.getOriginalFilename());
-        log.info("localPath = {}", localPath);
+                                           + Instant.now().toEpochMilli() + realFileName);
 
-        //  Files.write(localPath, file.getBytes(), StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)
         FileChannel fileChannel = FileChannel.open(localPath, WRITE, CREATE_NEW);
         fileChannel.transferFrom(Channels.newChannel(file.getInputStream()), 0, file.getSize());
 
         fileInfo.setPath(localPath.toString());
+        if (log.isDebugEnabled())
+        {
+            log.debug("上传文件名：{}，保存路径信息：{}", realFileName, localPath.toString());
+        }
         return fileInfo;
     }
 

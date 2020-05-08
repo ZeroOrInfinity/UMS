@@ -71,16 +71,22 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         final String requestURI = request.getRequestURI();
-
+        String rememberMe = request.getParameter("remember-me");
         // 校验码逻辑，当短信验证码与图片验证码 url 相同时，优先使用短信校验码逻辑。
         ValidateCodeType validateCodeType = getValidateCodeType(request);
 
         try {
             if (validateCodeType != null)
             {
-                validateCodeProcessorHolder.findValidateCodeProcessor(validateCodeType)
-                        .validate(new ServletWebRequest(request, response));
-                log.info("校验请求({})验证码校验通过", requestURI);
+                ValidateCodeProcessor validateCodeProcessor = validateCodeProcessorHolder.findValidateCodeProcessor(validateCodeType);
+                if (validateCodeProcessor != null)
+                {
+                    validateCodeProcessor.validate(new ServletWebRequest(request, response));
+                    log.info("校验请求({})验证码校验通过", requestURI);
+                } else
+                {
+                    throw new ValidateCodeException("不能处理此验证码类型");
+                }
             }
 
         } catch (Exception e) {
@@ -88,7 +94,6 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
             authenticationFailureHandler.onAuthenticationFailure(request, response, new ValidateCodeException(e.getMessage(), e));
             return;
         }
-
 
         doFilter(request, response, filterChain);
     }

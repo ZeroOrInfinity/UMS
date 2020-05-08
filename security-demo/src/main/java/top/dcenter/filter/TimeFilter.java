@@ -21,7 +21,10 @@ import java.time.Instant;
 public class TimeFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        log.debug("TimeFilter.init");
+        if (log.isDebugEnabled())
+        {
+            log.debug("TimeFilter.init");
+        }
     }
 
     @Override
@@ -38,6 +41,9 @@ public class TimeFilter implements Filter {
 
     @Override
     public void destroy() {
-        log.debug("TimeFilter.destroy");
+        if (log.isDebugEnabled())
+        {
+            log.debug("TimeFilter.destroy");
+        }
     }
 }

@@ -7,6 +7,7 @@ import top.dcenter.security.core.enums.LoginType;
 
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PAGE_URL;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM;
+import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REMEMBER_ME_NAME;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UNAUTHENTICATION_URL;
 
 /**
@@ -21,6 +22,33 @@ public class BrowserProperties {
      * 设置记住我功能的 session 的缓存时长，默认 7 * 24 * 3600
      */
     private int rememberMeSeconds = 7 * 24 * 3600;
+    /**
+     * 设置记住我功能的 CookieName，默认 remember-me
+     */
+    private String rememberMeCookieName = DEFAULT_REMEMBER_ME_NAME;
+
+
+    /**
+     * 当为 false 时允许单个用户拥有任意数量的 session（不同设备或不同浏览器），默认为 false。
+     * 当设置 true 时，同时请设置一下选项：maximumSessions 和 maxSessionsPreventsLogin
+     */
+    private Boolean sessionNumberSetting = false;
+
+    /**
+     * 当设置为 1 时，maxSessionsPreventsLogin 为 false 时，同个用户登录会自动踢掉上一次的登录状态。
+     * 当设置为 1 时，maxSessionsPreventsLogin 为 true 时，同个用户登录会自动自动拒绝用户再登录。
+     * 默认为 1。
+     * 如要此选项生效，sessionNumberSetting 必须为 true
+     */
+    private int maximumSessions = 1;
+    /**
+     * 同个用户达到最大 maximumSession 后，自动拒绝用户再登录，默认为 false。
+     * 如要此选项生效，sessionNumberSetting 必须为 false
+     */
+    private Boolean maxSessionsPreventsLogin = false;
+
+
+
 
     /**
      * 设置登录页，用户没有配置则默认为 /security/login.html
@@ -53,6 +81,5 @@ public class BrowserProperties {
      * 设置默认登录后为 返回 JSON
      */
     private LoginType loginType = LoginType.JSON;
-
 
 }

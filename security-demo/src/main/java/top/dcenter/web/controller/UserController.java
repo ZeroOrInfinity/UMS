@@ -51,10 +51,13 @@ public class UserController {
     public List<User> listUsers(
             @RequestParam(value = "username", required = false) String username,
             @PageableDefault(page = 5, size = 20, sort = "username,asc") Pageable pageable) {
-        log.debug("listUsers: " + username);
-        log.debug("listUsers: size=" + pageable.getPageSize() + "; page="
-                          + pageable.getPageNumber() + " sort="
-                          + pageable.getSort());
+        if (log.isDebugEnabled())
+        {
+            log.debug("listUsers: " + username);
+            log.debug("listUsers: size=" + pageable.getPageSize() + "; page="
+                              + pageable.getPageNumber() + " sort="
+                              + pageable.getSort());
+        }
         List<User> users = new ArrayList<>();
         users.add(new User("jack", "1111"));
         users.add(new User("lose", "1111"));
@@ -65,8 +68,10 @@ public class UserController {
     @GetMapping("/{id:\\d+}")
     @JsonView(User.UserDetailView.class)
     public User getInfo(@PathVariable("id") String id) {
-//        throw new UserNotExistException("1");
-        log.debug("getInfo: " + id);
+        if (log.isDebugEnabled())
+        {
+            log.debug("getInfo: " + id);
+        }
         User tom = new User("tom", "1111");
         return tom;
     }
@@ -74,7 +79,10 @@ public class UserController {
     @PostMapping("")
     @JsonView(User.UserSimpleView.class)
     public User createUser(@Valid @RequestBody() User user) {
-        log.debug("createUser: " + user);
+        if (log.isDebugEnabled())
+        {
+            log.debug("createUser: " + user);
+        }
         user.setId("1");
         return user;
     }
@@ -96,12 +104,18 @@ public class UserController {
                     }
             );
         }
-        log.debug("listUsers: id=" + id + "; " + user);
+        if (log.isDebugEnabled())
+        {
+            log.debug("listUsers: id=" + id + "; " + user);
+        }
         return user;
     }
 
     @DeleteMapping("/{id:\\d+}")
     public void delete(@PathVariable("id") String id){
-        log.info("delete id=" + id);
+        if (log.isInfoEnabled())
+        {
+            log.info("delete id=" + id);
+        }
     }
 }
