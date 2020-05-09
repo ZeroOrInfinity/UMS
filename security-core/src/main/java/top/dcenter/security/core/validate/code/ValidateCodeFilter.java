@@ -12,6 +12,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.security.core.excception.ValidateCodeException;
+import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.util.CastUtil;
 
 import javax.servlet.FilterChain;
@@ -24,7 +25,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static top.dcenter.security.core.consts.SecurityConstants.GET_METHOD;
-import static top.dcenter.security.core.consts.SecurityConstants.URI_SEPARATOR;
 
 
 /**
@@ -60,18 +60,17 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
     @Override
     public void afterPropertiesSet() throws ServletException {
         super.afterPropertiesSet();
-        // 添加短信验证码 urls
-        CastUtil.string2Map(validateCodeProperties.getImage().getAuthUrls(), URI_SEPARATOR, ValidateCodeType.IMAGE,
-                authUrlMap);
         // 添加图片验证码 urls
-        CastUtil.string2Map(validateCodeProperties.getSms().getAuthUrls(), URI_SEPARATOR, ValidateCodeType.SMS, authUrlMap);
+        CastUtil.list2Map(validateCodeProperties.getImage().getAuthUrls(), ValidateCodeType.IMAGE,
+                authUrlMap);
+        // 添加短信验证码 urls
+        CastUtil.list2Map(validateCodeProperties.getSms().getAuthUrls(), ValidateCodeType.SMS, authUrlMap);
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         final String requestURI = request.getRequestURI();
-        String rememberMe = request.getParameter("remember-me");
         // 校验码逻辑，当短信验证码与图片验证码 url 相同时，优先使用短信校验码逻辑。
         ValidateCodeType validateCodeType = getValidateCodeType(request);
 

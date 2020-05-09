@@ -10,16 +10,16 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.social.security.SpringSocialConfigurer;
 import top.dcenter.security.browser.authentication.BrowserAuthenticationFailureHandler;
 import top.dcenter.security.browser.authentication.BrowserAuthenticationSuccessHandler;
 import top.dcenter.security.core.authentication.mobile.SmsCodeAuthenticationConfig;
 import top.dcenter.security.core.properties.BrowserProperties;
-import top.dcenter.security.core.util.CastUtil;
-import top.dcenter.security.core.validate.code.ValidateCodeFilter;
-import top.dcenter.security.core.validate.code.ValidateCodeProperties;
+import top.dcenter.security.core.properties.SocialProperties;
+import top.dcenter.security.core.properties.ValidateCodeProperties;
+import top.dcenter.security.core.validate.code.ValidateCodeSecurityConfig;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -32,7 +32,6 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REMEMBE
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX;
 import static top.dcenter.security.core.consts.SecurityConstants.QUERY_REMEMBER_ME_TABLE_EXIST_SQL;
 import static top.dcenter.security.core.consts.SecurityConstants.RESULT_SET_COLUMN_INDEX;
-import static top.dcenter.security.core.consts.SecurityConstants.URI_SEPARATOR;
 
 /**
  * @author zyw
@@ -45,12 +44,16 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
 
     private final ValidateCodeProperties validateCodeProperties;
     private final BrowserProperties browserProperties;
+    private final SocialProperties socialProperties;
     private final BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler;
     private final BrowserAuthenticationFailureHandler browserAuthenticationFailureHandler;
-    private final ValidateCodeFilter validateCodeFilter;
+    private final ValidateCodeSecurityConfig validateCodeSecurityConfig;
     private final DataSource dataSource;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
+    private SpringSocialConfigurer socialCoreConfigurer;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired(required = false)
     private SmsCodeAuthenticationConfig smsCodeAuthenticationConfig;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
@@ -58,15 +61,17 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
 
     public BrowserSecurityConfig(ValidateCodeProperties validateCodeProperties,
                                  BrowserProperties browserProperties,
+                                 SocialProperties socialProperties,
                                  BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler,
                                  BrowserAuthenticationFailureHandler browserAuthenticationFailureHandler,
-                                 ValidateCodeFilter validateCodeFilter,
+                                 ValidateCodeSecurityConfig validateCodeSecurityConfig,
                                  DataSource dataSource) {
         this.validateCodeProperties = validateCodeProperties;
         this.browserProperties = browserProperties;
+        this.socialProperties = socialProperties;
         this.browserAuthenticationSuccessHandler = browserAuthenticationSuccessHandler;
         this.browserAuthenticationFailureHandler = browserAuthenticationFailureHandler;
-        this.validateCodeFilter = validateCodeFilter;
+        this.validateCodeSecurityConfig = validateCodeSecurityConfig;
         this.dataSource = dataSource;
     }
 
@@ -94,16 +99,17 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
         passUrls.add(browserProperties.getLoginUnAuthenticationUrl());
         passUrls.add(browserProperties.getFailureUrl());
         passUrls.add(browserProperties.getLoginPage());
-        passUrls.add(DEFAULT_VALIDATE_CODE_URL_PREFIX + "*");
-        passUrls.addAll(CastUtil.string2List(smsProp.getAuthUrls(), URI_SEPARATOR));
-        passUrls.addAll(CastUtil.string2List(imageProp.getAuthUrls(), URI_SEPARATOR));
+        passUrls.add(browserProperties.getSuccessUrl());
+        passUrls.add(DEFAULT_VALIDATE_CODE_URL_PREFIX + "/*");
+        passUrls.add(socialProperties.getFilterProcessesUrl() + "/*");
+        passUrls.addAll(smsProp.getAuthUrls());
+        passUrls.addAll(imageProp.getAuthUrls());
 
         String[] passUrlArray = new String[passUrls.size()];
         passUrls.toArray(passUrlArray);
         log.info("passUrlArray = {}", Arrays.toString(passUrlArray));
 
-        http.addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter.class)
-                .formLogin()
+        http.formLogin()
                 // uri 需要自己实现
                 .loginPage(browserProperties.getLoginUnAuthenticationUrl())
                 .successHandler(browserAuthenticationSuccessHandler)
@@ -129,8 +135,14 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
                 // 配置 csrf
                 .and()
                 .csrf().disable()
-                .apply(smsCodeAuthenticationConfig);
+                .apply(validateCodeSecurityConfig)
+                .and()
+                .apply(socialCoreConfigurer);
 
+        if (smsCodeAuthenticationConfig != null)
+        {
+            http.apply(smsCodeAuthenticationConfig);
+        }
         // 配置 session 策略
         if (browserProperties.getSessionNumberSetting())
         {

@@ -5,10 +5,14 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.dcenter.security.core.enums.LoginType;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PAGE_URL;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REMEMBER_ME_NAME;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UNAUTHENTICATION_URL;
+import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX;
 
 /**
  * @author zyw
@@ -18,6 +22,14 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UNAUTHE
 @Setter
 @ConfigurationProperties("security.browser")
 public class BrowserProperties {
+
+    public BrowserProperties() {
+
+        Map<String, String> map = new HashMap<>();
+        this.authJumpSuffixCondition = map;
+
+    }
+
     /**
      * 设置记住我功能的 session 的缓存时长，默认 7 * 24 * 3600
      */
@@ -49,7 +61,10 @@ public class BrowserProperties {
 
 
 
-
+    /**
+     * 处理验证码的url前缀: 默认为 /code, 例如：图片验证码校验时的url为 /code/image,短信验证码校验时的url为 /code/sms
+     */
+    public String VALIDATE_CODE_URL_PREFIX = DEFAULT_VALIDATE_CODE_URL_PREFIX;
     /**
      * 设置登录页，用户没有配置则默认为 /security/login.html
      */
@@ -73,9 +88,10 @@ public class BrowserProperties {
      */
     private String loginUnAuthenticationUrl = DEFAULT_UNAUTHENTICATION_URL;
     /**
-     * 设置 uri 后缀, 作为区分认证方式的条件， TODO 此功能不成熟, 默认为 .html
+     * 设置 uri 的特定后缀对应的跳转登录页, 例如：key=/**: value=/security/login.html。 默认为空
+     * 支持通配符 规则具体看 AntPathMatcher.match(pattern, path)
      */
-    private String authJumpSuffixCondition = ".html";
+    private Map<String, String> authJumpSuffixCondition;
 
     /**
      * 设置默认登录后为 返回 JSON

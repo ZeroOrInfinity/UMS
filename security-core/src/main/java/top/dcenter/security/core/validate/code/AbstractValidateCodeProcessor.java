@@ -26,7 +26,11 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     /**
      * 操作 session 的工具类
      */
-    private SessionStrategy sessionStrategy = new HttpSessionSessionStrategy();
+    protected final SessionStrategy sessionStrategy;
+
+    public AbstractValidateCodeProcessor() {
+        this.sessionStrategy = new HttpSessionSessionStrategy();
+    }
 
     /**
      * 收集系统中所有的 {@link ValidateCodeGenerator} 接口的实现, spring 自动注入
@@ -37,19 +41,22 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     @Override
     public final ValidateStatus produce(ServletWebRequest request) throws ValidateCodeException {
         ValidateStatus validateStatus;
+        ValidateCode validateCode;
         try
         {
-            ValidateCode validateCode = generate(request);
-            ValidateStatus status = save(request, validateCode);
-            if (status.equals(ValidateStatus.FAILURE))
+            validateCode = generate(request);
+            save(request, validateCode);
+            validateStatus = sent(request, validateCode);
+            if (validateStatus.equals(ValidateStatus.FAILURE))
             {
+                this.sessionStrategy.removeAttribute(request, getValidateCodeType().getSessionKey());
                 return ValidateStatus.FAILURE;
             }
-            validateStatus = sent(request, validateCode);
         }
         catch (Exception e)
         {
             log.error(e.getMessage(), e);
+            this.sessionStrategy.removeAttribute(request, getValidateCodeType().getSessionKey());
             throw new ValidateCodeException(e.getMessage(), e);
         }
         return validateStatus;
@@ -77,7 +84,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             {
                 return ValidateStatus.FAILURE;
             }
-            sessionStrategy.setAttribute(request, validateCodeType.getSessionKey(), validateCode);
+            this.sessionStrategy.setAttribute(request, validateCodeType.getSessionKey(), validateCode);
         }
         catch (Exception e) {
             log.warn(e.getMessage(), e);
@@ -111,7 +118,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
         String requestParamValidateCodeName = getValidateCodeGenerator(validateCodeType).getRequestParamValidateCodeName();
 
-        ValidateCode codeInSession = (ValidateCode) sessionStrategy.getAttribute(request, sessionKey);
+        ValidateCode codeInSession = (ValidateCode) this.sessionStrategy.getAttribute(request, sessionKey);
         String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), requestParamValidateCodeName);
         if (!StringUtils.isNotBlank(codeInRequest))
         {
@@ -142,7 +149,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
      * 如果不存在，返回 null
      * @return  如果不存在，返回 null
      */
-    private ValidateCodeType getValidateCodeType() {
+    protected ValidateCodeType getValidateCodeType() {
         String type = StringUtils.substringBefore(getClass().getSimpleName(), VALIDATE_CODE_PROCESSOR_SUFFIX);
         if (StringUtils.isNotBlank(type))
         {

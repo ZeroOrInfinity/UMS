@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import top.dcenter.security.core.util.CodeUtil;
 import top.dcenter.security.core.validate.code.ValidateCode;
 import top.dcenter.security.core.validate.code.ValidateCodeGenerator;
-import top.dcenter.security.core.validate.code.ValidateCodeProperties;
+import top.dcenter.security.core.properties.ValidateCodeProperties;
 
 import javax.servlet.ServletRequest;
 

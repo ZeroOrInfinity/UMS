@@ -1,11 +1,13 @@
-package top.dcenter.security.core.validate.code;
+package top.dcenter.security.core.properties;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM;
-import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REQUEST_PARAM_IMAGE_CODE_NAME;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REQUEST_PARAM_MOBILE_NAME;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REQUEST_PARAM_SMS_CODE_NAME;
@@ -19,6 +21,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REQUEST
 @Setter
 @ConfigurationProperties("security.code")
 public class ValidateCodeProperties {
+
     private ImageCodeProperties image = new ImageCodeProperties();
     private SmsCodeProperties sms = new SmsCodeProperties();
 
@@ -31,6 +34,11 @@ public class ValidateCodeProperties {
     @Getter
     @Setter
     public class SmsCodeProperties {
+
+        public SmsCodeProperties() {
+            List<String> list = new ArrayList<>();
+            this.authUrls = list;
+        }
 
         /**
          * 设置记住我功能的 session 的缓存时长，默认 7 * 24 * 3600
@@ -57,12 +65,7 @@ public class ValidateCodeProperties {
         /**
          * 设置需要短信校验码认证的 uri，多个 uri 用 “，”号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
          */
-        private String authUrls = DEFAULT_LOGIN_PROCESSING_URL_MOBILE;
-
-
-        public void setAuthUrls(String authUrls) {
-            this.authUrls = this.authUrls + "," + authUrls;
-        }
+        private List<String> authUrls;
 
     }
 
@@ -74,6 +77,12 @@ public class ValidateCodeProperties {
     @Getter
     @Setter
     public class ImageCodeProperties {
+
+        public ImageCodeProperties() {
+            List<String> list = new ArrayList<>();
+            list.add(DEFAULT_LOGIN_PROCESSING_URL_FORM);
+            this.authUrls = list;
+        }
         /**
          * 图片校验码的宽度，默认 270； 宽度如果小于 height * 45 / 10, 则 width = height * 45 / 10
          */
@@ -109,13 +118,7 @@ public class ValidateCodeProperties {
         /**
          * 设置需要图片校验码认证的 uri，多个 uri 用 “，”号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
          */
-        private String authUrls = DEFAULT_LOGIN_PROCESSING_URL_FORM;
-
-
-
-        public void setAuthUrls(String authUrls) {
-            this.authUrls = this.authUrls + "," + authUrls;
-        }
+        private List<String> authUrls;
 
     }
 }

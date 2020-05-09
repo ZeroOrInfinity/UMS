@@ -5,7 +5,7 @@ import org.springframework.web.bind.ServletRequestUtils;
 import top.dcenter.security.core.util.CodeUtil;
 import top.dcenter.security.core.util.ImageUtil;
 import top.dcenter.security.core.validate.code.ValidateCodeGenerator;
-import top.dcenter.security.core.validate.code.ValidateCodeProperties;
+import top.dcenter.security.core.properties.ValidateCodeProperties;
 
 import javax.servlet.ServletRequest;
 import java.awt.image.BufferedImage;

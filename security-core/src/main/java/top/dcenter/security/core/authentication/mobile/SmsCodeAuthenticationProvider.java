@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
+ * 短信登录 Provider
  * @author zyw
  * @version V1.0  Created by 2020/5/7 22:51
  */

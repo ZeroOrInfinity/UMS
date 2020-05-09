@@ -2,22 +2,24 @@ package top.dcenter.security.browser.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import top.dcenter.security.core.excception.IllegalAccessUrlException;
 import top.dcenter.security.core.properties.BrowserProperties;
-import top.dcenter.security.core.vo.SimpleResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Iterator;
+import java.util.Map;
 
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UNAUTHENTICATION_URL;
+import static top.dcenter.security.core.consts.SecurityConstants.INTERNAL_SERVER_ERROR_MSG;
 
 /**
  * @author zyw
@@ -30,40 +32,50 @@ public class BrowserSecurityController {
     private final RequestCache requestCache;
     private final RedirectStrategy redirectStrategy;
     private final BrowserProperties browserProperties;
+    private final AntPathMatcher pathMatcher;
 
 
     public BrowserSecurityController(BrowserProperties browserProperties) {
         this.browserProperties = browserProperties;
         this.requestCache = new HttpSessionRequestCache();
         this.redirectStrategy = new DefaultRedirectStrategy();
+        pathMatcher = new AntPathMatcher();
     }
 
     /**
      * 当需要身份认证时，跳转到这里
+     * @author zyw
+     * @version V1.0  Created by 2020/5/3 17:43
      * @param request
      * @param response
-     * @return
      */
     @RequestMapping(DEFAULT_UNAUTHENTICATION_URL)
-    @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
-    public SimpleResponse requireAuthentication(HttpServletRequest request, HttpServletResponse response) {
+    public void requireAuthentication(HttpServletRequest request, HttpServletResponse response) {
         try {
             SavedRequest savedRequest = requestCache.getRequest(request, response);
-            if (savedRequest != null)
+            String targetUrl = savedRequest.getRedirectUrl();
+            if (savedRequest != null && StringUtils.isNotBlank(targetUrl))
             {
-                String targetUrl = savedRequest.getRedirectUrl();
+                targetUrl = targetUrl.replaceFirst("^.*://[^/]*(/.*$)", "$1");
                 log.info("引发跳转的请求是：{}", targetUrl);
-                if (StringUtils.endsWithIgnoreCase(targetUrl, browserProperties.getAuthJumpSuffixCondition()))
+                Iterator<Map.Entry<String, String>> iterator = browserProperties.getAuthJumpSuffixCondition().entrySet().iterator();
+                Map.Entry<String, String> entry;
+                while (iterator.hasNext())
                 {
-                    redirectStrategy.sendRedirect(request, response, browserProperties.getLoginPage());
-                    return null;
+                    entry = iterator.next();
+                    if (pathMatcher.match(entry.getKey(), targetUrl))
+                    {
+                        redirectStrategy.sendRedirect(request, response, entry.getValue());
+                        return;
+                    }
                 }
+                redirectStrategy.sendRedirect(request, response, browserProperties.getLoginPage());
             }
         }
         catch (Exception e) {
             log.error(e.getMessage(), e);
-            return SimpleResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value() , "服务器开小差，请重试");
+            throw new IllegalAccessUrlException(INTERNAL_SERVER_ERROR_MSG);
         }
-        return SimpleResponse.fail(HttpStatus.BAD_REQUEST.value(), "访问的服务需要身份认证，请引导用户到登录页");
     }
+
 }

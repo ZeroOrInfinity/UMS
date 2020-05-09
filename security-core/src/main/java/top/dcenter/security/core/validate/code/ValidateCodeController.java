@@ -39,7 +39,7 @@ public class ValidateCodeController {
      * @param response
      * @throws IOException
      */
-    @GetMapping(DEFAULT_VALIDATE_CODE_URL_PREFIX + "{type}")
+    @GetMapping(DEFAULT_VALIDATE_CODE_URL_PREFIX + "/{type}")
     public void createCode(@PathVariable("type") String type,
                                      HttpServletRequest request, HttpServletResponse response) {
 
@@ -48,7 +48,9 @@ public class ValidateCodeController {
         {
             throw new ValidateCodeException("非法的校验码类型");
         }
+
         ValidateStatus validateStatus = validateCodeProcessor.produce(new ServletWebRequest(request, response));
+
         if (ValidateStatus.FAILURE.equals(validateStatus))
         {
             throw new ValidateCodeProcessException("获取验证码失败，请重试！");

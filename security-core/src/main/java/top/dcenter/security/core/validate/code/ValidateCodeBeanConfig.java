@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.enums.ValidateStatus;
+import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.validate.code.imagecode.ImageCodeGenerator;
 import top.dcenter.security.core.validate.code.imagecode.ImageValidateCodeProcessor;
 import top.dcenter.security.core.validate.code.smscode.DefaultSmsCodeSender;
@@ -53,8 +54,8 @@ public class ValidateCodeBeanConfig {
     }
     @Bean
     @ConditionalOnMissingBean(ImageValidateCodeProcessor.class)
-    public ImageValidateCodeProcessor imageValidateCodeProcessor(ImageCodeGenerator imageCodeGenerator) {
-        return new ImageValidateCodeProcessor(imageCodeGenerator);
+    public ImageValidateCodeProcessor imageValidateCodeProcessor() {
+        return new ImageValidateCodeProcessor();
     }
 
     @Bean

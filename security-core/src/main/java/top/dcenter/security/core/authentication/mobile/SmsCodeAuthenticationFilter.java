@@ -7,7 +7,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
-import top.dcenter.security.core.validate.code.ValidateCodeProperties;
+import top.dcenter.security.core.properties.ValidateCodeProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE;
 
 /**
+ * 短信登录配置过滤器
  * @author zyw
  * @version V1.0  Created by 2020/5/7 15:34
  */

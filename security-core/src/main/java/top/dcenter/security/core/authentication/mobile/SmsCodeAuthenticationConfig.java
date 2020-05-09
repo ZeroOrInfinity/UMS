@@ -1,6 +1,8 @@
 package top.dcenter.security.core.authentication.mobile;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,38 +10,39 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import org.springframework.stereotype.Component;
-import top.dcenter.security.core.validate.code.ValidateCodeProperties;
+import top.dcenter.security.core.properties.ValidateCodeProperties;
 
 import java.util.UUID;
 
 
 /**
+ * 短信登录配置
  * @author zyw
  * @version V1.0  Created by 2020/5/7 23:32
  */
-@Component
+@Configuration
+@ConditionalOnProperty(prefix = "security.smsCodeLogin", name = "sms-code-login-is-open", havingValue = "true")
 public class SmsCodeAuthenticationConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
     private final ValidateCodeProperties validateCodeProperties;
     private final AuthenticationFailureHandler browserAuthenticationFailureHandler;
     private final AuthenticationSuccessHandler browserAuthenticationSuccessHandler;
-    private final UserDetailsService userDetailsService;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired
+    private UserDetailsService userDetailsService;
     private String key;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private PersistentTokenRepository persistentTokenRepository;
     public SmsCodeAuthenticationConfig(ValidateCodeProperties validateCodeProperties,
                                        AuthenticationFailureHandler browserAuthenticationFailureHandler,
-                                       AuthenticationSuccessHandler browserAuthenticationSuccessHandler,
-                                       UserDetailsService userDetailsService) {
+                                       AuthenticationSuccessHandler browserAuthenticationSuccessHandler) {
         this.validateCodeProperties = validateCodeProperties;
         this.browserAuthenticationFailureHandler = browserAuthenticationFailureHandler;
         this.browserAuthenticationSuccessHandler = browserAuthenticationSuccessHandler;
-        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -58,7 +61,7 @@ public class SmsCodeAuthenticationConfig extends SecurityConfigurerAdapter<Defau
 
         SmsCodeAuthenticationProvider smsCodeAuthenticationProvider = new SmsCodeAuthenticationProvider(userDetailsService);
         http.authenticationProvider(smsCodeAuthenticationProvider)
-            .addFilterAfter(smsCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterAfter(smsCodeAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
 
 
     }

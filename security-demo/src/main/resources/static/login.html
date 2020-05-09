@@ -11,11 +11,11 @@
         <table>
             <tr>
                 <td>用户名：</td>
-                <td><input type="text" name="username"></td>
+                <td><input type="text" name="username" value="admin"></td>
             </tr>
             <tr>
                 <td>密码：</td>
-                <td><input type="password" name="password"></td>
+                <td><input type="password" name="password" value="admin"></td>
             </tr>
             <tr>
                 <td>图形验证码：</td>
@@ -61,6 +61,13 @@
                 </td>
             </tr>
             <tr>
+                <td>图形验证码：</td>
+                <td>
+                    <input type="text" name="imageCode">
+                    <img src="/code/image" style="width: 67px; height: 23px">
+                </td>
+            </tr>
+            <tr>
                 <td colspan="2"><input type="checkbox" name="remember-me" checked="true">记住我</input></td>
             </tr>
             <tr>
@@ -68,5 +75,10 @@
             </tr>
         </table>
     </form>
+    <br>
+    <h3>社交登录</h3>
+    <a href="/auth/callback/qq">QQ登录</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="/auth/weixin">微信登录</a>
 </body>
 </html>

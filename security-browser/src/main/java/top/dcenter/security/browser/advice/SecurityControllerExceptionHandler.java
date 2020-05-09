@@ -6,12 +6,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import top.dcenter.security.core.excception.ValidateCodeParamErrorException;
-import top.dcenter.security.core.vo.SimpleResponse;
+import top.dcenter.security.core.excception.IllegalAccessUrlException;
 import top.dcenter.security.core.excception.ParameterErrorException;
 import top.dcenter.security.core.excception.UserNotExistException;
 import top.dcenter.security.core.excception.ValidateCodeException;
+import top.dcenter.security.core.excception.ValidateCodeParamErrorException;
 import top.dcenter.security.core.excception.ValidateCodeProcessException;
+import top.dcenter.security.core.vo.SimpleResponse;
 
 /**
  * 核心错误处理器
@@ -20,7 +21,7 @@ import top.dcenter.security.core.excception.ValidateCodeProcessException;
  */
 @ControllerAdvice
 @Slf4j
-public class CoreControllerExceptionHandler {
+public class SecurityControllerExceptionHandler {
 
     @ExceptionHandler(UserNotExistException.class)
     @ResponseBody
@@ -63,4 +64,13 @@ public class CoreControllerExceptionHandler {
         log.error(ex.getMessage(), ex);
         return SimpleResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
     }
+    @ExceptionHandler(IllegalAccessUrlException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public SimpleResponse illegalAccessUrlException(IllegalAccessUrlException ex) {
+        String errorMsg = ex.getMessage();
+        log.error(errorMsg, ex);
+        return SimpleResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorMsg);
+    }
+
 }

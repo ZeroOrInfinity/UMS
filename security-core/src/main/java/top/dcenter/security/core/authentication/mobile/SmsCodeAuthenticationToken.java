@@ -7,6 +7,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import java.util.Collection;
 
 /**
+ * 短信登录 Token
  * @author zyw
  * @version V1.0  Created by 2020/5/7 15:25
  */

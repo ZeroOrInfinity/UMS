@@ -36,7 +36,7 @@ public interface ValidateCodeProcessor {
     ValidateStatus save(ServletWebRequest request, ValidateCode validateCode);
 
     /**
-     * 发送校验码，发送失败，必须清除 sessionKey 的缓存，示例代码:
+     * 发送校验码
      * @param request   ServletWebRequest
      * @param validateCode  校验码对象
      * @return  是否成功的状态

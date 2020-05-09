@@ -40,6 +40,12 @@ public class SecurityConstants {
 
 
 
+
+    /**
+     * 服务器内部错误信息
+     */
+    public static final String INTERNAL_SERVER_ERROR_MSG = "服务器开小差，请重试";
+
     /**
      * 需要验证码校验的 authUrls 之间的分隔符
      */
@@ -47,7 +53,7 @@ public class SecurityConstants {
     /**
      * 默认的处理验证码的url前缀
      */
-    public static final String DEFAULT_VALIDATE_CODE_URL_PREFIX = "/code/";
+    public static final String DEFAULT_VALIDATE_CODE_URL_PREFIX = "/code";
 
     /**
      * 规范：验证码生成器后缀
