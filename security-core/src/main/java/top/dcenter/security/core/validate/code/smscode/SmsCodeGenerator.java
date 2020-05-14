@@ -5,11 +5,12 @@ import top.dcenter.security.core.util.CodeUtil;
 import top.dcenter.security.core.validate.code.ValidateCode;
 import top.dcenter.security.core.validate.code.ValidateCodeGenerator;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
+import top.dcenter.security.core.validate.code.ValidateCodeType;
 
 import javax.servlet.ServletRequest;
 
 /**
- * 短信验证码生成器
+ * 短信验证码生成器。如要自定义短信验证码生成器，请继承此类并重写 generate 方法。注意：实现类注册 ioc 容器 bean 的名称必须是 smsCodeGenerator
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/4 23:44
@@ -35,6 +36,11 @@ public class SmsCodeGenerator implements ValidateCodeGenerator<ValidateCode> {
             log.debug("{} = {}", smsCodeProp.getRequestParamSmsCodeName(), code);
         }
         return new ValidateCode(code, expireIn);
+    }
+
+    @Override
+    public String getValidateCodeType() {
+        return ValidateCodeType.SMS.name().toLowerCase();
     }
 
     @Override

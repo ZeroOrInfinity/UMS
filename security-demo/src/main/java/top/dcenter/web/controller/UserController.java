@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.dto.User;
 import top.dcenter.security.core.vo.SimpleResponse;
+import top.dcenter.security.social.vo.SocialUserInfo;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -76,6 +77,23 @@ public class UserController {
 
         log.info("用户注册成功：{}", user);
         return SimpleResponse.success(user);
+    }
+
+    @GetMapping("/testWebSecurityPostConfigurer")
+    public SimpleResponse testWebSecurityPostConfigurer(HttpServletRequest request) {
+
+        Connection<?> connection = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
+        if (connection == null)
+        {
+            return SimpleResponse.fail(HttpStatus.NON_AUTHORITATIVE_INFORMATION.value(), "没有第三方授权信息");
+        }
+        SocialUserInfo userInfo = new SocialUserInfo();
+        userInfo.setProviderId(connection.getKey().getProviderId());
+        userInfo.setProviderUserId(connection.getKey().getProviderUserId());
+        userInfo.setNickname(connection.getDisplayName());
+        userInfo.setHeadImg(connection.getImageUrl());
+        log.info("用户注册成功：{}", userInfo);
+        return SimpleResponse.success(userInfo);
     }
 
     @GetMapping("/me")

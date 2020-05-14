@@ -1,7 +1,7 @@
 package top.dcenter.security.core.validate.code.smscode;
 
 /**
- * 短信验证码发生 spi 接口
+ * 发送短信验证码接口，更改短息验证码实现此接口。
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0

@@ -12,6 +12,7 @@ import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.social.config.annotation.EnableSocial;
 import org.springframework.social.config.annotation.SocialConfigurerAdapter;
 import org.springframework.social.connect.ConnectionFactoryLocator;
+import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
 
 import javax.sql.DataSource;
@@ -83,6 +84,12 @@ public class SocialConfig extends SocialConfigurerAdapter implements Initializin
         SocialCoreConfigurer socialCoreConfigurer =
                 new SocialCoreConfigurer(socialProperties);
         return socialCoreConfigurer;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ConnectionSignUp.class)
+    public ConnectionSignUp connectionSignUp() {
+        return new DefaultConnectionSignUp();
     }
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")

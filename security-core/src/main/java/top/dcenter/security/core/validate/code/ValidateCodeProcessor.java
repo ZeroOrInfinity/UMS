@@ -21,6 +21,12 @@ public interface ValidateCodeProcessor {
     boolean produce(ServletWebRequest request) throws ValidateCodeException;
 
     /**
+     * 获取校验码类型
+     * @return  ValidateCodeType 的小写字符串
+     */
+    String getValidateCodeType();
+
+    /**
      * 产生校验码
      * @param request ServletWebRequest
      * @return  校验码对象

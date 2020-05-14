@@ -23,6 +23,12 @@ public interface ValidateCodeGenerator<T> {
     T generate(ServletRequest request);
 
     /**
+     * 获取校验码类型
+     * @return  ValidateCodeType 的小写字符串
+     */
+    String getValidateCodeType();
+
+    /**
      * 获取请求中的校验码参数的名称
      * @return  返回校验码参数的名称
      */

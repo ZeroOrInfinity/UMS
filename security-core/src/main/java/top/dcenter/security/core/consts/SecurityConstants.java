@@ -44,14 +44,6 @@ public class SecurityConstants {
      */
     public static final String DEFAULT_VALIDATE_CODE_URL_PREFIX = "/code";
 
-    /**
-     * 规范：验证码生成器后缀
-     */
-    public static final String VALIDATE_CODE_GENERATOR_SUFFIX = "CodeGenerator";
-    /**
-     * 规范：验证码处理器后缀
-     */
-    public static final String VALIDATE_CODE_PROCESSOR_SUFFIX = "ValidateCodeProcessor";
 
     /**
      * 图片验证码的 SESSION KEY

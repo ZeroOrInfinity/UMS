@@ -1,7 +1,8 @@
-package top.dcenter.security.core.validate.code.smscode;
+package top.dcenter.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -11,28 +12,28 @@ import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.security.core.validate.code.ValidateCode;
 import top.dcenter.security.core.validate.code.ValidateCodeGenerator;
-import top.dcenter.security.core.validate.code.ValidateCodeType;
+import top.dcenter.security.core.validate.code.smscode.SmsCodeSender;
+import top.dcenter.security.core.validate.code.smscode.SmsValidateCodeProcessor;
 
 import java.util.Map;
 import java.util.regex.PatternSyntaxException;
 
-
 /**
- * 短信验证码处理器。如要自定义短信验证码处理器，请继承此类并重写 sent 方法
- * @author zhailiang
- * @medifiedBy  zyw
- * @version V1.0  Created by 2020/5/6 15:09
+ * 自定义短信校验码处理器
+ * @author zyw
+ * @createrDate 2020-05-14 22:26
  */
+@Component
 @Slf4j
-public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
+public class DemoSmsValidateCodeProcessor extends SmsValidateCodeProcessor {
 
     private final SmsCodeSender smsCodeSender;
     private final ValidateCodeProperties validateCodeProperties;
 
-    public SmsValidateCodeProcessor(SmsCodeSender smsCodeSender,
-                                    ValidateCodeProperties validateCodeProperties,
-                                    Map<String, ValidateCodeGenerator> validateCodeGenerators) {
-        super(validateCodeGenerators);
+    public DemoSmsValidateCodeProcessor(SmsCodeSender smsCodeSender,
+                                        ValidateCodeProperties validateCodeProperties,
+                                        Map<String, ValidateCodeGenerator> validateCodeGenerators) {
+        super(smsCodeSender, validateCodeProperties, validateCodeGenerators);
         this.smsCodeSender = smsCodeSender;
         this.validateCodeProperties = validateCodeProperties;
     }
@@ -50,9 +51,10 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
         try
         {
             mobile = ServletRequestUtils.getRequiredStringParameter(request.getRequest(),
-                                                            validateCodeProperties.getSms().getRequestParamMobileName());
+                                                                    validateCodeProperties.getSms().getRequestParamMobileName());
             if (StringUtils.isNotBlank(mobile) && mobile.matches(RegexConst.MOBILE_PATTERN))
             {
+                log.info("Demo =======>: {} = {}", mobile, validateCode.getCode());
                 return smsCodeSender.sendSms(mobile, validateCode.getCode());
             }
         }
@@ -63,10 +65,5 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
         catch (PatternSyntaxException e) { }
 
         throw new ValidateCodeParamErrorException("手机号格式错误，请检查你的手机号码");
-    }
-
-    @Override
-    public String getValidateCodeType() {
-        return ValidateCodeType.SMS.name().toLowerCase();
     }
 }

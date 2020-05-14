@@ -10,12 +10,8 @@ import top.dcenter.security.core.excception.ValidateCodeProcessException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX;
-import static top.dcenter.security.core.consts.SecurityConstants.VALIDATE_CODE_PROCESSOR_SUFFIX;
 
 
 /**
@@ -28,14 +24,10 @@ import static top.dcenter.security.core.consts.SecurityConstants.VALIDATE_CODE_P
 @Slf4j
 public class ValidateCodeController {
 
-    private final Map<String, ValidateCodeProcessor> validateCodeProcessors;
+    private final ValidateCodeProcessorHolder validateCodeProcessorHolder;
 
-    public ValidateCodeController(Map<String, ValidateCodeProcessor> validateCodeProcessors) {
-        if (validateCodeProcessors == null)
-        {
-            validateCodeProcessors = new HashMap<>(0);
-        }
-        this.validateCodeProcessors = validateCodeProcessors;
+    public ValidateCodeController(ValidateCodeProcessorHolder validateCodeProcessorHolder) {
+        this.validateCodeProcessorHolder = validateCodeProcessorHolder;
     }
 
 
@@ -43,16 +35,15 @@ public class ValidateCodeController {
      * 获取图片验证码, 根据验证码类型不同，调用不同的 {@link ValidateCodeProcessor} 接口实现
      * @param request request 中的 width 的值如果小于 height * 45 / 10, 则 width = height * 45 / 10
      * @param response
-     * @throws IOException
      */
     @GetMapping(DEFAULT_VALIDATE_CODE_URL_PREFIX + "/{type}")
     public void createCode(@PathVariable("type") String type,
                                      HttpServletRequest request, HttpServletResponse response) {
 
         ValidateCodeProcessor validateCodeProcessor;
-        if (validateCodeProcessors != null)
+        if (validateCodeProcessorHolder != null)
         {
-            validateCodeProcessor = validateCodeProcessors.get(type + VALIDATE_CODE_PROCESSOR_SUFFIX);
+            validateCodeProcessor = validateCodeProcessorHolder.findValidateCodeProcessor(type);
         } else {
             validateCodeProcessor = null;
         }

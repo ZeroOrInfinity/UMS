@@ -102,32 +102,25 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
         ValidateCodeProperties.ImageCodeProperties imageProp = validateCodeProperties.getImage();
         ValidateCodeProperties.SmsCodeProperties smsProp = validateCodeProperties.getSms();
 
-        String[] permitAllArray = new String[0];
-        String[] denyAllArray = new String[0];
-        String[] anonymousArray = new String[0];
-        String[] authenticatedArray = new String[0];
-        String[] fullyAuthenticatedArray = new String[0];
-        String[] rememberMeArray = new String[0];
 
-        if (webSecurityPostConfigurerMap != null)
-        {
-            for (WebSecurityPostConfigurer postConfigurer : webSecurityPostConfigurerMap.values())
-            {
-                postConfigurer.preConfigure(http);
-                Map<String, List<String>> authorizeRequestMap = postConfigurer.getAuthorizeRequestMap();
+        List<String> permitAllList = new ArrayList<>();
+        List<String> denyAllList = new ArrayList<>();
+        List<String> anonymousList = new ArrayList<>();
+        List<String> authenticatedList = new ArrayList<>();
+        List<String> fullyAuthenticatedList = new ArrayList<>();
+        List<String> rememberMeList = new ArrayList<>();
 
-                permitAllArray = add2Array(null, authorizeRequestMap, permitAll);
-                denyAllArray = add2Array(null, authorizeRequestMap, denyAll);
-                anonymousArray = add2Array(null, authorizeRequestMap, anonymous);
-                authenticatedArray = add2Array(null, authorizeRequestMap, authenticated);
-                fullyAuthenticatedArray = add2Array(null, authorizeRequestMap, fullyAuthenticated);
-                rememberMeArray = add2Array(null, authorizeRequestMap, rememberMe);
-            }
-        }
+        // 对 所有的AuthorizeRequestUris 进行分类，放入对应的 List
+        fillingAuthorizeRequestUris(http, imageProp, smsProp, permitAllList, denyAllList, anonymousList, authenticatedList, fullyAuthenticatedList, rememberMeList);
 
-        List<String> permitAllList = addPermitAllUriList(imageProp, smsProp);
-        permitAllList.addAll(Arrays.asList(permitAllArray));
-        permitAllArray = add2Array(permitAllList, null, permitAll);
+        // 将 AuthorizeRequestUriList 转换为对应的 array
+        String[] permitAllArray = list2Array(permitAllList,  permitAll);
+        String[] denyAllArray = list2Array(denyAllList,  denyAll);
+        String[] anonymousArray = list2Array(anonymousList, anonymous);
+        String[] authenticatedArray = list2Array(authenticatedList, authenticated);
+        String[] fullyAuthenticatedArray = list2Array(fullyAuthenticatedList,  fullyAuthenticated);
+        String[] rememberMeArray = list2Array(rememberMeList,  rememberMe);
+
 
         // 短信验证码登录配置
         if (smsCodeAuthenticationConfig != null)
@@ -188,6 +181,41 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
         }
     }
 
+    private String[] list2Array(List<String> permitAllList, String authorizeRequestType) {
+        String[] permitAllArray;
+        permitAllArray = new String[permitAllList.size()];
+        permitAllList.toArray(permitAllArray);
+        log.info("{} = {}", authorizeRequestType, Arrays.toString(permitAllArray));
+        return permitAllArray;
+    }
+
+    private void fillingAuthorizeRequestUris(HttpSecurity http,
+                                             ValidateCodeProperties.ImageCodeProperties imageProp,
+                                             ValidateCodeProperties.SmsCodeProperties smsProp,
+                                             List<String> permitAllList,
+                                             List<String> denyAllList,
+                                             List<String> anonymousList,
+                                             List<String> authenticatedList,
+                                             List<String> fullyAuthenticatedList,
+                                             List<String> rememberMeList) throws Exception {
+        if (webSecurityPostConfigurerMap != null)
+        {
+            for (WebSecurityPostConfigurer postConfigurer : webSecurityPostConfigurerMap.values())
+            {
+                postConfigurer.preConfigure(http);
+                Map<String, List<String>> authorizeRequestMap = postConfigurer.getAuthorizeRequestMap();
+
+                add2List(permitAllList, authorizeRequestMap, permitAll);
+                add2List(denyAllList, authorizeRequestMap, denyAll);
+                add2List(anonymousList, authorizeRequestMap, anonymous);
+                add2List(authenticatedList, authorizeRequestMap, authenticated);
+                add2List(fullyAuthenticatedList, authorizeRequestMap, fullyAuthenticated);
+                add2List(rememberMeList, authorizeRequestMap, rememberMe);
+            }
+        }
+        permitAllList.addAll(addPermitAllUriList(imageProp, smsProp));
+    }
+
     private List<String> addPermitAllUriList(ValidateCodeProperties.ImageCodeProperties imageProp, ValidateCodeProperties.SmsCodeProperties smsProp) {
         List<String> permitAllList = new ArrayList<>();
 
@@ -203,33 +231,22 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
     }
 
     /**
-     * 把 uriList 的所有 uri 和 根据 authorizeRequestType 从 authorizeRequestMap 提取的 uri 共同添加到同一个数组中
+     * 把 根据 authorizeRequestType 从 authorizeRequestMap 提取的 uri 添加到数组中
      *
-     * @param uriList              可以为null
+     * @param resultList           不可以为null
      * @param authorizeRequestMap  可以为 null
      * @param authorizeRequestType 不允许为 null
-     * @return String[]
      */
-    private String[] add2Array(List<String> uriList, Map<String, List<String>> authorizeRequestMap,
-                               @NotNull String authorizeRequestType) {
-        List<String> resultList = new ArrayList<>();
+    private void add2List(@NotNull List<String> resultList, Map<String, List<String>> authorizeRequestMap,
+                          @NotNull String authorizeRequestType) {
         if (authorizeRequestMap != null)
         {
-
-            List<String> targetList = authorizeRequestMap.get(authorizeRequestType);
-            if (targetList != null && !targetList.isEmpty())
+            List<String> authorizeRequestList = authorizeRequestMap.get(authorizeRequestType);
+            if (authorizeRequestList != null && !authorizeRequestList.isEmpty())
             {
-                resultList.addAll(targetList);
+                resultList.addAll(authorizeRequestList);
             }
         }
-        if (uriList != null)
-        {
-            resultList.addAll(uriList);
-        }
-        String[] result = new String[resultList.size()];
-        resultList.toArray(result);
-        log.info("{} = {}", authorizeRequestType, Arrays.toString(result));
-        return result;
     }
 
 

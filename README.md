@@ -52,8 +52,9 @@
 ## 第三方登录 OAuth2
 - 在 social 模块
 - ```properties
-  
-  # {providerId}.autoSignIn=true 且实现 ConnectionSignUp 接口则自动登录，而且 singUpUrl 会失效
+  # QQ 登录时是否自动注册，当为 true 且实现 ConnectionSignUp 接口，则开启自动注册。
+  # QQ 登录时是否自动注册：当为 true 且实现 ConnectionSignUp 接口，则开启自动注册，此时 singUpUrl 失效，否则不会开始自动注册
+  # autoSignIn=true 且实现 ConnectionSignUp 接口则自动注册，此时 singUpUrl 会失效
   # 第三方登录用户授权成功跳转页面，默认为 /signUp.html， 用户必需设置
   security.social.sing-up-url=/signUp.html
   # 第三方登录用户授权失败跳转页面， 默认为 /signIn.html， 用户必需设置
@@ -86,9 +87,9 @@
   # providerUserIdColumnName、  rankColumnName、  displayNameColumnName、  profileUrlColumnName、  imageUrlColumnName、  accessTokenColumnName、  secretColumnName、  refreshTokenColumnName、  expireTimeColumnName、  userIdColumnName、  providerIdColumnName、  providerUserIdColumnName、  userIdColumnName、  providerIdColumnName、  rankColumnName
   security.social.creatUserConnectionTableSql=create table %s (%s varchar(255) not null, %s varchar(255) not null, %s varchar(255), %s int not null, %s varchar(255), %s varchar(512), %s varchar(512), %s varchar(512) not null, %s varchar(512), %s varchar(512), %s bigint, primary key (%s, %s, %s), unique index UserConnectionRank(%s, %s, %s));
   
-  # {providerId}.autoSignIn=true 且实现 ConnectionSignUp 接口则自动登录，而且 singUpUrl 会失效
-  # QQ 登录时是否自动注册，当为 true 且已实现 ConnectionSignUp 接口，则开启自动登录。
-  # QQ 登录时是否自动注册：如果为 true 且实现 ConnectionSignUp 接口则自动登录，而且 singUpUrl 失效，否则不自动登录
+  # autoSignIn=true 且实现 ConnectionSignUp 接口则自动注册，此时 singUpUrl 会失效
+  # QQ 登录时是否自动注册，当为 true 且实现 ConnectionSignUp 接口，则开启自动注册。
+  # QQ 登录时是否自动注册：当为 true 且实现 ConnectionSignUp 接口，则开启自动注册，此时 singUpUrl 失效，否则不会开始自动注册
   security.social.qq.auto-sign-in=false
   # ConnectionSignUp 非常有用的扩展接口, 调用时机：在第三方服务商回调 redirectUrl 接口时，
   # 在确认数据库用户表(security.social.table-name)中没有用户记录调用且 autoSignIn 为 true时，调用此接口。

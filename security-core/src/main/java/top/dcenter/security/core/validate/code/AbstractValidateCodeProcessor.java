@@ -2,7 +2,6 @@ package top.dcenter.security.core.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.connect.web.HttpSessionSessionStrategy;
 import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -10,10 +9,10 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.excception.ValidateCodeException;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-
-import static top.dcenter.security.core.consts.SecurityConstants.VALIDATE_CODE_GENERATOR_SUFFIX;
-import static top.dcenter.security.core.consts.SecurityConstants.VALIDATE_CODE_PROCESSOR_SUFFIX;
+import java.util.stream.Collectors;
 
 /**
  * 校验码处理逻辑的默认实现
@@ -28,15 +27,21 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
      */
     protected final SessionStrategy sessionStrategy;
 
-    public AbstractValidateCodeProcessor() {
-        this.sessionStrategy = new HttpSessionSessionStrategy();
-    }
+    private final Map<String, ValidateCodeGenerator> validateCodeGenerators;
 
-    /**
-     * 收集系统中所有的 {@link ValidateCodeGenerator} 接口的实现, spring 自动注入
-     */
-    @Autowired
-    private Map<String, ValidateCodeGenerator> validateCodeGenerators;
+
+    public AbstractValidateCodeProcessor(Map<String, ValidateCodeGenerator> validateCodeGenerators) {
+        this.sessionStrategy = new HttpSessionSessionStrategy();
+        if (validateCodeGenerators == null)
+        {
+            this.validateCodeGenerators = new HashMap<>(0);
+            return;
+        }
+        Collection<ValidateCodeGenerator> values = validateCodeGenerators.values();
+        this.validateCodeGenerators =
+                values.stream().collect(Collectors.toMap((validateCodeGenerator -> validateCodeGenerator.getValidateCodeType()),
+                                                         validateCodeGenerator -> validateCodeGenerator));
+    }
 
     @Override
     public final boolean produce(ServletWebRequest request) throws ValidateCodeException {
@@ -49,14 +54,14 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             boolean validateStatus = sent(request, validateCode);
             if (!validateStatus)
             {
-                this.sessionStrategy.removeAttribute(request, getValidateCodeType().getSessionKey());
+                this.sessionStrategy.removeAttribute(request, getValidateCodeType(getValidateCodeType()).getSessionKey());
                 return false;
             }
         }
         catch (Exception e)
         {
             log.error(e.getMessage(), e);
-            this.sessionStrategy.removeAttribute(request, getValidateCodeType().getSessionKey());
+            this.sessionStrategy.removeAttribute(request, getValidateCodeType(getValidateCodeType()).getSessionKey());
             throw new ValidateCodeException(e.getMessage(), e);
         }
         return true;
@@ -65,7 +70,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     @Override
     public ValidateCode generate(ServletWebRequest request) {
         try {
-            ValidateCodeGenerator validateCodeGenerator = getValidateCodeGenerator(getValidateCodeType());
+            ValidateCodeGenerator validateCodeGenerator = getValidateCodeGenerator(getValidateCodeType(getValidateCodeType()));
             return (ValidateCode) validateCodeGenerator.generate(request.getRequest());
         }
         catch (ValidateCodeException e) {
@@ -79,7 +84,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     @Override
     public boolean save(ServletWebRequest request, ValidateCode validateCode) {
         try {
-            ValidateCodeType validateCodeType = getValidateCodeType();
+            ValidateCodeType validateCodeType = getValidateCodeType(getValidateCodeType());
             if (validateCodeType == null)
             {
                 return false;
@@ -113,7 +118,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
     @Override
     public void validate(ServletWebRequest request) throws ServletRequestBindingException, ValidateCodeException {
-        ValidateCodeType validateCodeType = getValidateCodeType();
+        ValidateCodeType validateCodeType = getValidateCodeType(getValidateCodeType());
         String sessionKey = validateCodeType.getSessionKey();
 
         String requestParamValidateCodeName = getValidateCodeGenerator(validateCodeType).getRequestParamValidateCodeName();
@@ -145,12 +150,11 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     }
 
     /**
-     * 根据 request 获取校验码的类型,
+     * 获取校验码的类型,
      * 如果不存在，返回 null
      * @return  如果不存在，返回 null
      */
-    protected ValidateCodeType getValidateCodeType() {
-        String type = StringUtils.substringBefore(getClass().getSimpleName(), VALIDATE_CODE_PROCESSOR_SUFFIX);
+    protected ValidateCodeType getValidateCodeType(String type) {
         if (StringUtils.isNotBlank(type))
         {
             try {
@@ -162,17 +166,29 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     }
 
     /**
+     * 获取校验码类型
+     * @return  ValidateCodeType 的小写字符串
+     */
+    @Override
+    public abstract String getValidateCodeType();
+
+    /**
      * 获取校验码生成器
      * @param type
      * @return
+     * @throws ValidateCodeException
      */
     private ValidateCodeGenerator getValidateCodeGenerator(ValidateCodeType type) {
         try {
-            if (validateCodeGenerators == null)
+            if (validateCodeGenerators != null)
             {
-                new ValidateCodeException("校验码生成失败");
+                ValidateCodeGenerator validateCodeGenerator = validateCodeGenerators.get(type.name().toLowerCase());
+                if (validateCodeGenerator != null)
+                {
+                    return validateCodeGenerator;
+                }
             }
-            return validateCodeGenerators.get(type.name().toLowerCase() + VALIDATE_CODE_GENERATOR_SUFFIX);
+            throw new  ValidateCodeException("校验码生成失败");
         }
         catch (Exception e) {
             throw new ValidateCodeException("校验码类型错误", e);

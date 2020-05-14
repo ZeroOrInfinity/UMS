@@ -1,28 +1,30 @@
-package top.dcenter.security.core.validate.code.imagecode;
+package top.dcenter.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestUtils;
+import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.util.CodeUtil;
 import top.dcenter.security.core.util.ImageUtil;
-import top.dcenter.security.core.validate.code.ValidateCodeGenerator;
-import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.validate.code.ValidateCodeType;
+import top.dcenter.security.core.validate.code.imagecode.ImageCode;
+import top.dcenter.security.core.validate.code.imagecode.ImageCodeGenerator;
 
 import javax.servlet.ServletRequest;
 import java.awt.image.BufferedImage;
 
 /**
- * 图片验证码生成器。如要自定义图片验证码生成器，请继承此类并重写 generate 方法。注意：实现类注册 ioc 容器 bean 的名称必须是 imageCodeGenerator
- * @author zhailiang
- * @medifiedBy  zyw
- * @version V1.0  Created by 2020/5/4 23:44
+ * 注意：实现类注册 ioc 容器 bean 的名称必须是 imageCodeGenerator
+ * @author zyw
+ * @createrDate 2020-05-14 22:24
  */
+@Component()
 @Slf4j
-public class ImageCodeGenerator implements ValidateCodeGenerator<ImageCode> {
+public class DemoImageCodeGenerator extends ImageCodeGenerator {
 
     private final ValidateCodeProperties validateCodeProperties;
 
-    public ImageCodeGenerator(ValidateCodeProperties validateCodeProperties) {
+    public DemoImageCodeGenerator(ValidateCodeProperties validateCodeProperties) {
+        super(validateCodeProperties);
         this.validateCodeProperties = validateCodeProperties;
     }
 
@@ -39,20 +41,10 @@ public class ImageCodeGenerator implements ValidateCodeGenerator<ImageCode> {
         String code = CodeUtil.generateVerifyCode(codeLength);
         if (log.isDebugEnabled())
         {
-            log.debug("{} = {}", imageProp.getRequestParamImageCodeName(), code);
+            log.debug("Demo =====>: {} = {}", imageProp.getRequestParamImageCodeName(), code);
         }
         BufferedImage bufferedImage = ImageUtil.getBufferedImage(w, h, code);
         return new ImageCode(bufferedImage, code, expireIn);
-    }
-
-    @Override
-    public String getValidateCodeType() {
-        return ValidateCodeType.IMAGE.name().toLowerCase();
-    }
-
-    @Override
-    public String getRequestParamValidateCodeName() {
-        return validateCodeProperties.getImage().getRequestParamImageCodeName();
     }
 
 }

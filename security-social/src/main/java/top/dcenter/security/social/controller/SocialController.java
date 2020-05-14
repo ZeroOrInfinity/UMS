@@ -28,12 +28,17 @@ public class SocialController {
 
     @GetMapping("/social/user")
     public SocialUserInfo getSocialUserInfo(HttpServletRequest request) {
-        SocialUserInfo userInfo = new SocialUserInfo();
         Connection<?> connection = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
+        if (connection == null)
+        {
+            return null;
+        }
+        SocialUserInfo userInfo = new SocialUserInfo();
         userInfo.setProviderId(connection.getKey().getProviderId());
         userInfo.setProviderUserId(connection.getKey().getProviderUserId());
         userInfo.setNickname(connection.getDisplayName());
         userInfo.setHeadImg(connection.getImageUrl());
         return userInfo;
     }
+
 }

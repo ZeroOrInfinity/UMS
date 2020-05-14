@@ -23,9 +23,10 @@ import static top.dcenter.security.core.consts.SecurityConstants.INTERNAL_SERVER
 
 /**
  * 网页端认证 controller
+ *
  * @author zhailiang
- * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/3 17:43
+ * @medifiedBy zyw
  */
 @RestController
 @Slf4j
@@ -46,15 +47,17 @@ public class BrowserSecurityController {
 
     /**
      * 当需要身份认证时，跳转到这里
-     * @author zhailiang
-     * @medifiedBy  zyw
-     * @version V1.0  Created by 2020/5/3 17:43
+     *
      * @param request
      * @param response
+     * @author zhailiang
+     * @medifiedBy zyw
+     * @version V1.0  Created by 2020/5/3 17:43
      */
     @RequestMapping(DEFAULT_UNAUTHENTICATION_URL)
     public void requireAuthentication(HttpServletRequest request, HttpServletResponse response) {
-        try {
+        try
+        {
             SavedRequest savedRequest = requestCache.getRequest(request, response);
             if (savedRequest != null)
             {
@@ -78,12 +81,11 @@ public class BrowserSecurityController {
             }
             redirectStrategy.sendRedirect(request, response, browserProperties.getLoginPage());
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             log.error(e.getMessage(), e);
             throw new IllegalAccessUrlException(INTERNAL_SERVER_ERROR_MSG);
         }
     }
-
-
 
 }
