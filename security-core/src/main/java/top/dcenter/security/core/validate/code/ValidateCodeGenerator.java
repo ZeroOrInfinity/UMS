@@ -9,7 +9,8 @@ import javax.servlet.ServletRequest;
  *  2. 如果要覆盖已有的验证码逻辑，向 IOC 容器注册的 beanName 必须与要覆盖的验证码生成器的 beanName 一样。
  *     要覆盖的验证码生成器的 beanName 可以从 ValidateCodeBeanConfig 查看。
  *
- * @author zyw23
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0
  * Created by 2020/5/4 23:14
  */

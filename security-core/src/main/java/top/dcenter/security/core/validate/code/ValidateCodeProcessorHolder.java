@@ -1,22 +1,26 @@
 package top.dcenter.security.core.validate.code;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import top.dcenter.security.core.excception.ValidateCodeException;
 
 import java.util.Map;
 
 /**
- * @author zyw
+ * 校验码处理器 Holder
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/7 10:32
  */
 @Component
 public class ValidateCodeProcessorHolder {
 
-    private final Map<String, ValidateCodeProcessor> validateCodeProcessors;
 
-    public ValidateCodeProcessorHolder(Map<String, ValidateCodeProcessor> validateCodeProcessors) {
-        this.validateCodeProcessors = validateCodeProcessors;
-    }
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired(required = false)
+    private Map<String, ValidateCodeProcessor> validateCodeProcessors;
+
+
 
     /**
      * 根据 type 获取 {@link ValidateCodeProcessor}，如果不存在抛出异常 ValidateCodeException
@@ -36,7 +40,14 @@ public class ValidateCodeProcessorHolder {
      */
     public ValidateCodeProcessor findValidateCodeProcessor(String type) throws ValidateCodeException {
         String name = type.toLowerCase() + ValidateCodeProcessor.class.getSimpleName();
-        ValidateCodeProcessor processor = validateCodeProcessors.get(name);
+        ValidateCodeProcessor processor;
+        if (validateCodeProcessors != null)
+        {
+            processor = validateCodeProcessors.get(name);
+
+        } else {
+            processor = null;
+        }
         if (processor == null) {
             throw new ValidateCodeException("验证码处理器: " + name + " 不存在");
         }

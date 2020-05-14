@@ -20,7 +20,7 @@ import java.util.UUID;
 
 /**
  * 短信登录配置
- * @author zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/7 23:32
  */
 @Configuration
@@ -46,7 +46,7 @@ public class SmsCodeAuthenticationConfig extends SecurityConfigurerAdapter<Defau
     }
 
     @Override
-    public void configure(HttpSecurity http) throws Exception {
+    public void configure(HttpSecurity http) {
 
 
         SmsCodeAuthenticationFilter smsCodeAuthenticationFilter = new SmsCodeAuthenticationFilter(validateCodeProperties);

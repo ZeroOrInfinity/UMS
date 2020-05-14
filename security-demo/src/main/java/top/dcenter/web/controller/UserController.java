@@ -1,14 +1,17 @@
 package top.dcenter.web.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import top.dcenter.dto.User;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.social.connect.Connection;
+import org.springframework.social.connect.DuplicateConnectionException;
+import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,7 +23,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.ServletWebRequest;
+import top.dcenter.dto.User;
+import top.dcenter.security.core.vo.SimpleResponse;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,20 +36,54 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author zyw
+ * 用户控制器
+ *
+ * @author zhailiang
  * @version V1.0  Created by 2020/5/1 19:49
+ * @medifiedBy zyw
  */
 @RestController
 @Slf4j
 @RequestMapping("/user")
 public class UserController {
 
+    private final ProviderSignInUtils providerSignInUtils;
+
+    public UserController(ProviderSignInUtils providerSignInUtils) {
+        this.providerSignInUtils = providerSignInUtils;
+    }
+
+
+    @PostMapping("/regist")
+    public SimpleResponse regist(User user, HttpServletRequest request, HttpServletResponse response) {
+        // TODO 注册用户逻辑 ...
+        // 不管是注册用户还是绑定用户，都会拿到一个用户唯一标识，
+        if (providerSignInUtils == null)
+        {
+            return SimpleResponse.fail(500, "服务不存在");
+        }
+        String userId = user.getUsername();
+        try
+        {
+            providerSignInUtils.doPostSignUp(userId, new ServletWebRequest(request));
+            Connection<?> connectionFromSession = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
+        }
+        catch (DuplicateConnectionException e)
+        {
+            log.info("用户注册失败：{}", user);
+            return SimpleResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), "用户注册失败");
+        }
+
+        log.info("用户注册成功：{}", user);
+        return SimpleResponse.success(user);
+    }
+
     @GetMapping("/me")
-    public Object getCurrentUser(@AuthenticationPrincipal UserDetails userDetails, Authentication authentication){
+    public Object getCurrentUser(@AuthenticationPrincipal UserDetails userDetails, Authentication authentication) {
         Map<String, Object> map = new HashMap<>(16);
         map.put("authenticationHolder", SecurityContextHolder.getContext().getAuthentication());
         map.put("userDetails", userDetails);
-        map.put("authentication",authentication);
+        map.put("authentication", authentication);
         return map;
     }
 
@@ -112,7 +154,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id:\\d+}")
-    public void delete(@PathVariable("id") String id){
+    public void delete(@PathVariable("id") String id) {
         if (log.isInfoEnabled())
         {
             log.info("delete id=" + id);

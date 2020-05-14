@@ -25,7 +25,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * @author zyw
+ * 用户控制器测试
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/1 19:39
  */
 @SpringBootTest

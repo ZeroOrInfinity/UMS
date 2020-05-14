@@ -7,8 +7,9 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 import org.springframework.stereotype.Component;
 
 /**
- *
- * @author zyw
+ * 校验码功能配置
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @createdDate 2020-05-09 00:01
  */
 @Component()

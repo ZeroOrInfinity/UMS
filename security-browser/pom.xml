@@ -18,10 +18,6 @@
             <artifactId>security-core</artifactId>
             <version>${com.zyw.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.session</groupId>
-            <artifactId>spring-session</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

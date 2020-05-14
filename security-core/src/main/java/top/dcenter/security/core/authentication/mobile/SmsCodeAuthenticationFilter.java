@@ -16,7 +16,8 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_P
 
 /**
  * 短信登录配置过滤器
- * @author zyw
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/7 15:34
  */
 @Slf4j

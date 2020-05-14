@@ -6,7 +6,9 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author zyw
+ * 模拟队列
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/2 23:12
  */
 @Slf4j

@@ -5,7 +5,8 @@ import static top.dcenter.security.core.consts.SecurityConstants.SESSION_KEY_SMS
 
 /**
  * 校验码类型
- * @author zyw
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/7 9:35
  */
 public enum   ValidateCodeType {

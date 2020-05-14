@@ -4,17 +4,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.Arrays;
 
 /**
- * @author zyw
+ * 切面类型：对方法运行时间的统计
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/2 18:26
  */
 @Aspect
-@Component
+//@Component
 @Slf4j
 public class TimeAspect {
     @Around("execution(* top.dcenter..*Controller.*(..))")

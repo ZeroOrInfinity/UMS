@@ -1,18 +1,20 @@
 package top.dcenter.web.config;
 
-import top.dcenter.filter.TimeFilter;
-import top.dcenter.interceptor.TimeInterceptor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import top.dcenter.filter.TimeFilter;
+import top.dcenter.interceptor.TimeInterceptor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author zyw
+ * demo 模块配置
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/2 16:15
  */
 @Configuration

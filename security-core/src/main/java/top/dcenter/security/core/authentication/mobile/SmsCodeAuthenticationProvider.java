@@ -9,7 +9,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * 短信登录 Provider
- * @author zyw
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/7 22:51
  */
 public class SmsCodeAuthenticationProvider implements AuthenticationProvider {

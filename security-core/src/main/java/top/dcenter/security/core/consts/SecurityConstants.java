@@ -1,8 +1,9 @@
 package top.dcenter.security.core.consts;
 
 /**
- * 常量
- * @author zyw
+ * social 常量
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/6 21:29
  */
 public class SecurityConstants {
@@ -27,18 +28,6 @@ public class SecurityConstants {
      * session失效默认的跳转地址
      */
     public static final String DEFAULT_SESSION_INVALID_URL = "/session/invalid";
-
-
-    /**
-     * 设置查询 rememberMe 表是否创建的 SQL 一般默认就行，不需要自定义
-     */
-    public static final String QUERY_REMEMBER_ME_TABLE_EXIST_SQL = "SELECT COUNT(1) FROM information_schema.tables WHERE table_schema='sso-demo' AND table_name = 'persistent_logins'";
-    /**
-     * 设置 QUERY_REMEMBER_ME_TABLE_EXIST_SQL 查询结果集 ResultSet 的 COUNT(1) 索引， 一般默认就行，不需要自定义
-     */
-    public static final int RESULT_SET_COLUMN_INDEX = 1;
-
-
 
 
     /**
@@ -95,6 +84,14 @@ public class SecurityConstants {
      * request POST Method
      */
     public static final String POST_METHOD = "POST";
+    /**
+     * url 请求上带的参数之间分隔符
+     */
+    public static final String URL_PARAMETER_SEPARATOR = "&";
+    /**
+     * key value 键值对分隔符
+     */
+    public static final String KEY_VALUE_SEPARATOR = "=";
 
 
     /**
@@ -102,6 +99,15 @@ public class SecurityConstants {
      */
     public static final String DEFAULT_REMEMBER_ME_NAME = "remember-me";
 
+    /**
+     * 查询表返回的结果集 ResultSet 的 COUNT(1) 索引
+     */
+    public static final int QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX = 1;
+
+    /**
+     * 查询数据库名称
+     */
+    public static final String QUERY_DATABASE_NAME_SQL = "select database();";
 
 
 

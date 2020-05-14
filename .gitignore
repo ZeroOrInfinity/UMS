@@ -10,3 +10,7 @@
 /security-core/target/
 /security-demo/security-demo.iml
 /security-demo/target/
+/security-social/security-social.iml
+/security-social/target/
+/security-oauth/security-oauth.iml
+/security-oauth/target/

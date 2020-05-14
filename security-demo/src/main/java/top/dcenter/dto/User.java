@@ -12,7 +12,9 @@ import javax.validation.constraints.Past;
 import java.util.Date;
 
 /**
- * @author zyw
+ * 用户信息
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/1 19:51
  */
 @Data

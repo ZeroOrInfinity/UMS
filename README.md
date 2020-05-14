@@ -11,6 +11,10 @@
   security.browser.failure-url=/login.html
   # 两种登录模式：JSON 与 REDIRECT
   security.browser.loginType=REDIRECT
+  
+  # 数据库名称
+  security.browser.database-name=sso-demo
+  
   # Map 类型：必须配置；设置 uri 的特定后缀对应的跳转登录页, 例如：key=/**: value=/security/login.html。 默认为空
   # 支持通配符，匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*
   security.browser.auth-jump-suffix-condition["/*.html"]=/login.html
@@ -45,8 +49,58 @@
   # 提交短信验证码请求时，请求中带的手机号变量名，默认 mobile
   security.smsCodeLogin.request-param-mobile-name=/mobile
 
-## 第三方登录
+## 第三方登录 OAuth2
+- 在 social 模块
+- ```properties
+  
+  # {providerId}.autoSignIn=true 且实现 ConnectionSignUp 接口则自动登录，而且 singUpUrl 会失效
+  # 第三方登录用户授权成功跳转页面，默认为 /signUp.html， 用户必需设置
+  security.social.sing-up-url=/signUp.html
+  # 第三方登录用户授权失败跳转页面， 默认为 /signIn.html， 用户必需设置
+  security.social.failure-url=/signIn.html
+  
+  # redirectUrl 直接由 domain/filterProcessesUrl/(security.social.providerId 中的 providerId 组成：如 qq、wechat)组成
+  # 第三方登录回调的域名
+  security.social.domain=http://www.dcenter.top 
+  # 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth
+  security.social.filter-processes-url=/auth/callback
+
+  # 自定义 social 表字段
+  security.social.table-prefix=social_
+  security.social.table-name=social_UserConnection
+  security.social.userIdColumnName=userId
+  security.social.providerIdColumnName=providerId
+  security.social.providerUserIdColumnName=providerUserId
+  security.social.rankColumnName=`rank`
+  security.social.displayNameColumnName=displayName
+  security.social.profileUrlColumnName=profileUrl
+  security.social.imageUrlColumnName=imageUrl
+  security.social.accessTokenColumnName=accessToken
+  security.social.secretColumnName=secret
+  security.social.refreshTokenColumnName=refreshToken
+  security.social.expireTimeColumnName=expireTime
+  # 修改第三方登录用户数据库用户表创建语句时，要注意：修改字段名称可以直接修改上面的字段名称即可，不用修改建表语句，不可以减少字段，但可以另外增加字段。
+  # 用户需要对第三方登录的用户表与 curd 的 sql 语句结构进行更改时（curd 语句暂时没开放自定义），
+  # 请实现 UsersConnectionRepositoryFactory，可以参考 OAuth2UsersConnectionRepositoryFactory
+  # 但 sql 语句中的 %s 必须写上，且 %s 的顺序必须与后面的字段名称所对应的含义对应 : tableName、  userIdColumnName、 providerIdColumnName、
+  # providerUserIdColumnName、  rankColumnName、  displayNameColumnName、  profileUrlColumnName、  imageUrlColumnName、  accessTokenColumnName、  secretColumnName、  refreshTokenColumnName、  expireTimeColumnName、  userIdColumnName、  providerIdColumnName、  providerUserIdColumnName、  userIdColumnName、  providerIdColumnName、  rankColumnName
+  security.social.creatUserConnectionTableSql=create table %s (%s varchar(255) not null, %s varchar(255) not null, %s varchar(255), %s int not null, %s varchar(255), %s varchar(512), %s varchar(512), %s varchar(512) not null, %s varchar(512), %s varchar(512), %s bigint, primary key (%s, %s, %s), unique index UserConnectionRank(%s, %s, %s));
+  
+  # {providerId}.autoSignIn=true 且实现 ConnectionSignUp 接口则自动登录，而且 singUpUrl 会失效
+  # QQ 登录时是否自动注册，当为 true 且已实现 ConnectionSignUp 接口，则开启自动登录。
+  # QQ 登录时是否自动注册：如果为 true 且实现 ConnectionSignUp 接口则自动登录，而且 singUpUrl 失效，否则不自动登录
+  security.social.qq.auto-sign-in=false
+  # ConnectionSignUp 非常有用的扩展接口, 调用时机：在第三方服务商回调 redirectUrl 接口时，
+  # 在确认数据库用户表(security.social.table-name)中没有用户记录调用且 autoSignIn 为 true时，调用此接口。
+  
+  
+  # 用户设置 appId 后，也是第三方登录的开关，不同 providerId（如qq） 中的 appId 只有在设置值时才开启，默认都关闭
+  security.social.qq.app-id=103450626
+  security.social.qq.app-secret=dfd68509dfdf580531df64f8dfd
+  # 用户设置 appId 后，也是第三方登录的开关，不同 providerId（如qq） 中的 appId 只有在设置值时才开启，默认都关闭
+  security.social.wechat.app-id=wxa84cacfdfdff3fdfb
+  security.social.wechat.app-secret=45fdffd933acfdbdf71ea5dfdf
 
 ## SSO
-
+- 
 ## RBAC

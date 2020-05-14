@@ -13,11 +13,12 @@ import java.io.IOException;
 import java.time.Instant;
 
 /**
- * @author zyw
+ * 对 Servlet 类的方法运行时间的统计
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/2 15:53
  */
 @Slf4j
-//@Component
 public class TimeFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {

@@ -12,6 +12,8 @@
         <module>security-browser</module>
         <module>security-app</module>
         <module>security-demo</module>
+        <module>security-oauth</module>
+        <module>security-social</module>
     </modules>
     <packaging>pom</packaging>
     <name>security</name>

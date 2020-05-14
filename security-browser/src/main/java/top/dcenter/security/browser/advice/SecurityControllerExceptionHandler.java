@@ -16,7 +16,8 @@ import top.dcenter.security.core.vo.SimpleResponse;
 
 /**
  * 核心错误处理器
- * @author zyw
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/2 15:35
  */
 @ControllerAdvice

@@ -5,7 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @author zyw
+ * 简单的 Vo 对象封装
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/3 19:39
  */
 @Data
@@ -30,6 +32,11 @@ public class SimpleResponse {
 
     public static SimpleResponse success() {
         return new SimpleResponse(0);
+    }
+    public static SimpleResponse success(Object data) {
+        SimpleResponse simpleResponse = new SimpleResponse(0);
+        simpleResponse.setData(data);
+        return simpleResponse;
     }
 
     public static SimpleResponse fail(int code, String msg) {

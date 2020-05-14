@@ -14,7 +14,9 @@ import org.springframework.social.security.SocialUserDetailsService;
 import org.springframework.stereotype.Component;
 
 /**
- * @author zyw
+ * 短信登录与 social第三方登录服务
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/3 14:15
  */
 @Slf4j

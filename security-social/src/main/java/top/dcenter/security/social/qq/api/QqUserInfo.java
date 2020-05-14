@@ -1,9 +1,11 @@
-package top.dcenter.security.core.social.qq.api;
+package top.dcenter.security.social.qq.api;
 
 import lombok.Data;
 
 /**
- * @author zyw
+ * qq 用户信息
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/8 20:12
  */
 @SuppressWarnings({"ALL"})

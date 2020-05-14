@@ -2,7 +2,8 @@ package top.dcenter.security.core.enums;
 
 /**
  * 登录类型
- * @author zyw
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/4 15:29
  */
 public enum LoginType {

@@ -11,7 +11,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.time.Instant;
 
 /**
- * @author zyw
+ * 拦截器方式的针对方法的时间统计
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/2 16:20
  */
 @Component

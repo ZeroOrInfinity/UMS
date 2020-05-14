@@ -8,7 +8,6 @@ import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.security.core.enums.ValidateStatus;
 import top.dcenter.security.core.excception.ValidateCodeException;
 
 import java.util.Map;
@@ -18,7 +17,8 @@ import static top.dcenter.security.core.consts.SecurityConstants.VALIDATE_CODE_P
 
 /**
  * 校验码处理逻辑的默认实现
- * @author zyw
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/6 10:14
  */
 @Slf4j
@@ -39,18 +39,18 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     private Map<String, ValidateCodeGenerator> validateCodeGenerators;
 
     @Override
-    public final ValidateStatus produce(ServletWebRequest request) throws ValidateCodeException {
-        ValidateStatus validateStatus;
+    public final boolean produce(ServletWebRequest request) throws ValidateCodeException {
         ValidateCode validateCode;
+
         try
         {
             validateCode = generate(request);
             save(request, validateCode);
-            validateStatus = sent(request, validateCode);
-            if (validateStatus.equals(ValidateStatus.FAILURE))
+            boolean validateStatus = sent(request, validateCode);
+            if (!validateStatus)
             {
                 this.sessionStrategy.removeAttribute(request, getValidateCodeType().getSessionKey());
-                return ValidateStatus.FAILURE;
+                return false;
             }
         }
         catch (Exception e)
@@ -59,7 +59,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             this.sessionStrategy.removeAttribute(request, getValidateCodeType().getSessionKey());
             throw new ValidateCodeException(e.getMessage(), e);
         }
-        return validateStatus;
+        return true;
     }
 
     @Override
@@ -77,20 +77,20 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     }
 
     @Override
-    public ValidateStatus save(ServletWebRequest request, ValidateCode validateCode) {
+    public boolean save(ServletWebRequest request, ValidateCode validateCode) {
         try {
             ValidateCodeType validateCodeType = getValidateCodeType();
             if (validateCodeType == null)
             {
-                return ValidateStatus.FAILURE;
+                return false;
             }
             this.sessionStrategy.setAttribute(request, validateCodeType.getSessionKey(), validateCode);
         }
         catch (Exception e) {
             log.warn(e.getMessage(), e);
-            return ValidateStatus.FAILURE;
+            return false;
         }
-        return ValidateStatus.SUCCESS;
+        return true;
     }
 
     /**
@@ -109,7 +109,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
      * @return  是否发送成功的状态
      */
     @Override
-    public abstract ValidateStatus sent(ServletWebRequest request, ValidateCode validateCode);
+    public abstract boolean sent(ServletWebRequest request, ValidateCode validateCode);
 
     @Override
     public void validate(ServletWebRequest request) throws ServletRequestBindingException, ValidateCodeException {
@@ -168,6 +168,10 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
      */
     private ValidateCodeGenerator getValidateCodeGenerator(ValidateCodeType type) {
         try {
+            if (validateCodeGenerators == null)
+            {
+                new ValidateCodeException("校验码生成失败");
+            }
             return validateCodeGenerators.get(type.name().toLowerCase() + VALIDATE_CODE_GENERATOR_SUFFIX);
         }
         catch (Exception e) {

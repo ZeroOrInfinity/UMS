@@ -1,15 +1,17 @@
-package top.dcenter.security.core.social.qq.connect;
+package top.dcenter.security.social.qq.connect;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.social.ApiException;
 import org.springframework.social.connect.ApiAdapter;
 import org.springframework.social.connect.ConnectionValues;
 import org.springframework.social.connect.UserProfile;
-import top.dcenter.security.core.social.qq.api.Qq;
-import top.dcenter.security.core.social.qq.api.QqUserInfo;
+import top.dcenter.security.social.qq.api.Qq;
+import top.dcenter.security.social.qq.api.QqUserInfo;
 
 /**
- * @author zyw
+ * QQ 服务适配器
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/8 21:57
  */
 @Slf4j

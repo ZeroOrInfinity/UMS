@@ -19,6 +19,11 @@
             <version>${com.zyw.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.zyw.security</groupId>
+            <artifactId>security-social</artifactId>
+            <version>${com.zyw.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
         </dependency>

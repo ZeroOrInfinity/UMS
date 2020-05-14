@@ -1,14 +1,15 @@
-package top.dcenter.security.core.social.qq.connect;
+package top.dcenter.security.social.qq.connect;
 
 import org.springframework.social.oauth2.AbstractOAuth2ServiceProvider;
 import org.springframework.social.oauth2.OAuth2Operations;
 import org.springframework.social.oauth2.OAuth2ServiceProvider;
-import org.springframework.social.oauth2.OAuth2Template;
-import top.dcenter.security.core.social.qq.api.Qq;
-import top.dcenter.security.core.social.qq.api.QqImpl;
+import top.dcenter.security.social.qq.api.Qq;
+import top.dcenter.security.social.qq.api.QqImpl;
 
 /**
- * @author zyw
+ * QQ 服务提供商
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/8 21:31
  */
 public class QqServiceProvider extends AbstractOAuth2ServiceProvider<Qq> {
@@ -33,7 +34,7 @@ public class QqServiceProvider extends AbstractOAuth2ServiceProvider<Qq> {
     }
 
     public QqServiceProvider(String appId, String appSecret) {
-        this(new OAuth2Template(appId, appSecret, AUTHORIZE_URL, ACCESS_TOKEN_URL));
+        this(new QqOauth2Template(appId, appSecret, AUTHORIZE_URL, ACCESS_TOKEN_URL));
         this.appId = appId;
     }
 

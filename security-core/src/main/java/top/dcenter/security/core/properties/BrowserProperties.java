@@ -15,9 +15,12 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UNAUTHE
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX;
 
 /**
- * @author zyw
+ * security 网页端配置属性
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/3 19:51
  */
+@SuppressWarnings("jol")
 @Getter
 @Setter
 @ConfigurationProperties("security.browser")
@@ -29,6 +32,11 @@ public class BrowserProperties {
         this.authJumpSuffixCondition = map;
 
     }
+
+    /**
+     * 设置查询表是否创建的 SQL
+     */
+    public static final String QUERY_REMEMBER_ME_TABLE_EXIST_SQL = "SELECT COUNT(1) FROM information_schema.tables WHERE table_schema='sso-demo' AND table_name = 'persistent_logins'";
 
     /**
      * 设置记住我功能的 session 的缓存时长，默认 7 * 24 * 3600
@@ -64,7 +72,7 @@ public class BrowserProperties {
     /**
      * 处理验证码的url前缀: 默认为 /code, 例如：图片验证码校验时的url为 /code/image,短信验证码校验时的url为 /code/sms
      */
-    public String VALIDATE_CODE_URL_PREFIX = DEFAULT_VALIDATE_CODE_URL_PREFIX;
+    public String defaultValidateCodeUrlPrefix = DEFAULT_VALIDATE_CODE_URL_PREFIX;
     /**
      * 设置登录页，用户没有配置则默认为 /security/login.html
      */
@@ -97,5 +105,9 @@ public class BrowserProperties {
      * 设置默认登录后为 返回 JSON
      */
     private LoginType loginType = LoginType.JSON;
+
+    public String getQueryRememberMeTableExistSql(String databaseName){
+        return "SELECT COUNT(1) FROM information_schema.tables WHERE table_schema='" + databaseName + "' AND table_name = 'persistent_logins'";
+    }
 
 }

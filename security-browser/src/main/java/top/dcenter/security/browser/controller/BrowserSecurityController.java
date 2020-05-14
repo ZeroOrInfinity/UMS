@@ -22,7 +22,9 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UNAUTHE
 import static top.dcenter.security.core.consts.SecurityConstants.INTERNAL_SERVER_ERROR_MSG;
 
 /**
- * @author zyw
+ * 网页端认证 controller
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/3 17:43
  */
 @RestController
@@ -44,7 +46,8 @@ public class BrowserSecurityController {
 
     /**
      * 当需要身份认证时，跳转到这里
-     * @author zyw
+     * @author zhailiang
+     * @medifiedBy  zyw
      * @version V1.0  Created by 2020/5/3 17:43
      * @param request
      * @param response
@@ -53,29 +56,34 @@ public class BrowserSecurityController {
     public void requireAuthentication(HttpServletRequest request, HttpServletResponse response) {
         try {
             SavedRequest savedRequest = requestCache.getRequest(request, response);
-            String targetUrl = savedRequest.getRedirectUrl();
-            if (savedRequest != null && StringUtils.isNotBlank(targetUrl))
+            if (savedRequest != null)
             {
-                targetUrl = targetUrl.replaceFirst("^.*://[^/]*(/.*$)", "$1");
+                String targetUrl = savedRequest.getRedirectUrl();
                 log.info("引发跳转的请求是：{}", targetUrl);
-                Iterator<Map.Entry<String, String>> iterator = browserProperties.getAuthJumpSuffixCondition().entrySet().iterator();
-                Map.Entry<String, String> entry;
-                while (iterator.hasNext())
+                if (savedRequest != null && StringUtils.isNotBlank(targetUrl))
                 {
-                    entry = iterator.next();
-                    if (pathMatcher.match(entry.getKey(), targetUrl))
+                    targetUrl = targetUrl.replaceFirst("^.*://[^/]*(/.*$)", "$1");
+                    Iterator<Map.Entry<String, String>> iterator = browserProperties.getAuthJumpSuffixCondition().entrySet().iterator();
+                    Map.Entry<String, String> entry;
+                    while (iterator.hasNext())
                     {
-                        redirectStrategy.sendRedirect(request, response, entry.getValue());
-                        return;
+                        entry = iterator.next();
+                        if (pathMatcher.match(entry.getKey(), targetUrl))
+                        {
+                            redirectStrategy.sendRedirect(request, response, entry.getValue());
+                            return;
+                        }
                     }
                 }
-                redirectStrategy.sendRedirect(request, response, browserProperties.getLoginPage());
             }
+            redirectStrategy.sendRedirect(request, response, browserProperties.getLoginPage());
         }
         catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new IllegalAccessUrlException(INTERNAL_SERVER_ERROR_MSG);
         }
     }
+
+
 
 }

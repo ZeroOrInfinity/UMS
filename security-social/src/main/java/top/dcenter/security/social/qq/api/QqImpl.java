@@ -1,5 +1,6 @@
-package top.dcenter.security.core.social.qq.api;
+package top.dcenter.security.social.qq.api;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +12,9 @@ import org.springframework.social.oauth2.TokenStrategy;
 import java.io.IOException;
 
 /**
- * @author zyw
+ * 请求返回信息绑定服务实现
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/8 20:13
  */
 @Getter
@@ -30,11 +33,12 @@ public class QqImpl extends AbstractOAuth2ApiBinding implements Qq {
     private String appId;
     private String openId;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     public QqImpl(String accessToken, String appId) {
         super(accessToken, TokenStrategy.ACCESS_TOKEN_PARAMETER);
         this.appId = appId;
+
         String url = String.format(URL_GET_OPENID, accessToken);
         // callback( {"client_id":"YOUR_APPID","openid":"YOUR_OPENID"} )
         String callback = getRestTemplate().getForObject(url, String.class);
@@ -44,7 +48,8 @@ public class QqImpl extends AbstractOAuth2ApiBinding implements Qq {
         }
         this.openId = StringUtils.substringBetween(callback, "\"openid\":\"", "\"}");
 
-
+        this.objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
@@ -53,9 +58,11 @@ public class QqImpl extends AbstractOAuth2ApiBinding implements Qq {
         String callback = getRestTemplate().getForObject(url, String.class);
         if (log.isDebugEnabled())
         {
-            log.info("qq userInfo = {}", callback);
+            log.debug("qq userInfo = {}", callback);
         }
-        return objectMapper.readValue(callback, QqUserInfo.class);
+        QqUserInfo qqUserInfo = objectMapper.readValue(callback, QqUserInfo.class);
+        qqUserInfo.setOpenId(openId);
+        return qqUserInfo;
     }
 
 }

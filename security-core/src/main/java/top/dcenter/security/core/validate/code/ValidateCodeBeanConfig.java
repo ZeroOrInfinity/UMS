@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.security.core.enums.ValidateStatus;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.validate.code.imagecode.ImageCodeGenerator;
 import top.dcenter.security.core.validate.code.imagecode.ImageValidateCodeProcessor;
@@ -15,7 +14,9 @@ import top.dcenter.security.core.validate.code.smscode.SmsCodeSender;
 import top.dcenter.security.core.validate.code.smscode.SmsValidateCodeProcessor;
 
 /**
- * @author zyw
+ * 校验码功能配置
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/5 0:02
  */
 @Configuration
@@ -46,9 +47,9 @@ public class ValidateCodeBeanConfig {
 
         return new AbstractValidateCodeProcessor() {
             @Override
-            public ValidateStatus sent(ServletWebRequest request, ValidateCode validateCode) {
+            public boolean sent(ServletWebRequest request, ValidateCode validateCode) {
                 // 默认为图片验证码，所以不做任何处理。
-                return ValidateStatus.SUCCESS;
+                return true;
             }
         };
     }

@@ -7,7 +7,6 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.consts.RegexConst;
-import top.dcenter.security.core.enums.ValidateStatus;
 import top.dcenter.security.core.excception.ValidateCodeParamErrorException;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.validate.code.AbstractValidateCodeProcessor;
@@ -18,7 +17,8 @@ import java.util.regex.PatternSyntaxException;
 
 /**
  * 短信验证码处理器
- * @author zyw
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/6 15:09
  */
 @Component
@@ -41,7 +41,7 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
      * @exception ValidateCodeParamErrorException
      */
     @Override
-    public ValidateStatus sent(ServletWebRequest request, ValidateCode validateCode) {
+    public boolean sent(ServletWebRequest request, ValidateCode validateCode) {
         String mobile;
         try
         {
@@ -49,8 +49,7 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
                                                             validateCodeProperties.getSms().getRequestParamMobileName());
             if (StringUtils.isNotBlank(mobile) && mobile.matches(RegexConst.MOBILE_PATTERN))
             {
-                ValidateStatus sendStatus = smsCodeSender.sendSms(mobile, validateCode.getCode());
-                return sendStatus;
+                return smsCodeSender.sendSms(mobile, validateCode.getCode());
             }
         }
         catch (ServletRequestBindingException e)

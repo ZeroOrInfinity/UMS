@@ -1,13 +1,20 @@
-package top.dcenter.security.core.social.qq.api;
+package top.dcenter.security.social.qq.api;
 
 import java.io.IOException;
 
 /**
- * @author zyw23
+ * social 第三方登录接口
+ * @author zhailiang
+ * @medifiedBy  zyw
  * @version V1.0
  * Created by 2020/5/8 20:10
  */
 public interface Qq {
+
+    String EXPIRES_IN = "expires_in";
+    String ACCESS_TOKEN = "access_token";
+    String REFRESH_TOKEN = "refresh_token";
+    String SCOPE = "scope";
 
     /**
      * 获取 Qq 用户信息
