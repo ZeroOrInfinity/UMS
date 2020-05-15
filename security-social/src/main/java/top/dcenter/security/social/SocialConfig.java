@@ -41,7 +41,8 @@ public class SocialConfig extends SocialConfigurerAdapter implements Initializin
 
     private final Object lockFlag = new Object();
 
-    public SocialConfig(DataSource dataSource, SocialProperties socialProperties) {
+    public SocialConfig(DataSource dataSource,
+                        SocialProperties socialProperties) {
         this.dataSource = dataSource;
         this.socialProperties = socialProperties;
     }

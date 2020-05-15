@@ -8,7 +8,7 @@
 <body>
 <h2>Demo注册页, 请替换本页，自己实现 /user/regist 逻辑</h2>
 <h2>通过 ajax 请求 /social/user 可以获取第三方登录的用户信息：用户昵称，用户头像，第三方的 ProviderId，ProviderUserId</h2>
-<form action="/user/regist" method="post">
+<form action="/authentication/social" method="post">
     <table>
         <tr>
             <td>信    息：</td>
@@ -24,7 +24,25 @@
         </tr>
         <tr>
             <td>用 户 名：</td>
-            <td><input id="nickname" name="username"/></td>
+            <td><input id="nickname" type="text" name="username"/></td>
+        </tr>
+        <tr>
+            <td>密码：</td>
+            <td><input type="password" name="password"/></td>
+        </tr>
+        <tr>
+            <td>确认密码：</td>
+            <td><input type="password" name="checkPw"/></td>
+        </tr>
+        <tr>
+            <td>图形验证码：</td>
+            <td>
+                <input type="text" name="imageCode">
+                <img src="/code/image" style="width: 67px; height: 23px">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="checkbox" name="remember-me" checked="true">记住我</input></td>
         </tr>
         <tr>
             <td></td>
@@ -38,7 +56,9 @@
 </body>
 <script>
     $.ajax({
-        url: "/social/user",
+        // 如果用的是模板，则 url 可以使用注入的方式，会跟着配置动态改变
+        url: "/user/info",
+        // url: "/social/user",
         data: {},
         type: "GET",
         dataType: "json",

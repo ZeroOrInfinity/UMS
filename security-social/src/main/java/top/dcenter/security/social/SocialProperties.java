@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_SOCIAL;
+
 /**
  * social 第三方登录属性
  *
@@ -19,6 +21,35 @@ public class SocialProperties {
 
     private QqProperties qq = new QqProperties();
 
+    // ================= 第三方登录注册相关功能 =================
+
+    /**
+     * social 第三方登录注册功能是否开启，默认为 false
+     */
+    private Boolean socialSignInIsOpen = false;
+    /**
+     * 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /user/regist 进行处理，需用户自己实现此 url
+     */
+    private String registUrl = DEFAULT_LOGIN_PROCESSING_URL_SOCIAL;
+    /**
+     * 第三方登录用户授权成功且未注册，则跳转的注册页面， 默认为 /signUp.html，
+     * autoSignIn=true 且实现 ConnectionSignUp 接口则自动登录时 signUpUrl 会失效
+     */
+    private String signUpUrl = "/signUp.html";
+    /**
+     * 第三方登录用户授权成功且未注册，跳转的注册页面时，需要获取的 SocialUserInfo 信息， 默认从 /social/user 获取.
+     * 注意：此 url 是 permitAll 权限, 同时修改 signUpUrl 的 ajax 请求 url
+     */
+    private String socialUserInfo = "/social/user";
+
+    /**
+     * QQ 登录时是否自动注册：如果为 true 且实现 ConnectionSignUp 接口则自动登录，而且 signUpUrl 失效，否则不自动登录, 默认为 true
+     */
+    private Boolean autoSignIn = true;
+
+
+
+    // ================= 第三方登录相关功能 =================
     /**
      * 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth
      */
@@ -30,19 +61,13 @@ public class SocialProperties {
     private String domain = "http://127.0.0.1";
 
     /**
-     * QQ 登录时是否自动注册：如果为 true 且实现 ConnectionSignUp 接口则自动登录，而且 singUpUrl 失效，否则不自动登录, 默认为 true
-     */
-    private Boolean autoSignIn = true;
-    /**
-     * 第三方登录用户授权成功且未注册过的，则跳转的注册页面， 默认为 /signUp.html，
-     * autoSignIn=true 且实现 ConnectionSignUp 接口则自动登录时 singUpUrl 会失效
-     */
-    private String singUpUrl = "/singUp.html";
-    /**
      * 第三方登录用户授权失败跳转页面， 默认为 "/signIn.html"。这个模块暂时没实现，
      */
-    private String failureUrl = "/singIn.html";
+    private String failureUrl = "/signIn.html";
 
+
+
+    // ================= 第三方登录数据库表相关 =================
     /**
      * 第三方登录用户数据库表的字段 key 与 secret 加密专用密码
      */

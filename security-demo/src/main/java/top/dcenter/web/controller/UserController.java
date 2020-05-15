@@ -54,10 +54,27 @@ public class UserController {
         this.providerSignInUtils = providerSignInUtils;
     }
 
+    @GetMapping("/info")
+    public SocialUserInfo getSocialUserInfo(HttpServletRequest request) {
+        // TODO 获取用户信息逻辑 ...
+        log.info("Demo =======>: UserController.getSocialUserInfo");
+        Connection<?> connection = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
+        if (connection == null)
+        {
+            return null;
+        }
+        SocialUserInfo userInfo = new SocialUserInfo();
+        userInfo.setProviderId(connection.getKey().getProviderId());
+        userInfo.setProviderUserId(connection.getKey().getProviderUserId());
+        userInfo.setNickname(connection.getDisplayName());
+        userInfo.setHeadImg(connection.getImageUrl());
+        return userInfo;
+    }
 
     @PostMapping("/regist")
     public SimpleResponse regist(User user, HttpServletRequest request, HttpServletResponse response) {
         // TODO 注册用户逻辑 ...
+        log.info("Demo ========>: UserController.regist");
         // 不管是注册用户还是绑定用户，都会拿到一个用户唯一标识，
         if (providerSignInUtils == null)
         {
@@ -67,7 +84,6 @@ public class UserController {
         try
         {
             providerSignInUtils.doPostSignUp(userId, new ServletWebRequest(request));
-            Connection<?> connectionFromSession = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
         }
         catch (DuplicateConnectionException e)
         {
@@ -75,13 +91,13 @@ public class UserController {
             return SimpleResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), "用户注册失败");
         }
 
-        log.info("用户注册成功：{}", user);
+        log.info("Demo ========>: 用户注册成功：{}", user);
         return SimpleResponse.success(user);
     }
 
     @GetMapping("/testWebSecurityPostConfigurer")
     public SimpleResponse testWebSecurityPostConfigurer(HttpServletRequest request) {
-
+        log.info("Demo ========>: UserController.testWebSecurityPostConfigurer");
         Connection<?> connection = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
         if (connection == null)
         {

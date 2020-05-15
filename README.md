@@ -39,10 +39,11 @@
   security.code.image.request-para-width-name=width
   security.code.image.request-param-image-code-name=imageCode
 
-## 短信登录
+## 手机登录
 - 在 core 模块
 - ```properties
-  # 手机验证码登录是否开启, 默认 false
+  # 手机验证码登录是否开启, 默认 false，
+  # 手机验证码登录开启后 必须配置 security.code.sms.auth-urls=/authentication/mobile
   security.smsCodeLogin.sms-code-login-is-open=true
   # 手机验证码登录请求处理url, 默认 /authentication/mobile
   security.smsCodeLogin.login-processing-url-mobile=/authentication/mobile
@@ -52,11 +53,19 @@
 ## 第三方登录 OAuth2
 - 在 social 模块
 - ```properties
-  # QQ 登录时是否自动注册，当为 true 且实现 ConnectionSignUp 接口，则开启自动注册。
-  # QQ 登录时是否自动注册：当为 true 且实现 ConnectionSignUp 接口，则开启自动注册，此时 singUpUrl 失效，否则不会开始自动注册
-  # autoSignIn=true 且实现 ConnectionSignUp 接口则自动注册，此时 singUpUrl 会失效
+  # social 第三方登录注册功能是否开启，默认为 false
+  security.social.social-sign-in-is-open=true
+  # 第三方登录时是否自动注册：当为 true 且实现 ConnectionSignUp 接口，则开启自动注册，此时 signUpUrl 失效，否则不会开始自动注册，默认为 true
+  security.social.auto-sign-in=false
+  # 第三方登录时是否自动注册：当为 true 且实现 ConnectionSignUp 接口，则开启自动注册，此时 signUpUrl 失效，否则不会开始自动注册
+  # autoSignIn=true 且实现 ConnectionSignUp 接口则自动注册，此时 signUpUrl 会失效
   # 第三方登录用户授权成功跳转页面，默认为 /signUp.html， 用户必需设置
-  security.social.sing-up-url=/signUp.html
+  security.social.sign-up-url=/signUp.html
+  # 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /user/regist 进行处理，需用户自己实现此 url
+  security.social.regist-url=/authentication/social
+  # 第三方登录用户授权成功且未注册，则跳转的注册页面时，需要获取的 SocialUserInfo 信息， 默认从 /social/user 获取。
+  # 注意：此 url 是 permitAll 权限, 同时修改 signUpUrl 的 ajax 请求 url
+  security.social.social-user-info=/social/user
   # 第三方登录用户授权失败跳转页面， 默认为 /signIn.html， 用户必需设置
   security.social.failure-url=/signIn.html
   
@@ -87,9 +96,9 @@
   # providerUserIdColumnName、  rankColumnName、  displayNameColumnName、  profileUrlColumnName、  imageUrlColumnName、  accessTokenColumnName、  secretColumnName、  refreshTokenColumnName、  expireTimeColumnName、  userIdColumnName、  providerIdColumnName、  providerUserIdColumnName、  userIdColumnName、  providerIdColumnName、  rankColumnName
   security.social.creatUserConnectionTableSql=create table %s (%s varchar(255) not null, %s varchar(255) not null, %s varchar(255), %s int not null, %s varchar(255), %s varchar(512), %s varchar(512), %s varchar(512) not null, %s varchar(512), %s varchar(512), %s bigint, primary key (%s, %s, %s), unique index UserConnectionRank(%s, %s, %s));
   
-  # autoSignIn=true 且实现 ConnectionSignUp 接口则自动注册，此时 singUpUrl 会失效
+  # autoSignIn=true 且实现 ConnectionSignUp 接口则自动注册，此时 signUpUrl 会失效
   # QQ 登录时是否自动注册，当为 true 且实现 ConnectionSignUp 接口，则开启自动注册。
-  # QQ 登录时是否自动注册：当为 true 且实现 ConnectionSignUp 接口，则开启自动注册，此时 singUpUrl 失效，否则不会开始自动注册
+  # QQ 登录时是否自动注册：当为 true 且实现 ConnectionSignUp 接口，则开启自动注册，此时 signUpUrl 失效，否则不会开始自动注册
   security.social.qq.auto-sign-in=false
   # ConnectionSignUp 非常有用的扩展接口, 调用时机：在第三方服务商回调 redirectUrl 接口时，
   # 在确认数据库用户表(security.social.table-name)中没有用户记录调用且 autoSignIn 为 true时，调用此接口。

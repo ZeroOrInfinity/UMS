@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE;
+import static top.dcenter.security.core.consts.SecurityConstants.POST_METHOD;
 
 /**
  * 短信登录配置过滤器
@@ -24,11 +25,6 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_P
 public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     // ~ Static fields/initializers
     // =====================================================================================
-
-    /**
-     * request POST Method
-     */
-    public static final String POST_METHOD = "POST";
 
     private String mobileParameter;
     private boolean postOnly = true;
@@ -55,7 +51,6 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
         }
 
         String mobile = obtainMobile(request);
-        String rememberMe = request.getParameter("remember-me");
 
         if (mobile == null) {
             mobile = "";

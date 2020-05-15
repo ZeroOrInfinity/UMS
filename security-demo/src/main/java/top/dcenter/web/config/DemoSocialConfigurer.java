@@ -30,7 +30,7 @@ public class DemoSocialConfigurer extends SocialCoreConfigurer {
     protected <T> T postProcess(T object) {
         SocialAuthenticationFilter filter = (SocialAuthenticationFilter) super.postProcess(object);
         filter.setFilterProcessesUrl(socialProperties.getFilterProcessesUrl());
-        filter.setSignupUrl(socialProperties.getSingUpUrl());
+        filter.setSignupUrl(socialProperties.getSignUpUrl());
         // 不能乱添加失败处理器，social 第三方授权登录功能异常
         //filter.setAuthenticationFailureHandler(browserAuthenticationFailureHandler);
         // 要添加失败处理器。

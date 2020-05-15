@@ -15,10 +15,8 @@ import org.springframework.security.web.authentication.rememberme.JdbcTokenRepos
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.security.browser.authentication.BrowserAuthenticationFailureHandler;
 import top.dcenter.security.browser.authentication.BrowserAuthenticationSuccessHandler;
-import top.dcenter.security.core.WebSecurityPostConfigurer;
-import top.dcenter.security.core.authentication.mobile.SmsCodeAuthenticationConfig;
+import top.dcenter.security.core.SocialWebSecurityConfigurerAware;
 import top.dcenter.security.core.properties.BrowserProperties;
-import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.validate.code.ValidateCodeSecurityConfig;
 
 import javax.sql.DataSource;
@@ -30,18 +28,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static top.dcenter.security.core.WebSecurityPostConfigurer.anonymous;
-import static top.dcenter.security.core.WebSecurityPostConfigurer.authenticated;
-import static top.dcenter.security.core.WebSecurityPostConfigurer.denyAll;
-import static top.dcenter.security.core.WebSecurityPostConfigurer.fullyAuthenticated;
-import static top.dcenter.security.core.WebSecurityPostConfigurer.permitAll;
-import static top.dcenter.security.core.WebSecurityPostConfigurer.rememberMe;
+import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.anonymous;
+import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.authenticated;
+import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.denyAll;
+import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.fullyAuthenticated;
+import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.permitAll;
+import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.rememberMe;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REMEMBER_ME_NAME;
-import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX;
 import static top.dcenter.security.core.consts.SecurityConstants.QUERY_DATABASE_NAME_SQL;
 import static top.dcenter.security.core.consts.SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX;
 
 /**
+ * 网页端安全相关配置
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 13:14
  * @medifiedBy zyw
@@ -51,7 +49,6 @@ import static top.dcenter.security.core.consts.SecurityConstants.QUERY_TABLE_EXI
 @Slf4j
 public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implements InitializingBean {
 
-    private final ValidateCodeProperties validateCodeProperties;
     private final BrowserProperties browserProperties;
     private final BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler;
     private final BrowserAuthenticationFailureHandler browserAuthenticationFailureHandler;
@@ -60,22 +57,17 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
 
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
-    private Map<String, WebSecurityPostConfigurer> webSecurityPostConfigurerMap;
+    private Map<String, SocialWebSecurityConfigurerAware> webSecurityPostConfigurerMap;
 
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired(required = false)
-    private SmsCodeAuthenticationConfig smsCodeAuthenticationConfig;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private UserDetailsService userDetailsService;
 
-    public BrowserSecurityConfig(ValidateCodeProperties validateCodeProperties,
-                                 BrowserProperties browserProperties,
+    public BrowserSecurityConfig(BrowserProperties browserProperties,
                                  BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler,
                                  BrowserAuthenticationFailureHandler browserAuthenticationFailureHandler,
                                  ValidateCodeSecurityConfig validateCodeSecurityConfig,
                                  DataSource dataSource) {
-        this.validateCodeProperties = validateCodeProperties;
         this.browserProperties = browserProperties;
         this.browserAuthenticationSuccessHandler = browserAuthenticationSuccessHandler;
         this.browserAuthenticationFailureHandler = browserAuthenticationFailureHandler;
@@ -99,8 +91,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        ValidateCodeProperties.ImageCodeProperties imageProp = validateCodeProperties.getImage();
-        ValidateCodeProperties.SmsCodeProperties smsProp = validateCodeProperties.getSms();
+
 
 
         List<String> permitAllList = new ArrayList<>();
@@ -111,7 +102,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
         List<String> rememberMeList = new ArrayList<>();
 
         // 对 所有的AuthorizeRequestUris 进行分类，放入对应的 List
-        fillingAuthorizeRequestUris(http, imageProp, smsProp, permitAllList, denyAllList, anonymousList, authenticatedList, fullyAuthenticatedList, rememberMeList);
+        fillingAuthorizeRequestUris(http, permitAllList, denyAllList, anonymousList, authenticatedList, fullyAuthenticatedList, rememberMeList);
 
         // 将 AuthorizeRequestUriList 转换为对应的 array
         String[] permitAllArray = list2Array(permitAllList,  permitAll);
@@ -121,12 +112,6 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
         String[] fullyAuthenticatedArray = list2Array(fullyAuthenticatedList,  fullyAuthenticated);
         String[] rememberMeArray = list2Array(rememberMeList,  rememberMe);
 
-
-        // 短信验证码登录配置
-        if (smsCodeAuthenticationConfig != null)
-        {
-            http.apply(smsCodeAuthenticationConfig);
-        }
 
         // 配置 session 策略
         if (browserProperties.getSessionNumberSetting())
@@ -169,12 +154,11 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
                 .authenticated()
                 // 配置 csrf
                 .and()
-                .csrf().disable()
-                .apply(validateCodeSecurityConfig);
+                .csrf().disable();
 
         if (webSecurityPostConfigurerMap != null)
         {
-            for (WebSecurityPostConfigurer postConfigurer : webSecurityPostConfigurerMap.values())
+            for (SocialWebSecurityConfigurerAware postConfigurer : webSecurityPostConfigurerMap.values())
             {
                 postConfigurer.postConfigure(http);
             }
@@ -190,8 +174,6 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
     }
 
     private void fillingAuthorizeRequestUris(HttpSecurity http,
-                                             ValidateCodeProperties.ImageCodeProperties imageProp,
-                                             ValidateCodeProperties.SmsCodeProperties smsProp,
                                              List<String> permitAllList,
                                              List<String> denyAllList,
                                              List<String> anonymousList,
@@ -200,7 +182,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
                                              List<String> rememberMeList) throws Exception {
         if (webSecurityPostConfigurerMap != null)
         {
-            for (WebSecurityPostConfigurer postConfigurer : webSecurityPostConfigurerMap.values())
+            for (SocialWebSecurityConfigurerAware postConfigurer : webSecurityPostConfigurerMap.values())
             {
                 postConfigurer.preConfigure(http);
                 Map<String, List<String>> authorizeRequestMap = postConfigurer.getAuthorizeRequestMap();
@@ -213,19 +195,16 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
                 add2List(rememberMeList, authorizeRequestMap, rememberMe);
             }
         }
-        permitAllList.addAll(addPermitAllUriList(imageProp, smsProp));
+        permitAllList.addAll(addPermitAllUriList());
     }
 
-    private List<String> addPermitAllUriList(ValidateCodeProperties.ImageCodeProperties imageProp, ValidateCodeProperties.SmsCodeProperties smsProp) {
+    private List<String> addPermitAllUriList() {
         List<String> permitAllList = new ArrayList<>();
 
         permitAllList.add(browserProperties.getLoginUnAuthenticationUrl());
         permitAllList.add(browserProperties.getFailureUrl());
         permitAllList.add(browserProperties.getLoginPage());
         permitAllList.add(browserProperties.getSuccessUrl());
-        permitAllList.add(DEFAULT_VALIDATE_CODE_URL_PREFIX + "/*");
-        permitAllList.addAll(smsProp.getAuthUrls());
-        permitAllList.addAll(imageProp.getAuthUrls());
 
         return permitAllList;
     }

@@ -10,19 +10,19 @@ import java.util.Map;
  * 因为
  * 注意：<br>
  *      1. 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在最后处理的配置。实现
- *         {@link WebSecurityPostConfigurer#postConfigure(HttpSecurity http) } 方法。<br>
+ *         {@link SocialWebSecurityConfigurerAware#postConfigure(HttpSecurity http) } 方法。<br>
  *      2. 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在前面处理的配置。实现
- *         {@link WebSecurityPostConfigurer#preConfigure(HttpSecurity http) } 方法。<br>
+ *         {@link SocialWebSecurityConfigurerAware#preConfigure(HttpSecurity http) } 方法。<br>
  *      3. WebSecurityConfigurerAdapter 多个配置类继承此类是会报错，且 authorizeRequests 配置时候要
  *         authorizeRequests().anyRequest().authenticate 放到最后，不然在之后配置的都不会生效。实现
- *         {@link WebSecurityPostConfigurer#getAuthorizeRequestMap() } 方法。<br>
+ *         {@link SocialWebSecurityConfigurerAware#getAuthorizeRequestMap() } 方法。<br>
  * 使用方法请看：{@link top.dcenter.security.browser.BrowserSecurityConfig}
  * @author zyw
  * @version V1.0
  * Created by 2020/5/12 12:22
  */
 @SuppressWarnings("JavadocReference")
-public interface WebSecurityPostConfigurer {
+public interface SocialWebSecurityConfigurerAware {
 
     String permitAll = "permitAll";
     String denyAll = "denyAll";
