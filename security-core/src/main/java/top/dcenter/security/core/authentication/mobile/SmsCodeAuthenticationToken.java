@@ -3,6 +3,7 @@ package top.dcenter.security.core.authentication.mobile;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.web.context.request.ServletWebRequest;
 
 import java.util.Collection;
 
@@ -20,9 +21,11 @@ public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
 
     private final Object principal;
 
+    private ServletWebRequest request;
+
+
     // ~ Constructors
     // ===================================================================================================
-
     /**
      * This constructor can be safely used by any code that wishes to create a
      * <code>UsernamePasswordAuthenticationToken</code>, as the {@link #isAuthenticated()}
@@ -30,8 +33,13 @@ public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
      *
      */
     public SmsCodeAuthenticationToken(String mobile) {
+        this(mobile, (ServletWebRequest) null);
+    }
+
+    public SmsCodeAuthenticationToken(String mobile, ServletWebRequest request) {
         super(null);
         this.principal = mobile;
+        this.request = request;
         setAuthenticated(false);
     }
 
@@ -48,13 +56,14 @@ public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
                                                Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
+        this.request = null;
         // must use super, as we override
         super.setAuthenticated(true);
     }
 
+
     // ~ Methods
     // ========================================================================================================
-
 
     @Override
     public Object getCredentials() {
@@ -79,6 +88,10 @@ public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
     @Override
     public void eraseCredentials() {
         super.eraseCredentials();
+    }
+
+    public ServletWebRequest getRequest() {
+        return request;
     }
 
 }

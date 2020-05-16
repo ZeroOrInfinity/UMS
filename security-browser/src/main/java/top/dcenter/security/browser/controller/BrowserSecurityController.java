@@ -66,7 +66,7 @@ public class BrowserSecurityController {
                 if (savedRequest != null && StringUtils.isNotBlank(targetUrl))
                 {
                     targetUrl = targetUrl.replaceFirst("^.*://[^/]*(/.*$)", "$1");
-                    Iterator<Map.Entry<String, String>> iterator = browserProperties.getAuthJumpSuffixCondition().entrySet().iterator();
+                    Iterator<Map.Entry<String, String>> iterator = browserProperties.getAuthRedirectSuffixCondition().entrySet().iterator();
                     Map.Entry<String, String> entry;
                     while (iterator.hasNext())
                     {

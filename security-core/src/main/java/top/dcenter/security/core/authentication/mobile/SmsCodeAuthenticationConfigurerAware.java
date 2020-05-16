@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import top.dcenter.security.core.SocialWebSecurityConfigurerAware;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 手机登录配置
@@ -37,7 +37,7 @@ public class SmsCodeAuthenticationConfigurerAware implements SocialWebSecurityCo
     }
 
     @Override
-    public Map<String, List<String>> getAuthorizeRequestMap() {
+    public Map<String, Set<String>> getAuthorizeRequestMap() {
         return null;
     }
 }

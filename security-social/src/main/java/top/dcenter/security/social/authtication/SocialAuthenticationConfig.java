@@ -6,14 +6,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import top.dcenter.security.social.SocialProperties;
+import org.springframework.social.connect.web.ProviderSignInUtils;
+import top.dcenter.security.social.AbstractSocialUserDetailService;
 
 import java.util.UUID;
 
@@ -27,20 +27,20 @@ import java.util.UUID;
 @ConditionalOnProperty(prefix = "security.social", name = "social-sign-in-is-open", havingValue = "true")
 public class SocialAuthenticationConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
-    private final SocialProperties socialProperties;
+    private final ProviderSignInUtils providerSignInUtils;
     private final AuthenticationFailureHandler browserAuthenticationFailureHandler;
     private final AuthenticationSuccessHandler browserAuthenticationSuccessHandler;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
-    private UserDetailsService userDetailsService;
+    private AbstractSocialUserDetailService userDetailsService;
     private String key;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private PersistentTokenRepository persistentTokenRepository;
-    public SocialAuthenticationConfig(SocialProperties socialProperties,
+    public SocialAuthenticationConfig(ProviderSignInUtils providerSignInUtils,
                                       AuthenticationFailureHandler browserAuthenticationFailureHandler,
                                       AuthenticationSuccessHandler browserAuthenticationSuccessHandler) {
-        this.socialProperties = socialProperties;
+        this.providerSignInUtils = providerSignInUtils;
         this.browserAuthenticationFailureHandler = browserAuthenticationFailureHandler;
         this.browserAuthenticationSuccessHandler = browserAuthenticationSuccessHandler;
     }
@@ -49,17 +49,16 @@ public class SocialAuthenticationConfig extends SecurityConfigurerAdapter<Defaul
     public void configure(HttpSecurity http) {
 
 
-        SocialAuthenticationFilter socialAuthenticationFilter = new SocialAuthenticationFilter(socialProperties, userDetailsService);
+        SocialAuthenticationFilter socialAuthenticationFilter = new SocialAuthenticationFilter();
         socialAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
         socialAuthenticationFilter.setAuthenticationSuccessHandler(browserAuthenticationSuccessHandler);
         socialAuthenticationFilter.setAuthenticationFailureHandler(browserAuthenticationFailureHandler);
-
         PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices = new PersistentTokenBasedRememberMeServices(getKey(), userDetailsService, persistentTokenRepository);
         // 添加rememberMe功能配置
         socialAuthenticationFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
 
-
-        SocialAuthenticationProvider socialAuthenticationProvider = new SocialAuthenticationProvider(userDetailsService);
+        SocialAuthenticationProvider socialAuthenticationProvider =
+                new SocialAuthenticationProvider(userDetailsService, providerSignInUtils);
         http.authenticationProvider(socialAuthenticationProvider)
             .addFilterAfter(socialAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
 

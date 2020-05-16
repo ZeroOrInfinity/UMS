@@ -28,7 +28,8 @@ import java.util.Set;
  * @author zyw
  * @version V1.0  Created by 2020/5/13 13:41
  */
-public class OAuth2JdbcUsersConnectionRepository  implements UsersConnectionRepository {
+@SuppressWarnings("AlibabaClassNamingShouldBeCamel")
+public class OAuthJdbcUsersConnectionRepository implements UsersConnectionRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -40,10 +41,10 @@ public class OAuth2JdbcUsersConnectionRepository  implements UsersConnectionRepo
 
     private SocialProperties socialProperties;
 
-    public OAuth2JdbcUsersConnectionRepository(DataSource dataSource,
-                                               ConnectionFactoryLocator connectionFactoryLocator,
-                                               TextEncryptor textEncryptor,
-                                               SocialProperties socialProperties) {
+    public OAuthJdbcUsersConnectionRepository(DataSource dataSource,
+                                              ConnectionFactoryLocator connectionFactoryLocator,
+                                              TextEncryptor textEncryptor,
+                                              SocialProperties socialProperties) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);;
         this.connectionFactoryLocator = connectionFactoryLocator;
         this.textEncryptor = textEncryptor;
@@ -103,6 +104,6 @@ public class OAuth2JdbcUsersConnectionRepository  implements UsersConnectionRepo
             throw new IllegalArgumentException("userId cannot be null");
         }
         return new JdbcConnectionRepository(userId, jdbcTemplate, connectionFactoryLocator, textEncryptor,
-                                             socialProperties);
+                                                                                         socialProperties);
     }
 }

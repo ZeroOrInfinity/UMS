@@ -4,12 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.security.social.SocialProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,16 +32,12 @@ public class SocialAuthenticationFilter extends AbstractAuthenticationProcessing
     private boolean postOnly = true;
     private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
     private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
-    private final SocialProperties socialProperties;
-    private final UserDetailsService userDetailsService;
 
     // ~ Constructors
     // ===================================================================================================
 
-    public SocialAuthenticationFilter(SocialProperties socialProperties, UserDetailsService userDetailsService) {
+    public SocialAuthenticationFilter() {
         super(new AntPathRequestMatcher(DEFAULT_LOGIN_PROCESSING_URL_SOCIAL, POST_METHOD));
-        this.socialProperties = socialProperties;
-        this.userDetailsService = userDetailsService;
     }
 
     // ~ Methods

@@ -28,14 +28,18 @@ public class SocialProperties {
      */
     private Boolean socialSignInIsOpen = false;
     /**
-     * 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /user/regist 进行处理，需用户自己实现此 url
+     * 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /authentication/social 进行处理，由 Social 处理，不需要用户实现
      */
-    private String registUrl = DEFAULT_LOGIN_PROCESSING_URL_SOCIAL;
+    private final String registUrl = DEFAULT_LOGIN_PROCESSING_URL_SOCIAL;
     /**
      * 第三方登录用户授权成功且未注册，则跳转的注册页面， 默认为 /signUp.html，
      * autoSignIn=true 且实现 ConnectionSignUp 接口则自动登录时 signUpUrl 会失效
      */
     private String signUpUrl = "/signUp.html";
+    /**
+     * 第三方登录页面， 默认为 /signIn.html
+     */
+    private String signInUrl = "/signIn.html";
     /**
      * 第三方登录用户授权成功且未注册，跳转的注册页面时，需要获取的 SocialUserInfo 信息， 默认从 /social/user 获取.
      * 注意：此 url 是 permitAll 权限, 同时修改 signUpUrl 的 ajax 请求 url
@@ -61,7 +65,7 @@ public class SocialProperties {
     private String domain = "http://127.0.0.1";
 
     /**
-     * 第三方登录用户授权失败跳转页面， 默认为 "/signIn.html"。这个模块暂时没实现，
+     * 第三方登录用户授权失败跳转页面， 默认为 "/signIn.html"
      */
     private String failureUrl = "/signIn.html";
 
@@ -420,7 +424,7 @@ public class SocialProperties {
                              providerIdColumnName,
                              providerIdColumnName,
                              providerUserIdColumnName,
-                             providerIdColumnName);
+                             providerUserIdColumnName);
     }
 
     @Getter

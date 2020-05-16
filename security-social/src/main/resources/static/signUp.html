@@ -6,8 +6,11 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@1.11.1/dist/jquery.min.js"></script>
 </head>
 <body>
-<h2>Demo注册页, 请替换本页，自己实现 /user/regist 逻辑</h2>
+<h2>Demo注册页, 请替换本页，/authentication/social 用户不需要自己处理，只需要实现 AbstractSocialUserDetailService 就行，可参考
+    security-demo 的 LoginSocialUserDetailService</h2>
+<h3>替换本页，请配置 security.social.signUpUrl 属性来设置自己的注册页面</h3>
 <h2>通过 ajax 请求 /social/user 可以获取第三方登录的用户信息：用户昵称，用户头像，第三方的 ProviderId，ProviderUserId</h2>
+<h2>如要自定义 /social/user 请配置 security.social.socialUserInfo 属性来获取自定义的用户信息</h2>
 <form action="/authentication/social" method="post">
     <table>
         <tr>

@@ -29,7 +29,7 @@ public class BrowserProperties {
     public BrowserProperties() {
 
         Map<String, String> map = new HashMap<>();
-        this.authJumpSuffixCondition = map;
+        this.authRedirectSuffixCondition = map;
 
     }
 
@@ -99,7 +99,7 @@ public class BrowserProperties {
      * 设置 uri 的特定后缀对应的跳转登录页, 例如：key=/**: value=/security/login.html。 默认为空
      * 支持通配符 规则具体看 AntPathMatcher.match(pattern, path)
      */
-    private Map<String, String> authJumpSuffixCondition;
+    private Map<String, String> authRedirectSuffixCondition;
 
     /**
      * 设置默认登录后为 返回 JSON

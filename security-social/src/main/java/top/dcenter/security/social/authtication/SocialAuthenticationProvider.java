@@ -1,11 +1,11 @@
 package top.dcenter.security.social.authtication;
 
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.social.connect.web.ProviderSignInUtils;
+import top.dcenter.security.social.AbstractSocialUserDetailService;
 
 /**
  * social 第三方授权登录注册 Provider
@@ -15,10 +15,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  */
 public class SocialAuthenticationProvider implements AuthenticationProvider {
 
-    private UserDetailsService userDetailsService;
+    private final ProviderSignInUtils providerSignInUtils;
+    private final AbstractSocialUserDetailService userDetailsService;
 
-    public SocialAuthenticationProvider(UserDetailsService userDetailsService) {
+    public SocialAuthenticationProvider(AbstractSocialUserDetailService userDetailsService, ProviderSignInUtils providerSignInUtils) {
         this.userDetailsService = userDetailsService;
+        this.providerSignInUtils = providerSignInUtils;
     }
 
     @Override
@@ -27,10 +29,10 @@ public class SocialAuthenticationProvider implements AuthenticationProvider {
             return null;
         }
         SocialAuthenticationToken authenticationToken = (SocialAuthenticationToken) authentication;
-        UserDetails user = userDetailsService.loadUserByUsername((String) authenticationToken.getPrincipal());
+        UserDetails user = userDetailsService.loadUserByUserId((String) authenticationToken.getPrincipal());
         if (user == null)
         {
-            throw new InternalAuthenticationServiceException("无法获取用户信息");
+            user = userDetailsService.registerUser(authenticationToken.getRequest(), providerSignInUtils);
         }
         SocialAuthenticationToken authenticationResult = new SocialAuthenticationToken(user.getUsername(),
                                                                                        user.getPassword(),

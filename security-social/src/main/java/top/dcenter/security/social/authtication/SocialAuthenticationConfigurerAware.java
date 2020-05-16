@@ -7,10 +7,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import top.dcenter.security.core.SocialWebSecurityConfigurerAware;
 import top.dcenter.security.social.SocialProperties;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * social 第三方授权登录注册相关配置
@@ -44,12 +44,15 @@ public class SocialAuthenticationConfigurerAware implements SocialWebSecurityCon
     }
 
     @Override
-    public Map<String, List<String>> getAuthorizeRequestMap() {
-        Map<String, List<String>> authorizeRequestMap = new HashMap<>();
-        List<String> uriList = new ArrayList<>(authorizeRequestMap.size());
-        uriList.add(socialProperties.getSignUpUrl());
-        uriList.add(socialProperties.getRegistUrl());
-        authorizeRequestMap.put(permitAll, uriList);
+    public Map<String, Set<String>> getAuthorizeRequestMap() {
+        Set<String> uriSet = new HashSet<>();
+        uriSet.add(socialProperties.getSignUpUrl());
+        uriSet.add(socialProperties.getFailureUrl());
+        uriSet.add(socialProperties.getSignInUrl());
+        uriSet.add(socialProperties.getRegistUrl());
+
+        Map<String, Set<String>> authorizeRequestMap = new HashMap<>(1);
+        authorizeRequestMap.put(permitAll, uriSet);
         return authorizeRequestMap;
     }
 }

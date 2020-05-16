@@ -20,10 +20,21 @@ public class SocialAuthenticationToken extends AbstractAuthenticationToken {
 
     private final Object principal;
     private Object credentials;
+
     private ServletWebRequest request;
+
 
     // ~ Constructors
     // ===================================================================================================
+    /**
+     * This constructor can be safely used by any code that wishes to create a
+     * <code>UsernamePasswordAuthenticationToken</code>, as the {@link #isAuthenticated()}
+     * will return <code>false</code>.
+     *
+     */
+    public SocialAuthenticationToken(Object principal, Object credentials) {
+        this(principal, credentials, (ServletWebRequest) null);
+    }
 
     /**
      * This constructor can be safely used by any code that wishes to create a
@@ -53,13 +64,14 @@ public class SocialAuthenticationToken extends AbstractAuthenticationToken {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
+        this.request = null;
         // must use super, as we override
         super.setAuthenticated(true);
     }
 
+
     // ~ Methods
     // ========================================================================================================
-
 
     @Override
     public Object getCredentials() {
@@ -84,6 +96,11 @@ public class SocialAuthenticationToken extends AbstractAuthenticationToken {
     @Override
     public void eraseCredentials() {
         super.eraseCredentials();
+    }
+
+
+    public ServletWebRequest getRequest() {
+        return request;
     }
 
 }

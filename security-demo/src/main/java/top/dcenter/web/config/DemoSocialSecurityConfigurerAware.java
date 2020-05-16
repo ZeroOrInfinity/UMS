@@ -7,10 +7,10 @@ import top.dcenter.security.core.SocialWebSecurityConfigurerAware;
 import top.dcenter.security.social.SocialCoreConfigurer;
 import top.dcenter.security.social.SocialProperties;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 自定义 SocialWebSecurityConfigurerAware 接口
@@ -44,11 +44,11 @@ public class DemoSocialSecurityConfigurerAware implements SocialWebSecurityConfi
     }
 
     @Override
-    public Map<String, List<String>> getAuthorizeRequestMap() {
-        Map<String, List<String>> authorizeRequestMap = new HashMap<>();
-        List<String> uriList = new ArrayList<>(authorizeRequestMap.size());
-        uriList.add("/user/testWebSecurityPostConfigurer");
-        authorizeRequestMap.put(permitAll, uriList);
+    public Map<String, Set<String>> getAuthorizeRequestMap() {
+        Set<String> uriSet = new HashSet<>();
+        uriSet.add("/user/testWebSecurityPostConfigurer");
+        Map<String, Set<String>> authorizeRequestMap = new HashMap<>(1);
+        authorizeRequestMap.put(permitAll, uriSet);
         log.info("Demo ======>: DemoSocialSecurityConfigurerSocial.getAuthorizeRequestMap");
         return authorizeRequestMap;
     }

@@ -6,10 +6,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.validate.code.ValidateCodeSecurityConfig;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX;
 
@@ -42,13 +42,13 @@ public class ValidateCodeConfigurerAware implements SocialWebSecurityConfigurerA
     }
 
     @Override
-    public Map<String, List<String>> getAuthorizeRequestMap() {
-        List<String> permitAllList = new ArrayList<>();
-        permitAllList.add(DEFAULT_VALIDATE_CODE_URL_PREFIX + "/*");
-        permitAllList.addAll(validateCodeProperties.getSms().getAuthUrls());
-        permitAllList.addAll(validateCodeProperties.getImage().getAuthUrls());
-        Map<String, List<String>> permitAllMap = new HashMap<>(1);
-        permitAllMap.put(permitAll, permitAllList);
+    public Map<String, Set<String>> getAuthorizeRequestMap() {
+        Set<String> permitAllSet = new HashSet<>();
+        permitAllSet.add(DEFAULT_VALIDATE_CODE_URL_PREFIX + "/*");
+        permitAllSet.addAll(validateCodeProperties.getSms().getAuthUrls());
+        permitAllSet.addAll(validateCodeProperties.getImage().getAuthUrls());
+        Map<String, Set<String>> permitAllMap = new HashMap<>(1);
+        permitAllMap.put(permitAll, permitAllSet);
         return permitAllMap;
     }
 }

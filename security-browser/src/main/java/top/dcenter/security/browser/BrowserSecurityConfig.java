@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
@@ -17,16 +16,17 @@ import top.dcenter.security.browser.authentication.BrowserAuthenticationFailureH
 import top.dcenter.security.browser.authentication.BrowserAuthenticationSuccessHandler;
 import top.dcenter.security.core.SocialWebSecurityConfigurerAware;
 import top.dcenter.security.core.properties.BrowserProperties;
+import top.dcenter.security.core.service.AbstractUserDetailsService;
 import top.dcenter.security.core.validate.code.ValidateCodeSecurityConfig;
 
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.anonymous;
 import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.authenticated;
@@ -61,7 +61,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
-    private UserDetailsService userDetailsService;
+    private AbstractUserDetailsService userDetailsService;
 
     public BrowserSecurityConfig(BrowserProperties browserProperties,
                                  BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler,
@@ -94,23 +94,24 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
 
 
 
-        List<String> permitAllList = new ArrayList<>();
-        List<String> denyAllList = new ArrayList<>();
-        List<String> anonymousList = new ArrayList<>();
-        List<String> authenticatedList = new ArrayList<>();
-        List<String> fullyAuthenticatedList = new ArrayList<>();
-        List<String> rememberMeList = new ArrayList<>();
+        Set<String> permitAllSet = new HashSet<>();
+        Set<String> denyAllSet = new HashSet<>();
+        Set<String> anonymousSet = new HashSet<>();
+        Set<String> authenticatedSet = new HashSet<>();
+        Set<String> fullyAuthenticatedSet = new HashSet<>();
+        Set<String> rememberMeSet = new HashSet<>();
 
         // 对 所有的AuthorizeRequestUris 进行分类，放入对应的 List
-        fillingAuthorizeRequestUris(http, permitAllList, denyAllList, anonymousList, authenticatedList, fullyAuthenticatedList, rememberMeList);
+        fillingAuthorizeRequestUris(http, permitAllSet, denyAllSet, anonymousSet, authenticatedSet,
+                                    fullyAuthenticatedSet, rememberMeSet);
 
-        // 将 AuthorizeRequestUriList 转换为对应的 array
-        String[] permitAllArray = list2Array(permitAllList,  permitAll);
-        String[] denyAllArray = list2Array(denyAllList,  denyAll);
-        String[] anonymousArray = list2Array(anonymousList, anonymous);
-        String[] authenticatedArray = list2Array(authenticatedList, authenticated);
-        String[] fullyAuthenticatedArray = list2Array(fullyAuthenticatedList,  fullyAuthenticated);
-        String[] rememberMeArray = list2Array(rememberMeList,  rememberMe);
+        // 将 AuthorizeRequestUriSet 转换为对应的 array
+        String[] permitAllArray = set2Array(permitAllSet,  permitAll);
+        String[] denyAllArray = set2Array(denyAllSet,  denyAll);
+        String[] anonymousArray = set2Array(anonymousSet, anonymous);
+        String[] authenticatedArray = set2Array(authenticatedSet, authenticated);
+        String[] fullyAuthenticatedArray = set2Array(fullyAuthenticatedSet,  fullyAuthenticated);
+        String[] rememberMeArray = set2Array(rememberMeSet,  rememberMe);
 
 
         // 配置 session 策略
@@ -165,65 +166,65 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
         }
     }
 
-    private String[] list2Array(List<String> permitAllList, String authorizeRequestType) {
+    private String[] set2Array(Set<String> permitAllSet, String authorizeRequestType) {
         String[] permitAllArray;
-        permitAllArray = new String[permitAllList.size()];
-        permitAllList.toArray(permitAllArray);
+        permitAllArray = new String[permitAllSet.size()];
+        permitAllSet.toArray(permitAllArray);
         log.info("{} = {}", authorizeRequestType, Arrays.toString(permitAllArray));
         return permitAllArray;
     }
 
     private void fillingAuthorizeRequestUris(HttpSecurity http,
-                                             List<String> permitAllList,
-                                             List<String> denyAllList,
-                                             List<String> anonymousList,
-                                             List<String> authenticatedList,
-                                             List<String> fullyAuthenticatedList,
-                                             List<String> rememberMeList) throws Exception {
+                                             Set<String> permitAllSet,
+                                             Set<String> denyAllSet,
+                                             Set<String> anonymousSet,
+                                             Set<String> authenticatedSet,
+                                             Set<String> fullyAuthenticatedSet,
+                                             Set<String> rememberMeSet) throws Exception {
         if (webSecurityPostConfigurerMap != null)
         {
             for (SocialWebSecurityConfigurerAware postConfigurer : webSecurityPostConfigurerMap.values())
             {
                 postConfigurer.preConfigure(http);
-                Map<String, List<String>> authorizeRequestMap = postConfigurer.getAuthorizeRequestMap();
+                Map<String, Set<String>> authorizeRequestMap = postConfigurer.getAuthorizeRequestMap();
 
-                add2List(permitAllList, authorizeRequestMap, permitAll);
-                add2List(denyAllList, authorizeRequestMap, denyAll);
-                add2List(anonymousList, authorizeRequestMap, anonymous);
-                add2List(authenticatedList, authorizeRequestMap, authenticated);
-                add2List(fullyAuthenticatedList, authorizeRequestMap, fullyAuthenticated);
-                add2List(rememberMeList, authorizeRequestMap, rememberMe);
+                add2Set(permitAllSet, authorizeRequestMap, permitAll);
+                add2Set(denyAllSet, authorizeRequestMap, denyAll);
+                add2Set(anonymousSet, authorizeRequestMap, anonymous);
+                add2Set(authenticatedSet, authorizeRequestMap, authenticated);
+                add2Set(fullyAuthenticatedSet, authorizeRequestMap, fullyAuthenticated);
+                add2Set(rememberMeSet, authorizeRequestMap, rememberMe);
             }
         }
-        permitAllList.addAll(addPermitAllUriList());
+        permitAllSet.addAll(addPermitAllUriSet());
     }
 
-    private List<String> addPermitAllUriList() {
-        List<String> permitAllList = new ArrayList<>();
+    private Set<String> addPermitAllUriSet() {
+        Set<String> permitAllSet = new HashSet<>();
 
-        permitAllList.add(browserProperties.getLoginUnAuthenticationUrl());
-        permitAllList.add(browserProperties.getFailureUrl());
-        permitAllList.add(browserProperties.getLoginPage());
-        permitAllList.add(browserProperties.getSuccessUrl());
+        permitAllSet.add(browserProperties.getLoginUnAuthenticationUrl());
+        permitAllSet.add(browserProperties.getFailureUrl());
+        permitAllSet.add(browserProperties.getLoginPage());
+        permitAllSet.add(browserProperties.getSuccessUrl());
 
-        return permitAllList;
+        return permitAllSet;
     }
 
     /**
      * 把 根据 authorizeRequestType 从 authorizeRequestMap 提取的 uri 添加到数组中
      *
-     * @param resultList           不可以为null
+     * @param resultSet           不可以为null
      * @param authorizeRequestMap  可以为 null
      * @param authorizeRequestType 不允许为 null
      */
-    private void add2List(@NotNull List<String> resultList, Map<String, List<String>> authorizeRequestMap,
+    private void add2Set(@NotNull Set<String> resultSet, Map<String, Set<String>> authorizeRequestMap,
                           @NotNull String authorizeRequestType) {
         if (authorizeRequestMap != null)
         {
-            List<String> authorizeRequestList = authorizeRequestMap.get(authorizeRequestType);
-            if (authorizeRequestList != null && !authorizeRequestList.isEmpty())
+            Set<String> authorizeRequestSet = authorizeRequestMap.get(authorizeRequestType);
+            if (authorizeRequestSet != null && !authorizeRequestSet.isEmpty())
             {
-                resultList.addAll(authorizeRequestList);
+                resultSet.addAll(authorizeRequestSet);
             }
         }
     }

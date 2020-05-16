@@ -23,8 +23,7 @@ public class SocialCoreConfigurer extends SpringSocialConfigurer {
 		SocialAuthenticationFilter filter = (SocialAuthenticationFilter) super.postProcess(object);
 		filter.setFilterProcessesUrl(socialProperties.getFilterProcessesUrl());
 		filter.setSignupUrl(socialProperties.getSignUpUrl());
-		// 要添加失败处理器
-		//filter.setPostFailureUrl(socialProperties.getFailureUrl())
+		filter.setDefaultFailureUrl(socialProperties.getFailureUrl());
 		return (T) filter;
 	}
 

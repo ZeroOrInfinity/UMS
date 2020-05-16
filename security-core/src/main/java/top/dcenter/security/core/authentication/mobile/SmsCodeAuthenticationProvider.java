@@ -1,11 +1,10 @@
 package top.dcenter.security.core.authentication.mobile;
 
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import top.dcenter.security.core.service.AbstractUserDetailsService;
 
 /**
  * 短信登录 Provider
@@ -15,9 +14,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  */
 public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
 
-    private UserDetailsService userDetailsService;
+    private AbstractUserDetailsService userDetailsService;
 
-    public SmsCodeAuthenticationProvider(UserDetailsService userDetailsService) {
+    public SmsCodeAuthenticationProvider(AbstractUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
@@ -30,7 +29,7 @@ public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
         UserDetails user = userDetailsService.loadUserByUsername((String) authenticationToken.getPrincipal());
         if (user == null)
         {
-            throw new InternalAuthenticationServiceException("无法获取用户信息");
+            user = userDetailsService.registerUser((String) authenticationToken.getPrincipal());
         }
         SmsCodeAuthenticationToken authenticationResult = new SmsCodeAuthenticationToken(user, user.getAuthorities());
         authenticationResult.setDetails(authenticationToken.getDetails());

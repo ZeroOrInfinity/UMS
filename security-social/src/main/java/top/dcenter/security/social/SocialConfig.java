@@ -51,7 +51,8 @@ public class SocialConfig extends SocialConfigurerAdapter implements Initializin
     public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
         return usersConnectionRepositoryFactory().getUsersConnectionRepository(dataSource,
                                                                                connectionFactoryLocator,
-                                                                               socialTextEncryptor(socialProperties), socialProperties,
+                                                                               socialTextEncryptor(socialProperties),
+                                                                               socialProperties,
                                                                                null,
                                                                                false);
     }
@@ -70,7 +71,7 @@ public class SocialConfig extends SocialConfigurerAdapter implements Initializin
             synchronized (lockFlag) {
                 if (this.usersConnectionRepositoryFactory == null)
                 {
-                    this.usersConnectionRepositoryFactory = new OAuth2JdbcUsersConnectionRepositoryFactory();
+                    this.usersConnectionRepositoryFactory = new OAuthJdbcUsersConnectionRepositoryFactory();
                     return this.usersConnectionRepositoryFactory;
                 }
             }

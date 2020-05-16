@@ -2,8 +2,8 @@ package top.dcenter.security.core;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 对 WebSecurityConfigurerAdapter 的扩展，使其能跨模块的灵活的添加 HttpSecurity 配置。<br>
@@ -54,7 +54,7 @@ public interface SocialWebSecurityConfigurerAware {
      * 给主配置处理<br>
      * @return authorizeRequestMap key 为权限类型， value 为 uriList
      */
-    Map<String, List<String>> getAuthorizeRequestMap();
+    Map<String, Set<String>> getAuthorizeRequestMap();
 
 
 }

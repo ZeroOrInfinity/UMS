@@ -14,7 +14,7 @@ import javax.sql.DataSource;
  * @version V1.0  Created by 2020/5/13 23:37
  */
 @SuppressWarnings("AlibabaClassNamingShouldBeCamel")
-public class OAuth2JdbcUsersConnectionRepositoryFactory implements UsersConnectionRepositoryFactory {
+public class OAuthJdbcUsersConnectionRepositoryFactory implements UsersConnectionRepositoryFactory {
     @Override
     public UsersConnectionRepository getUsersConnectionRepository(DataSource dataSource,
                                                                   ConnectionFactoryLocator connectionFactoryLocator,
@@ -22,8 +22,8 @@ public class OAuth2JdbcUsersConnectionRepositoryFactory implements UsersConnecti
                                                                   SocialProperties socialProperties,
                                                                   ConnectionSignUp connectionSignUp,
                                                                   Boolean autoSignIn) {
-        OAuth2JdbcUsersConnectionRepository usersConnectionRepository =
-                new OAuth2JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, textEncryptor, socialProperties);
+        OAuthJdbcUsersConnectionRepository usersConnectionRepository =
+                new OAuthJdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, textEncryptor, socialProperties);
         // 用于第三方登录自动注册为用户功能的开关，当传 null 值时关闭自动注册，当不为 null 且 autoSignIn=true 时开启自动注册功能。
         // 需自己实现 ConnectionSignUp ，功能为从第三方的 connection 中获取用户唯一标识。
         if (autoSignIn && connectionSignUp != null)

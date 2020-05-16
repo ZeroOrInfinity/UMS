@@ -17,13 +17,14 @@
   
   # Map 类型：必须配置；设置 uri 的特定后缀对应的跳转登录页, 例如：key=/**: value=/security/login.html。 默认为空
   # 支持通配符，匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*
-  security.browser.auth-jump-suffix-condition["/*.html"]=/login.html
-  security.browser.auth-jump-suffix-condition["/hello"]=/login.html
-  security.browser.auth-jump-suffix-condition["/user/**"]=/login.html
-  security.browser.auth-jump-suffix-condition["/order/**"]=/login.html
-  security.browser.auth-jump-suffix-condition["/file/**"]=/login.html
+  security.browser.auth-redirect-suffix-condition["/*.html"]=/login.html
+  security.browser.auth-redirect-suffix-condition["/hello"]=/login.html
+  security.browser.auth-redirect-suffix-condition["/user/**"]=/login.html
+  security.browser.auth-redirect-suffix-condition["/order/**"]=/login.html
+  security.browser.auth-redirect-suffix-condition["/file/**"]=/login.html
+  # /authentication/form 为用户名密码方式注册,/authentication/social 为第三方登录方式注册,/authentication/mobile 为手机登录注册
   # List 类型：设置需要短信校验码认证的 uri，多个 uri 用 “，”号分开，支持通配符，如：/hello,/user/*；默认为空
-  #security.code.sms.auth-urls=/authentication/form
+  #security.code.sms.auth-urls=/authentication/form,/authentication/social,/authentication/mobile
   security.code.sms.request-param-sms-code-name=smsCode
   security.code.sms.request-param-mobile-name=mobile
   security.code.sms.expire=120
@@ -61,8 +62,10 @@
   # autoSignIn=true 且实现 ConnectionSignUp 接口则自动注册，此时 signUpUrl 会失效
   # 第三方登录用户授权成功跳转页面，默认为 /signUp.html， 用户必需设置
   security.social.sign-up-url=/signUp.html
-  # 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /user/regist 进行处理，需用户自己实现此 url
-  security.social.regist-url=/authentication/social
+  # 第三方登录页面， 默认为 /signIn.html
+  security.social.sign-in-url=/signIn.html
+  # 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /authentication/social 进行处理，由 Social 处理，不需要用户实现
+  # security.social.regist-url=/authentication/social
   # 第三方登录用户授权成功且未注册，则跳转的注册页面时，需要获取的 SocialUserInfo 信息， 默认从 /social/user 获取。
   # 注意：此 url 是 permitAll 权限, 同时修改 signUpUrl 的 ajax 请求 url
   security.social.social-user-info=/social/user
