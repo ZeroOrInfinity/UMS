@@ -1,6 +1,7 @@
 package top.dcenter.security.social;
 
 import org.springframework.security.crypto.encrypt.TextEncryptor;
+import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
@@ -23,7 +24,7 @@ public interface UsersConnectionRepositoryFactory {
      * @param socialProperties
      * @param connectionSignUp 用于第三方登录自动注册为用户功能的开关，共有两个, 这俩个条件同时满足时才有效（另一个是 autoSignIn）：<br>
      *                         当传 null 值时关闭自动注册，当不为 null 且 autoSignIn=true 时开启自动注册功能，需自己实现 ConnectionSignUp，
-     *                         功能为从第三方的 connection 中获取用户唯一标识。<br>
+     *                         {@link ConnectionSignUp#execute(Connection)} 从第三方的 connection 中获取用户唯一标识。<br>
      *
      * @param autoSignIn     当传 false 时关闭自动注册，当为 true 且 connectionSignUp 不为 null 时开启自动注册功能，<br>
      *                       通过配置 security.social.{providerId}.autoSignIn=true，默认为 false，可以从socialProperties获取。

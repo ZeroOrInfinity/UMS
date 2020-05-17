@@ -2,7 +2,6 @@ package top.dcenter.security.social.qq.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
@@ -12,7 +11,6 @@ import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
-import org.springframework.social.connect.web.ProviderSignInUtils;
 import top.dcenter.security.social.SocialProperties;
 import top.dcenter.security.social.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.qq.connect.QqConnectionFactory;
@@ -29,7 +27,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @ConditionalOnProperty(prefix = "security.social.qq", name = "app-id")
-public class QqAutoConfig extends SocialConfigurerAdapter {
+public class QqAutoConfiguration extends SocialConfigurerAdapter {
 
     private final SocialProperties socialProperties;
     private final DataSource dataSource;
@@ -38,11 +36,11 @@ public class QqAutoConfig extends SocialConfigurerAdapter {
     private final TextEncryptor socialTextEncryptor;
 
 
-    public QqAutoConfig(SocialProperties socialProperties,
-                        ConnectionSignUp connectionSignUp,
-                        DataSource dataSource,
-                        UsersConnectionRepositoryFactory usersConnectionRepositoryFactory,
-                        @Qualifier("socialTextEncryptor") TextEncryptor socialTextEncryptor) {
+    public QqAutoConfiguration(SocialProperties socialProperties,
+                               ConnectionSignUp connectionSignUp,
+                               DataSource dataSource,
+                               UsersConnectionRepositoryFactory usersConnectionRepositoryFactory,
+                               @Qualifier("socialTextEncryptor") TextEncryptor socialTextEncryptor) {
         this.socialProperties = socialProperties;
         this.connectionSignUp = connectionSignUp;
         this.dataSource = dataSource;
@@ -67,10 +65,6 @@ public class QqAutoConfig extends SocialConfigurerAdapter {
                                               socialProperties.getAutoSignIn());
     }
 
-    @Bean
-    public ProviderSignInUtils providerSignInUtils(ConnectionFactoryLocator connectionFactoryLocator) {
-        return new ProviderSignInUtils(connectionFactoryLocator, getUsersConnectionRepository(connectionFactoryLocator));
-    }
 
     protected ConnectionFactory<?> createConnectionFactory() {
         SocialProperties.QqProperties qq = socialProperties.getQq();

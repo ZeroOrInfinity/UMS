@@ -1,12 +1,11 @@
 package top.dcenter.dto;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import top.dcenter.validator.MyConstraint;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
+import top.dcenter.validator.MyConstraint;
 
 import javax.validation.constraints.Past;
 import java.util.Date;
@@ -18,7 +17,6 @@ import java.util.Date;
  * @version V1.0  Created by 2020/5/1 19:51
  */
 @Data
-@NoArgsConstructor
 @ToString
 public class User {
 

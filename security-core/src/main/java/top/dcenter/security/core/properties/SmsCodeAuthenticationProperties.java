@@ -16,8 +16,8 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REQUEST
  */
 @Getter
 @Setter
-@ConfigurationProperties("security.smsCodeLogin")
-@ConditionalOnProperty(prefix = "security.smsCodeLogin", name = "sms-code-login-is-open", havingValue = "true")
+@ConfigurationProperties("security.sms-code-login")
+@ConditionalOnProperty(prefix = "security.sms-code-login", name = "sms-code-login-is-open", havingValue = "true")
 public class SmsCodeAuthenticationProperties {
     /**
      * 手机验证码登录请求处理url, 默认 /authentication/mobile

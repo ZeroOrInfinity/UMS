@@ -22,7 +22,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.POST_METHOD;
  * @version V1.0  Created by 2020/5/7 15:34
  */
 @Slf4j
-public class SocialAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProcessingFilter {
     // ~ Static fields/initializers
     // =====================================================================================
 
@@ -36,7 +36,7 @@ public class SocialAuthenticationFilter extends AbstractAuthenticationProcessing
     // ~ Constructors
     // ===================================================================================================
 
-    public SocialAuthenticationFilter() {
+    public SocialAuthenticationSignUpFilter() {
         super(new AntPathRequestMatcher(DEFAULT_LOGIN_PROCESSING_URL_SOCIAL, POST_METHOD));
     }
 
@@ -64,9 +64,9 @@ public class SocialAuthenticationFilter extends AbstractAuthenticationProcessing
 
         username = username.trim();
 
-        SocialAuthenticationToken authRequest = new SocialAuthenticationToken(username,
-                                                                              password,
-                                                                              new ServletWebRequest(request, response));
+        SocialAuthenticationSignUpToken authRequest = new SocialAuthenticationSignUpToken(username,
+                                                                                          password,
+                                                                                          new ServletWebRequest(request, response));
 
         // Allow subclasses to set the "details" property
         setDetails(request, authRequest);
@@ -117,7 +117,7 @@ public class SocialAuthenticationFilter extends AbstractAuthenticationProcessing
      * set
      */
     protected void setDetails(HttpServletRequest request,
-                              SocialAuthenticationToken authRequest) {
+                              SocialAuthenticationSignUpToken authRequest) {
         authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
     }
 

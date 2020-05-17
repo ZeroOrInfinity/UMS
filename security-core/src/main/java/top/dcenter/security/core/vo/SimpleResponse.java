@@ -1,8 +1,6 @@
 package top.dcenter.security.core.vo;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * 简单的 Vo 对象封装
@@ -11,8 +9,6 @@ import lombok.NoArgsConstructor;
  * @version V1.0  Created by 2020/5/3 19:39
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class SimpleResponse {
     /**
      * 0 表示处理成功信息，其他表示失败
@@ -24,10 +20,11 @@ public class SimpleResponse {
     public SimpleResponse(int code, String msg) {
         this.code = code;
         this.msg = msg;
+        this.data = null;
     }
 
     public SimpleResponse(int code) {
-        this.code = code;
+        this(code, null);
     }
 
     public static SimpleResponse success() {

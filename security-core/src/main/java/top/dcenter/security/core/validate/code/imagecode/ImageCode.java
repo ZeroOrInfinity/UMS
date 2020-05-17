@@ -1,8 +1,6 @@
 package top.dcenter.security.core.validate.code.imagecode;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import top.dcenter.security.core.validate.code.ValidateCode;
 
@@ -16,8 +14,6 @@ import java.awt.image.BufferedImage;
  */
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class ImageCode extends ValidateCode {
     private BufferedImage image;
 

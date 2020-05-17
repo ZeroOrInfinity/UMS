@@ -25,7 +25,7 @@ import java.util.UUID;
  */
 @Configuration
 @ConditionalOnProperty(prefix = "security.social", name = "social-sign-in-is-open", havingValue = "true")
-public class SocialAuthenticationConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
+public class SocialAuthenticationSignUpConfiguration extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
     private final ProviderSignInUtils providerSignInUtils;
     private final AuthenticationFailureHandler browserAuthenticationFailureHandler;
@@ -37,9 +37,9 @@ public class SocialAuthenticationConfig extends SecurityConfigurerAdapter<Defaul
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private PersistentTokenRepository persistentTokenRepository;
-    public SocialAuthenticationConfig(ProviderSignInUtils providerSignInUtils,
-                                      AuthenticationFailureHandler browserAuthenticationFailureHandler,
-                                      AuthenticationSuccessHandler browserAuthenticationSuccessHandler) {
+    public SocialAuthenticationSignUpConfiguration(ProviderSignInUtils providerSignInUtils,
+                                                   AuthenticationFailureHandler browserAuthenticationFailureHandler,
+                                                   AuthenticationSuccessHandler browserAuthenticationSuccessHandler) {
         this.providerSignInUtils = providerSignInUtils;
         this.browserAuthenticationFailureHandler = browserAuthenticationFailureHandler;
         this.browserAuthenticationSuccessHandler = browserAuthenticationSuccessHandler;
@@ -48,20 +48,18 @@ public class SocialAuthenticationConfig extends SecurityConfigurerAdapter<Defaul
     @Override
     public void configure(HttpSecurity http) {
 
-
-        SocialAuthenticationFilter socialAuthenticationFilter = new SocialAuthenticationFilter();
-        socialAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
-        socialAuthenticationFilter.setAuthenticationSuccessHandler(browserAuthenticationSuccessHandler);
-        socialAuthenticationFilter.setAuthenticationFailureHandler(browserAuthenticationFailureHandler);
+        SocialAuthenticationSignUpFilter socialAuthenticationSignUpFilter = new SocialAuthenticationSignUpFilter();
+        socialAuthenticationSignUpFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
+        socialAuthenticationSignUpFilter.setAuthenticationSuccessHandler(browserAuthenticationSuccessHandler);
+        socialAuthenticationSignUpFilter.setAuthenticationFailureHandler(browserAuthenticationFailureHandler);
         PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices = new PersistentTokenBasedRememberMeServices(getKey(), userDetailsService, persistentTokenRepository);
         // 添加rememberMe功能配置
-        socialAuthenticationFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
+        socialAuthenticationSignUpFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
 
-        SocialAuthenticationProvider socialAuthenticationProvider =
-                new SocialAuthenticationProvider(userDetailsService, providerSignInUtils);
-        http.authenticationProvider(socialAuthenticationProvider)
-            .addFilterAfter(socialAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
-
+        SocialAuthenticationSignUpProvider socialAuthenticationSignUpProvider =
+                new SocialAuthenticationSignUpProvider(userDetailsService, providerSignInUtils);
+        http.authenticationProvider(socialAuthenticationSignUpProvider)
+            .addFilterAfter(socialAuthenticationSignUpFilter, AbstractPreAuthenticatedProcessingFilter.class);
 
     }
 

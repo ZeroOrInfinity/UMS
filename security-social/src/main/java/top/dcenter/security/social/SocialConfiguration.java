@@ -14,6 +14,7 @@ import org.springframework.social.config.annotation.SocialConfigurerAdapter;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
+import org.springframework.social.connect.web.ProviderSignInUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -33,7 +34,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.QUERY_TABLE_EXI
 @EnableSocial
 @EnableConfigurationProperties({SocialProperties.class})
 @Slf4j
-public class SocialConfig extends SocialConfigurerAdapter implements InitializingBean {
+public class SocialConfiguration extends SocialConfigurerAdapter implements InitializingBean {
     private final DataSource dataSource;
     private final SocialProperties socialProperties;
 
@@ -41,8 +42,8 @@ public class SocialConfig extends SocialConfigurerAdapter implements Initializin
 
     private final Object lockFlag = new Object();
 
-    public SocialConfig(DataSource dataSource,
-                        SocialProperties socialProperties) {
+    public SocialConfiguration(DataSource dataSource,
+                               SocialProperties socialProperties) {
         this.dataSource = dataSource;
         this.socialProperties = socialProperties;
     }
@@ -64,6 +65,17 @@ public class SocialConfig extends SocialConfigurerAdapter implements Initializin
     }
 
     @Bean
+    public ProviderSignInUtils providerSignInUtils(ConnectionFactoryLocator connectionFactoryLocator) {
+        return new ProviderSignInUtils(connectionFactoryLocator, getUsersConnectionRepository(connectionFactoryLocator));
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ConnectionSignUp.class)
+    public ConnectionSignUp connectionSignUp() {
+        return new DefaultConnectionSignUp();
+    }
+
+    @Bean
     @ConditionalOnMissingBean
     public UsersConnectionRepositoryFactory usersConnectionRepositoryFactory() {
         if (this.usersConnectionRepositoryFactory == null)
@@ -79,19 +91,12 @@ public class SocialConfig extends SocialConfigurerAdapter implements Initializin
         return this.usersConnectionRepositoryFactory;
     }
 
-
     @Bean
     @ConditionalOnMissingBean
     public SocialCoreConfigurer socialCoreConfigurer() {
         SocialCoreConfigurer socialCoreConfigurer =
                 new SocialCoreConfigurer(socialProperties);
         return socialCoreConfigurer;
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(ConnectionSignUp.class)
-    public ConnectionSignUp connectionSignUp() {
-        return new DefaultConnectionSignUp();
     }
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")

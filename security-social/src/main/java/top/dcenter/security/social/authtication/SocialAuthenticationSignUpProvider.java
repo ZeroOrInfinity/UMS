@@ -13,12 +13,12 @@ import top.dcenter.security.social.AbstractSocialUserDetailService;
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/7 22:51
  */
-public class SocialAuthenticationProvider implements AuthenticationProvider {
+public class SocialAuthenticationSignUpProvider implements AuthenticationProvider {
 
     private final ProviderSignInUtils providerSignInUtils;
     private final AbstractSocialUserDetailService userDetailsService;
 
-    public SocialAuthenticationProvider(AbstractSocialUserDetailService userDetailsService, ProviderSignInUtils providerSignInUtils) {
+    public SocialAuthenticationSignUpProvider(AbstractSocialUserDetailService userDetailsService, ProviderSignInUtils providerSignInUtils) {
         this.userDetailsService = userDetailsService;
         this.providerSignInUtils = providerSignInUtils;
     }
@@ -28,22 +28,22 @@ public class SocialAuthenticationProvider implements AuthenticationProvider {
         if (!supports(authentication.getClass())) {
             return null;
         }
-        SocialAuthenticationToken authenticationToken = (SocialAuthenticationToken) authentication;
+        SocialAuthenticationSignUpToken authenticationToken = (SocialAuthenticationSignUpToken) authentication;
         UserDetails user = userDetailsService.loadUserByUserId((String) authenticationToken.getPrincipal());
         if (user == null)
         {
             user = userDetailsService.registerUser(authenticationToken.getRequest(), providerSignInUtils);
         }
-        SocialAuthenticationToken authenticationResult = new SocialAuthenticationToken(user.getUsername(),
-                                                                                       user.getPassword(),
-                                                                                       user.getAuthorities());
+        SocialAuthenticationSignUpToken authenticationResult = new SocialAuthenticationSignUpToken(user.getUsername(),
+                                                                                                   user.getPassword(),
+                                                                                                   user.getAuthorities());
         authenticationResult.setDetails(authenticationToken.getDetails());
         return authenticationResult;
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return SocialAuthenticationToken.class.isAssignableFrom(authentication);
+        return SocialAuthenticationSignUpToken.class.isAssignableFrom(authentication);
     }
 
 }

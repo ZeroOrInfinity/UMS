@@ -19,13 +19,13 @@ import java.util.Set;
  */
 @Configuration
 @Slf4j
-public class SocialAuthenticationConfigurerAware implements SocialWebSecurityConfigurerAware {
+public class SocialAuthenticationSignUpConfigurerAware implements SocialWebSecurityConfigurerAware {
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
-    private SocialAuthenticationConfig socialAuthenticationConfig;
+    private SocialAuthenticationSignUpConfiguration socialAuthenticationSignUpConfiguration;
     private final SocialProperties socialProperties;
 
-    public SocialAuthenticationConfigurerAware(SocialProperties socialProperties) {
+    public SocialAuthenticationSignUpConfigurerAware(SocialProperties socialProperties) {
         this.socialProperties = socialProperties;
     }
 
@@ -37,9 +37,9 @@ public class SocialAuthenticationConfigurerAware implements SocialWebSecurityCon
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
         // 短信验证码登录配置
-        if (socialAuthenticationConfig != null)
+        if (socialAuthenticationSignUpConfiguration != null)
         {
-            http.apply(socialAuthenticationConfig);
+            http.apply(socialAuthenticationSignUpConfiguration);
         }
     }
 

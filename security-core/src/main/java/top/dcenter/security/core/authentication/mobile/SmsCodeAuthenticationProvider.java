@@ -30,6 +30,7 @@ public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
         if (user == null)
         {
             user = userDetailsService.registerUser((String) authenticationToken.getPrincipal());
+
         }
         SmsCodeAuthenticationToken authenticationResult = new SmsCodeAuthenticationToken(user, user.getAuthorities());
         authenticationResult.setDetails(authenticationToken.getDetails());

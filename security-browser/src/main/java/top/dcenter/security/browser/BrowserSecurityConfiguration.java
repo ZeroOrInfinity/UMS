@@ -20,7 +20,6 @@ import top.dcenter.security.core.service.AbstractUserDetailsService;
 import top.dcenter.security.core.validate.code.ValidateCodeSecurityConfig;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.Arrays;
@@ -47,7 +46,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.QUERY_TABLE_EXI
 @SuppressWarnings("jol")
 @Configuration
 @Slf4j
-public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implements InitializingBean {
+public class BrowserSecurityConfiguration extends WebSecurityConfigurerAdapter implements InitializingBean {
 
     private final BrowserProperties browserProperties;
     private final BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler;
@@ -63,11 +62,11 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
     @Autowired
     private AbstractUserDetailsService userDetailsService;
 
-    public BrowserSecurityConfig(BrowserProperties browserProperties,
-                                 BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler,
-                                 BrowserAuthenticationFailureHandler browserAuthenticationFailureHandler,
-                                 ValidateCodeSecurityConfig validateCodeSecurityConfig,
-                                 DataSource dataSource) {
+    public BrowserSecurityConfiguration(BrowserProperties browserProperties,
+                                        BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler,
+                                        BrowserAuthenticationFailureHandler browserAuthenticationFailureHandler,
+                                        ValidateCodeSecurityConfig validateCodeSecurityConfig,
+                                        DataSource dataSource) {
         this.browserProperties = browserProperties;
         this.browserAuthenticationSuccessHandler = browserAuthenticationSuccessHandler;
         this.browserAuthenticationFailureHandler = browserAuthenticationFailureHandler;
@@ -174,6 +173,17 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
         return permitAllArray;
     }
 
+    /**
+     * 传入参数都不能为 null
+     * @param http
+     * @param permitAllSet
+     * @param denyAllSet
+     * @param anonymousSet
+     * @param authenticatedSet
+     * @param fullyAuthenticatedSet
+     * @param rememberMeSet
+     * @throws Exception
+     */
     private void fillingAuthorizeRequestUris(HttpSecurity http,
                                              Set<String> permitAllSet,
                                              Set<String> denyAllSet,
@@ -217,8 +227,8 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter implemen
      * @param authorizeRequestMap  可以为 null
      * @param authorizeRequestType 不允许为 null
      */
-    private void add2Set(@NotNull Set<String> resultSet, Map<String, Set<String>> authorizeRequestMap,
-                          @NotNull String authorizeRequestType) {
+    private void add2Set(Set<String> resultSet, Map<String, Set<String>> authorizeRequestMap,
+                          String authorizeRequestType) {
         if (authorizeRequestMap != null)
         {
             Set<String> authorizeRequestSet = authorizeRequestMap.get(authorizeRequestType);

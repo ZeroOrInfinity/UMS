@@ -20,6 +20,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_P
 public class SocialProperties {
 
     private QqProperties qq = new QqProperties();
+    private WeixinProperties weixin = new WeixinProperties();
 
     // ================= 第三方登录注册相关功能 =================
 
@@ -51,6 +52,11 @@ public class SocialProperties {
      */
     private Boolean autoSignIn = true;
 
+    // ================= 第三方登录相关功能 =================
+    /**
+     * 第三方登录绑定页面， 默认为 /banding.html
+     */
+    private String bandingUrl = "/banding.html";
 
 
     // ================= 第三方登录相关功能 =================
@@ -429,7 +435,7 @@ public class SocialProperties {
 
     @Getter
     @Setter
-    public class QqProperties extends org.springframework.boot.autoconfigure.social.SocialProperties {
+    public class QqProperties extends SocialBaseProperties {
         /**
          * 服务提供商标识, 默认为 qq
          */
@@ -440,5 +446,25 @@ public class SocialProperties {
         private String redirectUrl = domain + "/" + filterProcessesUrl + "/" + providerId;
 
     }
+
+    /**
+     * @author zhailiang
+     *
+     */
+    @Getter
+    @Setter
+    public class WeixinProperties extends SocialBaseProperties {
+
+        /**
+         * 第三方id，用来决定发起第三方登录的url，默认是 weixin。
+         */
+        private String providerId = "weixin";
+        /**
+         * 回调地址(格式必须是：domain/filterProcessesUrl/providerId)，默认
+         */
+        private String redirectUrl = domain + "/" + filterProcessesUrl + "/" + providerId;
+
+    }
+
 
 }

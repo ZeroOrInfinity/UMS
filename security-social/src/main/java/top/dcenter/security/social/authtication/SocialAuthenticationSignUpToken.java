@@ -12,7 +12,7 @@ import java.util.Collection;
  * @author zyw
  * @version V1.0  Created by 2020/5/7 15:25
  */
-public class SocialAuthenticationToken extends AbstractAuthenticationToken {
+public class SocialAuthenticationSignUpToken extends AbstractAuthenticationToken {
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
     // ~ Instance fields
@@ -32,7 +32,7 @@ public class SocialAuthenticationToken extends AbstractAuthenticationToken {
      * will return <code>false</code>.
      *
      */
-    public SocialAuthenticationToken(Object principal, Object credentials) {
+    public SocialAuthenticationSignUpToken(Object principal, Object credentials) {
         this(principal, credentials, (ServletWebRequest) null);
     }
 
@@ -42,7 +42,7 @@ public class SocialAuthenticationToken extends AbstractAuthenticationToken {
      * will return <code>false</code>.
      *
      */
-    public SocialAuthenticationToken(Object principal, Object credentials, ServletWebRequest request) {
+    public SocialAuthenticationSignUpToken(Object principal, Object credentials, ServletWebRequest request) {
         super(null);
         this.principal = principal;
         this.credentials = credentials;
@@ -59,8 +59,8 @@ public class SocialAuthenticationToken extends AbstractAuthenticationToken {
      * @param principal
      * @param authorities
      */
-    public SocialAuthenticationToken(Object principal, Object credentials,
-                                     Collection<? extends GrantedAuthority> authorities) {
+    public SocialAuthenticationSignUpToken(Object principal, Object credentials,
+                                           Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
