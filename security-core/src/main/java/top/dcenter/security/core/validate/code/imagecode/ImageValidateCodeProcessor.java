@@ -28,6 +28,10 @@ public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
     public boolean sent(ServletWebRequest request, ValidateCode validateCode) {
         try
         {
+            if (!(validateCode instanceof ImageCode))
+            {
+                return false;
+            }
             ImageCode imageCode = (ImageCode) validateCode;
             // TODO 这里可以优化，可以先生成图片，在从图片文件中读取
             ImageIO.write(imageCode.getImage(), "JPEG", request.getResponse().getOutputStream());

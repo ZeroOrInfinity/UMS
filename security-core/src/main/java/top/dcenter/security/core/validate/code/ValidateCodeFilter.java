@@ -117,13 +117,13 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
                 return result;
             }
 
-            Iterator<String> iterator = authUrlMap.keySet().iterator();
+            Iterator<Map.Entry<String, ValidateCodeType>> iterator = authUrlMap.entrySet().iterator();
             while (iterator.hasNext())
             {
-                String url = iterator.next();
-                if (pathMatcher.match(url, requestURI))
+                Map.Entry<String, ValidateCodeType> next = iterator.next();
+                if (pathMatcher.match(next.getKey(), requestURI))
                 {
-                    return authUrlMap.get(url);
+                    return next.getValue();
                 }
             }
         }

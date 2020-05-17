@@ -63,16 +63,20 @@ public class ImageUtil {
             return;
         }
         File dir = outputFile.getParentFile();
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
         try {
-            outputFile.createNewFile();
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            boolean newFile = outputFile.createNewFile();
+            if (!newFile)
+            {
+                throw new IOException("输出图片失败");
+            }
             FileOutputStream fos = new FileOutputStream(outputFile);
             outputImage(w, h, fos, code);
             fos.close();
-        } catch (IOException e) {
-            throw e;
+        } catch (Exception e) {
+            throw new IOException(e.getMessage(), e);
         }
     }
 
@@ -161,7 +165,7 @@ public class ImageUtil {
         for (int i = 0; i < verifySize; i++) {
             AffineTransform affine = new AffineTransform();
             affine.setToRotation(Math.PI / 4 * rand.nextDouble() * (rand.nextBoolean() ? 1 : -1),
-                                 (width / verifySize) * i + fontSize / 2, height / 2);
+                                 (width / ((double) verifySize)) * i + fontSize / ((double) 2), height / ((double) 2));
             g2.setTransform(affine);
             g2.drawChars(chars, i, 1, ((width - 10) / verifySize) * i + 5, height / 2 + fontSize / 2 - 2);
         }

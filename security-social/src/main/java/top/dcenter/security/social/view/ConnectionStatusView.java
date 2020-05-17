@@ -13,6 +13,7 @@ import org.springframework.web.servlet.view.AbstractView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -37,10 +38,13 @@ public class ConnectionStatusView extends AbstractView {
 		Map<String, List<Connection<?>>> connections = (Map<String, List<Connection<?>>>) model.get("connectionMap");
 		
 		Map<String, Boolean> result = new HashMap<>();
-		for (String key : connections.keySet()) {
-			result.put(key, CollectionUtils.isNotEmpty(connections.get(key)));
+		Iterator<Map.Entry<String, List<Connection<?>>>> iterator = connections.entrySet().iterator();
+		while (iterator.hasNext())
+		{
+			Map.Entry<String, List<Connection<?>>> next = iterator.next();
+			result.put(next.getKey(), CollectionUtils.isNotEmpty(next.getValue()));
 		}
-		
+
 		response.setContentType("application/json;charset=UTF-8");
 		response.getWriter().write(objectMapper.writeValueAsString(result));
 	}

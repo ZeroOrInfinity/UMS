@@ -4,7 +4,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.dcenter.filter.TimeFilter;
 import top.dcenter.interceptor.TimeInterceptor;
 
@@ -18,7 +18,8 @@ import java.util.List;
  * @version V1.0  Created by 2020/5/2 16:15
  */
 @Configuration
-public class WebConfig extends WebMvcConfigurerAdapter {
+public class WebConfig implements WebMvcConfigurer {
+
     private final TimeInterceptor timeInterceptor;
 
     public WebConfig(TimeInterceptor timeInterceptor) {
@@ -38,7 +39,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
-        super.configureAsyncSupport(configurer);
+//        super.configureAsyncSupport(configurer);
 //        configurer.registerDeferredResultInterceptors((DeferredResultProcessingInterceptor) this.timeInterceptor)
 //                .setDefaultTimeout(300000)
 //                .setTaskExecutor(new ConcurrentTaskExecutor(Executors.newFixedThreadPool(8)));

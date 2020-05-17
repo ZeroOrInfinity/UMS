@@ -248,6 +248,10 @@ public class BrowserSecurityConfiguration extends WebSecurityConfigurerAdapter i
         DataSource dataSource = jdbcTokenRepository.getDataSource();
         try (Connection connection = dataSource.getConnection())
         {
+            if (connection == null)
+            {
+                throw new Exception("初始化 Remember-me 的 persistent_logins 用户表时发生错误");
+            }
             ResultSet resultSet = connection.prepareStatement(QUERY_DATABASE_NAME_SQL).executeQuery();
             resultSet.next();
             String database = resultSet.getString(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);

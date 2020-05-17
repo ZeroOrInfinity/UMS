@@ -46,6 +46,7 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
                                SocialProperties socialProperties) {
         this.dataSource = dataSource;
         this.socialProperties = socialProperties;
+        this.usersConnectionRepositoryFactory = new OAuthJdbcUsersConnectionRepositoryFactory();
     }
 
     @Override
@@ -78,16 +79,6 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     @Bean
     @ConditionalOnMissingBean
     public UsersConnectionRepositoryFactory usersConnectionRepositoryFactory() {
-        if (this.usersConnectionRepositoryFactory == null)
-        {
-            synchronized (lockFlag) {
-                if (this.usersConnectionRepositoryFactory == null)
-                {
-                    this.usersConnectionRepositoryFactory = new OAuthJdbcUsersConnectionRepositoryFactory();
-                    return this.usersConnectionRepositoryFactory;
-                }
-            }
-        }
         return this.usersConnectionRepositoryFactory;
     }
 
@@ -106,6 +97,11 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
         // 如果 JdbcUsersConnectionRepository 所需的表 UserConnection 未创建则创建它
         try (Connection connection = dataSource.getConnection())
         {
+            if (connection == null)
+            {
+                throw new Exception(String.format("初始化第三方登录的 %s 用户表时发生错误",
+                                                  socialProperties.getTableName()));
+            }
             ResultSet resultSet = connection.prepareStatement(QUERY_DATABASE_NAME_SQL).executeQuery();
             resultSet.next();
             String database = resultSet.getString(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);

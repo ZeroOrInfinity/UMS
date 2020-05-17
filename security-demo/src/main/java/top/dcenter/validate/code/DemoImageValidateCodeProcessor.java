@@ -28,6 +28,10 @@ public class DemoImageValidateCodeProcessor extends ImageValidateCodeProcessor {
     public boolean sent(ServletWebRequest request, ValidateCode validateCode) {
         try
         {
+            if (!(validateCode instanceof ImageCode))
+            {
+                return false;
+            }
             ImageCode imageCode = (ImageCode) validateCode;
             ImageIO.write(imageCode.getImage(), "JPG", request.getResponse().getOutputStream());
             log.info("Demo ========>: imageCode = {}", imageCode);

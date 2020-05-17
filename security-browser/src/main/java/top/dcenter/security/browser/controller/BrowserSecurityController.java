@@ -63,7 +63,7 @@ public class BrowserSecurityController {
             {
                 String targetUrl = savedRequest.getRedirectUrl();
                 log.info("引发跳转的请求是：{}", targetUrl);
-                if (savedRequest != null && StringUtils.isNotBlank(targetUrl))
+                if (StringUtils.isNotBlank(targetUrl))
                 {
                     targetUrl = targetUrl.replaceFirst("^.*://[^/]*(/.*$)", "$1");
                     Iterator<Map.Entry<String, String>> iterator = browserProperties.getAuthRedirectSuffixCondition().entrySet().iterator();
