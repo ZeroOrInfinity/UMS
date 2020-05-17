@@ -10,12 +10,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
+import org.springframework.social.UserIdSource;
 import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.config.annotation.SocialConfigurerAdapter;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
+import org.springframework.social.security.AuthenticationNameUserIdSource;
 import org.springframework.web.servlet.View;
 import top.dcenter.security.social.SocialProperties;
 import top.dcenter.security.social.UsersConnectionRepositoryFactory;
@@ -67,6 +69,11 @@ public class WeixinAutoConfiguration extends SocialConfigurerAdapter {
 				                              socialProperties,
 				                              connectionSignUp,
 				                              socialProperties.getAutoSignIn());
+	}
+
+	@Override
+	public UserIdSource getUserIdSource() {
+		return new AuthenticationNameUserIdSource();
 	}
 
 
