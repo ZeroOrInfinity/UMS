@@ -1,6 +1,7 @@
 # 无侵入式模块化权限模型脚手架
 > 1. 引入模块依赖：
 > 2. 通过 application.yml 或 application.properties 配置:
+> 3. 打包项目：mvn clean package -Dmaven.test.skip=true -Pdev
 
 ## 验证码功能
 - 基本功能：在 core 包中；
@@ -77,6 +78,12 @@
   security.social.domain=http://www.dcenter.top 
   # 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth
   security.social.filter-processes-url=/auth/callback
+  
+  # ================= 第三方登录 key 与 secret 加密相关 =================
+  # 第三方登录用户数据库表的字段 key 与 secret 加密专用密码
+  # security.social.textEncryptorPassword = "7ca5d913a17b4942942d16a974e3fecc";
+  # 第三方登录用户数据库表的字段 key 与 secret 加密专用密码
+  # security.social.textEncryptorSalt = "cd538b1b077542aca5f86942b6507fe2";
 
   # 自定义 social 表字段
   security.social.table-prefix=social_

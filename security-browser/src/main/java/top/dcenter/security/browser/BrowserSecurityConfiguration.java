@@ -91,8 +91,6 @@ public class BrowserSecurityConfiguration extends WebSecurityConfigurerAdapter i
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-
-
         Set<String> permitAllSet = new HashSet<>();
         Set<String> denyAllSet = new HashSet<>();
         Set<String> anonymousSet = new HashSet<>();
