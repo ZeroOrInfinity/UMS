@@ -3,6 +3,7 @@
  */
 package top.dcenter.security.social.weixin.connect;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.social.connect.ApiAdapter;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
@@ -22,11 +23,12 @@ import top.dcenter.security.social.weixin.api.Weixin;
 public class WeixinConnectionFactory extends OAuth2ConnectionFactory<Weixin> {
 	
 	/**
-	 * @param appId
-	 * @param appSecret
-	 */
-	public WeixinConnectionFactory(String providerId, String appId, String appSecret) {
-		super(providerId, new WeixinServiceProvider(appId, appSecret), new WeixinAdapter());
+     * @param appId
+     * @param appSecret
+     * @param objectMapper
+     */
+	public WeixinConnectionFactory(String providerId, String appId, String appSecret, ObjectMapper objectMapper) {
+		super(providerId, new WeixinServiceProvider(appId, appSecret, objectMapper), new WeixinAdapter());
 	}
 	
 	/**

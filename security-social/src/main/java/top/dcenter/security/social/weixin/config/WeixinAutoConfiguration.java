@@ -10,15 +10,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
-import org.springframework.social.UserIdSource;
 import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
-import org.springframework.social.config.annotation.SocialConfigurerAdapter;
 import org.springframework.social.connect.ConnectionFactory;
-import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionSignUp;
-import org.springframework.social.connect.UsersConnectionRepository;
-import org.springframework.social.security.AuthenticationNameUserIdSource;
 import org.springframework.web.servlet.View;
+import top.dcenter.security.social.OAuth2ConfigurerAdapter;
 import top.dcenter.security.social.SocialProperties;
 import top.dcenter.security.social.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.view.ConnectView;
@@ -27,14 +23,16 @@ import top.dcenter.security.social.weixin.connect.WeixinConnectionFactory;
 import javax.sql.DataSource;
 
 /**
- * 微信登录配置
- * 
+ * 微信第三方登录自动配置，根据用户是否填写来绝对是否开启 微信 登录功能<br>
+ *     SocialAutoConfigurerAdapter 适用于 spring boot 1.5.x, <br>
+ *     SocialConfigurerAdapter 适用于 spring boot 2.x
  * @author zhailiang
- *
+ * @medifiedBy  zyw
+ * @version V1.0  Created by 2020/5/8 23:36
  */
 @Configuration
 @ConditionalOnProperty(prefix = "security.social.weixin", name = "app-id")
-public class WeixinAutoConfiguration extends SocialConfigurerAdapter {
+public class WeixinAutoConfiguration extends OAuth2ConfigurerAdapter {
 
 	private final SocialProperties socialProperties;
 	private final UsersConnectionRepositoryFactory usersConnectionRepositoryFactory;
@@ -47,6 +45,7 @@ public class WeixinAutoConfiguration extends SocialConfigurerAdapter {
 	                               ConnectionSignUp connectionSignUp,
 	                               DataSource dataSource,
 	                               @Qualifier("socialTextEncryptor") TextEncryptor socialTextEncryptor) {
+		super(socialProperties, connectionSignUp, dataSource, usersConnectionRepositoryFactory, socialTextEncryptor);
 		this.socialProperties = socialProperties;
 		this.usersConnectionRepositoryFactory = usersConnectionRepositoryFactory;
 		this.connectionSignUp = connectionSignUp;
@@ -56,27 +55,8 @@ public class WeixinAutoConfiguration extends SocialConfigurerAdapter {
 
 	@Override
 	public void addConnectionFactories(ConnectionFactoryConfigurer connectionFactoryConfigurer, Environment environment) {
-		connectionFactoryConfigurer.addConnectionFactory(this.createConnectionFactory());
+		connectionFactoryConfigurer.addConnectionFactory(this.weixinConnectionFactory());
 	}
-
-	@Override
-	public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
-
-		return usersConnectionRepositoryFactory
-				.getUsersConnectionRepository(dataSource,
-				                              connectionFactoryLocator,
-				                              socialTextEncryptor,
-				                              socialProperties,
-				                              connectionSignUp,
-				                              socialProperties.getAutoSignIn());
-	}
-
-	@Override
-	public UserIdSource getUserIdSource() {
-		return new AuthenticationNameUserIdSource();
-	}
-
-
 
 	@Bean({"connect/weixinConnect", "connect/weixinConnected"})
 	@ConditionalOnMissingBean(name = "weixinConnectedView")
@@ -84,14 +64,13 @@ public class WeixinAutoConfiguration extends SocialConfigurerAdapter {
 		return new ConnectView();
 	}
 
-	/**
-	 * @see org.springframework.boot.autoconfigure.social.SocialAutoConfigurerAdapter
-	 * #createConnectionFactory()
-	 */
-	protected ConnectionFactory<?> createConnectionFactory() {
+	@Bean("weixin")
+	public ConnectionFactory<?> weixinConnectionFactory() {
 		SocialProperties.WeixinProperties weixinConfig = socialProperties.getWeixin();
-		return new WeixinConnectionFactory(weixinConfig.getProviderId(), weixinConfig.getAppId(),
-		                                   weixinConfig.getAppSecret());
+		return new WeixinConnectionFactory(weixinConfig.getProviderId(),
+		                                   weixinConfig.getAppId(),
+		                                   weixinConfig.getAppSecret(),
+		                                   this.objectMapper);
 	}
 
 }

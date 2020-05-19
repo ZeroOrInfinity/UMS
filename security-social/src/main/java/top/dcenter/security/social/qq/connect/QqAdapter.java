@@ -20,6 +20,9 @@ public class QqAdapter implements ApiAdapter<Qq> {
 
     private String providerId;
 
+    public QqAdapter() {
+    }
+
     public QqAdapter(String providerId) {
         this.providerId = providerId;
     }

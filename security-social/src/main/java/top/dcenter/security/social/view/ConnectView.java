@@ -11,7 +11,6 @@ import java.util.Map;
 
 /**
  * @author zhailiang
- *
  */
 public class ConnectView extends AbstractView {
 

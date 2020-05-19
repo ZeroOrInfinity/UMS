@@ -1,14 +1,15 @@
 package top.dcenter.security.browser.authentication;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
-import top.dcenter.security.core.vo.SimpleResponse;
 import top.dcenter.security.core.enums.LoginType;
 import top.dcenter.security.core.properties.BrowserProperties;
+import top.dcenter.security.core.vo.SimpleResponse;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +29,7 @@ public class BrowserAuthenticationFailureHandler extends SimpleUrlAuthentication
 
     public BrowserAuthenticationFailureHandler(ObjectMapper objectMapper, BrowserProperties browserProperties) {
         this.objectMapper = objectMapper;
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.browserProperties = browserProperties;
     }
 

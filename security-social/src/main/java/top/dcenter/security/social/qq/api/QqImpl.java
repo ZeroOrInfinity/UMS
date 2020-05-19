@@ -1,6 +1,5 @@
 package top.dcenter.security.social.qq.api;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +34,7 @@ public class QqImpl extends AbstractOAuth2ApiBinding implements Qq {
 
     private final ObjectMapper objectMapper;
 
-    public QqImpl(String accessToken, String appId) {
+    public QqImpl(String accessToken, String appId, ObjectMapper objectMapper) {
         super(accessToken, TokenStrategy.ACCESS_TOKEN_PARAMETER);
         this.appId = appId;
 
@@ -48,8 +47,7 @@ public class QqImpl extends AbstractOAuth2ApiBinding implements Qq {
         }
         this.openId = StringUtils.substringBetween(callback, "\"openid\":\"", "\"}");
 
-        this.objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.objectMapper = objectMapper;
     }
 
     @Override

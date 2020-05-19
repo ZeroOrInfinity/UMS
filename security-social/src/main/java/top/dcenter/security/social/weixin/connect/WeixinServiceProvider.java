@@ -3,7 +3,9 @@
  */
 package top.dcenter.security.social.weixin.connect;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.social.oauth2.AbstractOAuth2ServiceProvider;
+import org.springframework.social.oauth2.OAuth2Operations;
 import top.dcenter.security.social.weixin.api.Weixin;
 import top.dcenter.security.social.weixin.api.WeixinImpl;
 
@@ -26,12 +28,20 @@ public class WeixinServiceProvider extends AbstractOAuth2ServiceProvider<Weixin>
 	 */
 	private static final String URL_ACCESS_TOKEN = "https://api.weixin.qq.com/sns/oauth2/access_token";
 
+	private ObjectMapper objectMapper;
+
+	public WeixinServiceProvider(OAuth2Operations oauth2Operations, ObjectMapper objectMapper) {
+		super(oauth2Operations);
+		this.objectMapper = objectMapper;
+	}
+
 	/**
-	 * @param appId
-	 * @param appSecret
-	 */
-	public WeixinServiceProvider(String appId, String appSecret) {
-		super(new WeixinOAuth2Template(appId, appSecret,URL_AUTHORIZE,URL_ACCESS_TOKEN));
+     * @param appId
+     * @param appSecret
+     * @param objectMapper
+     */
+	public WeixinServiceProvider(String appId, String appSecret, ObjectMapper objectMapper) {
+		this(new WeixinOAuth2Template(appId, appSecret,URL_AUTHORIZE,URL_ACCESS_TOKEN, objectMapper), objectMapper);
 	}
 
 
@@ -40,7 +50,7 @@ public class WeixinServiceProvider extends AbstractOAuth2ServiceProvider<Weixin>
 	 */
 	@Override
 	public Weixin getApi(String accessToken) {
-		return new WeixinImpl(accessToken);
+		return new WeixinImpl(accessToken, objectMapper);
 	}
 
 }

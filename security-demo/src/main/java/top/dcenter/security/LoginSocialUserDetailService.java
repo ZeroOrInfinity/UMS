@@ -45,7 +45,7 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
             // 获取用户信息逻辑。。。
             // ...
 
-            if ("要懂的舍得".equals(username) || "admin".equals(username) || "13345678980".equals(username))
+            if ("要懂的舍得".equals(username) || "要懂得舍得".equals(username) || "admin".equals(username) || "13345678980".equals(username))
             {
                 String encodedPassword = passwordEncoder.encode("admin");
                 passwordEncoder.matches("admin", encodedPassword);
@@ -75,7 +75,7 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
             // 获取用户信息逻辑。。。
             // ...
 
-            if ("要懂的舍得".equals(userId) || "zyw".equals(userId))
+            if ("要懂的舍得".equals(userId) || "要懂得舍得".equals(userId) || "zyw".equals(userId))
             {
                 log.info("Demo ======>: 登录用户名：{}, 登录成功", userId);
                 return new SocialUser(userId,

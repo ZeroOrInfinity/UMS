@@ -1,5 +1,6 @@
 package top.dcenter.security.browser.authentication;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -30,6 +31,7 @@ public class BrowserAuthenticationSuccessHandler extends SavedRequestAwareAuthen
     private final RequestCache requestCache;
     public BrowserAuthenticationSuccessHandler(ObjectMapper objectMapper, BrowserProperties browserProperties) {
         this.objectMapper = objectMapper;
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.requestCache = new HttpSessionRequestCache();
         this.browserProperties = browserProperties;
     }

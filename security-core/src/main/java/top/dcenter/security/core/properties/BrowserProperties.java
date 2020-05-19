@@ -86,6 +86,18 @@ public class BrowserProperties {
      */
     private String failureUrl = this.loginPage;
     /**
+     * 错误页面
+     */
+    private String errorUrl = "/error";
+    /**
+     * 4xx 错误页面
+     */
+    private String error4Url = "/4*.html";
+    /**
+     * 5xx 错误页面
+     */
+    private String error5Url = "/5*.html";
+    /**
      * 设置认证成功默认跳转页面
      */
     private String successUrl = "/";

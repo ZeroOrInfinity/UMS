@@ -4,7 +4,8 @@ import org.springframework.social.security.SocialAuthenticationFilter;
 import org.springframework.social.security.SpringSocialConfigurer;
 
 /**
- * social 第三方登录配置, 如果需要自定义，请实现此类的子类，并注册进 IOC 容器。
+ * social 第三方登录配置, 如果需要自定义，请实现此类的子类，并注册进 IOC 容器。<br>
+ *     注册 IOC 容器后会通过 {@link SocialSecurityConfigurerAware} 自动配置
  * @author zhailiang
  * @medifiedBy  zyw
  * @createdDate 2020-05-09 11:37

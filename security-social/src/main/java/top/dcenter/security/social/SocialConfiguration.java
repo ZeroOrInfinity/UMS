@@ -3,22 +3,32 @@ package top.dcenter.security.social;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.social.config.annotation.EnableSocial;
 import org.springframework.social.config.annotation.SocialConfigurerAdapter;
 import org.springframework.social.connect.ConnectionFactoryLocator;
+import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
+import org.springframework.social.connect.web.ConnectController;
+import org.springframework.social.connect.web.ConnectInterceptor;
+import org.springframework.social.connect.web.DisconnectInterceptor;
 import org.springframework.social.connect.web.ProviderSignInUtils;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.servlet.view.BeanNameViewResolver;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.util.List;
 
 import static top.dcenter.security.core.consts.SecurityConstants.QUERY_DATABASE_NAME_SQL;
 import static top.dcenter.security.core.consts.SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX;
@@ -37,16 +47,20 @@ import static top.dcenter.security.core.consts.SecurityConstants.QUERY_TABLE_EXI
 public class SocialConfiguration extends SocialConfigurerAdapter implements InitializingBean {
     private final DataSource dataSource;
     private final SocialProperties socialProperties;
+    private final List<ConnectInterceptor<?>> connectInterceptors;
+    private final List<DisconnectInterceptor<?>> disconnectInterceptors;
 
     private UsersConnectionRepositoryFactory usersConnectionRepositoryFactory;
 
-    private final Object lockFlag = new Object();
-
-    public SocialConfiguration(DataSource dataSource,
+    public SocialConfiguration(ObjectProvider<List<ConnectInterceptor<?>>> connectInterceptorsProvider,ObjectProvider<List<DisconnectInterceptor<?>>> disconnectInterceptorsProvider,
+                               DataSource dataSource,
                                SocialProperties socialProperties) {
         this.dataSource = dataSource;
         this.socialProperties = socialProperties;
         this.usersConnectionRepositoryFactory = new OAuthJdbcUsersConnectionRepositoryFactory();
+        this.connectInterceptors = connectInterceptorsProvider.getIfAvailable();
+        this.disconnectInterceptors = disconnectInterceptorsProvider.getIfAvailable();
+
     }
 
     @Override
@@ -57,6 +71,31 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
                                                                                socialProperties,
                                                                                null,
                                                                                false);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ConnectController.class)
+    public ConnectController connectController(
+            ConnectionFactoryLocator factoryLocator,
+            ConnectionRepository repository) {
+        ConnectController controller = new ConnectController(factoryLocator,
+                                                             repository);
+        if (!CollectionUtils.isEmpty(this.connectInterceptors)) {
+            controller.setConnectInterceptors(this.connectInterceptors);
+        }
+        if (!CollectionUtils.isEmpty(this.disconnectInterceptors)) {
+            controller.setDisconnectInterceptors(this.disconnectInterceptors);
+        }
+        return controller;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "spring.social", name = "auto-connection-views")
+    public BeanNameViewResolver beanNameViewResolver() {
+        BeanNameViewResolver viewResolver = new BeanNameViewResolver();
+        viewResolver.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return viewResolver;
     }
 
     @Bean

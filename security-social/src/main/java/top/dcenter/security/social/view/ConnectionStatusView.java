@@ -3,11 +3,16 @@
  */
 package top.dcenter.security.social.view;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.social.connect.Connection;
+import org.springframework.social.connect.web.ConnectController;
 import org.springframework.stereotype.Component;
+import org.springframework.ui.Model;
+import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.servlet.view.AbstractView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,15 +23,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 查看用户所有的第三方登录数据
+ * @see ConnectController#connectionStatus(NativeWebRequest, Model)
  * @author zhailiang
- *
  */
 @Component("connect/status")
+@Slf4j
 public class ConnectionStatusView extends AbstractView {
 	
-	@Autowired
-	private ObjectMapper objectMapper;
-	
+	private final ObjectMapper objectMapper;
+
+	public ConnectionStatusView(ObjectMapper objectMapper) {
+		this.objectMapper = objectMapper;
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	}
+
 	/**
 	 * @see org.springframework.web.servlet.view.AbstractView#renderMergedOutputModel(java.util.Map, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
@@ -36,7 +47,9 @@ public class ConnectionStatusView extends AbstractView {
 			HttpServletResponse response) throws Exception {
 		
 		Map<String, List<Connection<?>>> connections = (Map<String, List<Connection<?>>>) model.get("connectionMap");
-		
+		Object providerIds = model.get("providerIds");
+		log.info("providerIds = {}", providerIds);
+		log.info("connections = {}", connections);
 		Map<String, Boolean> result = new HashMap<>();
 		Iterator<Map.Entry<String, List<Connection<?>>>> iterator = connections.entrySet().iterator();
 		while (iterator.hasNext())
@@ -45,7 +58,7 @@ public class ConnectionStatusView extends AbstractView {
 			result.put(next.getKey(), CollectionUtils.isNotEmpty(next.getValue()));
 		}
 
-		response.setContentType("application/json;charset=UTF-8");
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.getWriter().write(objectMapper.writeValueAsString(result));
 	}
 

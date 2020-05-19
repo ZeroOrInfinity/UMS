@@ -20,6 +20,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_P
 public class SocialProperties {
 
     private QqProperties qq = new QqProperties();
+    private GiteeProperties gitee = new GiteeProperties();
     private WeixinProperties weixin = new WeixinProperties();
 
     // ================= 第三方登录注册相关功能 =================
@@ -443,7 +444,21 @@ public class SocialProperties {
         /**
          * 回调地址(格式必须是：domain/filterProcessesUrl/providerId)，默认
          */
-        private String redirectUrl = domain + "/" + filterProcessesUrl + "/" + providerId;
+        private String redirectUrl = domain + filterProcessesUrl + "/" + providerId;
+
+    }
+
+    @Getter
+    @Setter
+    public class GiteeProperties extends SocialBaseProperties {
+        /**
+         * 服务提供商标识, 默认为 gitee
+         */
+        private String providerId = "gitee";
+        /**
+         * 回调地址(格式必须是：domain/filterProcessesUrl/providerId)，默认
+         */
+        private String redirectUrl = domain + filterProcessesUrl + "/" + providerId;
 
     }
 
@@ -462,7 +477,7 @@ public class SocialProperties {
         /**
          * 回调地址(格式必须是：domain/filterProcessesUrl/providerId)，默认
          */
-        private String redirectUrl = domain + "/" + filterProcessesUrl + "/" + providerId;
+        private String redirectUrl = domain + filterProcessesUrl + "/" + providerId;
 
     }
 

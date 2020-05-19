@@ -3,7 +3,6 @@
  */
 package top.dcenter.security.social.weixin.api;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -30,12 +29,12 @@ public class WeixinImpl extends AbstractOAuth2ApiBinding implements Weixin {
 	private final ObjectMapper objectMapper;
 
 	/**
-	 * @param accessToken
-	 */
-	public WeixinImpl(String accessToken) {
+     * @param accessToken
+     * @param objectMapper
+     */
+	public WeixinImpl(String accessToken, ObjectMapper objectMapper) {
 		super(accessToken, TokenStrategy.ACCESS_TOKEN_PARAMETER);
-		this.objectMapper = new ObjectMapper();
-		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		this.objectMapper = objectMapper;
 	}
 	
 	/**

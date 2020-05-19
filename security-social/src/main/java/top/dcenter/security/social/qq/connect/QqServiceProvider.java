@@ -1,5 +1,6 @@
 package top.dcenter.security.social.qq.connect;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.social.oauth2.AbstractOAuth2ServiceProvider;
 import org.springframework.social.oauth2.OAuth2Operations;
 import org.springframework.social.oauth2.OAuth2ServiceProvider;
@@ -24,22 +25,25 @@ public class QqServiceProvider extends AbstractOAuth2ServiceProvider<Qq> {
 
     private String appId;
 
+    private ObjectMapper objectMapper;
+
     /**
      * Create a new {@link OAuth2ServiceProvider}.
      *
      * @param oauth2Operations the OAuth2Operations template for conducting the OAuth 2 flow with the provider.
      */
-    public QqServiceProvider(OAuth2Operations oauth2Operations) {
+    public QqServiceProvider(OAuth2Operations oauth2Operations, ObjectMapper objectMapper) {
         super(oauth2Operations);
+        this.objectMapper = objectMapper;
     }
 
-    public QqServiceProvider(String appId, String appSecret) {
-        this(new QqOauth2Template(appId, appSecret, AUTHORIZE_URL, ACCESS_TOKEN_URL));
+    public QqServiceProvider(String appId, String appSecret, ObjectMapper objectMapper) {
+        this(new QqOauth2Template(appId, appSecret, AUTHORIZE_URL, ACCESS_TOKEN_URL, objectMapper), objectMapper);
         this.appId = appId;
     }
 
     @Override
     public Qq getApi(String accessToken) {
-        return new QqImpl(accessToken, appId);
+        return new QqImpl(accessToken, appId, objectMapper);
     }
 }

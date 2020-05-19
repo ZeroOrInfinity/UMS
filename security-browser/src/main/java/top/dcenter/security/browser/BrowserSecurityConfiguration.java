@@ -214,6 +214,9 @@ public class BrowserSecurityConfiguration extends WebSecurityConfigurerAdapter i
         permitAllSet.add(browserProperties.getFailureUrl());
         permitAllSet.add(browserProperties.getLoginPage());
         permitAllSet.add(browserProperties.getSuccessUrl());
+        permitAllSet.add(browserProperties.getErrorUrl());
+        permitAllSet.add(browserProperties.getError4Url());
+        permitAllSet.add(browserProperties.getError5Url());
 
         return permitAllSet;
     }
