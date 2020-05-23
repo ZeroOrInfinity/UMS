@@ -11,6 +11,7 @@ import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.web.servlet.View;
+import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.social.api.config.OAuth2ConfigurerAdapter;
 import top.dcenter.security.social.SocialProperties;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
@@ -53,8 +54,8 @@ public class QqAutoConfiguration extends OAuth2ConfigurerAdapter {
 
     @Bean({"connect/qqConnect", "connect/qqConnected"})
     @ConditionalOnMissingBean(name = "qqConnectedView")
-    public View qqConnectedView() {
-        return new ConnectView();
+    public View qqConnectedView(BrowserProperties browserProperties) {
+        return new ConnectView(browserProperties, objectMapper);
     }
 
     @Bean("qq")

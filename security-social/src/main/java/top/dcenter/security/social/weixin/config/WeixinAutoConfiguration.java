@@ -14,6 +14,7 @@ import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.web.servlet.View;
+import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.social.api.config.OAuth2ConfigurerAdapter;
 import top.dcenter.security.social.SocialProperties;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
@@ -60,8 +61,8 @@ public class WeixinAutoConfiguration extends OAuth2ConfigurerAdapter {
 
 	@Bean({"connect/weixinConnect", "connect/weixinConnected"})
 	@ConditionalOnMissingBean(name = "weixinConnectedView")
-	public View weixinConnectedView() {
-		return new ConnectView();
+	public View weixinConnectedView(BrowserProperties browserProperties) {
+		return new ConnectView(browserProperties, objectMapper);
 	}
 
 	@Bean("weixin")

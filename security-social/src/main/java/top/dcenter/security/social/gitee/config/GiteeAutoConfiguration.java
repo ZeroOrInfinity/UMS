@@ -11,6 +11,7 @@ import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.web.servlet.View;
+import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.social.api.config.OAuth2ConfigurerAdapter;
 import top.dcenter.security.social.SocialProperties;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
@@ -52,8 +53,8 @@ public class GiteeAutoConfiguration extends OAuth2ConfigurerAdapter {
 
     @Bean({"connect/giteeConnect", "connect/giteeConnected"})
     @ConditionalOnMissingBean(name = "giteeConnectedView")
-    public View giteeConnectedView() {
-        return new ConnectView();
+    public View giteeConnectedView(BrowserProperties browserProperties) {
+        return new ConnectView(browserProperties, objectMapper);
     }
 
     @Bean("gitee")

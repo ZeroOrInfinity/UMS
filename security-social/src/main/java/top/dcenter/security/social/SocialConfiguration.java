@@ -1,5 +1,6 @@
 package top.dcenter.security.social;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -25,10 +26,12 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.view.BeanNameViewResolver;
 import top.dcenter.security.social.api.banding.IBandingController;
 import top.dcenter.security.social.api.config.SocialCoreConfigurer;
+import top.dcenter.security.social.api.repository.OAuthJdbcUsersConnectionRepositoryFactory;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
+import top.dcenter.security.social.api.view.BaseConnectionStatusView;
 import top.dcenter.security.social.banding.BandingConnectController;
-import top.dcenter.security.social.api.repository.OAuthJdbcUsersConnectionRepositoryFactory;
+import top.dcenter.security.social.view.ConnectionStatusView;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -97,6 +100,12 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
             controller.setDisconnectInterceptors(this.disconnectInterceptors);
         }
         return controller;
+    }
+
+    @Bean("connect/status")
+    @ConditionalOnMissingBean(BaseConnectionStatusView.class)
+    public ConnectionStatusView connectionStatusView(ObjectMapper objectMapper) {
+        return new ConnectionStatusView(objectMapper);
     }
 
 

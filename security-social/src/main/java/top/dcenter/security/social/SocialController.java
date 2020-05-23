@@ -38,6 +38,11 @@ public class SocialController {
         this.socialProperties = socialProperties;
     }
 
+    /**
+     * 当前用户的信息
+     * @param request
+     * @return
+     */
     @GetMapping("/social/user")
     @ConditionalOnProperty(prefix = "security.social", name = "social-user-info", havingValue = "/social/user")
     public SocialUserInfo getSocialUserInfo(HttpServletRequest request) {
@@ -54,6 +59,11 @@ public class SocialController {
         return userInfo;
     }
 
+    /**
+     * 统一回调地址路由入口
+     * @param request
+     * @return
+     */
     @GetMapping("/auth/callback")
     public RedirectView authCallbackRouter(HttpServletRequest request) {
 

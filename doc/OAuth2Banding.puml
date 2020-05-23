@@ -1,6 +1,6 @@
 @startuml
 
-browser --> browser: OAuth2登录绑定/解绑开始, 前提用户已登录
+browser --> browser: OAuth2登录绑定/解绑开始,\n 前提用户已登录
 
 browser -> Server: 1 /banding.html 绑定逻辑
 Server --> browser: 1.1 /banding.html
@@ -36,8 +36,8 @@ BandingConnectController --> BandingConnectController: 1.12 connectionStatusRedi
 BandingConnectController --> BandingConnectController: 1.13 RedirectView()，\n 默认跳转到connectionStatus
 BandingConnectController -> ConnectionRepository: 1.13.1 findConnections(providerId)
 ConnectionRepository --> BandingConnectController: 1.14 返回 connections
-BandingConnectController --> browser: 1.15 如果 connections 为空，跳转到/connect/{providerId}Connect
-BandingConnectController --> browser: 1.15 如果 connections 不为空，跳转到/connect/{providerId}Connected
+BandingConnectController --> browser: 1.15 如果 connections 为空，\n跳转到/connect/{providerId}Connect
+BandingConnectController --> browser: 1.15 如果 connections 不为空，\n跳转到/connect/{providerId}Connected
 
 
 browser -> Server: 2 /banding.html 解绑逻辑
@@ -50,8 +50,8 @@ ConnectionFactory --> BandingConnectController: 2.6 返回
 BandingConnectController --> BandingConnectController: 2.7 postDisconnect\n (connectionFactory, request)
 
 BandingConnectController --> BandingConnectController: 2.8 connectionStatusRedirect\n (providerId, request)
-BandingConnectController --> browser: 2.9 如果 connections 为空，跳转到/connect/{providerId}Connect
-BandingConnectController --> browser: 2.9 如果 connections 不为空，跳转到/connect/{providerId}Connected
+BandingConnectController --> browser: 2.9 如果 connections 为空，\n跳转到/connect/{providerId}Connect
+BandingConnectController --> browser: 2.9 如果 connections 不为空，\n跳转到/connect/{providerId}Connected
 
 
 browser --> browser: OAuth2登录绑定/解绑结束
