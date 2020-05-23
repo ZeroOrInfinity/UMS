@@ -32,7 +32,7 @@ public class SocialProperties {
     /**
      * 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /authentication/social 进行处理，由 Social 处理，不需要用户实现
      */
-    private final String registUrl = DEFAULT_LOGIN_PROCESSING_URL_SOCIAL;
+    private final String socialUserRegistUrl = DEFAULT_LOGIN_PROCESSING_URL_SOCIAL;
     /**
      * 第三方登录用户授权成功且未注册，则跳转的注册页面， 默认为 /signUp.html，
      * autoSignIn=true 且实现 ConnectionSignUp 接口则自动登录时 signUpUrl 会失效

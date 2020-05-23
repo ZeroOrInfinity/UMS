@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import top.dcenter.security.core.SocialWebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
 
 import java.util.Map;
 import java.util.Set;

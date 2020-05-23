@@ -27,7 +27,7 @@
         </tr>
         <tr>
             <td>用 户 名：</td>
-            <td><input id="nickname" type="text" name="username"/></td>
+            <td><input id="nickname" type="text" name="username"/><p style="color: #ff0000" id="error"></p></td>
         </tr>
         <tr>
             <td>密码：</td>
@@ -69,9 +69,15 @@
             $("#providerId").text(data.providerId)
             $("#providerUserId").text(data.providerUserId)
             $("#nickname").val(data.nickname)
-            console.log(data.headImg)
             $("#headImg").attr("src", data.headImg)
         }
     })
+    let href = window.location.href
+    href = decodeURI(href)
+    let splits = href.split("?");
+    console.log(splits.length);
+    if (splits.length === 2) {
+        $("#error").text(splits[1].split("=")[1])
+    }
 </script>
 </html>

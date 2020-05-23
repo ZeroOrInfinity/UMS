@@ -3,7 +3,8 @@ package top.dcenter.security.social;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import top.dcenter.security.core.SocialWebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
+import top.dcenter.security.social.api.config.SocialCoreConfigurer;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * social 第三方授权登录相关配置
+ * 把 social 第三方授权登录相关配置添加到 HttpSecurity 中。
  * @see SocialWebSecurityConfigurerAware
  * @author zyw
  * @version V1.0  Created by 2020/5/12 12:02
@@ -45,6 +46,7 @@ public class SocialSecurityConfigurerAware implements SocialWebSecurityConfigure
     @Override
     public Map<String, Set<String>> getAuthorizeRequestMap() {
         Set<String> uriSet = new HashSet<>();
+        uriSet.add(socialProperties.getFilterProcessesUrl());
         uriSet.add(socialProperties.getFilterProcessesUrl() + "/*");
         uriSet.add(socialProperties.getSocialUserInfo());
         Map<String, Set<String>> authorizeRequestMap = new HashMap<>(1);

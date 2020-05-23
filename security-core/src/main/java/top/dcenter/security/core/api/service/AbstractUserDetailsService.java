@@ -1,4 +1,4 @@
-package top.dcenter.security.core.service;
+package top.dcenter.security.core.api.service;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 针对 Gitee，处理 gitee 服务商回调时返回的 JSON 进行解析。
  * @author zyw
  * @version V1.0  Created by 2020/5/19 12:32
  */

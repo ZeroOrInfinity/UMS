@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.http.MediaType;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.web.ConnectController;
@@ -23,12 +24,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 查看用户所有的第三方登录数据
+ * 查看用户所有的第三方登录数据<br>
+ * 继承 {@link AbstractView} 后且注册到 IOC容器后，会替换此类。
  * @see ConnectController#connectionStatus(NativeWebRequest, Model)
  * @author zhailiang
  */
 @Component("connect/status")
 @Slf4j
+@ConditionalOnMissingBean(AbstractView.class)
 public class ConnectionStatusView extends AbstractView {
 	
 	private final ObjectMapper objectMapper;

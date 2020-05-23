@@ -18,12 +18,17 @@ import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
-import org.springframework.social.connect.web.ConnectController;
 import org.springframework.social.connect.web.ConnectInterceptor;
 import org.springframework.social.connect.web.DisconnectInterceptor;
 import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.view.BeanNameViewResolver;
+import top.dcenter.security.social.api.banding.IBandingController;
+import top.dcenter.security.social.api.config.SocialCoreConfigurer;
+import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
+import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
+import top.dcenter.security.social.banding.BandingConnectController;
+import top.dcenter.security.social.api.repository.OAuthJdbcUsersConnectionRepositoryFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -49,18 +54,20 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     private final SocialProperties socialProperties;
     private final List<ConnectInterceptor<?>> connectInterceptors;
     private final List<DisconnectInterceptor<?>> disconnectInterceptors;
+    private final AbstractSocialUserDetailService userDetailService;
 
     private UsersConnectionRepositoryFactory usersConnectionRepositoryFactory;
 
-    public SocialConfiguration(ObjectProvider<List<ConnectInterceptor<?>>> connectInterceptorsProvider,ObjectProvider<List<DisconnectInterceptor<?>>> disconnectInterceptorsProvider,
+    public SocialConfiguration(ObjectProvider<List<ConnectInterceptor<?>>> connectInterceptorsProvider,
+                               ObjectProvider<List<DisconnectInterceptor<?>>> disconnectInterceptorsProvider,
                                DataSource dataSource,
-                               SocialProperties socialProperties) {
+                               SocialProperties socialProperties, AbstractSocialUserDetailService userDetailService) {
         this.dataSource = dataSource;
         this.socialProperties = socialProperties;
+        this.userDetailService = userDetailService;
         this.usersConnectionRepositoryFactory = new OAuthJdbcUsersConnectionRepositoryFactory();
         this.connectInterceptors = connectInterceptorsProvider.getIfAvailable();
         this.disconnectInterceptors = disconnectInterceptorsProvider.getIfAvailable();
-
     }
 
     @Override
@@ -74,12 +81,15 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     }
 
     @Bean
-    @ConditionalOnMissingBean(ConnectController.class)
-    public ConnectController connectController(
+    @ConditionalOnMissingBean(IBandingController.class)
+    public BandingConnectController connectController(
             ConnectionFactoryLocator factoryLocator,
             ConnectionRepository repository) {
-        ConnectController controller = new ConnectController(factoryLocator,
-                                                             repository);
+        BandingConnectController controller = new BandingConnectController(factoryLocator,
+                                                                           repository);
+        // 设置 OAuth 回调地址
+        controller.setCallbackUrl(this.socialProperties.getDomain() + this.socialProperties.getFilterProcessesUrl());
+        // 设置绑定与解绑拦截器
         if (!CollectionUtils.isEmpty(this.connectInterceptors)) {
             controller.setConnectInterceptors(this.connectInterceptors);
         }
@@ -88,6 +98,7 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
         }
         return controller;
     }
+
 
     @Bean
     @ConditionalOnMissingBean
@@ -112,7 +123,7 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     @Bean
     @ConditionalOnMissingBean(ConnectionSignUp.class)
     public ConnectionSignUp connectionSignUp() {
-        return new DefaultConnectionSignUp();
+        return new DefaultConnectionSignUp(userDetailService);
     }
 
     @Bean

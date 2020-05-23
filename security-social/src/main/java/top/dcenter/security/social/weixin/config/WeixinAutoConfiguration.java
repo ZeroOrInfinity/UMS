@@ -14,9 +14,9 @@ import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.web.servlet.View;
-import top.dcenter.security.social.OAuth2ConfigurerAdapter;
+import top.dcenter.security.social.api.config.OAuth2ConfigurerAdapter;
 import top.dcenter.security.social.SocialProperties;
-import top.dcenter.security.social.UsersConnectionRepositoryFactory;
+import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.view.ConnectView;
 import top.dcenter.security.social.weixin.connect.WeixinConnectionFactory;
 

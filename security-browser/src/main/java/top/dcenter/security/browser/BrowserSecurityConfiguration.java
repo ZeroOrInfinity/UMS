@@ -14,10 +14,9 @@ import org.springframework.security.web.authentication.rememberme.JdbcTokenRepos
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.security.browser.authentication.BrowserAuthenticationFailureHandler;
 import top.dcenter.security.browser.authentication.BrowserAuthenticationSuccessHandler;
-import top.dcenter.security.core.SocialWebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
+import top.dcenter.security.core.api.service.AbstractUserDetailsService;
 import top.dcenter.security.core.properties.BrowserProperties;
-import top.dcenter.security.core.service.AbstractUserDetailsService;
-import top.dcenter.security.core.validate.code.ValidateCodeSecurityConfig;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -27,12 +26,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.anonymous;
-import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.authenticated;
-import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.denyAll;
-import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.fullyAuthenticated;
-import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.permitAll;
-import static top.dcenter.security.core.SocialWebSecurityConfigurerAware.rememberMe;
+import static top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware.anonymous;
+import static top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware.authenticated;
+import static top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware.denyAll;
+import static top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware.fullyAuthenticated;
+import static top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware.permitAll;
+import static top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware.rememberMe;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REMEMBER_ME_NAME;
 import static top.dcenter.security.core.consts.SecurityConstants.QUERY_DATABASE_NAME_SQL;
 import static top.dcenter.security.core.consts.SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX;
@@ -51,7 +50,6 @@ public class BrowserSecurityConfiguration extends WebSecurityConfigurerAdapter i
     private final BrowserProperties browserProperties;
     private final BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler;
     private final BrowserAuthenticationFailureHandler browserAuthenticationFailureHandler;
-    private final ValidateCodeSecurityConfig validateCodeSecurityConfig;
     private final DataSource dataSource;
 
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
@@ -65,12 +63,10 @@ public class BrowserSecurityConfiguration extends WebSecurityConfigurerAdapter i
     public BrowserSecurityConfiguration(BrowserProperties browserProperties,
                                         BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler,
                                         BrowserAuthenticationFailureHandler browserAuthenticationFailureHandler,
-                                        ValidateCodeSecurityConfig validateCodeSecurityConfig,
                                         DataSource dataSource) {
         this.browserProperties = browserProperties;
         this.browserAuthenticationSuccessHandler = browserAuthenticationSuccessHandler;
         this.browserAuthenticationFailureHandler = browserAuthenticationFailureHandler;
-        this.validateCodeSecurityConfig = validateCodeSecurityConfig;
         this.dataSource = dataSource;
     }
 

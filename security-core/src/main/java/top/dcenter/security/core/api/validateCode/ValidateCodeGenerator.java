@@ -1,4 +1,4 @@
-package top.dcenter.security.core.validate.code;
+package top.dcenter.security.core.api.validateCode;
 
 import javax.servlet.ServletRequest;
 

@@ -1,4 +1,4 @@
-package top.dcenter.security.social;
+package top.dcenter.security.social.api.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +11,8 @@ import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.security.AuthenticationNameUserIdSource;
+import top.dcenter.security.social.SocialProperties;
+import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 
 import javax.sql.DataSource;
 

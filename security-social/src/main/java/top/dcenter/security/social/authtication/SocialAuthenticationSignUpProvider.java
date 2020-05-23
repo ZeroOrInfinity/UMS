@@ -5,7 +5,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.social.connect.web.ProviderSignInUtils;
-import top.dcenter.security.social.AbstractSocialUserDetailService;
+import top.dcenter.security.core.excception.RegisterUserFailureException;
+import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
 
 /**
  * social 第三方授权登录注册 Provider
@@ -33,12 +34,14 @@ public class SocialAuthenticationSignUpProvider implements AuthenticationProvide
         if (user == null)
         {
             user = userDetailsService.registerUser(authenticationToken.getRequest(), providerSignInUtils);
+            SocialAuthenticationSignUpToken authenticationResult =
+                    new SocialAuthenticationSignUpToken(user.getUsername(),
+                                                                       user.getPassword(),
+                                                                       user.getAuthorities());
+            authenticationResult.setDetails(authenticationToken.getDetails());
+            return authenticationResult;
         }
-        SocialAuthenticationSignUpToken authenticationResult = new SocialAuthenticationSignUpToken(user.getUsername(),
-                                                                                                   user.getPassword(),
-                                                                                                   user.getAuthorities());
-        authenticationResult.setDetails(authenticationToken.getDetails());
-        return authenticationResult;
+        throw new RegisterUserFailureException("Username used");
     }
 
     @Override

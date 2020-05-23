@@ -1,16 +1,15 @@
 package top.dcenter.security.social.qq.connect;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.social.oauth2.OAuth2Template;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import top.dcenter.security.core.util.CastUtil;
+import top.dcenter.security.social.qq.api.Qq;
 
 import java.nio.charset.Charset;
 import java.util.List;
@@ -52,23 +51,17 @@ public class QqOauth2Template extends OAuth2Template {
 
     @Override
     protected QqAccessGrant postForAccessGrant(String accessTokenUrl, MultiValueMap<String, String> parameters) {
-//        Map<String, String> responseMap = extractAccessGrantMap(getRestTemplate().postForObject(accessTokenUrl, parameters, String.class));
+        Map<String, String> responseMap = extractAccessGrantMap(getRestTemplate().postForObject(accessTokenUrl, parameters, String.class));
         String responseStr = getRestTemplate().postForObject(accessTokenUrl, parameters, String.class);
-        QqAccessGrant accessGrant = null;
-        try
+        String expiresInStr = responseMap.get(Qq.EXPIRES_IN);
+        Long expiresIn = null;
+        if (!StringUtils.isEmpty(expiresInStr))
         {
-            accessGrant = this.objectMapper.readValue(responseStr, QqAccessGrant.class);
+            expiresIn = Long.valueOf(expiresInStr);
         }
-        catch (JsonProcessingException e)
-        {
-            log.error(e.getMessage(), e);
-            throw new HttpClientErrorException(HttpStatus.OK,
-                                               "ObjectMapper string 转 AccessGrant 异常: " + e.getMessage());
-        }
-        return accessGrant;
 
-//        return new QqAccessGrant(responseMap.get(Qq.ACCESS_TOKEN), responseMap.get(Qq.SCOPE),
-//                                 responseMap.get(Qq.REFRESH_TOKEN), expiresIn);
+        return new QqAccessGrant(responseMap.get(Qq.ACCESS_TOKEN), responseMap.get(Qq.SCOPE),
+                                 responseMap.get(Qq.REFRESH_TOKEN), expiresIn);
     }
 
     private Map<String, String> extractAccessGrantMap(String responseResult) {

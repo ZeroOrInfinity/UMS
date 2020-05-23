@@ -2,6 +2,8 @@ package top.dcenter.security.browser.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -9,7 +11,9 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import top.dcenter.security.browser.api.controller.BaseBrowserSecurityController;
 import top.dcenter.security.core.excception.IllegalAccessUrlException;
 import top.dcenter.security.core.properties.BrowserProperties;
 
@@ -22,15 +26,16 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UNAUTHE
 import static top.dcenter.security.core.consts.SecurityConstants.INTERNAL_SERVER_ERROR_MSG;
 
 /**
- * 网页端认证 controller
- *
+ * 网页端认证 controller.<br>
+ * 如果要自定义网页端 url 认证与授权的路由控制，请实现 {@link BaseBrowserSecurityController} 接口，并注入 IOC 容器即可
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 17:43
  * @medifiedBy zyw
  */
 @RestController
+@ConditionalOnClass(BaseBrowserSecurityController.class)
 @Slf4j
-public class BrowserSecurityController {
+public class BrowserSecurityController implements BaseBrowserSecurityController {
 
     private final RequestCache requestCache;
     private final RedirectStrategy redirectStrategy;
@@ -55,6 +60,7 @@ public class BrowserSecurityController {
      * @version V1.0  Created by 2020/5/3 17:43
      */
     @RequestMapping(DEFAULT_UNAUTHENTICATION_URL)
+    @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
     public void requireAuthentication(HttpServletRequest request, HttpServletResponse response) {
         try
         {
@@ -62,7 +68,10 @@ public class BrowserSecurityController {
             if (savedRequest != null)
             {
                 String targetUrl = savedRequest.getRedirectUrl();
-                log.info("引发跳转的请求是：{}", targetUrl);
+                if (log.isInfoEnabled())
+                {
+                    log.info("引发跳转的请求是：{}", targetUrl);
+                }
                 if (StringUtils.isNotBlank(targetUrl))
                 {
                     targetUrl = targetUrl.replaceFirst("^.*://[^/]*(/.*$)", "$1");

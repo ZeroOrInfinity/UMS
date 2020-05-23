@@ -38,6 +38,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 /**
+ * 针对 Gitee，处理 gitee 服务商回调时返回的 JSON 进行解析。
  * Response extractor that uses the given {@linkplain HttpMessageConverter entity converters}
  * to convert the response into a type {@code T}.
  *

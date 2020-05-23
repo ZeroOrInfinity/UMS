@@ -1,4 +1,4 @@
-package top.dcenter.security.core;
+package top.dcenter.security.core.api.config;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 

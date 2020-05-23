@@ -13,7 +13,6 @@ import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
 
 import javax.sql.DataSource;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -75,9 +74,10 @@ public class OAuthJdbcUsersConnectionRepository implements UsersConnectionReposi
             if (newUserId != null)
             {
                 createConnectionRepository(newUserId).addConnection(connection);
-                return Arrays.asList(newUserId);
+                return List.of(newUserId);
             }
         }
+
         return localUserIds;
     }
 

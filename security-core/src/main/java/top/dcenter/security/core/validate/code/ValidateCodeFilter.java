@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.filter.OncePerRequestFilter;
+import top.dcenter.security.core.api.validateCode.ValidateCodeProcessor;
 import top.dcenter.security.core.excception.ValidateCodeException;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.util.CastUtil;

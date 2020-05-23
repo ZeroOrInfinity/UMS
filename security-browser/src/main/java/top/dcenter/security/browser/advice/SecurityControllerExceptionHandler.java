@@ -44,10 +44,10 @@ public class SecurityControllerExceptionHandler {
     
     @ExceptionHandler(ValidateCodeException.class)
     @ResponseBody
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public SimpleResponse validateCodeException(ValidateCodeException ex) {
         log.error(ex.getMessage(), ex);
-        return SimpleResponse.fail(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        return SimpleResponse.fail(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
     }
 
     @ExceptionHandler(ValidateCodeParamErrorException.class)

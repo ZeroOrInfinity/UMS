@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.validate.code.ValidateCode;
-import top.dcenter.security.core.validate.code.ValidateCodeGenerator;
+import top.dcenter.security.core.api.validateCode.ValidateCodeGenerator;
 import top.dcenter.security.core.validate.code.imagecode.ImageCode;
 import top.dcenter.security.core.validate.code.imagecode.ImageValidateCodeProcessor;
 

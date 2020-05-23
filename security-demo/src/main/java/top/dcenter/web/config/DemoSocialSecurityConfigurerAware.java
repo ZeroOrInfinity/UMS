@@ -3,8 +3,8 @@ package top.dcenter.web.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import top.dcenter.security.core.SocialWebSecurityConfigurerAware;
-import top.dcenter.security.social.SocialCoreConfigurer;
+import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
+import top.dcenter.security.social.api.config.SocialCoreConfigurer;
 import top.dcenter.security.social.SocialProperties;
 
 import java.util.HashMap;

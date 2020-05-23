@@ -5,12 +5,26 @@
     <title>sign in</title>
 </head>
 <body>
-    <h2>Demo绑定页, 请替换本页，/auth/callback/{providerId} 用户不需要自己处理，只需要配置 security.social.{providerId}.* 下的属性就行，可参考
-        SocialProperties 与 security-demo 的 application.properties</h2>
-    <h3>替换本页，请配置 security.social.bandingUrl 属性来设置自己的绑定页面</h3>
+    <h2>Demo绑定页, 请替换本页，请配置 security.social.bandingUrl 属性来设置自己的绑定页面</h2>
     <h3>社交登录绑定</h3>
-    <a href="/auth/callback/qq">QQ 登录</a>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <a href="/auth/callback/weixin">微信登录</a>
+    <form action="/connect/gitee" method="post">
+        <button type="submit" value="">码云绑定</button>
+    </form>
+    <form action="/connect/qq" method="post">
+        <button type="submit" value="">QQ 绑 定</button>
+    </form>
+    <form action="/connect/weixin" method="post">
+        <button type="submit" value="">微信绑定</button>
+    </form>
+    <h3>社交登录解绑</h3>
+    <form action="/connect/gitee" method="delete">
+        <button type="submit" value="">码云解绑</button>
+    </form>
+    <form action="/connect/qq" method="delete">
+        <button type="submit" value="">QQ 解 绑</button>
+    </form>
+    <form action="/connect/weixin" method="delete">
+        <button type="submit" value="">微信解绑</button>
+    </form>
 </body>
 </html>

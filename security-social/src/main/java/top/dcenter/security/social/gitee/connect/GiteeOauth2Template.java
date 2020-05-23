@@ -53,11 +53,16 @@ public class GiteeOauth2Template extends OAuth2Template {
     @Override
     protected AccessGrant postForAccessGrant(String accessTokenUrl, MultiValueMap<String, String> parameters) {
         String responseStr = getRestTemplate().postForObject(accessTokenUrl, parameters, String.class);
-        GiteeAccessGrant giteeAccessGrant;
         try
         {
-            giteeAccessGrant = this.objectMapper.readValue(responseStr, GiteeAccessGrant.class);
-            giteeAccessGrant.setExpiresIn(giteeAccessGrant.getExpiresIn());
+            GiteeAccessGrant giteeAccessGrant = this.objectMapper.readValue(responseStr, GiteeAccessGrant.class);
+            return new GiteeAccessGrant(giteeAccessGrant.getAccessToken(),
+                                        giteeAccessGrant.getScope(),
+                                        giteeAccessGrant.getRefreshToken(),
+                                        giteeAccessGrant.getExpiresIn(),
+                                        giteeAccessGrant.getCreatedAt(),
+                                        giteeAccessGrant.getTokenType());
+
         }
         catch (JsonProcessingException e)
         {
@@ -65,7 +70,6 @@ public class GiteeOauth2Template extends OAuth2Template {
             throw new HttpClientErrorException(HttpStatus.OK,
                                                "ObjectMapper string 转 AccessGrant 异常: " + e.getMessage());
         }
-        return giteeAccessGrant;
     }
 
 }

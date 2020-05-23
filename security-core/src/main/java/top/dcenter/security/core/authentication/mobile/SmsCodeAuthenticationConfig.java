@@ -12,10 +12,13 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.service.AbstractUserDetailsService;
+import top.dcenter.security.core.api.service.AbstractUserDetailsService;
 
 import java.util.UUID;
+
+import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REMEMBER_ME_NAME;
 
 
 /**
@@ -37,6 +40,10 @@ public class SmsCodeAuthenticationConfig extends SecurityConfigurerAdapter<Defau
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private PersistentTokenRepository persistentTokenRepository;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired
+    private BrowserProperties browserProperties;
+
     public SmsCodeAuthenticationConfig(ValidateCodeProperties validateCodeProperties,
                                        AuthenticationFailureHandler browserAuthenticationFailureHandler,
                                        AuthenticationSuccessHandler browserAuthenticationSuccessHandler) {
@@ -55,6 +62,8 @@ public class SmsCodeAuthenticationConfig extends SecurityConfigurerAdapter<Defau
         smsCodeAuthenticationFilter.setAuthenticationFailureHandler(browserAuthenticationFailureHandler);
 
         PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices = new PersistentTokenBasedRememberMeServices(getKey(), userDetailsService, persistentTokenRepository);
+        persistentTokenBasedRememberMeServices.setTokenValiditySeconds(browserProperties.getRememberMeSeconds());
+        persistentTokenBasedRememberMeServices.setParameter(DEFAULT_REMEMBER_ME_NAME);
         // 添加rememberMe功能配置
         smsCodeAuthenticationFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
 

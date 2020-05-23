@@ -1,10 +1,11 @@
-package top.dcenter.security.core;
+package top.dcenter.security.core.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.validate.code.ValidateCodeSecurityConfig;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,16 +24,17 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDAT
 public class ValidateCodeConfigurerAware implements SocialWebSecurityConfigurerAware {
 
     private final ValidateCodeProperties validateCodeProperties;
-    private final ValidateCodeSecurityConfig validateCodeSecurityConfig;
+    private final ValidateCodeFilter validateCodeFilter;
 
-    public ValidateCodeConfigurerAware(ValidateCodeProperties validateCodeProperties, ValidateCodeSecurityConfig validateCodeSecurityConfig) {
+    public ValidateCodeConfigurerAware(ValidateCodeProperties validateCodeProperties,
+                                       ValidateCodeFilter validateCodeFilter) {
         this.validateCodeProperties = validateCodeProperties;
-        this.validateCodeSecurityConfig = validateCodeSecurityConfig;
+        this.validateCodeFilter = validateCodeFilter;
     }
 
     @Override
     public void postConfigure(HttpSecurity http) throws Exception {
-        http.apply(validateCodeSecurityConfig);
+        http.addFilterBefore(validateCodeFilter, AbstractPreAuthenticatedProcessingFilter.class);
     }
 
     @Override

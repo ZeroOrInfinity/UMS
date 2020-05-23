@@ -72,6 +72,7 @@ public class SecurityConstants {
     public static final String SESSION_KEY_SMS = "SESSION_KEY_SMS_CODE";
 
 
+    // =============== url 相关 ===============
     /**
      * request GET Method
      */
@@ -80,6 +81,14 @@ public class SecurityConstants {
      * request POST Method
      */
     public static final String POST_METHOD = "POST";
+    /**
+     * url 参数标识符
+     */
+    public static final String URL_PARAMETER_IDENTIFIER = "?";
+    /**
+     * url 路径之间分隔符
+     */
+    public static final String URL_SEPARATOR = "/";
     /**
      * url 请求上带的参数之间分隔符
      */

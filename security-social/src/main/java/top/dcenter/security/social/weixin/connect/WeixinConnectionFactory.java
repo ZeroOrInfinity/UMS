@@ -8,9 +8,9 @@ import org.springframework.social.connect.ApiAdapter;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
 import org.springframework.social.connect.support.OAuth2Connection;
-import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 import org.springframework.social.oauth2.AccessGrant;
 import org.springframework.social.oauth2.OAuth2ServiceProvider;
+import top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory;
 import top.dcenter.security.social.weixin.api.Weixin;
 
 
@@ -20,7 +20,7 @@ import top.dcenter.security.social.weixin.api.Weixin;
  * @author zhailiang
  *
  */
-public class WeixinConnectionFactory extends OAuth2ConnectionFactory<Weixin> {
+public class WeixinConnectionFactory extends BaseOAuth2ConnectionFactory<Weixin> {
 	
 	/**
      * @param appId
@@ -67,5 +67,9 @@ public class WeixinConnectionFactory extends OAuth2ConnectionFactory<Weixin> {
 		return (OAuth2ServiceProvider<Weixin>) getServiceProvider();
 	}
 
-	
+	@Override
+	public String generateState() {
+		return generateState("/auth/callback/"+ getProviderId());
+	}
+
 }

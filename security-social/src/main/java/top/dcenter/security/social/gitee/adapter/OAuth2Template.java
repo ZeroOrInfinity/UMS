@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
+ * 针对 Gitee，处理 gitee 服务商回调时返回的 JSON 进行解析。
  * OAuth2Operations implementation that uses REST-template to make the OAuth calls.
  * @author Keith Donald
  * @author Roy Clarkson
@@ -352,7 +353,9 @@ public class OAuth2Template implements OAuth2Operations {
 
 		@Override
 		public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-			request.getHeaders().set("Authorization", "Basic " + new String(Base64.encode((username + ":" + password).getBytes(charset)), charset));
+			// todo 查看设置headers的时机，如果是用来上传给客户端的则修改加密方式
+			request.getHeaders().set("Authorization",
+			                         "Basic " + new String(Base64.encode((username + ":" + password).getBytes(charset)), charset));
 			return execution.execute(request, body);
 		}
 

@@ -2,9 +2,9 @@ package top.dcenter.security.core.validate.code.imagecode;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.security.core.validate.code.AbstractValidateCodeProcessor;
+import top.dcenter.security.core.api.validateCode.AbstractValidateCodeProcessor;
 import top.dcenter.security.core.validate.code.ValidateCode;
-import top.dcenter.security.core.validate.code.ValidateCodeGenerator;
+import top.dcenter.security.core.api.validateCode.ValidateCodeGenerator;
 import top.dcenter.security.core.validate.code.ValidateCodeType;
 
 import javax.imageio.ImageIO;
@@ -33,7 +33,7 @@ public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
                 return false;
             }
             ImageCode imageCode = (ImageCode) validateCode;
-            // TODO 这里可以优化，可以先生成图片，在从图片文件中读取
+            // TODO 这里可以优化，可以先生成一点数量的图片池，再从图片文件池中读取验证码图片
             ImageIO.write(imageCode.getImage(), "JPEG", request.getResponse().getOutputStream());
             return true;
         }

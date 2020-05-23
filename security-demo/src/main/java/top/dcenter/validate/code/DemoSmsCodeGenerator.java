@@ -3,9 +3,9 @@ package top.dcenter.validate.code;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.util.CodeUtil;
 import top.dcenter.security.core.validate.code.ValidateCode;
 import top.dcenter.security.core.validate.code.smscode.SmsCodeGenerator;
+import top.dcenter.security.core.api.validateCode.SmsCodeSender;
 
 import javax.servlet.ServletRequest;
 
@@ -18,25 +18,24 @@ import javax.servlet.ServletRequest;
 @Slf4j
 public class DemoSmsCodeGenerator extends SmsCodeGenerator {
 
+    private final SmsCodeSender smsCodeSender;
     private final ValidateCodeProperties validateCodeProperties;
 
-    public DemoSmsCodeGenerator(ValidateCodeProperties validateCodeProperties) {
-        super(validateCodeProperties);
+    public DemoSmsCodeGenerator(SmsCodeSender smsCodeSender, ValidateCodeProperties validateCodeProperties) {
+        super(validateCodeProperties, smsCodeSender);
+        this.smsCodeSender = smsCodeSender;
         this.validateCodeProperties = validateCodeProperties;
     }
 
     @Override
     public ValidateCode generate(ServletRequest request) {
-        ValidateCodeProperties.SmsCodeProperties smsCodeProp = this.validateCodeProperties.getSms();
-        int expireIn = smsCodeProp.getExpire();
-        int codeLength = smsCodeProp.getLength();
-
-        String code = CodeUtil.generateNumberVerifyCode(codeLength);
+        ValidateCode validateCode = smsCodeSender.getCode();
         if (log.isDebugEnabled())
         {
-            log.debug("Demo =======>: {} = {}", smsCodeProp.getRequestParamSmsCodeName(), code);
+            log.debug("Demo =======>: {} = {}", this.validateCodeProperties.getSms().getRequestParamSmsCodeName(),
+                      validateCode.getCode());
         }
-        return new ValidateCode(code, expireIn);
+        return validateCode;
     }
 
 }

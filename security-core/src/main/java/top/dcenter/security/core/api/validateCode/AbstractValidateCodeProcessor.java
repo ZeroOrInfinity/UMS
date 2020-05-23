@@ -1,4 +1,4 @@
-package top.dcenter.security.core.validate.code;
+package top.dcenter.security.core.api.validateCode;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -8,6 +8,8 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.excception.ValidateCodeException;
+import top.dcenter.security.core.validate.code.ValidateCode;
+import top.dcenter.security.core.validate.code.ValidateCodeType;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,7 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 校验码处理逻辑的默认实现
+ * 校验码处理逻辑的默认实现抽象类
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/6 10:14
@@ -50,7 +52,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         try
         {
             validateCode = generate(request);
-            save(request, validateCode);
+            saveSession(request, validateCode);
             boolean validateStatus = sent(request, validateCode);
             if (!validateStatus)
             {
@@ -82,7 +84,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     }
 
     @Override
-    public boolean save(ServletWebRequest request, ValidateCode validateCode) {
+    public boolean saveSession(ServletWebRequest request, ValidateCode validateCode) {
         try {
             ValidateCodeType validateCodeType = getValidateCodeType(getValidateCodeType());
             if (validateCodeType == null)

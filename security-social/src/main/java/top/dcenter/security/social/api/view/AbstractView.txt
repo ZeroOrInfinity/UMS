@@ -1,0 +1,2 @@
+top.dcenter.security.social.view.ConnectionStatusView 功能：查看用户所有的第三方登录数据信息，要自定义此功能，
+继承 org.springframework.web.servlet.view.AbstractView 后且注册到 IOC容器后，会替换ConnectionStatusView。

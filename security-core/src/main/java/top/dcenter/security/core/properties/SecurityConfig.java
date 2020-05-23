@@ -1,7 +1,11 @@
 package top.dcenter.security.core.properties;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Set;
 
 /**
  * security 配置
@@ -13,4 +17,5 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties({BrowserProperties.class, ValidateCodeProperties.class,
         SmsCodeAuthenticationProperties.class})
 public class SecurityConfig {
+
 }

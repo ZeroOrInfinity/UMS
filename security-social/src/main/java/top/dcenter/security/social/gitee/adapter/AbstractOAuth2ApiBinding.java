@@ -41,6 +41,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * 针对 Gitee，处理 gitee 服务商回调时返回的 JSON 进行解析。
  * Base class for OAuth 2-based provider API bindings.
  * @author Craig Walls
  * @author Greg Turnquist

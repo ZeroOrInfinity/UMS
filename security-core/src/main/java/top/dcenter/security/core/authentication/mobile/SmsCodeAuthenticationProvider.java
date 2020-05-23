@@ -4,7 +4,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import top.dcenter.security.core.service.AbstractUserDetailsService;
+import top.dcenter.security.core.api.service.AbstractUserDetailsService;
 
 /**
  * 短信登录 Provider
@@ -26,10 +26,10 @@ public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
             return null;
         }
         SmsCodeAuthenticationToken authenticationToken = (SmsCodeAuthenticationToken) authentication;
-        UserDetails user = userDetailsService.loadUserByUsername((String) authenticationToken.getPrincipal());
+        UserDetails user = this.userDetailsService.loadUserByUsername((String) authenticationToken.getPrincipal());
         if (user == null)
         {
-            user = userDetailsService.registerUser((String) authenticationToken.getPrincipal());
+            user = this.userDetailsService.registerUser((String) authenticationToken.getPrincipal());
 
         }
         SmsCodeAuthenticationToken authenticationResult = new SmsCodeAuthenticationToken(user, user.getAuthorities());

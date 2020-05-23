@@ -1,0 +1,93 @@
+@startuml
+
+browser --> browser: OAuth2登录流程开始
+
+browser -> SocialAuthenticationFilter: 1 /auth/callback/qq
+
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 1.1 doFilter()
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 1.1.1 attemptAuthService()
+SocialAuthenticationFilter -> SocialOAuth2AuthenticationService: 1.1.1.1 getAuthToken()
+SocialOAuth2AuthenticationService --> SocialOAuth2AuthenticationService: 1.1.1.1 request.getParameter("code") 等于空
+SocialOAuth2AuthenticationService --> SocialOAuth2AuthenticationService: 1.1.1.2 params = new OAuth2Parameters()
+SocialOAuth2AuthenticationService --> SocialOAuth2AuthenticationService: 1.1.1.3 params.setRedirectUri(buildReturnToUrl (request))
+SocialOAuth2AuthenticationService --> SocialOAuth2AuthenticationService: 1.1.1.3.1 buildReturnToUrl(), 重新实现以便支持统一的回调地址路由到多个回调地址
+SocialOAuth2AuthenticationService --> SocialOAuth2AuthenticationService: 1.1.1.4 params.add("state", generateState (connectionFactory, request))
+SocialOAuth2AuthenticationService --> SocialOAuth2AuthenticationService: 1.1.1.5 addCustomParameters(params)
+SocialOAuth2AuthenticationService --> SocialOAuth2AuthenticationService: 1.1.1.6 getConnectionFactory().getOAuthOperations().buildAuthenticateUrl(params)
+SocialOAuth2AuthenticationService --> SocialAuthenticationFilter: 1.1.2 SocialAuthenticationRedirectException(RedirectUrl)
+SocialAuthenticationFilter --> browser: 1.2 跳转第三方进行授权
+
+browser -> SocialController: 2 /auth/callback 对 state 进行解密并拼出真实回调 uri，再进行跳转
+SocialController --> SocialAuthenticationFilter: 2.1 attemptAuthService()
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 2.1.1 doFilter()
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 2.1.2 attemptAuthService()
+SocialAuthenticationFilter -> SocialOAuth2AuthenticationService: 2.1.3 getAuthToken()
+SocialOAuth2AuthenticationService --> SocialOAuth2AuthenticationService: 2.1.3.1 request.getParameter("code") 不等于空
+SocialOAuth2AuthenticationService --> SocialOAuth2AuthenticationService: 2.1.3.2 returnToUrl = buildReturnToUrl(request)
+SocialOAuth2AuthenticationService --> SocialOAuth2AuthenticationService: 2.1.3.3 accessGrant = exchangeForAccess(code, returnToUrl, null)
+SocialOAuth2AuthenticationService --> SocialOAuth2AuthenticationService: 2.1.3.4 token = createConnection(accessGrant)从第三方服务商获取用户信息
+SocialOAuth2AuthenticationService --> SocialAuthenticationFilter: 2.1.4 getAuthentication() = auth 在缓存中检查是否有认证通过
+SocialOAuth2AuthenticationService --> SocialAuthenticationFilter: 2.1.4.1  auth=null && !auth.isAuthenticated() 没有认证
+SocialOAuth2AuthenticationService --> SocialAuthenticationFilter: 2.1.4.1 doAuthentication(authService,request,token)
+
+SocialAuthenticationFilter -> ProviderManager: 2.1.4.1.1 authenticate(token)
+ProviderManager -> SocialAuthenticationProvider: 2.1.4.1.1 authenticate(token)
+
+SocialAuthenticationProvider --> SocialAuthenticationProvider: 2.1.4.1.1.1 get connection token providerId
+SocialAuthenticationProvider --> SocialAuthenticationProvider: 2.1.4.1.1.2 userId = toUserId(connection)
+SocialAuthenticationProvider -> OAuthJdbcUsersConnectionRepository: 2.1.4.1.1.2.1 findUserIdsWithConnection(connection)
+OAuthJdbcUsersConnectionRepository --> OAuthJdbcUsersConnectionRepository: 2.1.4.1.1.2.1.1 userIds.size()==0 && ConnectionSignUp!=null成立则《自动注册>用户信息
+OAuthJdbcUsersConnectionRepository -> ConnectionSignUp: 2.1.4.1.1.2.1.1.1 execute(c) 根据提交的信息查询并确认是否有newUserId
+ConnectionSignUp --> OAuthJdbcUsersConnectionRepository: 2.1.4.1.1.2.1.1.1.1 当newUserId有值则userIds=addConnection(c)添加用户信息
+ConnectionSignUp --> OAuthJdbcUsersConnectionRepository: 2.1.4.1.1.2.1.1.1.1 当newUserId有值则userIds=null
+OAuthJdbcUsersConnectionRepository --> SocialAuthenticationProvider: 2.1.4.1.1.3 返回的userIds，为null表示用户未注册或没有开启自动注册功能，否则反之
+SocialAuthenticationProvider --> SocialAuthenticationProvider: 2.1.4.1.1.3.0 根据 userIds 返回 userId
+
+SocialAuthenticationProvider --> SocialAuthenticationProvider: 2.1.4.1.1.3.1 如果userId=null则抛出BadCredentialsException ("Unknown access token")
+SocialAuthenticationProvider --> ProviderManager: 2.1.4.1.6 BadCredentialsException("Unknown access token")
+ProviderManager --> SocialAuthenticationFilter: 2.1.5 SocialAuthenticationRedirectException(buildSignupUrl(request))
+SocialAuthenticationFilter --> browser: 2.2 跳转到 /signUp.html  后续流程看 OAuth2SignUp.puml
+
+SocialAuthenticationProvider --> SocialAuthenticationProvider: 2.1.4.1.1.3.1 如果userId有值
+SocialAuthenticationProvider -> SocialOAuth2AuthenticationService: 2.1.4.1.1.3.1.2.1: userDetails=loadUserByUserId(userId) 查询用户信息
+SocialOAuth2AuthenticationService --> SocialAuthenticationProvider: 2.1.4.1.1.3.2: userDetails != null
+SocialAuthenticationProvider --> ProviderManager: 2.1.4.1.1.4: 返回SocialAuthenticationToken
+ProviderManager --> SocialAuthenticationFilter: 2.1.4.1.2: 返回SocialAuthenticationToken
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 2.1.4.1.3: updateConnections(authService, token, success)更新用户信息
+SocialAuthenticationFilter -> OAuthJdbcUsersConnectionRepository: 2.1.4.1.3.2: updateConnection(connection)更新用户信息
+OAuthJdbcUsersConnectionRepository -> OAuthJdbcUsersConnectionRepository: 2.1.4.1.3.2.1: this.updateConnections==true是才更新
+OAuthJdbcUsersConnectionRepository --> SocialAuthenticationFilter: 2.1.4.1.3.3: 返回
+SocialAuthenticationFilter --> browser: 2.3: 第三方授权登录成功，返回 RedirectUrl 或 DefaultSuccessUrl
+
+SocialOAuth2AuthenticationService --> SocialAuthenticationProvider: 2.1.4.1.1.3.2: userDetails == null
+SocialAuthenticationProvider --> ProviderManager: 2.1.4.1.1.5: UsernameNotFoundException("Unknown connected account id")
+ProviderManager --> SocialAuthenticationFilter: 2.1.4.1.3: UsernameNotFoundException("Unknown connected account id")
+SocialAuthenticationFilter -> SocialAuthenticationFailureHandler: 2.1.5: UsernameNotFoundException("Unknown connected account id")
+SocialAuthenticationFailureHandler --> browser: 2.3: 根据LoginType类型返回 JSON 或 HTML 格式的错误信息
+
+
+SocialOAuth2AuthenticationService --> SocialAuthenticationFilter: 2.1.4.1  auth 已经认证通过
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 2.1.4.2  addConnection(authService, request, token, auth)
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 2.1.4.2.1  userId = userIdSource.getUserId()
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 2.1.4.2.2  principal = token.getPrincipal()
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 2.1.4.2.3  addConnection(authService, userId, principal)
+SocialAuthenticationFilter -> OAuthJdbcUsersConnectionRepository: 2.1.4.2.3.1 findUserIdsConnectedTo(providerId, providerUserIds)
+OAuthJdbcUsersConnectionRepository --> SocialAuthenticationFilter: 2.1.4.2.3.2 返回 userIds
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 2.1.4.2.3.3 userIds.contains(userId) 如果包含
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 2.1.4.2.4 返回 null 2.1.4.2.3
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 2.1.4.3 返回 null 2.1.4.2
+SocialAuthenticationFilter --> browser: 2.4 根据LoginType类型返回 JSON 或 HTML 格式的错误信息
+
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 2.1.4.2.3.3 userIds.contains(userId) 如果不包含
+SocialAuthenticationFilter -> JdbcUsersConnectionRepository: 2.1.4.2.3.1 addConnection(connection)
+JdbcUsersConnectionRepository --> SocialAuthenticationFilter: 2.1.4.2.4 返回 2.1.4.2.3 connection
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 2.1.4.3 返回 2.1.4.2 connection
+SocialAuthenticationFilter -> SocialOAuth2AuthenticationService: 2.1.4.3.1 redirectUrl = authService.getConnectionAddedRedirectUrl(request, connection)
+SocialOAuth2AuthenticationService --> SocialAuthenticationFilter: 2.1.4.4 返回 redirectUrl 如果为 null，使用默认的 connectionAddedRedirectUrl
+SocialAuthenticationFilter --> SocialAuthenticationFilter: 2.5 返回 2.1 SocialAuthenticationRedirectException(redirectUrl)
+SocialAuthenticationFilter --> browser: 2.6 返回 2.1 跳转到 redirectUrl
+
+
+browser --> browser: OAuth2登录流程结束
+
+@enduml

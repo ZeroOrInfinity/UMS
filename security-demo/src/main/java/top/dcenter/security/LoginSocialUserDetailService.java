@@ -15,7 +15,9 @@ import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.excception.RegisterUserFailureException;
-import top.dcenter.security.social.AbstractSocialUserDetailService;
+import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
+
+import java.util.List;
 
 /**
  * 用户密码与手机短信登录与 OAuth 登录与注册服务：<br>
@@ -27,7 +29,7 @@ import top.dcenter.security.social.AbstractSocialUserDetailService;
  * @version V1.0  Created by 2020/5/3 14:15
  */
 @Slf4j
-@Component("userDetailService")
+@Component()
 public class LoginSocialUserDetailService extends AbstractSocialUserDetailService {
 
     private final JdbcTemplate jdbcTemplate;
@@ -45,19 +47,28 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
             // 获取用户信息逻辑。。。
             // ...
 
-            if ("要懂的舍得".equals(username) || "要懂得舍得".equals(username) || "admin".equals(username) || "13345678980".equals(username))
+            // 示例：只是从用户登录日志表中提取的信息，
+            List<String> list = jdbcTemplate.queryForList("select username from persistent_logins where username = ?",
+                                                        String.class, username);
+            if (list.contains(username))
             {
-                String encodedPassword = passwordEncoder.encode("admin");
-                passwordEncoder.matches("admin", encodedPassword);
-                log.info("Demo ======>: 登录用户名：{}, 登录成功", username);
-                return new User(username,
-                                encodedPassword,
-                                true,
-                                true,
-                                true,
-                                true ,
-                                AuthorityUtils.commaSeparatedStringToAuthorityList("admin")
-                );
+                for (String name : list)
+                {
+                    if (name.equals(username))
+                    {
+                        log.info("Demo ======>: 登录用户名：{}, 登录成功", username);
+                        return new User(username,
+                                        passwordEncoder.encode("admin"),
+                                        true,
+                                        true,
+                                        true,
+                                        true,
+                                        AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
+
+                    }
+
+                }
+
             }
             log.info("Demo ======>: 登录用户名：{}, 登录失败", username);
             return null;
@@ -75,16 +86,28 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
             // 获取用户信息逻辑。。。
             // ...
 
-            if ("要懂的舍得".equals(userId) || "要懂得舍得".equals(userId) || "zyw".equals(userId))
+            // 示例：只是从 OAuth2 用户登录日志表中提取的信息，
+            List<String> list = jdbcTemplate.queryForList("select userId from social_UserConnection " +
+                                                                      "where userId = ?",
+                                                        String.class, userId);
+            if (list.contains(userId))
             {
-                log.info("Demo ======>: 登录用户名：{}, 登录成功", userId);
-                return new SocialUser(userId,
-                                      passwordEncoder.encode("admin"),
-                                      true,
-                                      true,
-                                      true,
-                                      true,
-                                      AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
+                for (String username : list)
+                {
+                    if (username.equals(userId))
+                    {
+                        log.info("Demo ======>: 登录用户名：{}, 登录成功", userId);
+                        return new SocialUser(username,
+                                        "",
+                                        true,
+                                        true,
+                                        true,
+                                        true,
+                                        AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
+
+                    }
+
+                }
 
             }
             log.info("Demo ======>: 登录用户名：{}, 登录失败", userId);
@@ -100,7 +123,6 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
     public UserDetails registerUser(String mobile) throws RegisterUserFailureException {
         String username = null;
         try {
-            // TODO 从 request中先获取注册类型，再根据不同类型进行注册逻辑
 
             if (mobile == null) {
                 throw new RegisterUserFailureException("手机号不能为空");
@@ -132,7 +154,6 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
     public UserDetails registerUser(ServletWebRequest request) throws RegisterUserFailureException{
         String username = null;
         try {
-            // TODO 从 request中先获取注册类型，再根据不同类型进行注册逻辑
             username = request.getParameter("username");
             String password = request.getParameter("password");
             if (username == null) {
@@ -171,7 +192,6 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
     public UserDetails registerUser(ServletWebRequest request, ProviderSignInUtils providerSignInUtils) throws RegisterUserFailureException {
         String username = null;
         try {
-            // TODO 从 request中先获取注册类型，再根据不同类型进行注册逻辑
             username = request.getParameter("username");
             String password = request.getParameter("password");
             Connection<?> connectionFromSession = providerSignInUtils.getConnectionFromSession(request);

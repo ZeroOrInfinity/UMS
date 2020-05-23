@@ -4,6 +4,7 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.social.oauth2.OAuth2Version;
 
 /**
+ * 针对 Gitee，处理 gitee 服务商回调时返回的 JSON 进行解析。
  * Strategy enumeration where each value carries an interceptor defining how an access token is carried on API requests.
  * @author Craig Walls
  */

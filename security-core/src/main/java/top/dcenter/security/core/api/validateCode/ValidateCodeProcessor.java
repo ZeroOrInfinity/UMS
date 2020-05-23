@@ -1,8 +1,9 @@
-package top.dcenter.security.core.validate.code;
+package top.dcenter.security.core.api.validateCode;
 
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.excception.ValidateCodeException;
+import top.dcenter.security.core.validate.code.ValidateCode;
 
 /**
  * 校验码处理逻辑接口
@@ -39,7 +40,7 @@ public interface ValidateCodeProcessor {
      * @param validateCode  校验码对象
      * @return  是否成功的状态
      */
-    boolean save(ServletWebRequest request, ValidateCode validateCode);
+    boolean saveSession(ServletWebRequest request, ValidateCode validateCode);
 
     /**
      * 发送校验码

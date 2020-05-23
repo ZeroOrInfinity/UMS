@@ -1,9 +1,11 @@
-package top.dcenter.security.social;
+package top.dcenter.security.social.api.repository;
 
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
+import top.dcenter.security.social.OAuthJdbcUsersConnectionRepository;
+import top.dcenter.security.social.SocialProperties;
 
 import javax.sql.DataSource;
 

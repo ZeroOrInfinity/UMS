@@ -38,7 +38,7 @@ public class BrowserAuthenticationSuccessHandler extends SavedRequestAwareAuthen
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        // TODO 网页端认证成功处理器, 默认无实现，需自己去实现 ??
+        // 网页端成功处理器, 默认无实现，需自己去实现
         log.info("登录成功: {}", authentication.getName());
         if (LoginType.JSON.equals(browserProperties.getLoginType()))
         {
@@ -46,6 +46,7 @@ public class BrowserAuthenticationSuccessHandler extends SavedRequestAwareAuthen
             response.getWriter().write(objectMapper.writeValueAsString(authentication));
             return;
         }
+
         super.onAuthenticationSuccess(request, response, authentication);
     }
 }
