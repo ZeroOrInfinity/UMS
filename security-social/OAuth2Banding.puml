@@ -5,51 +5,53 @@ browser --> browser: OAuth2登录绑定/解绑开始, 前提用户已登录
 browser -> Server: 1 /banding.html 绑定逻辑
 Server --> browser: 1.1 /banding.html
 browser -> BandingConnectController: 1.2 /connect/qq (post)
-BandingConnectController -> ConnectInterceptor: 1.2.1 perConnect(connectionFactory, params, request) 绑定预处理拦截器
+BandingConnectController -> ConnectInterceptor: 1.2.1 perConnect(connectionFactory,\n  params, request)\n 绑定预处理拦截器
 ConnectInterceptor --> BandingConnectController: 1.3 /auth/callback/qq
-BandingConnectController -> BandingConnectSupport: 1.4 buildOAuthUrl(connectionFactory,request,params,providerId)
-BandingConnectSupport --> BandingConnectSupport: 1.4.1 buildOAuth2Url(connectionFactory,request,additionalParams,providerId)
+BandingConnectController -> BandingConnectSupport: 1.4 buildOAuthUrl(connectionFactory,\n request,params,providerId)
+BandingConnectSupport --> BandingConnectSupport: 1.4.1 buildOAuth2Url(connectionFactory,\n request, additionalParams, providerId)
 BandingConnectSupport --> BandingConnectSupport: 1.4.1.1 getOAuth2Parameters()
-BandingConnectSupport --> BandingConnectSupport: 1.4.1.2.1 调用callbackUrl(request)设置统一的回调地址参数
+BandingConnectSupport --> BandingConnectSupport: 1.4.1.2.1 调用callbackUrl(request)\n 设置统一的回调地址参数
 BandingConnectSupport --> BandingConnectSupport: 1.4.1.2.2 设置 scope 等参数
 BandingConnectSupport --> BandingConnectSupport: 1.4.1.2 返回oAuth2Parameters
-BandingConnectSupport -> BaseOAuth2ConnectionFactory: 1.4.1.3.1 generateState("/connect/" + providerId), 原始回调地址/connect/qq
-BaseOAuth2ConnectionFactory --> BandingConnectSupport: 1.4.1.4 通过加密原回调地址放入state中，返回state并设置到oAuth2Parameters中
+BandingConnectSupport -> BaseOAuth2ConnectionFactory: 1.4.1.3.1 generateState("/connect/"\n  + providerId),\n 原始回调地址/connect/qq
+BaseOAuth2ConnectionFactory --> BandingConnectSupport: 1.4.1.4 通过加密原回调地址放入state中，\n 返回state并设置到\n oAuth2Parameters中
 BandingConnectSupport --> BandingConnectSupport: 1.4.2 useAuthenticateUrl=false
-BandingConnectSupport -> OAuth2Template: 1.4.3.1 buildAuthorizeUrl(oAuth2Parameters)
+BandingConnectSupport -> OAuth2Template: 1.4.3.1 buildAuthorizeUrl\n (oAuth2Parameters)
 OAuth2Template --> BandingConnectSupport: 1.4.4 返回 AuthorizeUrl
 BandingConnectSupport --> BandingConnectController: 1.5 返回 AuthorizeUrl
-BandingConnectSupport -> 第三方服务商API: 1.6 RedirectView(AuthorizeUrl)跳转到第三方授权
-第三方服务商API -> SocialController: 1.7 统一回调路由处理，解析state获取到原始回调地址并跳转
+BandingConnectSupport -> 第三方服务商API: 1.6 RedirectView(AuthorizeUrl)\n 跳转到第三方授权
+第三方服务商API -> SocialController: 1.7 统一回调路由处理，\n 解析state获取到\n 原始回调地址并跳转
 SocialController -> BandingConnectController: 1.8 /connect/qq
-BandingConnectController -> BandingConnectSupport: 1.9 completeConnection(connectionFactory, request, providerId)
-BandingConnectSupport --> BandingConnectSupport: 1.9.1 verifyStateParameter(request) 校验state是否合法
-BandingConnectSupport --> BandingConnectSupport: 1.9.2 callbackUrl(request) 获取回调地址 redirectUrl
-BandingConnectSupport -> OAuth2Template: 1.9.3.1 exchangeForAccess(code, redirectUrl, null)
-OAuth2Template --> OAuth2Template: 1.9.3.2 postForAccessGrant(accessTokenUrl, params) 获取从第三方服务商用户信息
+BandingConnectController -> BandingConnectSupport: 1.9 completeConnection\n (connectionFactory,\n request, providerId)
+BandingConnectSupport --> BandingConnectSupport: 1.9.1 verifyStateParameter(request) \n 校验state是否合法
+BandingConnectSupport --> BandingConnectSupport: 1.9.2 callbackUrl(request)\n 获取回调地址 redirectUrl
+BandingConnectSupport -> OAuth2Template: 1.9.3.1 exchangeForAccess(code,\n redirectUrl, null)
+OAuth2Template --> OAuth2Template: 1.9.3.2 postForAccessGrant\n (accessTokenUrl, params)\n 获取从第三方服务商用户信息
 OAuth2Template -> BandingConnectSupport: 1.9.4 返回 accessGrant
 BandingConnectSupport -> ConnectionFactory: 1.9.5 createConnection(accessGrant)
 ConnectionFactory --> BandingConnectSupport: 1.9.6 返回 BandingConnectSupport
 BandingConnectSupport --> BandingConnectController: 1.10 返回 BandingConnectSupport
-BandingConnectController --> BandingConnectController: 1.11 addConnection(connection, connectionFactory, request)用户信息持久化到到第三方用户表
-BandingConnectController --> BandingConnectController: 1.12 connectionStatusRedirect(providerId, request),设置跳转视图。
-BandingConnectController --> BandingConnectController: 1.13 RedirectView()，默认跳转到connectionStatus
+BandingConnectController --> BandingConnectController: 1.11 addConnection(connection,\n  connectionFactory, request)\n 用户信息持久化到到第三方用户表
+BandingConnectController --> BandingConnectController: 1.12 connectionStatusRedirect\n (providerId, request),\n 设置跳转视图。
+BandingConnectController --> BandingConnectController: 1.13 RedirectView()，\n 默认跳转到connectionStatus
 BandingConnectController -> ConnectionRepository: 1.13.1 findConnections(providerId)
 ConnectionRepository --> BandingConnectController: 1.14 返回 connections
 BandingConnectController --> browser: 1.15 如果 connections 为空，跳转到/connect/{providerId}Connect
 BandingConnectController --> browser: 1.15 如果 connections 不为空，跳转到/connect/{providerId}Connected
 
 
-browser -> Server: 1 /banding.html 解绑逻辑
-Server --> browser: 1.1 /banding.html
-browser -> BandingConnectController: 1.2 /connect/qq (delete)
+browser -> Server: 2 /banding.html 解绑逻辑
+Server --> browser: 2.1 /banding.html
+browser -> BandingConnectController: 2.2 /connect/qq (delete)
+BandingConnectController --> BandingConnectController: 2.3 getConnectionFactory\n (providerId)
+BandingConnectController --> BandingConnectController: 2.4 preDisconnect\n (connectionFactory, request)
+BandingConnectController -> ConnectionFactory: 2.5 removeConnections\n (providerId)
+ConnectionFactory --> BandingConnectController: 2.6 返回
+BandingConnectController --> BandingConnectController: 2.7 postDisconnect\n (connectionFactory, request)
 
-BandingConnectController --> BandingConnectController: 1.12 connectionStatusRedirect(providerId, request),设置跳转视图。
-BandingConnectController --> BandingConnectController: 1.13 RedirectView()，默认跳转到connectionStatus
-BandingConnectController -> ConnectionRepository: 1.13.1 findConnections(providerId)
-ConnectionRepository --> BandingConnectController: 1.14 返回 connections
-BandingConnectController --> browser: 1.15 如果 connections 为空，跳转到/connect/{providerId}Connect
-BandingConnectController --> browser: 1.15 如果 connections 不为空，跳转到/connect/{providerId}Connected
+BandingConnectController --> BandingConnectController: 2.8 connectionStatusRedirect\n (providerId, request)
+BandingConnectController --> browser: 2.9 如果 connections 为空，跳转到/connect/{providerId}Connect
+BandingConnectController --> browser: 2.9 如果 connections 不为空，跳转到/connect/{providerId}Connected
 
 
 browser --> browser: OAuth2登录绑定/解绑结束
