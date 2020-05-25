@@ -182,7 +182,7 @@ public class BandingConnectSupport {
         OAuth2Operations oauthOperations = connectionFactory.getOAuthOperations();
         String defaultScope = connectionFactory.getScope();
         OAuth2Parameters parameters = getOAuth2Parameters(request, defaultScope, additionalParameters, providerId);
-        // 添加统一的回调地址由 callbackUrl(request) 设置，功能性回调地址由此处通过 state 注入。TODO 提取常量
+        // 添加统一的回调地址由 callbackUrl(request) 设置，功能性回调地址由此处通过generateState() 注入 state。TODO 提取常量
         String state =
                 ((BaseOAuth2ConnectionFactory) connectionFactory).generateState("/connect"+ URL_SEPARATOR + providerId);
 

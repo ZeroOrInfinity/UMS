@@ -19,8 +19,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * social 第三方登录核心配置, 如果需要自定义，请实现此类的子类，并注册进 IOC 容器。<br>
- *     如果需要在 {@link #postProcess(Object)} 方法以外添加配置且需要通过 {@link WebSecurityConfigurerAdapter#configure(HttpSecurity)}
+ * social 第三方登录核心配置, 如果确实需要自定义，请实现此类的子类，并注册进 IOC 容器。会替换此类<br>
+ *     推荐通过实现 {@link top.dcenter.security.social.SocialSecurityConfigurerAware} 接口。<br>
+ *     例如：不需要使用 {@link #postProcess(Object)} 方法配置且通过 {@link WebSecurityConfigurerAdapter#configure(HttpSecurity)}
  *     配置，则请实现 {@link SocialWebSecurityConfigurerAware} 接口
  * @author zhailiang
  * @medifiedBy  zyw
@@ -28,11 +29,11 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("JavadocReference")
 @Slf4j
-public class SocialCoreConfigurer extends SpringSocialConfigurer {
+public class SocialCoreConfig extends SpringSocialConfigurer {
 
 	private SocialProperties socialProperties;
 
-	public SocialCoreConfigurer(SocialProperties socialProperties) {
+	public SocialCoreConfig(SocialProperties socialProperties) {
 		this.socialProperties = socialProperties;
 	}
 	
@@ -41,8 +42,8 @@ public class SocialCoreConfigurer extends SpringSocialConfigurer {
 	protected <T> T postProcess(T object) {
 		SocialAuthenticationFilter filter = (SocialAuthenticationFilter) super.postProcess(object);
 
-		// 更换 OAuth2AuthenticationService，让新添加的 SocialOAuth2AuthenticationService(通过覆写 buildReturnToUrl(request)方法)
-		// 支持统一的回调地址。
+		// 更换 OAuth2AuthenticationService，添加新的 SocialOAuth2AuthenticationService(覆写 buildReturnToUrl(request)方法)
+		// 使其支持统一的回调地址。
 		SocialAuthenticationServiceRegistry registry = (SocialAuthenticationServiceRegistry) filter.getAuthServiceLocator();
 
 		// 1. 获取 ConnectionFactories 并另外暂存到 Set

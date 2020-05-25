@@ -1,4 +1,4 @@
-package top.dcenter.security.browser.authentication;
+package top.dcenter.security.browser.api.authentication.handler;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.stereotype.Component;
 import top.dcenter.security.core.enums.LoginType;
 import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.core.vo.SimpleResponse;
@@ -17,16 +16,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * 网页端认证失败处理器
+ * 网页端认证失败处理器, 默认简单实现，需自己去实现.<br>
+ * 继承此类后，再向 IOC 容器注册自己来实现自定义功能。
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/4 13:46
  */
-@Component
 @Slf4j
 public class BrowserAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
-    private final ObjectMapper objectMapper;
-    private final BrowserProperties browserProperties;
+    protected final ObjectMapper objectMapper;
+    protected final BrowserProperties browserProperties;
 
     public BrowserAuthenticationFailureHandler(ObjectMapper objectMapper, BrowserProperties browserProperties) {
         this.objectMapper = objectMapper;

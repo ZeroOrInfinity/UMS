@@ -10,15 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.servlet.view.RedirectView;
 import top.dcenter.security.core.excception.ParameterErrorException;
-import top.dcenter.security.core.util.CastUtil;
+import top.dcenter.security.social.api.callback.RedirectUrlHelper;
 import top.dcenter.security.social.vo.SocialUserInfo;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Base64;
-import java.util.Map;
-
-import static top.dcenter.security.core.consts.SecurityConstants.KEY_VALUE_SEPARATOR;
-import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
 
 /**
  * social 第三方登录控制器
@@ -30,12 +25,15 @@ import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_S
 @Slf4j
 public class SocialController {
 
+
     private final ProviderSignInUtils providerSignInUtils;
+    private final RedirectUrlHelper redirectUrlHelper;
     private final SocialProperties socialProperties;
 
-    public SocialController(ProviderSignInUtils providerSignInUtils, SocialProperties socialProperties) {
+    public SocialController(ProviderSignInUtils providerSignInUtils, SocialProperties socialProperties, RedirectUrlHelper redirectUrlHelper) {
         this.providerSignInUtils = providerSignInUtils;
         this.socialProperties = socialProperties;
+        this.redirectUrlHelper = redirectUrlHelper;
     }
 
     /**
@@ -68,25 +66,28 @@ public class SocialController {
     public RedirectView authCallbackRouter(HttpServletRequest request) {
 
         // todo 优化， social 添加跳转 type 与 path，参考 BandingConnectSupport#buildOAuth2Url()
-        String state = request.getParameter("state");
         String code = request.getParameter("code");
+        String state = request.getParameter("state");
+        if (StringUtils.isNotBlank(state))
+        {
+            String redirectUrl = redirectUrlHelper.decodeRedirectUrl(state);
 
-        byte[] router = Base64.getDecoder().decode(state.substring(state.indexOf("-") + 1));
-        Map<String, String> routerMap = CastUtil.string2Map(new String(router), URL_PARAMETER_SEPARATOR,
-                                                       KEY_VALUE_SEPARATOR);
-        String path = routerMap.get("path");
-        // RFC 6819 安全检查：https://oauth.net/advisories/2014-1-covert-redirect/
-        if (path.matches("^(([a-zA-z]+://)?[^/]+)+/.*$"))
-        {
-            log.error("非法的回调地址: {}", path);
-            throw new ParameterErrorException("非法的回调地址");
+            // RFC 6819 安全检查：https://oauth.net/advisories/2014-1-covert-redirect/
+            if (redirectUrl.matches("^(([a-zA-z]+://)?[^/]+)+/.*$"))
+            {
+                log.error("非法的回调地址: {}", redirectUrl);
+                throw new ParameterErrorException(String.format("非法的回调地址: %s", redirectUrl));
+            }
+            if (redirectUrl != null && StringUtils.isNotBlank(redirectUrl))
+            {
+                return new RedirectView(redirectUrl + "?code=" + code + "&state=" + state, true);
+            }
+            log.warn("回调地址不正确: {}", redirectUrl);
+            throw new ParameterErrorException(String.format("回调地址不正确: %s", redirectUrl));
+
         }
-        if (path != null && StringUtils.isNotBlank(path))
-        {
-            return new RedirectView(path + "?code=" + code + "&state=" + state, true);
-        }
-        log.warn("回调参数不正确: {}", path);
-        throw new ParameterErrorException("回调参数不正确");
+        log.warn("回调参数 {} 被篡改", state);
+        throw new ParameterErrorException(String.format("回调参数 {} 被篡改", state));
 
     }
 

@@ -91,13 +91,7 @@ public class SocialProperties {
 
     /* ==========================自定义第三方登录用户表及相关 CURD 语句============================= */
     /**
-     * 第三方登录用户数据库表前缀<br>
-     *      注意：表名前缀要与 tableName 相同。
-     */
-    private String tablePrefix = "social_";
-    /**
      * 第三方登录用户数据库表名称，<br>
-     *     注意：表名前缀要与 tablePrefix 相同。
      */
     private String tableName = "social_UserConnection";
 

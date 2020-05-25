@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.util.CodeUtil;
 import top.dcenter.security.core.validate.code.ValidateCode;
-import top.dcenter.security.core.api.validateCode.SmsCodeSender;
+import top.dcenter.security.core.api.validate.code.SmsCodeSender;
 
 /**
  * 自定义发送短信验证码
@@ -34,7 +34,11 @@ public class DemoSmsCodeSender implements SmsCodeSender {
         int codeLength = smsCodeProp.getLength();
 
         String code = CodeUtil.generateNumberVerifyCode(codeLength);
-
+        if (log.isDebugEnabled())
+        {
+            log.debug("Demo =======>: {} = {}", this.validateCodeProperties.getSms().getRequestParamSmsCodeName(),
+                      code);
+        }
         return new ValidateCode(code, expireIn);
     }
 }

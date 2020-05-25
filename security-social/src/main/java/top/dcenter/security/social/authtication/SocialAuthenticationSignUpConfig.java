@@ -28,7 +28,7 @@ import java.util.UUID;
  */
 @Configuration
 @ConditionalOnProperty(prefix = "security.social", name = "social-sign-in-is-open", havingValue = "true")
-public class SocialAuthenticationSignUpConfiguration extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
+public class SocialAuthenticationSignUpConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
     private final ProviderSignInUtils providerSignInUtils;
     private final AuthenticationSuccessHandler browserAuthenticationSuccessHandler;
@@ -44,11 +44,11 @@ public class SocialAuthenticationSignUpConfiguration extends SecurityConfigurerA
     private final SocialProperties socialProperties;
 
 
-    public SocialAuthenticationSignUpConfiguration(ProviderSignInUtils providerSignInUtils,
-                                                   AuthenticationSuccessHandler browserAuthenticationSuccessHandler,
-                                                   ObjectMapper objectMapper,
-                                                   SocialProperties socialProperties,
-                                                   BrowserProperties browserProperties) {
+    public SocialAuthenticationSignUpConfig(ProviderSignInUtils providerSignInUtils,
+                                            AuthenticationSuccessHandler browserAuthenticationSuccessHandler,
+                                            ObjectMapper objectMapper,
+                                            SocialProperties socialProperties,
+                                            BrowserProperties browserProperties) {
         this.providerSignInUtils = providerSignInUtils;
         this.browserAuthenticationSuccessHandler = browserAuthenticationSuccessHandler;
         this.objectMapper = objectMapper;

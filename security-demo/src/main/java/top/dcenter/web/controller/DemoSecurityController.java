@@ -1,4 +1,4 @@
-package top.dcenter.security.browser.controller;
+package top.dcenter.web.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -9,7 +9,7 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import top.dcenter.security.browser.api.controller.BaseBrowserSecurityController;
 import top.dcenter.security.core.excception.IllegalAccessUrlException;
 import top.dcenter.security.core.properties.BrowserProperties;
@@ -23,15 +23,14 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UNAUTHE
 import static top.dcenter.security.core.consts.SecurityConstants.INTERNAL_SERVER_ERROR_MSG;
 
 /**
- * 网页端认证 controller.<br>
- * 如果要自定义网页端 url 认证与授权的路由控制，请实现 {@link BaseBrowserSecurityController} 接口，并注入 IOC 容器即可
+ * 网页端认证 controller.<br> *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 17:43
  * @medifiedBy zyw
  */
 @Slf4j
-@ResponseBody
-public class BrowserSecurityController implements BaseBrowserSecurityController {
+@RestController
+public class DemoSecurityController implements BaseBrowserSecurityController {
 
     private final RequestCache requestCache;
     private final RedirectStrategy redirectStrategy;
@@ -39,7 +38,7 @@ public class BrowserSecurityController implements BaseBrowserSecurityController 
     private final AntPathMatcher pathMatcher;
 
 
-    public BrowserSecurityController(BrowserProperties browserProperties) {
+    public DemoSecurityController(BrowserProperties browserProperties) {
         this.browserProperties = browserProperties;
         this.requestCache = new HttpSessionRequestCache();
         this.redirectStrategy = new DefaultRedirectStrategy();
@@ -66,7 +65,7 @@ public class BrowserSecurityController implements BaseBrowserSecurityController 
                 String targetUrl = savedRequest.getRedirectUrl();
                 if (log.isInfoEnabled())
                 {
-                    log.info("引发跳转的请求是：{}", targetUrl);
+                    log.info("demo ===>: 引发跳转的请求是：{}", targetUrl);
                 }
                 if (StringUtils.isNotBlank(targetUrl))
                 {

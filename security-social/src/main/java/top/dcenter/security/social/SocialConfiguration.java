@@ -6,11 +6,9 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.social.config.annotation.EnableSocial;
@@ -23,13 +21,11 @@ import org.springframework.social.connect.web.ConnectInterceptor;
 import org.springframework.social.connect.web.DisconnectInterceptor;
 import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.servlet.view.BeanNameViewResolver;
-import top.dcenter.security.social.api.banding.IBandingController;
-import top.dcenter.security.social.api.config.SocialCoreConfigurer;
+import top.dcenter.security.social.api.callback.RedirectUrlHelper;
+import top.dcenter.security.social.api.config.SocialCoreConfig;
 import top.dcenter.security.social.api.repository.OAuthJdbcUsersConnectionRepositoryFactory;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
-import top.dcenter.security.social.api.view.BaseConnectionStatusView;
 import top.dcenter.security.social.banding.BandingConnectController;
 import top.dcenter.security.social.view.ConnectionStatusView;
 
@@ -59,8 +55,6 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     private final List<DisconnectInterceptor<?>> disconnectInterceptors;
     private final AbstractSocialUserDetailService userDetailService;
 
-    private UsersConnectionRepositoryFactory usersConnectionRepositoryFactory;
-
     public SocialConfiguration(ObjectProvider<List<ConnectInterceptor<?>>> connectInterceptorsProvider,
                                ObjectProvider<List<DisconnectInterceptor<?>>> disconnectInterceptorsProvider,
                                DataSource dataSource,
@@ -68,14 +62,13 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
         this.dataSource = dataSource;
         this.socialProperties = socialProperties;
         this.userDetailService = userDetailService;
-        this.usersConnectionRepositoryFactory = new OAuthJdbcUsersConnectionRepositoryFactory();
         this.connectInterceptors = connectInterceptorsProvider.getIfAvailable();
         this.disconnectInterceptors = disconnectInterceptorsProvider.getIfAvailable();
     }
 
     @Override
     public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
-        return usersConnectionRepositoryFactory().getUsersConnectionRepository(dataSource,
+        return this.usersConnectionRepositoryFactory().getUsersConnectionRepository(dataSource,
                                                                                connectionFactoryLocator,
                                                                                socialTextEncryptor(socialProperties),
                                                                                socialProperties,
@@ -84,7 +77,7 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     }
 
     @Bean
-    @ConditionalOnMissingBean(IBandingController.class)
+    @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.banding.IBandingController")
     public BandingConnectController connectController(
             ConnectionFactoryLocator factoryLocator,
             ConnectionRepository repository) {
@@ -103,25 +96,21 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     }
 
     @Bean("connect/status")
-    @ConditionalOnMissingBean(BaseConnectionStatusView.class)
+    @ConditionalOnMissingBean(type = "top.dcenter.security.social.view.ConnectionStatusView")
     public ConnectionStatusView connectionStatusView(ObjectMapper objectMapper) {
         return new ConnectionStatusView(objectMapper);
     }
 
-
     @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "spring.social", name = "auto-connection-views")
-    public BeanNameViewResolver beanNameViewResolver() {
-        BeanNameViewResolver viewResolver = new BeanNameViewResolver();
-        viewResolver.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        return viewResolver;
+    @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.callback.RedirectUrlHelper")
+    public RedirectUrlHelper redirectUrlHelper() {
+        return new RedirectUrlHelper();
     }
 
     @Bean
     public TextEncryptor socialTextEncryptor(SocialProperties socialProperties) {
         return Encryptors.text(socialProperties.getTextEncryptorPassword(),
-                                                         socialProperties.getTextEncryptorSalt());
+                               socialProperties.getTextEncryptorSalt());
     }
 
     @Bean
@@ -130,23 +119,23 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     }
 
     @Bean
-    @ConditionalOnMissingBean(ConnectionSignUp.class)
+    @ConditionalOnMissingBean(type = "org.springframework.social.connect.ConnectionSignUp")
     public ConnectionSignUp connectionSignUp() {
         return new DefaultConnectionSignUp(userDetailService);
     }
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory")
     public UsersConnectionRepositoryFactory usersConnectionRepositoryFactory() {
-        return this.usersConnectionRepositoryFactory;
+        return new OAuthJdbcUsersConnectionRepositoryFactory();
     }
 
     @Bean
-    @ConditionalOnMissingBean
-    public SocialCoreConfigurer socialCoreConfigurer() {
-        SocialCoreConfigurer socialCoreConfigurer =
-                new SocialCoreConfigurer(socialProperties);
-        return socialCoreConfigurer;
+    @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.config.SocialCoreConfig")
+    public SocialCoreConfig socialCoreConfigurer() {
+        SocialCoreConfig socialCoreConfig =
+                new SocialCoreConfig(socialProperties);
+        return socialCoreConfig;
     }
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")

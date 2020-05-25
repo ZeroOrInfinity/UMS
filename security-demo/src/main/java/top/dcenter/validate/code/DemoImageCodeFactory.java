@@ -1,26 +1,29 @@
-package top.dcenter.security.core.validate.code.imagecode;
+package top.dcenter.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestUtils;
 import top.dcenter.security.core.api.validate.code.ImageCodeFactory;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.util.CodeUtil;
 import top.dcenter.security.core.util.ImageUtil;
+import top.dcenter.security.core.validate.code.imagecode.ImageCode;
 
 import javax.servlet.ServletRequest;
 import java.awt.image.BufferedImage;
 
 /**
- * 图片校验码工厂，默认实现，建议自己自定义 {@link ImageCodeFactory}，使用带有缓存池的工厂
+ * 图片校验码工厂，
  * @author zyw
  * @version V1.0  Created by 2020/5/22 11:23
  */
+@Component
 @Slf4j
-public class DefaultImageCodeFactory implements ImageCodeFactory {
+public class DemoImageCodeFactory implements ImageCodeFactory {
 
     private final ValidateCodeProperties validateCodeProperties;
 
-    public DefaultImageCodeFactory(ValidateCodeProperties validateCodeProperties) {
+    public DemoImageCodeFactory(ValidateCodeProperties validateCodeProperties) {
         this.validateCodeProperties = validateCodeProperties;
     }
 
@@ -38,6 +41,11 @@ public class DefaultImageCodeFactory implements ImageCodeFactory {
         String code = CodeUtil.generateVerifyCode(codeLength);
 
         BufferedImage bufferedImage = ImageUtil.getBufferedImage(w, h, code);
+        if (log.isDebugEnabled())
+        {
+            log.debug("Demo =====>: {} = {}", this.validateCodeProperties.getImage().getRequestParamImageCodeName(),
+                      code);
+        }
         return new ImageCode(bufferedImage, code, expireIn);
     }
 

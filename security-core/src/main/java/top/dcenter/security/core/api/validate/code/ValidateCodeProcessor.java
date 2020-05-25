@@ -1,4 +1,4 @@
-package top.dcenter.security.core.api.validateCode;
+package top.dcenter.security.core.api.validate.code;
 
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.context.request.ServletWebRequest;

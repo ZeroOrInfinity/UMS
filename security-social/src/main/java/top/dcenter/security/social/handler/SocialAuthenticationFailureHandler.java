@@ -18,11 +18,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
+ * 第三方授权登录错误处理器
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/4 13:46
  */
-//@Component
 @Slf4j
 public class SocialAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
     private final ObjectMapper objectMapper;

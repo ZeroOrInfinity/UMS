@@ -2,6 +2,7 @@ package top.dcenter.security.social.authtication;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
@@ -19,10 +20,11 @@ import java.util.Set;
  */
 @Configuration
 @Slf4j
+@ConditionalOnProperty(prefix = "security.social", name = "social-sign-in-is-open", havingValue = "true")
 public class SocialAuthenticationSignUpConfigurerAware implements SocialWebSecurityConfigurerAware {
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
-    private SocialAuthenticationSignUpConfiguration socialAuthenticationSignUpConfiguration;
+    private SocialAuthenticationSignUpConfig socialAuthenticationSignUpConfig;
     private final SocialProperties socialProperties;
 
     public SocialAuthenticationSignUpConfigurerAware(SocialProperties socialProperties) {
@@ -37,9 +39,9 @@ public class SocialAuthenticationSignUpConfigurerAware implements SocialWebSecur
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
         // 短信验证码登录配置
-        if (socialAuthenticationSignUpConfiguration != null)
+        if (socialAuthenticationSignUpConfig != null)
         {
-            http.apply(socialAuthenticationSignUpConfiguration);
+            http.apply(socialAuthenticationSignUpConfig);
         }
     }
 
@@ -49,7 +51,6 @@ public class SocialAuthenticationSignUpConfigurerAware implements SocialWebSecur
         uriSet.add(socialProperties.getSignUpUrl());
         uriSet.add(socialProperties.getFailureUrl());
         uriSet.add(socialProperties.getSignInUrl());
-        uriSet.add(socialProperties.getSocialUserRegistUrl());
 
         Map<String, Set<String>> authorizeRequestMap = new HashMap<>(1);
         authorizeRequestMap.put(permitAll, uriSet);

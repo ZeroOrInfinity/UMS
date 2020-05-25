@@ -10,8 +10,7 @@ import top.dcenter.security.social.SocialProperties;
 import javax.sql.DataSource;
 
 /**
- * JdbcConnectionRepository 工厂
- * 用户需要对第三方登录的用户表更改时，要实现此功能。
+ * UsersConnectionRepository 工厂
  * @author zyw23
  * @version V1.0
  * Created by 2020/5/13 23:04

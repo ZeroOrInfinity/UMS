@@ -1,9 +1,11 @@
 package top.dcenter.security.browser;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,9 +14,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import top.dcenter.security.browser.authentication.BrowserAuthenticationFailureHandler;
-import top.dcenter.security.browser.authentication.BrowserAuthenticationSuccessHandler;
+import top.dcenter.security.browser.api.advice.SecurityControllerExceptionHandler;
+import top.dcenter.security.browser.api.authentication.handler.BrowserAuthenticationFailureHandler;
+import top.dcenter.security.browser.api.authentication.handler.BrowserAuthenticationSuccessHandler;
+import top.dcenter.security.browser.controller.BrowserSecurityController;
+import top.dcenter.security.browser.repository.JdbcTokenRepositoryFactory;
 import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
+import top.dcenter.security.core.api.repository.UserTokenRepositoryFactory;
 import top.dcenter.security.core.api.service.AbstractUserDetailsService;
 import top.dcenter.security.core.properties.BrowserProperties;
 
@@ -48,26 +54,48 @@ import static top.dcenter.security.core.consts.SecurityConstants.QUERY_TABLE_EXI
 public class BrowserSecurityConfiguration extends WebSecurityConfigurerAdapter implements InitializingBean {
 
     private final BrowserProperties browserProperties;
-    private final BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler;
-    private final BrowserAuthenticationFailureHandler browserAuthenticationFailureHandler;
+    private BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler;
+    private BrowserAuthenticationFailureHandler browserAuthenticationFailureHandler;
     private final DataSource dataSource;
 
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
-    private Map<String, SocialWebSecurityConfigurerAware> webSecurityPostConfigurerMap;
+    private Map<String, SocialWebSecurityConfigurerAware> socialWebSecurityConfigurerMap;
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private AbstractUserDetailsService userDetailsService;
 
     public BrowserSecurityConfiguration(BrowserProperties browserProperties,
-                                        BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler,
-                                        BrowserAuthenticationFailureHandler browserAuthenticationFailureHandler,
                                         DataSource dataSource) {
         this.browserProperties = browserProperties;
-        this.browserAuthenticationSuccessHandler = browserAuthenticationSuccessHandler;
-        this.browserAuthenticationFailureHandler = browserAuthenticationFailureHandler;
         this.dataSource = dataSource;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.security.browser.api.controller.BaseBrowserSecurityController")
+    public BrowserSecurityController browserSecurityController() {
+        return new BrowserSecurityController(this.browserProperties);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.security.browser.api.advice.SecurityControllerExceptionHandler")
+    public SecurityControllerExceptionHandler securityControllerExceptionHandler() {
+        return new SecurityControllerExceptionHandler();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.security.browser.api.authentication.handler.BrowserAuthenticationSuccessHandler")
+    public BrowserAuthenticationSuccessHandler browserAuthenticationSuccessHandler(ObjectMapper objectMapper, BrowserProperties browserProperties) {
+        this.browserAuthenticationSuccessHandler = new BrowserAuthenticationSuccessHandler(objectMapper, browserProperties);
+        return this.browserAuthenticationSuccessHandler;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.security.browser.api.authentication.handler.BrowserAuthenticationFailureHandler")
+    public BrowserAuthenticationFailureHandler browserAuthenticationFailureHandler(ObjectMapper objectMapper, BrowserProperties browserProperties) {
+        this.browserAuthenticationFailureHandler = new BrowserAuthenticationFailureHandler(objectMapper, browserProperties);
+        return this.browserAuthenticationFailureHandler;
     }
 
     @Bean
@@ -77,11 +105,14 @@ public class BrowserSecurityConfiguration extends WebSecurityConfigurerAdapter i
     }
 
     @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.security.core.api.repository.UserTokenRepositoryFactory")
+    public UserTokenRepositoryFactory userTokenRepositoryFactory() {
+        return new JdbcTokenRepositoryFactory(this.dataSource);
+    }
+
+    @Bean
     public PersistentTokenRepository persistentTokenRepository() {
-        // TODO 自定义 remember 的持久化功能，添加持久化功能 spi 接口，实现缓存如redis或数据库jdbc通用，自定义持久化数据库表的创建，更新，删除语句，让用户更好自定义
-        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
-        tokenRepository.setDataSource(dataSource);
-        return tokenRepository;
+        return userTokenRepositoryFactory().getJdbcTokenRepository();
     }
 
     @Override
@@ -94,7 +125,7 @@ public class BrowserSecurityConfiguration extends WebSecurityConfigurerAdapter i
         Set<String> fullyAuthenticatedSet = new HashSet<>();
         Set<String> rememberMeSet = new HashSet<>();
 
-        // 对 所有的AuthorizeRequestUris 进行分类，放入对应的 List
+        // 对所有的AuthorizeRequestUris 进行分类，放入对应的 Set
         fillingAuthorizeRequestUris(http, permitAllSet, denyAllSet, anonymousSet, authenticatedSet,
                                     fullyAuthenticatedSet, rememberMeSet);
 
@@ -150,9 +181,9 @@ public class BrowserSecurityConfiguration extends WebSecurityConfigurerAdapter i
                 .and()
                 .csrf().disable();
 
-        if (webSecurityPostConfigurerMap != null)
+        if (socialWebSecurityConfigurerMap != null)
         {
-            for (SocialWebSecurityConfigurerAware postConfigurer : webSecurityPostConfigurerMap.values())
+            for (SocialWebSecurityConfigurerAware postConfigurer : socialWebSecurityConfigurerMap.values())
             {
                 postConfigurer.postConfigure(http);
             }
@@ -185,12 +216,12 @@ public class BrowserSecurityConfiguration extends WebSecurityConfigurerAdapter i
                                              Set<String> authenticatedSet,
                                              Set<String> fullyAuthenticatedSet,
                                              Set<String> rememberMeSet) throws Exception {
-        if (webSecurityPostConfigurerMap != null)
+        if (socialWebSecurityConfigurerMap != null)
         {
-            for (SocialWebSecurityConfigurerAware postConfigurer : webSecurityPostConfigurerMap.values())
+            for (SocialWebSecurityConfigurerAware configurer : socialWebSecurityConfigurerMap.values())
             {
-                postConfigurer.preConfigure(http);
-                Map<String, Set<String>> authorizeRequestMap = postConfigurer.getAuthorizeRequestMap();
+                configurer.preConfigure(http);
+                Map<String, Set<String>> authorizeRequestMap = configurer.getAuthorizeRequestMap();
 
                 add2Set(permitAllSet, authorizeRequestMap, permitAll);
                 add2Set(denyAllSet, authorizeRequestMap, denyAll);

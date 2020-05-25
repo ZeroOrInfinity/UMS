@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
-import top.dcenter.security.social.api.config.SocialCoreConfigurer;
+import top.dcenter.security.social.api.config.SocialCoreConfig;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,18 +23,18 @@ public class SocialSecurityConfigurerAware implements SocialWebSecurityConfigure
 
     private final SocialProperties socialProperties;
 
-    private final SocialCoreConfigurer socialCoreConfigurer;
+    private final SocialCoreConfig socialCoreConfig;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public SocialSecurityConfigurerAware(SocialProperties socialProperties,
-                                         SocialCoreConfigurer socialCoreConfigurer) {
+                                         SocialCoreConfig socialCoreConfig) {
         this.socialProperties = socialProperties;
-        this.socialCoreConfigurer = socialCoreConfigurer;
+        this.socialCoreConfig = socialCoreConfig;
     }
 
     @Override
     public void postConfigure(HttpSecurity http) throws Exception {
-        http.apply(socialCoreConfigurer);
+        http.apply(socialCoreConfig);
 
     }
 
@@ -49,6 +49,7 @@ public class SocialSecurityConfigurerAware implements SocialWebSecurityConfigure
         uriSet.add(socialProperties.getFilterProcessesUrl());
         uriSet.add(socialProperties.getFilterProcessesUrl() + "/*");
         uriSet.add(socialProperties.getSocialUserInfo());
+        uriSet.add(socialProperties.getSocialUserRegistUrl());
         Map<String, Set<String>> authorizeRequestMap = new HashMap<>(1);
         authorizeRequestMap.put(permitAll, uriSet);
         return authorizeRequestMap;

@@ -1,4 +1,4 @@
-package top.dcenter.security.core.api.validateCode;
+package top.dcenter.security.core.api.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -31,7 +31,10 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
     private final Map<String, ValidateCodeGenerator> validateCodeGenerators;
 
-
+    /**
+     * 校验码处理逻辑的默认实现抽象类.<br>
+     * @param validateCodeGenerators 子类继承时对此参数不需要操作，在子类注入 IOC 容器时，spring自动注入此参数
+     */
     public AbstractValidateCodeProcessor(Map<String, ValidateCodeGenerator> validateCodeGenerators) {
         this.sessionStrategy = new HttpSessionSessionStrategy();
         if (validateCodeGenerators == null)
@@ -70,7 +73,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     }
 
     @Override
-    public ValidateCode generate(ServletWebRequest request) {
+    public final ValidateCode generate(ServletWebRequest request) {
         try {
             ValidateCodeGenerator validateCodeGenerator = getValidateCodeGenerator(getValidateCodeType(getValidateCodeType()));
             return (ValidateCode) validateCodeGenerator.generate(request.getRequest());

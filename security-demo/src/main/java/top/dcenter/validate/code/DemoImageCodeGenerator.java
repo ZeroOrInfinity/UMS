@@ -1,20 +1,19 @@
 package top.dcenter.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import top.dcenter.security.core.api.validate.code.ImageCodeFactory;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.validate.code.imagecode.ImageCode;
-import top.dcenter.security.core.api.validateCode.ImageCodeFactory;
 import top.dcenter.security.core.validate.code.imagecode.ImageCodeGenerator;
 
 import javax.servlet.ServletRequest;
 
 /**
- * 注意：实现类注册 ioc 容器 bean 的名称必须是 imageCodeGenerator
+ * 推荐实现此接口 {@link ImageCodeFactory}。
  * @author zyw
  * @createrDate 2020-05-14 22:24
  */
-@Component()
+//@Component()
 @Slf4j
 public class DemoImageCodeGenerator extends ImageCodeGenerator {
 

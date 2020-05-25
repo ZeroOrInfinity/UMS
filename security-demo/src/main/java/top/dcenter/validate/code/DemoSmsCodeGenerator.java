@@ -1,20 +1,19 @@
 package top.dcenter.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import top.dcenter.security.core.api.validate.code.SmsCodeSender;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.validate.code.ValidateCode;
 import top.dcenter.security.core.validate.code.smscode.SmsCodeGenerator;
-import top.dcenter.security.core.api.validateCode.SmsCodeSender;
 
 import javax.servlet.ServletRequest;
 
 /**
- * 这里 bean 的名称必须是 smsCodeGenerator
+ * 推荐实现此接口 {@link SmsCodeSender}。
  * @author zyw
  * @createrDate 2020-05-14 22:23
  */
-@Component("smsCodeGenerator")
+//@Component()
 @Slf4j
 public class DemoSmsCodeGenerator extends SmsCodeGenerator {
 

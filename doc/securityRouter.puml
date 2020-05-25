@@ -1,0 +1,36 @@
+@startuml
+
+browser --> browser: 进入需登录权限的路由流程开始
+
+browser -> Server: 1 /user/me
+Server -> AbstractAuthenticationProcessingFilter: 2 doFilter
+AbstractAuthenticationProcessingFilter -> RememberMeAuthenticationFilter: 3 doFilter
+alt isAuth
+opt 已认证
+activate RememberMeAuthenticationFilter
+RememberMeAuthenticationFilter -> SessionManagementFilter: 4 doFilter
+activate SessionManagementFilter
+SessionManagementFilter --> SessionManagementFilter: 4.1 已认证
+SessionManagementFilter -> UserController: 5 /user/me
+UserController --> RememberMeAuthenticationFilter: 5.1 返回/user/me页面数据\n 这里中间的过滤器步骤省略
+RememberMeAuthenticationFilter --> Server: 6 返回/user/me页面数据\n 这里中间的过滤器步骤省略
+deactivate RememberMeAuthenticationFilter
+Server --> browser: 7 返回/user/me
+end
+opt 未认证
+SessionManagementFilter --> SessionManagementFilter: 4.1 未认证
+participant BaseBrowserSecurityController #ff9800
+SessionManagementFilter -> BaseBrowserSecurityController: 8 根据不同 uri(支持通配符)\n 跳转到不同的认证入口
+deactivate SessionManagementFilter
+end
+end
+BaseBrowserSecurityController --> browser: 9 跳转到认证入口，\n 例如 login.html
+browser --> browser: 进入需登录权限路由流程结束
+
+== API ==
+note over BaseBrowserSecurityController: api 可以根据\n自己的需求自定义
+
+
+
+
+@enduml

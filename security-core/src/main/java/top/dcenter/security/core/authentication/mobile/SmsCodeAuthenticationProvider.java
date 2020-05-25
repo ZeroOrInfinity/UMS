@@ -26,6 +26,12 @@ public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
             return null;
         }
         SmsCodeAuthenticationToken authenticationToken = (SmsCodeAuthenticationToken) authentication;
+
+        if (authentication.isAuthenticated())
+        {
+            return authentication;
+        }
+
         UserDetails user = this.userDetailsService.loadUserByUsername((String) authenticationToken.getPrincipal());
         if (user == null)
         {

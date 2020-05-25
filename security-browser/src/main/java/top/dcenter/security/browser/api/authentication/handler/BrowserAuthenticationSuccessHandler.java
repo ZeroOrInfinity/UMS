@@ -1,4 +1,4 @@
-package top.dcenter.security.browser.authentication;
+package top.dcenter.security.browser.api.authentication.handler;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,7 +7,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.stereotype.Component;
 import top.dcenter.security.core.enums.LoginType;
 import top.dcenter.security.core.properties.BrowserProperties;
 
@@ -17,18 +16,18 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * 网页端认证成功处理器, 默认无实现，需自己去实现
+ * 网页端认证成功处理器, 默认简单实现，需自己去实现.<br>
+ * 继承此类后，再向 IOC 容器注册自己来实现自定义功能。
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/4 13:46
  */
-@Component
 @Slf4j
 public class BrowserAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
-    private final BrowserProperties browserProperties;
-    private final ObjectMapper objectMapper;
-    private final RequestCache requestCache;
+    protected final BrowserProperties browserProperties;
+    protected final ObjectMapper objectMapper;
+    protected final RequestCache requestCache;
     public BrowserAuthenticationSuccessHandler(ObjectMapper objectMapper, BrowserProperties browserProperties) {
         this.objectMapper = objectMapper;
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

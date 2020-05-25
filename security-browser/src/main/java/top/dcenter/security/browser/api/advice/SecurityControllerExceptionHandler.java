@@ -1,8 +1,7 @@
-package top.dcenter.security.browser.advice;
+package top.dcenter.security.browser.api.advice;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -15,12 +14,11 @@ import top.dcenter.security.core.excception.ValidateCodeProcessException;
 import top.dcenter.security.core.vo.SimpleResponse;
 
 /**
- * 核心错误处理器
+ * 核心错误处理器,如需自定义，继承此类并注入 IOC 容器即可
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/2 15:35
  */
-@ControllerAdvice
 @Slf4j
 public class SecurityControllerExceptionHandler {
 

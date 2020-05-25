@@ -1,7 +1,7 @@
 package top.dcenter.security.core.validate.code;
 
 import org.springframework.stereotype.Component;
-import top.dcenter.security.core.api.validateCode.ValidateCodeProcessor;
+import top.dcenter.security.core.api.validate.code.ValidateCodeProcessor;
 
 import java.util.Collection;
 import java.util.HashMap;

@@ -3,48 +3,73 @@
 browser --> browser: 密码登录图片验证码校验流程开始
 
 browser -> ValidateCodeFilter: /authentication/form
-
+alt 验证码校验逻辑
+activate ValidateCodeFilter
 ValidateCodeFilter --> ValidateCodeFilter: 1. doFilterInternal(),\n 验证码逻辑
-ValidateCodeFilter -> ValidateCodeType: 1.1 getValidateCodeType(),\n 如图片与短信都适用此 uri，
-ValidateCodeType --> ValidateCodeFilter: ValidateCodeType,\n 优先使用短信验证码逻辑
+ValidateCodeFilter -> ValidateCodeType: 1.1 getValidateCodeType(),\n 如图片与短信都适用此 uri，\n 优先使用短信验证码逻辑
+ValidateCodeType --> ValidateCodeFilter: ValidateCodeType,
+participant AbstractValidateCodeProcessor #ff9800
 ValidateCodeFilter -> AbstractValidateCodeProcessor: 1.2 findValidateCodeProcessor\n(ValidateCodeType)
-
+activate AbstractValidateCodeProcessor
 AbstractValidateCodeProcessor --> AbstractValidateCodeProcessor: 1.3 validate(request)
 AbstractValidateCodeProcessor --> AbstractValidateCodeProcessor: 1.3.1 从 session\n 获取验证码
 AbstractValidateCodeProcessor --> AbstractValidateCodeProcessor: 1.3.2 从 request\n 获取验证码
+opt 校验
 AbstractValidateCodeProcessor --> ValidateCodeFilter: 1.3.3 如校验成功，\n删除 session中的验证码
-
+else
 AbstractValidateCodeProcessor --> ValidateCodeFilter: 1.3.3 校验失败，抛出\n ValidateCodeException
+end
+deactivate AbstractValidateCodeProcessor
+participant BrowserAuthenticationFailureHandler #ff9800
 ValidateCodeFilter -> BrowserAuthenticationFailureHandler: 1.4 校验失败，抛出\n ValidateCodeException
 BrowserAuthenticationFailureHandler --> browser: 1.4.1 onAuthenticationFailure()\n根据设置的 LoginType \n返回 JSON 或者 HTML 格式
 
 ValidateCodeFilter -> UsernamePasswordAuthenticationFilter: 1.4.2 校验成功.\n doFilter()
+end
+alt 用户名与密码验证
 UsernamePasswordAuthenticationFilter --> UsernamePasswordAuthenticationFilter: 1.4.2.1\n attemptAuthentication()
+activate UsernamePasswordAuthenticationFilter
 UsernamePasswordAuthenticationFilter --> UsernamePasswordAuthenticationFilter: 1.4.2.1.1 \n UsernamePasswordAuthenticationToken()
+activate UsernamePasswordAuthenticationFilter
 UsernamePasswordAuthenticationFilter -> AuthenticationManager: 1.4.2.1.2\n authenticate(token)
 
 AuthenticationManager -> DaoAuthenticationProvider: 1.4.2.1.2.1\n getProvider
+activate DaoAuthenticationProvider
 DaoAuthenticationProvider --> DaoAuthenticationProvider: 1.4.2.1.2.2\n authenticate(token)
 DaoAuthenticationProvider --> DaoAuthenticationProvider: 1.4.2.1.2.2.1\n retrieveUser()
-DaoAuthenticationProvider -> UserDetailsService: 1.4.2.1.2.2.1.1\n getUserDetailsService()
-
-UserDetailsService --> UserDetailsService: 1.4.2.1.2.2.1.2\n loadUserByUsername(username)
-UserDetailsService --> DaoAuthenticationProvider: 1.4.2.1.2.2.1.2\n 校验成功，返回 user
+activate DaoAuthenticationProvider
+deactivate DaoAuthenticationProvider
+participant AbstractUserDetailsService #ff9800
+DaoAuthenticationProvider -> AbstractUserDetailsService: 1.4.2.1.2.2.1.1\n getUserDetailsService()
+AbstractUserDetailsService --> AbstractUserDetailsService: 1.4.2.1.2.2.1.2\n loadUserByUsername(username)
+activate AbstractUserDetailsService
+AbstractUserDetailsService --> DaoAuthenticationProvider: 1.4.2.1.2.2.1.2\n 校验成功，返回 user
 DaoAuthenticationProvider --> AuthenticationManager: 1.4.2.1.2.2\n 校验成功，返回 Authentication
 
 AuthenticationManager --> UsernamePasswordAuthenticationFilter: 1.4.2.1.3 校验成功，\n返回 Authentication
 UsernamePasswordAuthenticationFilter --> ValidateCodeFilter: 1.4.3 校验成功，\n返回 Authentication
 
 ValidateCodeFilter --> browser: 1.4.4.1 返回 RedirectUrl\n 或 DefaultSuccessUrl
-
-UserDetailsService --> DaoAuthenticationProvider: 1.4.2.1.2.2.1.3\n 校验失败，抛出异常
+else 校验失败
+AbstractUserDetailsService --> DaoAuthenticationProvider: 1.4.2.1.2.2.1.3\n 校验失败，抛出异常
+deactivate AbstractUserDetailsService
 DaoAuthenticationProvider --> AuthenticationManager: 1.4.2.1.2.2\n 校验失败，抛出异常
-
+deactivate DaoAuthenticationProvider
 AuthenticationManager --> UsernamePasswordAuthenticationFilter: 1.4.2.1.3\n 校验失败，抛出异常
 UsernamePasswordAuthenticationFilter --> ValidateCodeFilter: 1.4.3\n 校验失败，抛出异常
+deactivate UsernamePasswordAuthenticationFilter
+end
+deactivate UsernamePasswordAuthenticationFilter
 ValidateCodeFilter -> BrowserAuthenticationFailureHandler: 1.4.4 转交\nBrowserAuthenticationFailureHandler\n处理
+deactivate ValidateCodeFilter
 BrowserAuthenticationFailureHandler --> browser: 1.4.4.2 返回 login.html
 
 browser --> browser: 密码登录图片验证码校验流程结束
+
+== API ==
+note over AbstractValidateCodeProcessor: 可以根据\n自己的需求自定义
+note over BrowserAuthenticationFailureHandler: 可以根据\n自己的需求自定义\n另外还有个成功处理器\nBrowserAuthenticationSuccessHandler\n可根据需求实现
+note over AbstractUserDetailsService: 可以根据\n自己的需求自定义
+note over AbstractUserDetailsService: 此Service实现了\nRegisterUserDetailsService\n带有注册服务
 
 @enduml

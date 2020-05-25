@@ -30,6 +30,12 @@ public class SocialAuthenticationSignUpProvider implements AuthenticationProvide
             return null;
         }
         SocialAuthenticationSignUpToken authenticationToken = (SocialAuthenticationSignUpToken) authentication;
+
+        if (authentication.isAuthenticated())
+        {
+            return authentication;
+        }
+
         UserDetails user = userDetailsService.loadUserByUserId((String) authenticationToken.getPrincipal());
         if (user == null)
         {

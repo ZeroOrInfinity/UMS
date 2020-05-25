@@ -1,7 +1,7 @@
 package top.dcenter.security.core.validate.code.smscode;
 
 import lombok.extern.slf4j.Slf4j;
-import top.dcenter.security.core.api.validateCode.SmsCodeSender;
+import top.dcenter.security.core.api.validate.code.SmsCodeSender;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.util.CodeUtil;
 import top.dcenter.security.core.validate.code.ValidateCode;

@@ -1,4 +1,4 @@
-package top.dcenter.security.core.api.validateCode;
+package top.dcenter.security.core.api.validate.code;
 
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.validate.code.imagecode.DefaultImageCodeFactory;

@@ -2,29 +2,60 @@
 
 browser --> browser: 进入登录页面及获取验证码开始
 
-browser -> Server: 1/login.html
+browser -> Server: 1 /login.html
 Server --> browser: 1.1 /login.html
 browser -> ValidateCodeController: 1.2 /code/sms?mobile=10123456789
 browser -> ValidateCodeController: 1.3 /code/image
 
 ValidateCodeController --> ValidateCodeController: 2. createCode()
+activate ValidateCodeController
+participant AbstractValidateCodeProcessor #ff9800
 ValidateCodeController -> AbstractValidateCodeProcessor: 2.1 findValidateCodeProcessor()
-
+activate AbstractValidateCodeProcessor
 AbstractValidateCodeProcessor --> AbstractValidateCodeProcessor: 2.2 produce()
+activate AbstractValidateCodeProcessor
 AbstractValidateCodeProcessor --> AbstractValidateCodeProcessor: 2.2.1 generate()
-AbstractValidateCodeProcessor -> ValidateCodeGenerator: 2.2.1.1 getValidateCodeGenerator()
-
-ValidateCodeGenerator --> ValidateCodeGenerator: 2.2.1.2generate()
-ValidateCodeGenerator --> AbstractValidateCodeProcessor: 2.2.1.3 code
-
+participant ImageCodeGenerator #ff9800
+AbstractValidateCodeProcessor -> ImageCodeGenerator: 2.2.1.1 getValidateCodeGenerator()
+activate ImageCodeGenerator
+participant ImageCodeFactory #ff9800
+ImageCodeGenerator -> ImageCodeFactory: 2.2.1.1.1 generate()
+activate ImageCodeFactory
+ImageCodeFactory --> ImageCodeGenerator: 2.2.1.2 code
+deactivate ImageCodeFactory
+ImageCodeGenerator --> AbstractValidateCodeProcessor: 2.2.1.3 code
+deactivate ImageCodeGenerator
 AbstractValidateCodeProcessor --> AbstractValidateCodeProcessor: 2.2.2 saveSession()
+alt 这里通过 AbstractValidateCodeProcessor 子类实现
+opt ImageCodeValidateCodeProcessor
 AbstractValidateCodeProcessor --> AbstractValidateCodeProcessor: 2.2.3 send()
-AbstractValidateCodeProcessor --> AbstractValidateCodeProcessor: 2.2.3 send()
-AbstractValidateCodeProcessor --> browser: 2.2.3.1 如果为图片类型，返回图片
-AbstractValidateCodeProcessor -> SmsCodeSender: 2.2.3.1 如果为短信类型
+activate AbstractValidateCodeProcessor
+AbstractValidateCodeProcessor --> browser: 2.3 如果为图片类型
+end
+opt SmsCodeValidateCodeProcessor
+participant SmsCodeGenerator #ff9800
+AbstractValidateCodeProcessor -> SmsCodeGenerator: 2.2.3.1 如果为短信类型
+deactivate AbstractValidateCodeProcessor
 
-SmsCodeSender --> SmsCodeSender: 2.2.3.2 sendSms
-
+deactivate AbstractValidateCodeProcessor
+deactivate AbstractValidateCodeProcessor
+deactivate ValidateCodeController
+participant SmsCodeSender #ff9800
+SmsCodeGenerator -> SmsCodeSender: 2.2.3.2 如果为短信类型
+SmsCodeSender --> SmsCodeSender: 2.2.3.2.1 sendSms
+end
+end
+activate SmsCodeSender
+deactivate SmsCodeSender
 browser --> browser: 进入登录页面及获取验证码结束
+== API ==
+note over AbstractValidateCodeProcessor: api 可以根据\n自己的需求自定义
+note over  ImageCodeGenerator: api 可以根据\n自己的需求自定义\n推荐实现ImageCodeFactory
+note over  ImageCodeFactory: api 实现此工厂可以\n自定义图片生成逻辑
+note over  SmsCodeGenerator: api 可以根据\n自己的需求自定义\n推荐实现SmsCodeSender
+note over  SmsCodeSender: api 可以根据\n自己的需求自定义
+participant ValidateCodeGenerator #ff9800
+note over  ValidateCodeGenerator: api 可以自定义\n其他验证码逻辑
+participant ValidateCodeGenerator #ff9800
 
 @enduml

@@ -2,9 +2,9 @@ package top.dcenter.security.core.validate.code.imagecode;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.security.core.api.validateCode.AbstractValidateCodeProcessor;
+import top.dcenter.security.core.api.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.security.core.validate.code.ValidateCode;
-import top.dcenter.security.core.api.validateCode.ValidateCodeGenerator;
+import top.dcenter.security.core.api.validate.code.ValidateCodeGenerator;
 import top.dcenter.security.core.validate.code.ValidateCodeType;
 
 import javax.imageio.ImageIO;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 
 /**
- * 图片验证码处理器实现。如要自定义图片验证码处理器，请继承此类并重写 sent 方法
+ * 图片验证码处理器实现。如要自定义图片验证码处理器，请继承此类并重写 sent 方法且注入IOC容器即可
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/6 14:47
@@ -33,7 +33,6 @@ public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
                 return false;
             }
             ImageCode imageCode = (ImageCode) validateCode;
-            // TODO 这里可以优化，可以先生成一点数量的图片池，再从图片文件池中读取验证码图片
             ImageIO.write(imageCode.getImage(), "JPEG", request.getResponse().getOutputStream());
             return true;
         }

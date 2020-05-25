@@ -11,12 +11,16 @@ import javax.sql.DataSource;
 
 /**
  * UsersConnectionRepositoryFactory 接口实现，
- * 用户需要对第三方登录的用户表更改时，要实现此接口 {@link UsersConnectionRepositoryFactory}
+ * 用户需要对第三方{@link SocialProperties} 字段 <i>tableName</i> 用户表更改时，要实现此接口
+ * {@link UsersConnectionRepositoryFactory}
+ * .<br>
+ *     自定义的接口实现并注入 IOC 容器会自动覆盖此类
  * @author zyw
  * @version V1.0  Created by 2020/5/13 23:37
  */
 @SuppressWarnings("AlibabaClassNamingShouldBeCamel")
 public class OAuthJdbcUsersConnectionRepositoryFactory implements UsersConnectionRepositoryFactory {
+
     @Override
     public UsersConnectionRepository getUsersConnectionRepository(DataSource dataSource,
                                                                   ConnectionFactoryLocator connectionFactoryLocator,

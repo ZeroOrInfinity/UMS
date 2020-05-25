@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
-import top.dcenter.security.social.api.config.SocialCoreConfigurer;
+import top.dcenter.security.social.api.config.SocialCoreConfig;
 import top.dcenter.security.social.SocialProperties;
 
 import java.util.HashMap;
@@ -24,13 +24,13 @@ public class DemoSocialSecurityConfigurerAware implements SocialWebSecurityConfi
 
     private final SocialProperties socialProperties;
 
-    private final SocialCoreConfigurer socialCoreConfigurer;
+    private final SocialCoreConfig socialCoreConfig;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public DemoSocialSecurityConfigurerAware(SocialProperties socialProperties,
-                                             SocialCoreConfigurer socialCoreConfigurer) {
+                                             SocialCoreConfig socialCoreConfig) {
         this.socialProperties = socialProperties;
-        this.socialCoreConfigurer = socialCoreConfigurer;
+        this.socialCoreConfig = socialCoreConfig;
     }
 
     @Override

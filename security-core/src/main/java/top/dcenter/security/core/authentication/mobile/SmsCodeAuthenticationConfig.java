@@ -12,9 +12,9 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import top.dcenter.security.core.api.service.AbstractUserDetailsService;
 import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.api.service.AbstractUserDetailsService;
 
 import java.util.UUID;
 
@@ -50,25 +50,28 @@ public class SmsCodeAuthenticationConfig extends SecurityConfigurerAdapter<Defau
         this.validateCodeProperties = validateCodeProperties;
         this.browserAuthenticationFailureHandler = browserAuthenticationFailureHandler;
         this.browserAuthenticationSuccessHandler = browserAuthenticationSuccessHandler;
+
     }
 
     @Override
     public void configure(HttpSecurity http) {
 
-
-        SmsCodeAuthenticationFilter smsCodeAuthenticationFilter = new SmsCodeAuthenticationFilter(validateCodeProperties);
+        SmsCodeAuthenticationFilter smsCodeAuthenticationFilter =
+                new SmsCodeAuthenticationFilter(this.validateCodeProperties);
         smsCodeAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
-        smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(browserAuthenticationSuccessHandler);
-        smsCodeAuthenticationFilter.setAuthenticationFailureHandler(browserAuthenticationFailureHandler);
+        smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(this.browserAuthenticationSuccessHandler);
+        smsCodeAuthenticationFilter.setAuthenticationFailureHandler(this.browserAuthenticationFailureHandler);
 
-        PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices = new PersistentTokenBasedRememberMeServices(getKey(), userDetailsService, persistentTokenRepository);
-        persistentTokenBasedRememberMeServices.setTokenValiditySeconds(browserProperties.getRememberMeSeconds());
+        PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices =
+                new PersistentTokenBasedRememberMeServices(getKey(), this.userDetailsService,
+                                                           this.persistentTokenRepository);
+        persistentTokenBasedRememberMeServices.setTokenValiditySeconds(this.browserProperties.getRememberMeSeconds());
         persistentTokenBasedRememberMeServices.setParameter(DEFAULT_REMEMBER_ME_NAME);
         // 添加rememberMe功能配置
         smsCodeAuthenticationFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
 
 
-        SmsCodeAuthenticationProvider smsCodeAuthenticationProvider = new SmsCodeAuthenticationProvider(userDetailsService);
+        SmsCodeAuthenticationProvider smsCodeAuthenticationProvider = new SmsCodeAuthenticationProvider(this.userDetailsService);
         http.authenticationProvider(smsCodeAuthenticationProvider)
             .addFilterAfter(smsCodeAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
 

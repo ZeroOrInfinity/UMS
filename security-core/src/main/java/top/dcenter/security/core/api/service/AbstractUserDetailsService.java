@@ -23,6 +23,8 @@ public abstract class AbstractUserDetailsService implements UserDetailsService, 
         this.applicationContext = applicationContext;
     }
 
+
+
     @Override
     public void afterPropertiesSet() throws Exception {
         // 解决 Autowired 循环引用的问题。
