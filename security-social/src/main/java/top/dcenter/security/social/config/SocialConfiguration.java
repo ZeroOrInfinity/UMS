@@ -27,11 +27,11 @@ import top.dcenter.security.social.api.callback.ShowConnectViewService;
 import top.dcenter.security.social.api.config.SocialCoreConfig;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
-import top.dcenter.security.social.properties.SocialProperties;
-import top.dcenter.security.social.signup.DefaultConnectionSignUp;
-import top.dcenter.security.social.controller.BandingConnectController;
 import top.dcenter.security.social.banding.DefaultShowConnectViewService;
+import top.dcenter.security.social.controller.BandingConnectController;
+import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.repository.jdbc.OAuthJdbcUsersConnectionRepositoryFactory;
+import top.dcenter.security.social.signup.DefaultConnectionSignUp;
 import top.dcenter.security.social.view.ConnectionStatusView;
 
 import javax.sql.DataSource;
@@ -91,6 +91,8 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
         // {@link org.springframework.aop.framework.CglibAopProxy}中的
         // {@link CglibAopProxy.DynamicAdvisedInterceptor#intercept(Object, Method, Object[], MethodProxy)} 方法
         // 注入相应的 request-scoped connectionRepository。
+        // 典型用法，比如：ConnectionRepository声明@bean时，
+        // 再添加一个@Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.INTERFACES)
         BandingConnectController controller = new BandingConnectController(factoryLocator,
                                                                            this.socialProperties,
                                                                            repository);

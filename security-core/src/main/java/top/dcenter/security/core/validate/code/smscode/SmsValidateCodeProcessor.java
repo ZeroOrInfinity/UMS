@@ -7,7 +7,7 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.api.validate.code.SmsCodeSender;
 import top.dcenter.security.core.consts.RegexConst;
-import top.dcenter.security.core.excception.ValidateCodeParamErrorException;
+import top.dcenter.security.core.exception.ValidateCodeParamErrorException;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.api.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.security.core.validate.code.ValidateCode;

@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.api.validate.code.ValidateCodeProcessor;
-import top.dcenter.security.core.excception.ValidateCodeException;
-import top.dcenter.security.core.excception.ValidateCodeProcessException;
+import top.dcenter.security.core.exception.ValidateCodeException;
+import top.dcenter.security.core.exception.ValidateCodeProcessException;
 import top.dcenter.security.core.validate.code.ValidateCodeProcessorHolder;
 
 import javax.servlet.http.HttpServletRequest;

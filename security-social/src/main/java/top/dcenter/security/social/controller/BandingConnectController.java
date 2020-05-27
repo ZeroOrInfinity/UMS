@@ -125,6 +125,8 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	 *                             {@link org.springframework.aop.framework.CglibAopProxy}中的
 	 *                             {@link CglibAopProxy.DynamicAdvisedInterceptor#intercept(Object, Method, Object[], MethodProxy)} 方法
 	 *                             注入相应的 request-scoped connectionRepository。<br>
+	 *                             典型用法，比如：ConnectionRepository 声明 @bean 时，
+	 *                             再添加一个 @Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.INTERFACES)
 	 */
 	@Inject
 	public BandingConnectController(ConnectionFactoryLocator connectionFactoryLocator,

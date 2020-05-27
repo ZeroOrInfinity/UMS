@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.dto.User;
-import top.dcenter.security.core.vo.SimpleResponse;
+import top.dcenter.security.core.vo.ResponseResult;
 import top.dcenter.security.social.vo.SocialUserInfo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 用户控制器
+ * 第三方登录用户控制器
  *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/1 19:49
@@ -72,13 +72,13 @@ public class UserController {
     }
 
     @PostMapping("/regist")
-    public SimpleResponse regist(User user, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseResult regist(User user, HttpServletRequest request, HttpServletResponse response) {
         // TODO 注册用户逻辑 ...
         log.info("Demo ========>: UserController.regist");
         // 不管是注册用户还是绑定用户，都会拿到一个用户唯一标识，
         if (providerSignInUtils == null)
         {
-            return SimpleResponse.fail(500, "服务不存在");
+            return ResponseResult.fail(500, "服务不存在");
         }
         String userId = user.getUsername();
         try
@@ -88,20 +88,20 @@ public class UserController {
         catch (DuplicateConnectionException e)
         {
             log.info("用户注册失败：{}", user);
-            return SimpleResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), "用户注册失败");
+            return ResponseResult.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), "用户注册失败");
         }
 
         log.info("Demo ========>: 用户注册成功：{}", user);
-        return SimpleResponse.success(user);
+        return ResponseResult.success(user);
     }
 
     @GetMapping("/testWebSecurityPostConfigurer")
-    public SimpleResponse testWebSecurityPostConfigurer(HttpServletRequest request) {
+    public ResponseResult testWebSecurityPostConfigurer(HttpServletRequest request) {
         log.info("Demo ========>: UserController.testWebSecurityPostConfigurer");
         Connection<?> connection = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
         if (connection == null)
         {
-            return SimpleResponse.fail(HttpStatus.NON_AUTHORITATIVE_INFORMATION.value(), "没有第三方授权信息");
+            return ResponseResult.fail(HttpStatus.NON_AUTHORITATIVE_INFORMATION.value(), "没有第三方授权信息");
         }
         SocialUserInfo userInfo = new SocialUserInfo();
         userInfo.setProviderId(connection.getKey().getProviderId());
@@ -109,7 +109,7 @@ public class UserController {
         userInfo.setNickname(connection.getDisplayName());
         userInfo.setHeadImg(connection.getImageUrl());
         log.info("用户注册成功：{}", userInfo);
-        return SimpleResponse.success(userInfo);
+        return ResponseResult.success(userInfo);
     }
 
     @GetMapping("/me")

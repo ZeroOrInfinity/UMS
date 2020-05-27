@@ -8,7 +8,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import top.dcenter.security.core.enums.LoginType;
 import top.dcenter.security.core.properties.BrowserProperties;
-import top.dcenter.security.core.vo.SimpleResponse;
+import top.dcenter.security.core.vo.ResponseResult;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -42,7 +42,7 @@ public class BrowserAuthenticationFailureHandler extends SimpleUrlAuthentication
             int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
             response.setStatus(status);
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write(objectMapper.writeValueAsString(SimpleResponse.fail(status, exception.getMessage())));
+            response.getWriter().write(objectMapper.writeValueAsString(ResponseResult.fail(status, exception.getMessage())));
             return;
         }
         setDefaultFailureUrl(browserProperties.getFailureUrl());

@@ -1,4 +1,4 @@
-package top.dcenter.security.core.excception;
+package top.dcenter.security.core.exception;
 
 import lombok.Getter;
 import org.springframework.security.core.AuthenticationException;

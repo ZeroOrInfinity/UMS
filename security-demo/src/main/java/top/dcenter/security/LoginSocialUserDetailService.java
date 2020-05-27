@@ -14,7 +14,7 @@ import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.security.core.excception.RegisterUserFailureException;
+import top.dcenter.security.core.exception.RegisterUserFailureException;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
 
 import java.util.List;

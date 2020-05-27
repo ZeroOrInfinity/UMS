@@ -6,7 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.social.connect.Connection;
 import top.dcenter.security.core.enums.LoginType;
 import top.dcenter.security.core.properties.BrowserProperties;
-import top.dcenter.security.core.vo.SimpleResponse;
+import top.dcenter.security.core.vo.ResponseResult;
 import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.api.callback.ShowConnectViewService;
 import top.dcenter.security.social.vo.SocialUserInfo;
@@ -56,9 +56,9 @@ public class DefaultShowConnectViewService implements ShowConnectViewService {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
             if (userInfoList.isEmpty()) {
-                response.getWriter().write(objectMapper.writeValueAsString(SimpleResponse.success( "解绑成功")));
+                response.getWriter().write(objectMapper.writeValueAsString(ResponseResult.success("解绑成功")));
             } else {
-                response.getWriter().write(objectMapper.writeValueAsString(SimpleResponse.success("绑定成功", userInfoList)));
+                response.getWriter().write(objectMapper.writeValueAsString(ResponseResult.success("绑定成功", userInfoList)));
             }
             return;
         }

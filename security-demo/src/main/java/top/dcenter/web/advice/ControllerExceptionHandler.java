@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import top.dcenter.security.core.excception.ParameterErrorException;
-import top.dcenter.security.core.excception.UserNotExistException;
+import top.dcenter.security.core.exception.ParameterErrorException;
+import top.dcenter.security.core.exception.UserNotExistException;
 
 import java.util.HashMap;
 import java.util.Map;

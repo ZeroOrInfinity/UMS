@@ -149,6 +149,10 @@ public class SecurityConstants {
      * url 请求上带的参数 state
      */
     public static final String URL_PARAMETER_STATE = "state";
+    /**
+     * url 请求上带的参数 scope
+     */
+    public static final String URL_PARAMETER_SCOPE = "scope";
 
 
 

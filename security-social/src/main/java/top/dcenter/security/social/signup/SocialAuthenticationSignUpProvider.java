@@ -5,7 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.social.connect.web.ProviderSignInUtils;
-import top.dcenter.security.core.excception.RegisterUserFailureException;
+import top.dcenter.security.core.exception.RegisterUserFailureException;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
 
 /**

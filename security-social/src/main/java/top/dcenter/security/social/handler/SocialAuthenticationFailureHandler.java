@@ -7,9 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import top.dcenter.security.core.enums.LoginType;
-import top.dcenter.security.core.excception.RegisterUserFailureException;
+import top.dcenter.security.core.exception.RegisterUserFailureException;
 import top.dcenter.security.core.properties.BrowserProperties;
-import top.dcenter.security.core.vo.SimpleResponse;
+import top.dcenter.security.core.vo.ResponseResult;
 import top.dcenter.security.social.properties.SocialProperties;
 
 import javax.servlet.ServletException;
@@ -53,7 +53,7 @@ public class SocialAuthenticationFailureHandler extends SimpleUrlAuthenticationF
             int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
             response.setStatus(status);
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write(objectMapper.writeValueAsString(SimpleResponse.fail(status, exception.getMessage())));
+            response.getWriter().write(objectMapper.writeValueAsString(ResponseResult.fail(status, exception.getMessage())));
             return;
         }
 

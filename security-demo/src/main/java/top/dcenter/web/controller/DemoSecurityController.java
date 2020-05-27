@@ -11,7 +11,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.dcenter.security.browser.api.controller.BaseBrowserSecurityController;
-import top.dcenter.security.core.excception.IllegalAccessUrlException;
+import top.dcenter.security.core.exception.IllegalAccessUrlException;
 import top.dcenter.security.core.properties.BrowserProperties;
 
 import javax.servlet.http.HttpServletRequest;

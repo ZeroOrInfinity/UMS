@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_CODE;
+import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_SCOPE;
+import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_STATE;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_SEPARATOR;
 
 /**
@@ -145,7 +148,7 @@ public class BandingConnectSupport {
             verifyStateParameter(request);
         }
 
-        String code = request.getParameter("code");
+        String code = request.getParameter(URL_PARAMETER_CODE);
         try {
             AccessGrant accessGrant = connectionFactory.getOAuthOperations().exchangeForAccess(code, callbackUrl(request), null);
             return connectionFactory.createConnection(accessGrant);
@@ -157,7 +160,7 @@ public class BandingConnectSupport {
     }
 
     private void verifyStateParameter(NativeWebRequest request) {
-        String state = request.getParameter("state");
+        String state = request.getParameter(URL_PARAMETER_STATE);
         String originalState = extractCachedOAuth2State(request);
         if (state == null || !state.equals(originalState)) {
             throw new IllegalStateException("The OAuth2 'state' parameter is missing or doesn't match.");
@@ -182,11 +185,11 @@ public class BandingConnectSupport {
         OAuth2Operations oauthOperations = connectionFactory.getOAuthOperations();
         String defaultScope = connectionFactory.getScope();
         OAuth2Parameters parameters = getOAuth2Parameters(request, defaultScope, additionalParameters, providerId);
-        // 添加统一的回调地址由 callbackUrl(request) 设置，功能性回调地址由此处通过generateState() 注入 state。TODO 提取常量
+        // 添加统一的回调地址由 callbackUrl(request) 设置，功能性回调地址由此处通过generateState() 注入 state。
         String state =
                 ((BaseOAuth2ConnectionFactory) connectionFactory).generateState("/connect"+ URL_SEPARATOR + providerId);
 
-        parameters.add("state", state);
+        parameters.add(URL_PARAMETER_STATE, state);
         sessionStrategy.setAttribute(request, OAUTH2_STATE_ATTRIBUTE, state);
         if (useAuthenticateUrl) {
             return oauthOperations.buildAuthenticateUrl(parameters);
@@ -197,9 +200,9 @@ public class BandingConnectSupport {
 
     private OAuth2Parameters getOAuth2Parameters(NativeWebRequest request, String defaultScope, MultiValueMap<String, String> additionalParameters, String providerId) {
         OAuth2Parameters parameters = new OAuth2Parameters(additionalParameters);
-        parameters.putAll(getRequestParameters(request, "scope"));
+        parameters.putAll(getRequestParameters(request, URL_PARAMETER_SCOPE));
         parameters.setRedirectUri(callbackUrl(request));
-        String scope = request.getParameter("scope");
+        String scope = request.getParameter(URL_PARAMETER_SCOPE);
         if (scope != null) {
             parameters.setScope(scope);
         } else if (defaultScope != null) {

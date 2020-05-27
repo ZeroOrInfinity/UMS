@@ -9,7 +9,7 @@ import lombok.Data;
  * @medifiedBy zyw
  */
 @Data
-public class SimpleResponse {
+public class ResponseResult {
     /**
      * 0 表示处理成功信息，其他表示失败
      */
@@ -17,13 +17,13 @@ public class SimpleResponse {
     private String msg;
     private Object data;
 
-    public SimpleResponse(int code, String msg) {
+    public ResponseResult(int code, String msg) {
         this.code = code;
         this.msg = msg;
         this.data = null;
     }
 
-    public SimpleResponse(int code) {
+    public ResponseResult(int code) {
         this(code, null);
     }
 
@@ -31,8 +31,8 @@ public class SimpleResponse {
      * 默认成功返回 code = 0
      * @return
      */
-    public static SimpleResponse success() {
-        return SimpleResponse.success(null);
+    public static ResponseResult success() {
+        return ResponseResult.success(null);
     }
 
     /**
@@ -40,8 +40,8 @@ public class SimpleResponse {
      * @param data
      * @return
      */
-    public static SimpleResponse success(Object data) {
-        return SimpleResponse.success(null, data);
+    public static ResponseResult success(Object data) {
+        return ResponseResult.success(null, data);
     }
 
     /**
@@ -49,8 +49,8 @@ public class SimpleResponse {
      * @param msg
      * @return
      */
-    public static SimpleResponse success(String msg) {
-        return SimpleResponse.success(msg, null);
+    public static ResponseResult success(String msg) {
+        return ResponseResult.success(msg, null);
     }
 
     /**
@@ -59,11 +59,11 @@ public class SimpleResponse {
      * @param data
      * @return
      */
-    public static SimpleResponse success(String msg, Object data) {
-        SimpleResponse simpleResponse = new SimpleResponse(0);
-        simpleResponse.setMsg(msg);
-        simpleResponse.setData(data);
-        return simpleResponse;
+    public static ResponseResult success(String msg, Object data) {
+        ResponseResult responseResult = new ResponseResult(0);
+        responseResult.setMsg(msg);
+        responseResult.setData(data);
+        return responseResult;
     }
 
     /**
@@ -71,8 +71,8 @@ public class SimpleResponse {
      * @param msg
      * @return
      */
-    public static SimpleResponse fail(int code, String msg) {
-        return SimpleResponse.fail(code, msg, null);
+    public static ResponseResult fail(int code, String msg) {
+        return ResponseResult.fail(code, msg, null);
     }
 
     /**
@@ -81,10 +81,10 @@ public class SimpleResponse {
      * @param data
      * @return
      */
-    public static SimpleResponse fail(int code, String msg, Object data) {
-        SimpleResponse simpleResponse = new SimpleResponse(code, msg);
-        simpleResponse.setData(data);
-        return simpleResponse;
+    public static ResponseResult fail(int code, String msg, Object data) {
+        ResponseResult responseResult = new ResponseResult(code, msg);
+        responseResult.setData(data);
+        return responseResult;
     }
 
 }

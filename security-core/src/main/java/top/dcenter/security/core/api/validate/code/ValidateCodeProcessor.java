@@ -2,7 +2,7 @@ package top.dcenter.security.core.api.validate.code;
 
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.security.core.excception.ValidateCodeException;
+import top.dcenter.security.core.exception.ValidateCodeException;
 import top.dcenter.security.core.validate.code.ValidateCode;
 
 /**

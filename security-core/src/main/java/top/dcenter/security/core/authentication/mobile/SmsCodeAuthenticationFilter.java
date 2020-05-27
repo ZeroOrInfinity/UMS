@@ -8,7 +8,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import top.dcenter.security.core.excception.ParameterErrorException;
+import top.dcenter.security.core.exception.ParameterErrorException;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 
 import javax.servlet.http.HttpServletRequest;

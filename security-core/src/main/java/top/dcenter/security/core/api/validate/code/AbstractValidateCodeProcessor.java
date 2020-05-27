@@ -7,7 +7,7 @@ import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.security.core.excception.ValidateCodeException;
+import top.dcenter.security.core.exception.ValidateCodeException;
 import top.dcenter.security.core.validate.code.ValidateCode;
 import top.dcenter.security.core.validate.code.ValidateCodeType;
 
