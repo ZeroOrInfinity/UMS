@@ -9,9 +9,10 @@ import org.springframework.social.security.SocialAuthenticationFilter;
 import org.springframework.social.security.SocialAuthenticationServiceRegistry;
 import org.springframework.social.security.SpringSocialConfigurer;
 import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
-import top.dcenter.security.social.SocialProperties;
+import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory;
 import top.dcenter.security.social.callback.SocialOAuth2AuthenticationService;
+import top.dcenter.security.social.config.SocialSecurityConfigurerAware;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 
 /**
  * social 第三方登录核心配置, 如果确实需要自定义，请实现此类的子类，并注册进 IOC 容器。会替换此类<br>
- *     推荐通过实现 {@link top.dcenter.security.social.SocialSecurityConfigurerAware} 接口。<br>
+ *     推荐通过实现 {@link SocialSecurityConfigurerAware} 接口。<br>
  *     例如：不需要使用 {@link #postProcess(Object)} 方法配置且通过 {@link WebSecurityConfigurerAdapter#configure(HttpSecurity)}
  *     配置，则请实现 {@link SocialWebSecurityConfigurerAware} 接口
  * @author zhailiang
@@ -81,7 +82,7 @@ public class SocialCoreConfig extends SpringSocialConfigurer {
 
 		}
 
-		filter.setFilterProcessesUrl(socialProperties.getFilterProcessesUrl());
+		filter.setFilterProcessesUrl(socialProperties.getCallbackUrl());
 		filter.setSignupUrl(socialProperties.getSignUpUrl());
 		filter.setDefaultFailureUrl(socialProperties.getFailureUrl());
 		return (T) filter;

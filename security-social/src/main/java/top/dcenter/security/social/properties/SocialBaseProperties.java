@@ -1,4 +1,4 @@
-package top.dcenter.security.social;
+package top.dcenter.security.social.properties;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -14,9 +14,9 @@ import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.web.servlet.View;
-import top.dcenter.security.core.properties.BrowserProperties;
+import top.dcenter.security.social.properties.SocialProperties;
+import top.dcenter.security.social.api.callback.ShowConnectViewService;
 import top.dcenter.security.social.api.config.OAuth2ConfigurerAdapter;
-import top.dcenter.security.social.SocialProperties;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.view.ConnectView;
 import top.dcenter.security.social.weixin.connect.WeixinConnectionFactory;
@@ -35,23 +35,12 @@ import javax.sql.DataSource;
 @ConditionalOnProperty(prefix = "security.social.weixin", name = "app-id")
 public class WeixinAutoConfiguration extends OAuth2ConfigurerAdapter {
 
-	private final SocialProperties socialProperties;
-	private final UsersConnectionRepositoryFactory usersConnectionRepositoryFactory;
-	private final DataSource dataSource;
-	private final ConnectionSignUp connectionSignUp;
-	private final TextEncryptor socialTextEncryptor;
-
 	public WeixinAutoConfiguration(SocialProperties socialProperties,
 	                               UsersConnectionRepositoryFactory usersConnectionRepositoryFactory,
 	                               ConnectionSignUp connectionSignUp,
 	                               DataSource dataSource,
 	                               @Qualifier("socialTextEncryptor") TextEncryptor socialTextEncryptor) {
 		super(socialProperties, connectionSignUp, dataSource, usersConnectionRepositoryFactory, socialTextEncryptor);
-		this.socialProperties = socialProperties;
-		this.usersConnectionRepositoryFactory = usersConnectionRepositoryFactory;
-		this.connectionSignUp = connectionSignUp;
-		this.dataSource = dataSource;
-		this.socialTextEncryptor = socialTextEncryptor;
 	}
 
 	@Override
@@ -59,19 +48,25 @@ public class WeixinAutoConfiguration extends OAuth2ConfigurerAdapter {
 		connectionFactoryConfigurer.addConnectionFactory(this.weixinConnectionFactory());
 	}
 
+	/**
+	 * 微信  绑定与解绑后回显的页面
+	 * @param showConnectViewService
+	 * @return
+	 */
 	@Bean({"connect/weixinConnect", "connect/weixinConnected"})
 	@ConditionalOnMissingBean(name = "weixinConnectedView")
-	public View weixinConnectedView(BrowserProperties browserProperties) {
-		return new ConnectView(browserProperties, objectMapper);
+	public View weixinConnectedView(ShowConnectViewService showConnectViewService) {
+		return new ConnectView(showConnectViewService);
 	}
 
 	@Bean("weixin")
 	public ConnectionFactory<?> weixinConnectionFactory() {
-		SocialProperties.WeixinProperties weixinConfig = socialProperties.getWeixin();
+		SocialProperties.WeixinProperties weixinConfig = this.socialProperties.getWeixin();
 		return new WeixinConnectionFactory(weixinConfig.getProviderId(),
 		                                   weixinConfig.getAppId(),
 		                                   weixinConfig.getAppSecret(),
-		                                   this.objectMapper);
+		                                   this.objectMapper,
+		                                   this.socialProperties);
 	}
 
 }

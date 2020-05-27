@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.social.security.SocialAuthenticationFilter;
 import top.dcenter.security.social.api.config.SocialCoreConfig;
-import top.dcenter.security.social.SocialProperties;
+import top.dcenter.security.social.properties.SocialProperties;
 
 /**
  * 自定义第三方授权登录核心配置 SocialCoreConfig，
@@ -31,7 +31,7 @@ public class DemoSocialConfig extends SocialCoreConfig {
     protected <T> T postProcess(T object) {
         SocialAuthenticationFilter filter = (SocialAuthenticationFilter) super.postProcess(object);
 
-        filter.setFilterProcessesUrl(socialProperties.getFilterProcessesUrl());
+        filter.setFilterProcessesUrl(socialProperties.getCallbackUrl());
         filter.setSignupUrl(socialProperties.getSignUpUrl());
         filter.setDefaultFailureUrl(socialProperties.getFailureUrl());
         log.info("Demo ======>: DemoSocialConfig.postProcess");

@@ -4,6 +4,7 @@ browser --> browser: OAuth2登录绑定/解绑开始,\n 前提用户已登录
 
 opt 绑定逻辑
 browser -> Server: 1 /banding.html 绑定逻辑
+participant ConnectView #ff9800
 Server --> browser: 1.1 /banding.html
 participant BandingConnectController #ff9800
 browser -> BandingConnectController: 1.2 /connect/qq (post)
@@ -89,9 +90,11 @@ BandingConnectController -> JdbcConnectionRepository: 1.13.3 findConnections(pro
 JdbcConnectionRepository --> BandingConnectController: 1.14 返回 connections
 BandingConnectController -> BandingConnectController: 1.15 setNoCache(request)
 alt 绑定失败
-BandingConnectController --> browser: 1.16 如果 connections 为空，\n跳转到/connect/{providerId}Connect
+BandingConnectController -> ConnectView: 1.16 如果 connections 为空，\n跳转到/connect/{providerId}Connect
+ConnectView --> browser: 1.17 跳转到/connect/{providerId}Connect
 else 绑定成功
-BandingConnectController --> browser: 1.16 如果 connections 不为空，\n跳转到/connect/{providerId}Connected
+BandingConnectController -> ConnectView: 1.16 如果 connections 不为空，\n跳转到/connect/{providerId}Connected
+ConnectView --> browser: 1.17 跳转到/connect/{providerId}Connected
 end
 deactivate BandingConnectController
 end
@@ -110,21 +113,23 @@ deactivate BandingConnectController
 BandingConnectController --> BandingConnectController: 2.7 postDisconnect\n (connectionFactory, request)
 
 opt 返回绑定、解绑结果视图
-BandingConnectController --> BandingConnectController: 1.8 connectionStatusRedirect\n (providerId, request),\n 设置跳转视图。
+BandingConnectController --> BandingConnectController: 2.8 connectionStatusRedirect\n (providerId, request),\n 设置跳转视图。
 activate BandingConnectController
-BandingConnectController --> BandingConnectController: 1.8.1 返回 RedirectView()\n 默认跳转到connectionStatus
+BandingConnectController --> BandingConnectController: 2.8.1 返回 RedirectView()\n 默认跳转到connectionStatus
 deactivate BandingConnectController
 deactivate BandingConnectController
-BandingConnectController --> BandingConnectController: 1.9 跳转RedirectView()\n 默认跳转到connectionStatus\n /connect/{providerId}
+BandingConnectController --> BandingConnectController: 2.9 跳转RedirectView()\n 默认跳转到connectionStatus\n /connect/{providerId}
 activate BandingConnectController
-BandingConnectController -> BandingConnectController: 1.9.1 processFlash(request, model)
-BandingConnectController -> JdbcConnectionRepository: 1.9.2 findConnections(providerId)
-JdbcConnectionRepository --> BandingConnectController: 1.10 返回 connections
-BandingConnectController -> BandingConnectController: 1.11 setNoCache(request)
+BandingConnectController -> BandingConnectController: 2.9.1 processFlash(request, model)
+BandingConnectController -> JdbcConnectionRepository: 2.9.2 findConnections(providerId)
+JdbcConnectionRepository --> BandingConnectController: 2.10 返回 connections
+BandingConnectController -> BandingConnectController: 2.11 setNoCache(request)
 alt 绑定失败
-BandingConnectController --> browser: 1.12 如果 connections 为空，\n跳转到/connect/{providerId}Connect
+BandingConnectController -> ConnectView: 2.12 如果 connections 为空，\n跳转到/connect/{providerId}Connect
+ConnectView --> browser: 2.13 跳转到/connect/{providerId}Connect
 else 绑定成功
-BandingConnectController --> browser: 1.12 如果 connections 不为空，\n跳转到/connect/{providerId}Connected
+BandingConnectController -> ConnectView: 2.12 如果 connections 不为空，\n跳转到/connect/{providerId}Connected
+ConnectView --> browser: 2.13 跳转到/connect/{providerId}Connected
 end
 deactivate BandingConnectController
 end
@@ -139,6 +144,16 @@ OAuthJdbcUsersConnectionRepository -> JdbcConnectionRepository: createConnection
 note over BandingConnectController: api 可以根据\n自己的需求自定义\n如把用户session放入redis等
 note over BandingConnectSupport: api 可以根据\n自己的需求自定义
 note over BaseOAuth2ConnectionFactory: 扩展 OAuth2ConnectionFactory\n添加专门为多个回调地址添加路由功能方法 generateState(String)\n方便对于多个回调地址进行路由管理。\n 注意： 所有第三方登录的\n org.springframework.social.connect.ConnectionFactory\n必须继承此抽象工厂。
-note over OAuthJdbcUsersConnectionRepositoryFactory: api UsersConnectionRepositoryFactory 接口实现\n 用户需要对第三方 SocialProperties.tableName 用户表更改时\n要实现此接口 UsersConnectionRepositoryFactory\n 自定义的接口实现并注入 IOC 容器会自动覆盖此类
+note over OAuthJdbcUsersConnectionRepositoryFactory: api UsersConnectionRepositoryFactory 接口实现\n\
+ 用户需要对第三方 SocialProperties.tableName 用户表更改\n或者更改Repository的实现方式（如更换Redis）时\n\
+ 要实现此接口 UsersConnectionRepositoryFactory\n 自定义的接口实现并注入 IOC 容器会自动覆盖此类
+note over ConnectView: 回显绑定与解绑结果状态的基本通用的视图, \n\
+要替换指定第三方的视图时，继续AbstractView类\n\
+且注册 IOC 容器，但 beanName 必须是\n\
+{providerId}ConnectedView。\n\
+另外如果只是想更改通用视图的回显内容，\n\
+实现接口 ShowConnectViewService,\n\
+并且注入 IOC 容器即可，自动会替换 \n\
+DefaultShowConnectViewService
 
 @enduml

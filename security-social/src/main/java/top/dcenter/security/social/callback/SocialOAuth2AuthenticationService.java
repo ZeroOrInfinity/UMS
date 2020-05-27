@@ -37,6 +37,7 @@ public class SocialOAuth2AuthenticationService<S> extends OAuth2AuthenticationSe
         OAuth2ConnectionFactory<S> connectionFactory = getConnectionFactory();
         if (connectionFactory instanceof BaseOAuth2ConnectionFactory)
         {
+            // 获取自定义逻辑的回调地址
             String returnToUrl = ((BaseOAuth2ConnectionFactory) connectionFactory).buildReturnToUrl(request, getReturnToUrlParameters());
             if (!StringUtils.isEmpty(returnToUrl))
             {
@@ -46,7 +47,7 @@ public class SocialOAuth2AuthenticationService<S> extends OAuth2AuthenticationSe
         }
         // 如果自定义实现返回null，则使用默认实现
         StringBuffer sb = request.getRequestURL();
-        // 去掉 providerId
+        // 去掉 providerId，改成统一的回调地址
         sb.setLength(sb.lastIndexOf(URL_SEPARATOR));
         // url 添加参数
         sb.append(URL_PARAMETER_IDENTIFIER);

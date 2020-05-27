@@ -21,7 +21,7 @@ public class JdbcTokenRepositoryFactory implements UserTokenRepositoryFactory {
     }
 
     @Override
-    public PersistentTokenRepository getJdbcTokenRepository() {
+    public PersistentTokenRepository getUserTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(this.dataSource);
         return tokenRepository;

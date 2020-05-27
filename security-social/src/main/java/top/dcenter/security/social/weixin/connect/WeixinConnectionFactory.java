@@ -10,6 +10,7 @@ import org.springframework.social.connect.ConnectionData;
 import org.springframework.social.connect.support.OAuth2Connection;
 import org.springframework.social.oauth2.AccessGrant;
 import org.springframework.social.oauth2.OAuth2ServiceProvider;
+import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory;
 import top.dcenter.security.social.weixin.api.Weixin;
 
@@ -27,8 +28,8 @@ public class WeixinConnectionFactory extends BaseOAuth2ConnectionFactory<Weixin>
      * @param appSecret
      * @param objectMapper
      */
-	public WeixinConnectionFactory(String providerId, String appId, String appSecret, ObjectMapper objectMapper) {
-		super(providerId, new WeixinServiceProvider(appId, appSecret, objectMapper), new WeixinAdapter());
+	public WeixinConnectionFactory(String providerId, String appId, String appSecret, ObjectMapper objectMapper, SocialProperties socialProperties) {
+		super(providerId, new WeixinServiceProvider(appId, appSecret, objectMapper), new WeixinAdapter(), socialProperties);
 	}
 	
 	/**
@@ -69,7 +70,7 @@ public class WeixinConnectionFactory extends BaseOAuth2ConnectionFactory<Weixin>
 
 	@Override
 	public String generateState() {
-		return generateState("/auth/callback/"+ getProviderId());
+		return generateState(this.socialProperties.getCallbackUrl() + getProviderId());
 	}
 
 }

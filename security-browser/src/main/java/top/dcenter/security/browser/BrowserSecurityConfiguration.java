@@ -112,7 +112,7 @@ public class BrowserSecurityConfiguration extends WebSecurityConfigurerAdapter i
 
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {
-        return userTokenRepositoryFactory().getJdbcTokenRepository();
+        return userTokenRepositoryFactory().getUserTokenRepository();
     }
 
     @Override

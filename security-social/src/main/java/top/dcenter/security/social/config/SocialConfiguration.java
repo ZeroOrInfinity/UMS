@@ -1,4 +1,4 @@
-package top.dcenter.security.social;
+package top.dcenter.security.social.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +21,17 @@ import org.springframework.social.connect.web.ConnectInterceptor;
 import org.springframework.social.connect.web.DisconnectInterceptor;
 import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.util.CollectionUtils;
+import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.social.api.callback.RedirectUrlHelper;
+import top.dcenter.security.social.api.callback.ShowConnectViewService;
 import top.dcenter.security.social.api.config.SocialCoreConfig;
-import top.dcenter.security.social.api.repository.OAuthJdbcUsersConnectionRepositoryFactory;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
-import top.dcenter.security.social.banding.BandingConnectController;
+import top.dcenter.security.social.properties.SocialProperties;
+import top.dcenter.security.social.signup.DefaultConnectionSignUp;
+import top.dcenter.security.social.controller.BandingConnectController;
+import top.dcenter.security.social.banding.DefaultShowConnectViewService;
+import top.dcenter.security.social.repository.jdbc.OAuthJdbcUsersConnectionRepositoryFactory;
 import top.dcenter.security.social.view.ConnectionStatusView;
 
 import javax.sql.DataSource;
@@ -81,10 +86,16 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     public BandingConnectController connectController(
             ConnectionFactoryLocator factoryLocator,
             ConnectionRepository repository) {
+
+        // repository 在创建时通过 spring 自动注入一个代理，在调用 connectionRepository的方法之前，通过
+        // {@link org.springframework.aop.framework.CglibAopProxy}中的
+        // {@link CglibAopProxy.DynamicAdvisedInterceptor#intercept(Object, Method, Object[], MethodProxy)} 方法
+        // 注入相应的 request-scoped connectionRepository。
         BandingConnectController controller = new BandingConnectController(factoryLocator,
+                                                                           this.socialProperties,
                                                                            repository);
         // 设置 OAuth 回调地址
-        controller.setCallbackUrl(this.socialProperties.getDomain() + this.socialProperties.getFilterProcessesUrl());
+        controller.setCallbackUrl(this.socialProperties.getDomain() + this.socialProperties.getCallbackUrl());
         // 设置绑定与解绑拦截器
         if (!CollectionUtils.isEmpty(this.connectInterceptors)) {
             controller.setConnectInterceptors(this.connectInterceptors);
@@ -122,6 +133,12 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     @ConditionalOnMissingBean(type = "org.springframework.social.connect.ConnectionSignUp")
     public ConnectionSignUp connectionSignUp() {
         return new DefaultConnectionSignUp(userDetailService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.callback.ShowConnectViewService")
+    public ShowConnectViewService showConnectViewService(BrowserProperties browserProperties, ObjectMapper objectMapper) {
+        return new DefaultShowConnectViewService(browserProperties, objectMapper, this.socialProperties);
     }
 
     @Bean

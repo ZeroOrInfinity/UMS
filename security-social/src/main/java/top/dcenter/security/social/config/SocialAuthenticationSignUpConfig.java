@@ -1,4 +1,4 @@
-package top.dcenter.security.social.authtication;
+package top.dcenter.security.social.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +15,10 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.social.connect.web.ProviderSignInUtils;
 import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
-import top.dcenter.security.social.SocialProperties;
+import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.handler.SocialAuthenticationFailureHandler;
+import top.dcenter.security.social.signup.SocialAuthenticationSignUpFilter;
+import top.dcenter.security.social.signup.SocialAuthenticationSignUpProvider;
 
 import java.util.UUID;
 

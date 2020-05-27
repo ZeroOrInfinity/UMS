@@ -1,4 +1,4 @@
-package top.dcenter.security.social;
+package top.dcenter.security.social.repository.jdbc;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -11,6 +11,7 @@ import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
+import top.dcenter.security.social.properties.SocialProperties;
 
 import javax.sql.DataSource;
 import java.util.HashSet;

@@ -11,24 +11,25 @@ import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.security.AuthenticationNameUserIdSource;
-import top.dcenter.security.social.SocialProperties;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
+import top.dcenter.security.social.properties.SocialProperties;
 
 import javax.sql.DataSource;
 
 /**
- * 第三方登录通用配置
+ * 第三方登录通用配置，实现第三方授权登录时继承此类。
  * @author zyw
  * @version V1.0  Created by 2020/5/19 18:33
  */
 @SuppressWarnings("AlibabaClassNamingShouldBeCamel")
 public class OAuth2ConfigurerAdapter extends SocialConfigurerAdapter {
 
-    private final SocialProperties socialProperties;
     private final DataSource dataSource;
     private final ConnectionSignUp connectionSignUp;
     private final UsersConnectionRepositoryFactory usersConnectionRepositoryFactory;
     private final TextEncryptor socialTextEncryptor;
+
+    protected final SocialProperties socialProperties;
     @Getter
     protected final ObjectMapper objectMapper;
 

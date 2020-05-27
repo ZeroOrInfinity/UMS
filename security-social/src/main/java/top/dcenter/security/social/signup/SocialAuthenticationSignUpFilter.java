@@ -1,4 +1,4 @@
-package top.dcenter.security.social.authtication;
+package top.dcenter.security.social.signup;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationServiceException;

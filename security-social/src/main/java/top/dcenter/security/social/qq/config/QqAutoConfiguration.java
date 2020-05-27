@@ -11,9 +11,9 @@ import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.web.servlet.View;
-import top.dcenter.security.core.properties.BrowserProperties;
+import top.dcenter.security.social.properties.SocialProperties;
+import top.dcenter.security.social.api.callback.ShowConnectViewService;
 import top.dcenter.security.social.api.config.OAuth2ConfigurerAdapter;
-import top.dcenter.security.social.SocialProperties;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.qq.connect.QqConnectionFactory;
 import top.dcenter.security.social.view.ConnectView;
@@ -32,36 +32,29 @@ import javax.sql.DataSource;
 @ConditionalOnProperty(prefix = "security.social.qq", name = "app-id")
 public class QqAutoConfiguration extends OAuth2ConfigurerAdapter {
 
-    private final SocialProperties socialProperties;
-    private final DataSource dataSource;
-    private final ConnectionSignUp connectionSignUp;
-    private final UsersConnectionRepositoryFactory usersConnectionRepositoryFactory;
-    private final TextEncryptor socialTextEncryptor;
-
-
     public QqAutoConfiguration(SocialProperties socialProperties,
                                ConnectionSignUp connectionSignUp,
                                DataSource dataSource,
                                UsersConnectionRepositoryFactory usersConnectionRepositoryFactory,
                                @Qualifier("socialTextEncryptor") TextEncryptor socialTextEncryptor) {
         super(socialProperties, connectionSignUp, dataSource, usersConnectionRepositoryFactory, socialTextEncryptor);
-        this.socialProperties = socialProperties;
-        this.connectionSignUp = connectionSignUp;
-        this.dataSource = dataSource;
-        this.usersConnectionRepositoryFactory = usersConnectionRepositoryFactory;
-        this.socialTextEncryptor = socialTextEncryptor;
     }
 
+    /**
+     * qq 绑定与解绑后回显的页面
+     * @param showConnectViewService
+     * @return
+     */
     @Bean({"connect/qqConnect", "connect/qqConnected"})
     @ConditionalOnMissingBean(name = "qqConnectedView")
-    public View qqConnectedView(BrowserProperties browserProperties) {
-        return new ConnectView(browserProperties, objectMapper);
+    public View qqConnectedView(ShowConnectViewService showConnectViewService) {
+        return new ConnectView(showConnectViewService);
     }
 
     @Bean("qq")
     public ConnectionFactory<?> qqConnectionFactory() {
-        SocialProperties.QqProperties qq = socialProperties.getQq();
-        return new QqConnectionFactory(qq.getProviderId(), qq.getAppId(), qq.getAppSecret(), this.objectMapper);
+        SocialProperties.QqProperties qq = this.socialProperties.getQq();
+        return new QqConnectionFactory(qq.getProviderId(), qq.getAppId(), qq.getAppSecret(), this.objectMapper, this.socialProperties);
     }
 
     @Override

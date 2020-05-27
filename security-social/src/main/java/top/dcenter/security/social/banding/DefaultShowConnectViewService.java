@@ -1,0 +1,93 @@
+package top.dcenter.security.social.banding;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.social.connect.Connection;
+import top.dcenter.security.core.enums.LoginType;
+import top.dcenter.security.core.properties.BrowserProperties;
+import top.dcenter.security.core.vo.SimpleResponse;
+import top.dcenter.security.social.properties.SocialProperties;
+import top.dcenter.security.social.api.callback.ShowConnectViewService;
+import top.dcenter.security.social.vo.SocialUserInfo;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * 默认的绑定与解绑信息回显,这里是简单实现，
+ * @author zyw
+ * @version V1.0  Created by 2020/5/26 13:52
+ */
+public class DefaultShowConnectViewService implements ShowConnectViewService {
+
+    private final BrowserProperties browserProperties;
+    private final ObjectMapper objectMapper;
+    private final SocialProperties socialProperties;
+
+    public DefaultShowConnectViewService(BrowserProperties browserProperties, ObjectMapper objectMapper, SocialProperties socialProperties) {
+        this.browserProperties = browserProperties;
+        this.objectMapper = objectMapper;
+        this.socialProperties = socialProperties;
+    }
+
+    @Override
+    public void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        List<Connection<?>> connections = (List<Connection<?>>) model.get(this.socialProperties.getBandingProviderConnectionListName());
+
+        List<SocialUserInfo> userInfoList = null;
+        if (!connections.isEmpty()) {
+            userInfoList = connections.stream()
+                            .map((connection) -> connection.createData())
+                            .map((connectionData) -> new SocialUserInfo(connectionData.getProviderId(),
+                                                                        connectionData.getProviderUserId(),
+                                                                        connectionData.getDisplayName(),
+                                                                        connectionData.getImageUrl()))
+                            .collect(Collectors.toList());
+        }
+        // JSON
+        if (LoginType.JSON.equals(browserProperties.getLoginType()))
+        {
+            response.setStatus(HttpStatus.OK.value());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding("UTF-8");
+            if (userInfoList.isEmpty()) {
+                response.getWriter().write(objectMapper.writeValueAsString(SimpleResponse.success( "解绑成功")));
+            } else {
+                response.getWriter().write(objectMapper.writeValueAsString(SimpleResponse.success("绑定成功", userInfoList)));
+            }
+            return;
+        }
+        // HTML
+        response.setContentType(MediaType.TEXT_HTML_VALUE);
+        response.setCharacterEncoding("UTF-8");
+        if (userInfoList.isEmpty()) {
+            response.getWriter().write("<h3>解绑成功</h3>");
+        } else {
+            StringBuilder sb = new StringBuilder("<h3>绑定成功</h3>\n");
+            sb.append("<ul>\n");
+            userInfoList.stream().forEach(userInfo -> {
+                sb.append("<li>\n")
+                  .append("<img src=\"")
+                  .append(userInfo.getHeadImg())
+                  .append("\" style=\"width: 100px; height: 100px\"/>\n")
+                  .append("<p>nickName = ")
+                  .append(userInfo.getNickname())
+                  .append("</p>\n")
+                  .append("<p>providerId = ")
+                  .append(userInfo.getProviderId())
+                  .append("</p>\n")
+                  .append("<p>providerUserId = ")
+                  .append(userInfo.getProviderUserId())
+                  .append("</p>\n")
+                  .append("</li>\n");
+            });
+            sb.append("</ul>\n");
+            response.getWriter().write(sb.toString());
+        }
+    }
+}

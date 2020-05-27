@@ -11,8 +11,8 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
  */
 public interface UserTokenRepositoryFactory {
     /**
-     * 获取 JdbcTokenRepository
+     * 获取 UserTokenRepository
      * @return T 实现 {@link PersistentTokenRepository} 实例
      */
-    PersistentTokenRepository getJdbcTokenRepository();
+    PersistentTokenRepository getUserTokenRepository();
 }

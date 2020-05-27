@@ -1,10 +1,11 @@
-package top.dcenter.security.social;
+package top.dcenter.security.social.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
 import top.dcenter.security.social.api.config.SocialCoreConfig;
+import top.dcenter.security.social.properties.SocialProperties;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,8 +47,8 @@ public class SocialSecurityConfigurerAware implements SocialWebSecurityConfigure
     @Override
     public Map<String, Set<String>> getAuthorizeRequestMap() {
         Set<String> uriSet = new HashSet<>();
-        uriSet.add(socialProperties.getFilterProcessesUrl());
-        uriSet.add(socialProperties.getFilterProcessesUrl() + "/*");
+        uriSet.add(socialProperties.getCallbackUrl());
+        uriSet.add(socialProperties.getCallbackUrl() + "/*");
         uriSet.add(socialProperties.getSocialUserInfo());
         uriSet.add(socialProperties.getSocialUserRegistUrl());
         Map<String, Set<String>> authorizeRequestMap = new HashMap<>(1);

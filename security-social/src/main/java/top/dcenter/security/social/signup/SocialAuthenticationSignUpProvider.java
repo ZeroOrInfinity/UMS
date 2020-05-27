@@ -1,4 +1,4 @@
-package top.dcenter.security.social.authtication;
+package top.dcenter.security.social.signup;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;

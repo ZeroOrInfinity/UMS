@@ -1,28 +1,25 @@
 package top.dcenter.security.social.view;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.view.AbstractView;
-import top.dcenter.security.core.enums.LoginType;
-import top.dcenter.security.core.properties.BrowserProperties;
-import top.dcenter.security.core.vo.SimpleResponse;
+import top.dcenter.security.social.api.callback.ShowConnectViewService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**
- * 查看绑定与解绑结果状态的基本的视图
+ * 回显绑定与解绑结果状态的基本通用的视图, 要替换指定第三方的视图时，实现 AbstractView 子类且在注册 IOC 容器时 beanName 必须是 {providerId}ConnectedView。<br>
+ *     另外如果只是想更改通用视图的回显内容，实现接口 {@link ShowConnectViewService}, 并且注入 IOC 容器即可，自动会替换
+ *     {@link top.dcenter.security.social.banding.DefaultShowConnectViewService}。
  * @author zhailiang
  */
 public class ConnectView extends AbstractView {
 
-	private final BrowserProperties browserProperties;
-	private final ObjectMapper objectMapper;
+	private final ShowConnectViewService showConnectViewService;
 
-	public ConnectView(BrowserProperties browserProperties, ObjectMapper objectMapper) {
-		this.browserProperties = browserProperties;
-		this.objectMapper = objectMapper;
+	public ConnectView(ShowConnectViewService showConnectViewService) {
+		this.showConnectViewService = showConnectViewService;
+
 	}
 
 	/**
@@ -33,27 +30,8 @@ public class ConnectView extends AbstractView {
 	@Override
 	protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
-		// TODO
-		// JSON
-		if (LoginType.JSON.equals(browserProperties.getLoginType()))
-		{
-			response.setStatus(HttpStatus.OK.value());
-			response.setContentType("application/json;charset=UTF-8");
-			if (model.get("connections") == null) {
-				response.getWriter().write(objectMapper.writeValueAsString(SimpleResponse.fail(0, "解绑成功")));
-			} else {
-				response.getWriter().write(objectMapper.writeValueAsString(SimpleResponse.fail(1, "绑定成功")));
-			}
-			return;
-		}
-		// HTML
-		response.setContentType("text/html;charset=UTF-8");
-		if (model.get("connections") == null) {
-			response.getWriter().write("<h3>解绑成功</h3>");
-		} else {
-			response.getWriter().write("<h3>绑定成功</h3>");
-		}
 
+		showConnectViewService.renderMergedOutputModel(model, request, response);
 	}
 
 }

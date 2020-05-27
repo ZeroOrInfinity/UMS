@@ -1,6 +1,8 @@
 package top.dcenter.security.social.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -11,9 +13,12 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class SocialUserInfo {
     private String providerId;
     private String providerUserId;
     private String nickname;
     private String headImg;
 }
+

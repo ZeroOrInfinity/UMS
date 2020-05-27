@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package top.dcenter.security.social.banding;
+package top.dcenter.security.social.controller;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionFactory;
@@ -45,11 +46,14 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UrlPathHelper;
+import top.dcenter.security.social.banding.BandingConnectSupport;
+import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.api.banding.IBandingController;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +61,7 @@ import java.util.Map;
 
 /**
  * 相对于 {@link org.springframework.social.connect.web.ConnectController} 修改了回调地址的逻辑, 删除了 OAuth1 逻辑。把默认为
- * /connect/providerId 回调地址改为 security.social.filterProcessesUrl 的地址。<br>
+ * /connect/providerId 回调地址改为 security.social.callbackUrl 的地址。<br>
  * 可以通过实现 {@link ConnectInterceptor} 与 {@link DisconnectInterceptor} 来实现绑定与解绑的时添加个性化功能。<br>
  * 注意拦截器调用时机：<br>
  *     绑定时：{@link #connect(String, NativeWebRequest)} 中
@@ -78,6 +82,7 @@ import java.util.Map;
  * @author Craig Walls
  * @author Roy Clarkson
  */
+@SuppressWarnings("JavadocReference")
 @RequestMapping("/connect")
 public class BandingConnectController implements InitializingBean, IBandingController {
 	
@@ -90,6 +95,8 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	private final MultiValueMap<Class<?>, ConnectInterceptor<?>> connectInterceptors = new LinkedMultiValueMap<Class<?>, ConnectInterceptor<?>>();
 
 	private final MultiValueMap<Class<?>, DisconnectInterceptor<?>> disconnectInterceptors = new LinkedMultiValueMap<Class<?>, DisconnectInterceptor<?>>();
+
+	private final SocialProperties socialProperties;
 
 	private BandingConnectSupport connectSupport;
 	
@@ -111,13 +118,21 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	/**
 	 * Constructs a BandingConnectController.
 	 * @param connectionFactoryLocator the locator for {@link ConnectionFactory} instances needed to establish connections
-	 * @param connectionRepository the current user's {@link ConnectionRepository} needed to persist connections; must be a proxy to a request-scoped bean
+	 * @param socialProperties
+	 * @param connectionRepository the current user's {@link ConnectionRepository} needed to persist connections;
+	 *                             must be a proxy to a request-scoped bean<br>
+	 *                             在创建时通过 spring 自动注入一个代理，在调用 connectionRepository的方法之前，通过
+	 *                             {@link org.springframework.aop.framework.CglibAopProxy}中的
+	 *                             {@link CglibAopProxy.DynamicAdvisedInterceptor#intercept(Object, Method, Object[], MethodProxy)} 方法
+	 *                             注入相应的 request-scoped connectionRepository。<br>
 	 */
 	@Inject
 	public BandingConnectController(ConnectionFactoryLocator connectionFactoryLocator,
+	                                SocialProperties socialProperties,
 	                                ConnectionRepository connectionRepository) {
 		this.connectionFactoryLocator = connectionFactoryLocator;
 		this.connectionRepository = connectionRepository;
+		this.socialProperties = socialProperties;
 	}
 
 	/**
@@ -237,7 +252,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 		if (connections.isEmpty()) {
 			return connectView(providerId); 
 		} else {
-			model.addAttribute("connections", connections);
+			model.addAttribute(this.socialProperties.getBandingProviderConnectionListName(), connections);
 			return connectedView(providerId);			
 		}
 	}

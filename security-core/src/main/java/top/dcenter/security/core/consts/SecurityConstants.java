@@ -141,6 +141,33 @@ public class SecurityConstants {
      * key value 键值对分隔符
      */
     public static final String KEY_VALUE_SEPARATOR = "=";
+    /**
+     * url 请求上带的参数 code
+     */
+    public static final String URL_PARAMETER_CODE = "code";
+    /**
+     * url 请求上带的参数 state
+     */
+    public static final String URL_PARAMETER_STATE = "state";
+
+
+
+    // =================== Callback 相关 ===================
+    /**
+     * 对真实回调地址设置成KV键值对形式时的 key , 例如：回调地址(/auth/callback) -> 加密前设置key(path=/auth/callback), key = path
+     */
+    public static final String CALLBACK_URL_KEY_IN_STATE = "path";
+
+    /**
+     * UUID 分隔符
+     */
+    public static final String UUID_SEPARATOR = "-";
+    /**
+     * RFC 6819 安全检查(https://oauth.net/advisories/2014-1-covert-redirect/)时, 使用的正则表达式
+     */
+    public static final String RFC_6819_CHECK_REGEX = "^(([a-zA-z]+://)?[^/]+)+/.*$";
+
+
 
 
 

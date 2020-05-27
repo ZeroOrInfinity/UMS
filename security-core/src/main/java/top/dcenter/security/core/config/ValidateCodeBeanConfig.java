@@ -1,4 +1,4 @@
-package top.dcenter.security.core.validate.code;
+package top.dcenter.security.core.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

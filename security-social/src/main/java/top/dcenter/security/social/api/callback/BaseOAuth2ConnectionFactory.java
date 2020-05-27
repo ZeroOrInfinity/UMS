@@ -4,12 +4,17 @@ import org.springframework.social.connect.ApiAdapter;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 import org.springframework.social.oauth2.OAuth2ServiceProvider;
-import top.dcenter.security.social.SocialController;
+import top.dcenter.security.social.controller.SocialController;
+import top.dcenter.security.social.properties.SocialProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Set;
 import java.util.UUID;
+
+import static top.dcenter.security.core.consts.SecurityConstants.CALLBACK_URL_KEY_IN_STATE;
+import static top.dcenter.security.core.consts.SecurityConstants.KEY_VALUE_SEPARATOR;
+import static top.dcenter.security.core.consts.SecurityConstants.UUID_SEPARATOR;
 
 /**
  * 扩展 {@link OAuth2ConnectionFactory}. <br>
@@ -21,32 +26,38 @@ import java.util.UUID;
  */
 @SuppressWarnings("AlibabaClassNamingShouldBeCamel")
 public abstract class BaseOAuth2ConnectionFactory<T> extends OAuth2ConnectionFactory<T> {
+
+    protected SocialProperties socialProperties;
     /**
      * Create a {@link OAuth2ConnectionFactory}.
-     *
+     * @see OAuth2ConnectionFactory
      * @param providerId      the provider id e.g. "facebook"
      * @param serviceProvider the ServiceProvider model for conducting the authorization flow and obtaining a native service API instance.
      * @param apiAdapter      the ApiAdapter for mapping the provider-specific service API model to the uniform {@link Connection} interface.
      */
-    public BaseOAuth2ConnectionFactory(String providerId, OAuth2ServiceProvider<T> serviceProvider, ApiAdapter<T> apiAdapter) {
+    public BaseOAuth2ConnectionFactory(String providerId, OAuth2ServiceProvider<T> serviceProvider,
+                                       ApiAdapter<T> apiAdapter, SocialProperties socialProperties) {
         super(providerId, serviceProvider, apiAdapter);
+        this.socialProperties = socialProperties;
     }
 
     /**
-     * Generates a value for the state parameter with authCallbackPath.<br>
-     * 注意：这里实现接口时，对 authCallbackPath 格式为：path=myAuthCallbackPath
+     * Generates a value for the state parameter with realAuthCallbackPath.<br>
+     * 注意：这里实现接口时，对 realAuthCallbackPath 格式为：path=myAuthCallbackPath
      * 格式化后再对它进行加密({@link java.util.Base64})，以便在
      * {@link SocialController#authCallbackRouter(HttpServletRequest)} 中进行解密。
-     * @param authCallbackPath 用于 {@link SocialController#authCallbackRouter(HttpServletRequest)} 路由的 authCallbackPath.
+     * @param realAuthCallbackPath 用于 {@link SocialController#authCallbackRouter(HttpServletRequest)} 路由的 realAuthCallbackPath.
      * @return
      */
-    public String generateState(String authCallbackPath) {
+    public String generateState(String realAuthCallbackPath) {
 
-        // TODO 提取常量
         String state = UUID.randomUUID().toString();
-        String router = "path=" + authCallbackPath;
+        // 对真实回调地址设置成KV键值对形式
+        String router = CALLBACK_URL_KEY_IN_STATE + KEY_VALUE_SEPARATOR + realAuthCallbackPath;
+        // 加密
         String routerEncoder = Base64.getEncoder().encodeToString(router.getBytes());
-        state = state.substring(state.lastIndexOf("-") + 1) + "-" + routerEncoder;
+        // 把真实的回调地址放入 state
+        state = state.substring(state.lastIndexOf(UUID_SEPARATOR) + 1) + UUID_SEPARATOR + routerEncoder;
 
         return state;
     }

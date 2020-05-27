@@ -1,4 +1,4 @@
-package top.dcenter.security.core.validate.code;
+package top.dcenter.security.core.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +8,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.api.validate.code.ValidateCodeProcessor;
 import top.dcenter.security.core.excception.ValidateCodeException;
 import top.dcenter.security.core.excception.ValidateCodeProcessException;
+import top.dcenter.security.core.validate.code.ValidateCodeProcessorHolder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

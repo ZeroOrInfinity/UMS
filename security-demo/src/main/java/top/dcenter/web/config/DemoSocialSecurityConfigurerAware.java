@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
 import top.dcenter.security.social.api.config.SocialCoreConfig;
-import top.dcenter.security.social.SocialProperties;
+import top.dcenter.security.social.properties.SocialProperties;
 
 import java.util.HashMap;
 import java.util.HashSet;

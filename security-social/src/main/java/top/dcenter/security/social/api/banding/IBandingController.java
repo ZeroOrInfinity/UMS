@@ -1,6 +1,6 @@
 package top.dcenter.security.social.api.banding;
 
-import top.dcenter.security.social.banding.BandingConnectController;
+import top.dcenter.security.social.controller.BandingConnectController;
 
 /**
  * 绑定与解绑接口，无任何功能实现，只作为标识实现此接口类为绑定与解绑控制器，实现类会替换 {@link BandingConnectController}

@@ -11,9 +11,9 @@ import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.web.servlet.View;
-import top.dcenter.security.core.properties.BrowserProperties;
+import top.dcenter.security.social.properties.SocialProperties;
+import top.dcenter.security.social.api.callback.ShowConnectViewService;
 import top.dcenter.security.social.api.config.OAuth2ConfigurerAdapter;
-import top.dcenter.security.social.SocialProperties;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.gitee.connect.GiteeConnectionFactory;
 import top.dcenter.security.social.view.ConnectView;
@@ -31,36 +31,30 @@ import javax.sql.DataSource;
 @ConditionalOnProperty(prefix = "security.social.gitee", name = "app-id")
 public class GiteeAutoConfiguration extends OAuth2ConfigurerAdapter {
 
-    private final SocialProperties socialProperties;
-    private final DataSource dataSource;
-    private final ConnectionSignUp connectionSignUp;
-    private final UsersConnectionRepositoryFactory usersConnectionRepositoryFactory;
-    private final TextEncryptor socialTextEncryptor;
-
-
     public GiteeAutoConfiguration(SocialProperties socialProperties,
                                   ConnectionSignUp connectionSignUp,
                                   DataSource dataSource,
                                   UsersConnectionRepositoryFactory usersConnectionRepositoryFactory,
                                   @Qualifier("socialTextEncryptor") TextEncryptor socialTextEncryptor) {
         super(socialProperties, connectionSignUp, dataSource, usersConnectionRepositoryFactory, socialTextEncryptor);
-        this.socialProperties = socialProperties;
-        this.connectionSignUp = connectionSignUp;
-        this.dataSource = dataSource;
-        this.usersConnectionRepositoryFactory = usersConnectionRepositoryFactory;
-        this.socialTextEncryptor = socialTextEncryptor;
     }
 
+    /**
+     * gitee  绑定与解绑后回显的页面
+     * @param showConnectViewService
+     * @return
+     */
     @Bean({"connect/giteeConnect", "connect/giteeConnected"})
     @ConditionalOnMissingBean(name = "giteeConnectedView")
-    public View giteeConnectedView(BrowserProperties browserProperties) {
-        return new ConnectView(browserProperties, objectMapper);
+    public View giteeConnectedView(ShowConnectViewService showConnectViewService) {
+        return new ConnectView(showConnectViewService);
     }
 
     @Bean("gitee")
     public ConnectionFactory<?> giteeConnectionFactory() {
-        SocialProperties.GiteeProperties gitee = socialProperties.getGitee();
-        return new GiteeConnectionFactory(gitee.getProviderId(), gitee.getAppId(), gitee.getAppSecret(), this.objectMapper);
+        SocialProperties.GiteeProperties gitee = this.socialProperties.getGitee();
+        return new GiteeConnectionFactory(gitee.getProviderId(), gitee.getAppId(), gitee.getAppSecret(),
+                                          this.objectMapper, this.socialProperties);
     }
 
     @Override

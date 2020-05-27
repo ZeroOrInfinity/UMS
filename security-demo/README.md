@@ -73,10 +73,11 @@
   # 第三方登录用户授权失败跳转页面， 默认为 /signIn.html， 用户必需设置
   security.social.failure-url=/signIn.html
   
-  # redirectUrl 直接由 domain/filterProcessesUrl/(security.social.providerId 中的 providerId 组成：如 qq、wechat)组成
+  # redirectUrl 直接由 domain/callbackUrl/(security.social.providerId 中的 providerId 组成：如 qq、wechat)组成
   # 第三方登录回调的域名
   security.social.domain=http://www.dcenter.top 
-  # 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth
+  # 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth/callback
+  # 如果更改此 url，更改后的必须要实现 SocialController#authCallbackRouter(HttpServletRequest) 的功能
   security.social.filter-processes-url=/auth/callback
   
   # ================= 第三方登录 key 与 secret 加密相关 =================

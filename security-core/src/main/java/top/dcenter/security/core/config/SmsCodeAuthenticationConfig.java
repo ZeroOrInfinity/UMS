@@ -1,4 +1,4 @@
-package top.dcenter.security.core.authentication.mobile;
+package top.dcenter.security.core.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,6 +13,8 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.security.core.api.service.AbstractUserDetailsService;
+import top.dcenter.security.core.authentication.mobile.SmsCodeAuthenticationFilter;
+import top.dcenter.security.core.authentication.mobile.SmsCodeAuthenticationProvider;
 import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 

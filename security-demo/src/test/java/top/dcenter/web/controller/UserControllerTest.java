@@ -46,7 +46,7 @@ public class UserControllerTest {
     @Test
     public void whenQuerySucess() throws Exception {
         String result =
-        mockMvc.perform(get("/user").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(get("/user").contentType(MediaType.APPLICATION_JSON).characterEncoding("UTF-8")
                                 .param("username", "jake")
                                 .param("page", "5")
                                 .param("size", "15")
@@ -59,7 +59,7 @@ public class UserControllerTest {
 
     @Test
     public void whenGenInfoSuccess() throws Exception {
-        String result = mockMvc.perform(get("/user/1").contentType(MediaType.APPLICATION_JSON))
+        String result = mockMvc.perform(get("/user/1").contentType(MediaType.APPLICATION_JSON).characterEncoding("UTF-8"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("tom"))
                 .andReturn().getResponse().getContentAsString();
@@ -68,7 +68,7 @@ public class UserControllerTest {
 
     @Test
     public void whenGetInfoFail() throws Exception {
-        mockMvc.perform(get("/user/a").contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/user/a").contentType(MediaType.APPLICATION_JSON).characterEncoding("UTF-8"))
                 .andExpect(status().is4xxClientError());
     }
 
@@ -77,7 +77,7 @@ public class UserControllerTest {
 
         String content = "{\"username\":\"tom\",\"password\":null, \"birthday\":"+ new Date().getTime() +"}";
         log.warn(content);
-        String result = mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(content))
+        String result = mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).characterEncoding("UTF-8").content(content))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1 ))
                 .andReturn().getResponse().getContentAsString();
@@ -89,7 +89,7 @@ public class UserControllerTest {
         String content =
                 "{\"id\":\"1\",\"username\":\"tom\",\"password\":\"111\", \"birthday\":"+ new Date().getTime() +"}";
         log.warn("test: " + content);
-        String result = mockMvc.perform(put("/user/1").contentType(MediaType.APPLICATION_JSON).content(content))
+        String result = mockMvc.perform(put("/user/1").contentType(MediaType.APPLICATION_JSON).characterEncoding("UTF-8").content(content))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1 ))
                 .andReturn().getResponse().getContentAsString();
@@ -98,7 +98,7 @@ public class UserControllerTest {
 
     @Test
     public void whenDeleteSuccess() throws Exception {
-        mockMvc.perform(delete("/user/1").contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete("/user/1").contentType(MediaType.APPLICATION_JSON).characterEncoding("UTF-8"))
                 .andExpect(status().isOk());
     }
 

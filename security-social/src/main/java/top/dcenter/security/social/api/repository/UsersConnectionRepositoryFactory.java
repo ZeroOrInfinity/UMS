@@ -5,7 +5,7 @@ import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
-import top.dcenter.security.social.SocialProperties;
+import top.dcenter.security.social.properties.SocialProperties;
 
 import javax.sql.DataSource;
 
@@ -22,7 +22,7 @@ public interface UsersConnectionRepositoryFactory {
      * @param connectionFactoryLocator
      * @param textEncryptor     对 key 与 secret 进行加解密。
      * @param socialProperties
-     * @param connectionSignUp 用于第三方登录自动注册为用户功能的开关，共有两个, 这俩个条件同时满足时才有效（另一个是 autoSignIn）：<br>
+     * @param connectionSignUp 用于第三方登录自动注册为用户功能的开关，共有两个条件, 这俩个条件同时满足时才有效（另一个是 autoSignIn）：<br>
      *                         当传 null 值时关闭自动注册，当不为 null 且 autoSignIn=true 时开启自动注册功能，需自己实现 ConnectionSignUp，
      *                         {@link ConnectionSignUp#execute(Connection)} 从第三方的 connection 中获取用户唯一标识。<br>
      *

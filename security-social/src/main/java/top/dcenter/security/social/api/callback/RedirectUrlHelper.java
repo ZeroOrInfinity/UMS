@@ -8,8 +8,10 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 
+import static top.dcenter.security.core.consts.SecurityConstants.CALLBACK_URL_KEY_IN_STATE;
 import static top.dcenter.security.core.consts.SecurityConstants.KEY_VALUE_SEPARATOR;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
+import static top.dcenter.security.core.consts.SecurityConstants.UUID_SEPARATOR;
 
 /**
  * 解析 state，返回真实的回调地址，支持通过统一的回调地址路由到多个回调地址的解析助手。<br>
@@ -26,10 +28,11 @@ public class RedirectUrlHelper {
      * @return 返回真实回调地址, 如果传入 state 为格式不正确，返回 null
      */
     public String decodeRedirectUrl(@NonNull String state) {
-        // todo 替换常量
-        byte[] router = Base64.getDecoder().decode(state.substring(state.indexOf("-") + 1));
+        // 解密 state
+        byte[] router = Base64.getDecoder().decode(state.substring(state.indexOf(UUID_SEPARATOR) + 1));
+        // 提取 redirectUrl
         Map<String, String> routerMap = CastUtil.string2Map(new String(router), URL_PARAMETER_SEPARATOR,
                                                             KEY_VALUE_SEPARATOR);
-        return routerMap.get("path");
+        return routerMap.get(CALLBACK_URL_KEY_IN_STATE);
     }
 }

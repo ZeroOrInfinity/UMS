@@ -1,4 +1,4 @@
-package top.dcenter.security.social;
+package top.dcenter.security.social.repository.jdbc;
 
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -19,6 +19,7 @@ import org.springframework.social.connect.NotConnectedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import top.dcenter.security.social.properties.SocialProperties;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

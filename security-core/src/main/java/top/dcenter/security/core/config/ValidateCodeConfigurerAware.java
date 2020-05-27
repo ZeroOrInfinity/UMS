@@ -1,4 +1,4 @@
-package top.dcenter.security.core.validate.code;
+package top.dcenter.security.core.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
+import top.dcenter.security.core.validate.code.ValidateCodeFilter;
 
 import java.util.HashMap;
 import java.util.HashSet;

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * todo 替换常量
  * 查看用户所有的第三方登录数据<br>
  * 继承 {@link ConnectionStatusView} 后且注册到 IOC容器后，会替换此类。注意：beanName 必须是 "connect/status".
  * @see ConnectController#connectionStatus(NativeWebRequest, Model)
@@ -59,6 +58,7 @@ public class ConnectionStatusView extends AbstractView {
 		}
 
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write(objectMapper.writeValueAsString(result));
 	}
 

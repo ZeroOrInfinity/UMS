@@ -1,8 +1,11 @@
-package top.dcenter.security.social;
+package top.dcenter.security.social.properties;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import top.dcenter.security.social.controller.SocialController;
+
+import javax.servlet.http.HttpServletRequest;
 
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_SOCIAL;
 
@@ -43,31 +46,44 @@ public class SocialProperties {
      */
     private String signInUrl = "/signIn.html";
     /**
-     * 第三方登录用户授权成功且未注册，跳转的注册页面时，需要获取的 SocialUserInfo 信息， 默认从 /social/user 获取.
-     * 注意：此 url 是 permitAll 权限, 同时修改 signUpUrl 的 ajax 请求 url
+     * 第三方登录用户授权成功且未注册，跳转的注册页面时，需要获取的 SocialUserInfo 信息， 默认从 /social/user/info 获取.<br>
+     * 注意：此 url 是 permitAll 权限. 修改此 uri 时，同时要修改 signUpUrl 的 ajax 请求 url
      */
-    private String socialUserInfo = "/social/user";
+    private String socialUserInfo = "/social/user/info";
 
     /**
      * QQ 登录时是否自动注册：如果为 true 且实现 ConnectionSignUp 接口则自动登录，而且 signUpUrl 失效，否则不自动登录, 默认为 true
      */
     private Boolean autoSignIn = true;
 
-    // ================= 第三方登录相关功能 =================
+    // ================= 第三方登录绑定相关功能 =================
     /**
      * 第三方登录绑定页面， 默认为 /banding.html
      */
     private String bandingUrl = "/banding.html";
+    /**
+     * 用户绑定第三方账号的 List 的参数名称
+     */
+    private String bandingProviderConnectionListName = "connections";
 
 
     // ================= 第三方登录相关功能 =================
     /**
-     * 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth
+     * 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，也是统一的回调地址入口，默认为 /auth/callback.<br>
+     *    如果更改此 url，更改后的必须要实现 {@link SocialController#authCallbackRouter(HttpServletRequest)} 的功能
      */
-    private String filterProcessesUrl = "/auth";
+    private String callbackUrl = "/auth/callback";
+
+    public void setCallbackUrl(String callbackUrl) {
+        this.callbackUrl = callbackUrl;
+    }
+
+    public String getCallbackUrl() {
+        return this.callbackUrl;
+    }
     /**
      * 第三方登录回调的域名, 例如：https://localhost 默认为 "http://127.0.0.1"，
-     * redirectUrl 直接由 domain/filterProcessesUrl/(security.social.providerId 中的 providerId 组成：如 qq、wechat)组成
+     * redirectUrl 直接由 domain/callbackUrl/(security.social.providerId 中的 providerId 组成：如 qq、wechat)组成
      */
     private String domain = "http://127.0.0.1";
 
@@ -436,9 +452,9 @@ public class SocialProperties {
          */
         private String providerId = "qq";
         /**
-         * 回调地址(格式必须是：domain/filterProcessesUrl/providerId)，默认
+         * 回调地址(格式必须是：domain/callbackUrl/providerId)，默认
          */
-        private String redirectUrl = domain + filterProcessesUrl + "/" + providerId;
+        private String redirectUrl = domain + callbackUrl + "/" + providerId;
 
     }
 
@@ -450,9 +466,9 @@ public class SocialProperties {
          */
         private String providerId = "gitee";
         /**
-         * 回调地址(格式必须是：domain/filterProcessesUrl/providerId)，默认
+         * 回调地址(格式必须是：domain/callbackUrl/providerId)，默认
          */
-        private String redirectUrl = domain + filterProcessesUrl + "/" + providerId;
+        private String redirectUrl = domain + callbackUrl + "/" + providerId;
 
     }
 
@@ -469,9 +485,9 @@ public class SocialProperties {
          */
         private String providerId = "weixin";
         /**
-         * 回调地址(格式必须是：domain/filterProcessesUrl/providerId)，默认
+         * 回调地址(格式必须是：domain/callbackUrl/providerId)，默认
          */
-        private String redirectUrl = domain + filterProcessesUrl + "/" + providerId;
+        private String redirectUrl = domain + callbackUrl + "/" + providerId;
 
     }
 

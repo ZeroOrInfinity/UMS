@@ -1,17 +1,17 @@
-package top.dcenter.security.social.api.repository;
+package top.dcenter.security.social.repository.jdbc;
 
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
-import top.dcenter.security.social.OAuthJdbcUsersConnectionRepository;
-import top.dcenter.security.social.SocialProperties;
+import top.dcenter.security.social.properties.SocialProperties;
+import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 
 import javax.sql.DataSource;
 
 /**
  * UsersConnectionRepositoryFactory 接口实现，
- * 用户需要对第三方{@link SocialProperties} 字段 <i>tableName</i> 用户表更改时，要实现此接口
+ * 用户需要对第三方{@link SocialProperties} <i>tableName</i> 用户表更改或者更改Repository的实现方式（如更换Redis）时，要实现此接口
  * {@link UsersConnectionRepositoryFactory}
  * .<br>
  *     自定义的接口实现并注入 IOC 容器会自动覆盖此类

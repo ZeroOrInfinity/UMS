@@ -10,7 +10,7 @@ import top.dcenter.security.core.enums.LoginType;
 import top.dcenter.security.core.excception.RegisterUserFailureException;
 import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.core.vo.SimpleResponse;
-import top.dcenter.security.social.SocialProperties;
+import top.dcenter.security.social.properties.SocialProperties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

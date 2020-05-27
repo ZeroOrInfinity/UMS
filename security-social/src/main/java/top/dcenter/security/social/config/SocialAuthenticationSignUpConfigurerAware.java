@@ -1,4 +1,4 @@
-package top.dcenter.security.social.authtication;
+package top.dcenter.security.social.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
-import top.dcenter.security.social.SocialProperties;
+import top.dcenter.security.social.properties.SocialProperties;
 
 import java.util.HashMap;
 import java.util.HashSet;

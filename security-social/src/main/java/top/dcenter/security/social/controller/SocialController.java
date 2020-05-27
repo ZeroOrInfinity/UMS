@@ -1,4 +1,4 @@
-package top.dcenter.security.social;
+package top.dcenter.security.social.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -10,10 +10,18 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.servlet.view.RedirectView;
 import top.dcenter.security.core.excception.ParameterErrorException;
+import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.api.callback.RedirectUrlHelper;
 import top.dcenter.security.social.vo.SocialUserInfo;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static top.dcenter.security.core.consts.SecurityConstants.KEY_VALUE_SEPARATOR;
+import static top.dcenter.security.core.consts.SecurityConstants.RFC_6819_CHECK_REGEX;
+import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_CODE;
+import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_IDENTIFIER;
+import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
+import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_STATE;
 
 /**
  * social 第三方登录控制器
@@ -41,14 +49,15 @@ public class SocialController {
      * @param request
      * @return
      */
-    @GetMapping("/social/user")
-    @ConditionalOnProperty(prefix = "security.social", name = "social-user-info", havingValue = "/social/user")
+    @GetMapping("/social/user/info")
+    @ConditionalOnProperty(prefix = "security.social", name = "social-user-info", havingValue = "/social/user/info")
     public SocialUserInfo getSocialUserInfo(HttpServletRequest request) {
         Connection<?> connection = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
         if (connection == null)
         {
             return null;
         }
+
         SocialUserInfo userInfo = new SocialUserInfo();
         userInfo.setProviderId(connection.getKey().getProviderId());
         userInfo.setProviderUserId(connection.getKey().getProviderUserId());
@@ -63,27 +72,42 @@ public class SocialController {
      * @return
      */
     @GetMapping("/auth/callback")
+    @ConditionalOnProperty(prefix = "security.social", name = "filter-processes-url", havingValue = "/auth/callback")
     public RedirectView authCallbackRouter(HttpServletRequest request) {
 
-        // todo 优化， social 添加跳转 type 与 path，参考 BandingConnectSupport#buildOAuth2Url()
-        String code = request.getParameter("code");
-        String state = request.getParameter("state");
+        String code = request.getParameter(URL_PARAMETER_CODE);
+        String state = request.getParameter(URL_PARAMETER_STATE);
         if (StringUtils.isNotBlank(state))
         {
+            // 解密 state 获取真实的回调地址
             String redirectUrl = redirectUrlHelper.decodeRedirectUrl(state);
 
-            // RFC 6819 安全检查：https://oauth.net/advisories/2014-1-covert-redirect/
-            if (redirectUrl.matches("^(([a-zA-z]+://)?[^/]+)+/.*$"))
+            if (StringUtils.isNotBlank(redirectUrl))
             {
-                log.error("非法的回调地址: {}", redirectUrl);
-                throw new ParameterErrorException(String.format("非法的回调地址: %s", redirectUrl));
+                // RFC 6819 安全检查：https://oauth.net/advisories/2014-1-covert-redirect/
+                if (redirectUrl.matches(RFC_6819_CHECK_REGEX))
+                {
+                    log.error("非法的回调地址: {}", redirectUrl);
+                    throw new ParameterErrorException(String.format("非法的回调地址: %s", redirectUrl));
+                }
+                if (redirectUrl != null && StringUtils.isNotBlank(redirectUrl))
+                {
+                    // 重新组装 url 参数
+                    redirectUrl = String.format("%s%s%s%s%s%s%s%s%s",
+                                                redirectUrl,
+                                                URL_PARAMETER_IDENTIFIER,
+                                                URL_PARAMETER_CODE,
+                                                KEY_VALUE_SEPARATOR,
+                                                code,
+                                                URL_PARAMETER_SEPARATOR,
+                                                URL_PARAMETER_STATE,
+                                                KEY_VALUE_SEPARATOR,
+                                                state);
+                    return new RedirectView(redirectUrl, true);
+                }
+                log.warn("回调地址不正确: {}", redirectUrl);
+                throw new ParameterErrorException(String.format("回调地址不正确: %s", redirectUrl));
             }
-            if (redirectUrl != null && StringUtils.isNotBlank(redirectUrl))
-            {
-                return new RedirectView(redirectUrl + "?code=" + code + "&state=" + state, true);
-            }
-            log.warn("回调地址不正确: {}", redirectUrl);
-            throw new ParameterErrorException(String.format("回调地址不正确: %s", redirectUrl));
 
         }
         log.warn("回调参数 {} 被篡改", state);
