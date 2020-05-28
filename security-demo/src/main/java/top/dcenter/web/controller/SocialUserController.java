@@ -46,18 +46,19 @@ import java.util.Map;
 @RestController
 @Slf4j
 @RequestMapping("/user")
-public class UserController {
+public class SocialUserController {
 
     private final ProviderSignInUtils providerSignInUtils;
 
-    public UserController(ProviderSignInUtils providerSignInUtils) {
+    public SocialUserController(ProviderSignInUtils providerSignInUtils) {
         this.providerSignInUtils = providerSignInUtils;
     }
 
     @GetMapping("/info")
     public SocialUserInfo getSocialUserInfo(HttpServletRequest request) {
-        // TODO 获取用户信息逻辑 ...
-        log.info("Demo =======>: UserController.getSocialUserInfo");
+        // 获取用户信息逻辑
+        // ...
+        log.info("Demo =======>: SocialUserController.getSocialUserInfo");
         Connection<?> connection = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
         if (connection == null)
         {
@@ -73,8 +74,9 @@ public class UserController {
 
     @PostMapping("/regist")
     public ResponseResult regist(User user, HttpServletRequest request, HttpServletResponse response) {
-        // TODO 注册用户逻辑 ...
-        log.info("Demo ========>: UserController.regist");
+        // 注册用户逻辑
+        // ...
+        log.info("Demo ========>: SocialUserController.regist");
         // 不管是注册用户还是绑定用户，都会拿到一个用户唯一标识，
         if (providerSignInUtils == null)
         {
@@ -97,7 +99,7 @@ public class UserController {
 
     @GetMapping("/testWebSecurityPostConfigurer")
     public ResponseResult testWebSecurityPostConfigurer(HttpServletRequest request) {
-        log.info("Demo ========>: UserController.testWebSecurityPostConfigurer");
+        log.info("Demo ========>: SocialUserController.testWebSecurityPostConfigurer");
         Connection<?> connection = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
         if (connection == null)
         {
@@ -148,8 +150,7 @@ public class UserController {
         {
             log.debug("getInfo: " + id);
         }
-        User tom = new User("tom", "1111");
-        return tom;
+        return new User("tom", "1111");
     }
 
     @PostMapping("")
@@ -171,7 +172,7 @@ public class UserController {
             BindingResult errors) {
         if (errors.hasErrors())
         {
-            errors.getAllErrors().stream().forEach(
+            errors.getAllErrors().forEach(
                     (error) ->
                     {
                         FieldError fieldError = (FieldError) error;

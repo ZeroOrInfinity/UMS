@@ -2,6 +2,7 @@ package top.dcenter.security.core.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,8 +17,9 @@ import java.util.Set;
  * @version V1.0  Created by 2020/5/15 21:51
  */
 @Configuration
-@Slf4j
 @ConditionalOnProperty(prefix = "security.smsCodeLogin", name = "sms-code-login-is-open", havingValue = "true")
+@AutoConfigureAfter({SmsCodeAuthenticationConfig.class, ValidateCodeBeanConfiguration.class})
+@Slf4j
 public class SmsCodeAuthenticationConfigurerAware implements SocialWebSecurityConfigurerAware {
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
@@ -43,3 +45,4 @@ public class SmsCodeAuthenticationConfigurerAware implements SocialWebSecurityCo
         return null;
     }
 }
+

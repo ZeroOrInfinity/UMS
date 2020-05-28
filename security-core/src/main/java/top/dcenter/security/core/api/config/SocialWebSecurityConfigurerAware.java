@@ -7,7 +7,6 @@ import java.util.Set;
 
 /**
  * 对 WebSecurityConfigurerAdapter 的扩展，使其能跨模块的灵活的添加 HttpSecurity 配置。<br>
- * 因为
  * 注意：<br>
  *      1. 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在最后处理的配置。实现
  *         {@link SocialWebSecurityConfigurerAware#postConfigure(HttpSecurity http) } 方法。<br>
@@ -16,7 +15,7 @@ import java.util.Set;
  *      3. WebSecurityConfigurerAdapter 多个配置类继承此类是会报错，且 authorizeRequests 配置时候要
  *         authorizeRequests().anyRequest().authenticate 放到最后，不然在之后配置的都不会生效。实现
  *         {@link SocialWebSecurityConfigurerAware#getAuthorizeRequestMap() } 方法。<br>
- * 使用方法请看：{@link top.dcenter.security.browser.BrowserSecurityConfig}
+ * 使用方法请看：{@link top.dcenter.security.browser.config.BrowserSecurityConfigurer}
  * @author zyw
  * @version V1.0
  * Created by 2020/5/12 12:22
@@ -34,8 +33,8 @@ public interface SocialWebSecurityConfigurerAware {
     /**
      * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在最后处理的配置。<br>
      * 使用方法请看：{@link top.dcenter.security.browser.BrowserSecurityConfig}
-     * @param http
-     * @throws Exception
+     * @param http  HttpSecurity
+     * @throws Exception    exception
      */
     @SuppressWarnings("JavadocReference")
     void postConfigure(HttpSecurity http) throws Exception;
@@ -43,8 +42,8 @@ public interface SocialWebSecurityConfigurerAware {
     /**
      * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在前面处理的配置。<br>
      * 使用方法请看：{@link top.dcenter.security.browser.BrowserSecurityConfig}
-     * @param http
-     * @throws Exception
+     * @param http  HttpSecurity
+     * @throws Exception    exception
      */
     @SuppressWarnings("JavadocReference")
     void preConfigure(HttpSecurity http) throws Exception;
@@ -55,6 +54,5 @@ public interface SocialWebSecurityConfigurerAware {
      * @return authorizeRequestMap key 为权限类型， value 为 uriList
      */
     Map<String, Set<String>> getAuthorizeRequestMap();
-
 
 }

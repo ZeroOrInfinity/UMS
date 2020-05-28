@@ -39,7 +39,7 @@ public class SocialAuthenticationSignUpConfig extends SecurityConfigurerAdapter<
     private AbstractSocialUserDetailService userDetailsService;
     private String key;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired
+    @Autowired(required = false)
     private PersistentTokenRepository persistentTokenRepository;
     private final ObjectMapper objectMapper;
     private final BrowserProperties browserProperties;
@@ -68,9 +68,12 @@ public class SocialAuthenticationSignUpConfig extends SecurityConfigurerAdapter<
                                                                                                                        this.socialProperties,this.browserProperties);
         socialAuthenticationSignUpFilter.setAuthenticationFailureHandler(socialAuthenticationFailureHandler);
 
-        PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices = new PersistentTokenBasedRememberMeServices(getKey(), userDetailsService, persistentTokenRepository);
-        // 添加rememberMe功能配置
-        socialAuthenticationSignUpFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
+        if (persistentTokenRepository != null)
+        {
+            PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices = new PersistentTokenBasedRememberMeServices(getKey(), userDetailsService, persistentTokenRepository);
+            // 添加rememberMe功能配置
+            socialAuthenticationSignUpFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
+        }
 
         SocialAuthenticationSignUpProvider socialAuthenticationSignUpProvider =
                 new SocialAuthenticationSignUpProvider(userDetailsService, providerSignInUtils);

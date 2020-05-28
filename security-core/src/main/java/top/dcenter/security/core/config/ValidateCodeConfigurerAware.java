@@ -1,6 +1,7 @@
 package top.dcenter.security.core.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
@@ -21,6 +22,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDAT
  * @version V1.0  Created by 2020/5/15 21:59
  */
 @Configuration
+@AutoConfigureAfter({SmsCodeAuthenticationConfig.class, ValidateCodeBeanConfiguration.class})
 @Slf4j
 public class ValidateCodeConfigurerAware implements SocialWebSecurityConfigurerAware {
 

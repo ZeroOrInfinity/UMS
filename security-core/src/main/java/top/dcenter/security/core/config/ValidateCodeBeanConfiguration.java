@@ -25,7 +25,7 @@ import java.util.Map;
  */
 @Configuration
 @Slf4j
-public class ValidateCodeBeanConfig {
+public class ValidateCodeBeanConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.security.core.validate.code.imagecode.ImageCodeGenerator")
@@ -46,14 +46,14 @@ public class ValidateCodeBeanConfig {
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.security.core.validate.code.ValidateCodeBeanConfig.imageCodeFactory")
+    @ConditionalOnMissingBean(type = "top.dcenter.security.core.validate.code.ValidateCodeBeanConfiguration.imageCodeFactory")
     public ImageCodeFactory imageCodeFactory(ValidateCodeProperties validateCodeProperties) {
         return new DefaultImageCodeFactory(validateCodeProperties);
     }
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.security.core.validate.code.imagecode.ImageValidateCodeProcessor")
-    public ImageValidateCodeProcessor imageValidateCodeProcessor(Map<String, ValidateCodeGenerator> validateCodeGenerators) {
+    public ImageValidateCodeProcessor imageValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
         return new ImageValidateCodeProcessor(validateCodeGenerators);
     }
 
@@ -61,7 +61,7 @@ public class ValidateCodeBeanConfig {
     @ConditionalOnMissingBean(type = "top.dcenter.security.core.validate.code.smscode.SmsValidateCodeProcessor")
     public SmsValidateCodeProcessor smsValidateCodeProcessor(SmsCodeSender smsCodeSender,
                                                              ValidateCodeProperties validateCodeProperties,
-                                                             Map<String, ValidateCodeGenerator> validateCodeGenerators) {
+                                                             Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
         return new SmsValidateCodeProcessor(smsCodeSender, validateCodeProperties, validateCodeGenerators);
     }
 

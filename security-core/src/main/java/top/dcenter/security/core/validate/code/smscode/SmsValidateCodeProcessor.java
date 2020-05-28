@@ -32,7 +32,7 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
 
     public SmsValidateCodeProcessor(SmsCodeSender smsCodeSender,
                                     ValidateCodeProperties validateCodeProperties,
-                                    Map<String, ValidateCodeGenerator> validateCodeGenerators) {
+                                    Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
         super(validateCodeGenerators);
         this.smsCodeSender = smsCodeSender;
         this.validateCodeProperties = validateCodeProperties;
@@ -42,8 +42,7 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
      * @see  AbstractValidateCodeProcessor
      * @param request   ServletWebRequest
      * @param validateCode  校验码对象
-     * @return
-     * @exception ValidateCodeParamErrorException
+     * @return boolean
      */
     @Override
     public boolean sent(ServletWebRequest request, ValidateCode validateCode) {

@@ -24,7 +24,6 @@ public class DemoConnectionSignUp implements ConnectionSignUp {
     private AbstractSocialUserDetailService userDetailsService;
 
     public DemoConnectionSignUp() {
-//        this.userDetailsService = userDetailsService;
     }
 
     @Override

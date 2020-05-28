@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import static top.dcenter.security.core.consts.SecurityConstants.GET_METHOD;
@@ -93,7 +92,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
             }
 
         } catch (Exception e) {
-            log.warn("校验请求({}), IP={}: {}", requestURI, request.getRemoteAddr(), e.getMessage(), e);
+            log.warn("校验请求({}), IP={}: {}", requestURI, request.getRemoteAddr(), e.getMessage());
             authenticationFailureHandler.onAuthenticationFailure(request, response, new ValidateCodeException(e.getMessage(), e));
             return;
         }
@@ -104,9 +103,9 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
     /**
      * 获取校验码的类型，如果当前请求不需要校验，则返回null
      *
-     * @param request
-     * @return
-     * @exception AuthenticationServiceException
+     * @param request   HttpServletRequest
+     * @return  ValidateCodeType
+     * @exception AuthenticationServiceException {@link AuthenticationServiceException}
      */
     private ValidateCodeType getValidateCodeType(HttpServletRequest request) {
         ValidateCodeType result;
@@ -119,10 +118,8 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
                 return result;
             }
 
-            Iterator<Map.Entry<String, ValidateCodeType>> iterator = authUrlMap.entrySet().iterator();
-            while (iterator.hasNext())
+            for (Map.Entry<String, ValidateCodeType> next : authUrlMap.entrySet())
             {
-                Map.Entry<String, ValidateCodeType> next = iterator.next();
                 if (pathMatcher.match(next.getKey(), requestURI))
                 {
                     return next.getValue();

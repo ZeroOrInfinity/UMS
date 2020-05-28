@@ -1,6 +1,7 @@
 package top.dcenter.security.core.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +31,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REMEMBE
  */
 @Configuration
 @ConditionalOnProperty(prefix = "security.smsCodeLogin", name = "sms-code-login-is-open", havingValue = "true")
+@AutoConfigureAfter({SecurityConfiguration.class})
 public class SmsCodeAuthenticationConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
     private final ValidateCodeProperties validateCodeProperties;
@@ -40,7 +42,7 @@ public class SmsCodeAuthenticationConfig extends SecurityConfigurerAdapter<Defau
     private AbstractUserDetailsService userDetailsService;
     private String key;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired
+    @Autowired(required = false)
     private PersistentTokenRepository persistentTokenRepository;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
@@ -64,13 +66,16 @@ public class SmsCodeAuthenticationConfig extends SecurityConfigurerAdapter<Defau
         smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(this.browserAuthenticationSuccessHandler);
         smsCodeAuthenticationFilter.setAuthenticationFailureHandler(this.browserAuthenticationFailureHandler);
 
-        PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices =
-                new PersistentTokenBasedRememberMeServices(getKey(), this.userDetailsService,
-                                                           this.persistentTokenRepository);
-        persistentTokenBasedRememberMeServices.setTokenValiditySeconds(this.browserProperties.getRememberMeSeconds());
-        persistentTokenBasedRememberMeServices.setParameter(DEFAULT_REMEMBER_ME_NAME);
-        // 添加rememberMe功能配置
-        smsCodeAuthenticationFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
+        if (persistentTokenRepository != null)
+        {
+            PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices =
+                    new PersistentTokenBasedRememberMeServices(getKey(), this.userDetailsService,
+                                                               this.persistentTokenRepository);
+            persistentTokenBasedRememberMeServices.setTokenValiditySeconds(this.browserProperties.getRememberMeSeconds());
+            persistentTokenBasedRememberMeServices.setParameter(DEFAULT_REMEMBER_ME_NAME);
+            // 添加rememberMe功能配置
+            smsCodeAuthenticationFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
+        }
 
 
         SmsCodeAuthenticationProvider smsCodeAuthenticationProvider = new SmsCodeAuthenticationProvider(this.userDetailsService);

@@ -8,6 +8,7 @@ import top.dcenter.security.core.api.validate.code.ValidateCodeGenerator;
 import top.dcenter.security.core.validate.code.ValidateCodeType;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 
@@ -20,7 +21,7 @@ import java.util.Map;
 @Slf4j
 public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
 
-    public ImageValidateCodeProcessor(Map<String, ValidateCodeGenerator> validateCodeGenerators) {
+    public ImageValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
         super(validateCodeGenerators);
     }
 
@@ -33,7 +34,13 @@ public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
                 return false;
             }
             ImageCode imageCode = (ImageCode) validateCode;
-            ImageIO.write(imageCode.getImage(), "JPEG", request.getResponse().getOutputStream());
+
+            HttpServletResponse response = request.getResponse();
+            if (response == null)
+            {
+                return false;
+            }
+            ImageIO.write(imageCode.getImage(), "JPEG", response.getOutputStream());
             return true;
         }
         catch (Exception e)

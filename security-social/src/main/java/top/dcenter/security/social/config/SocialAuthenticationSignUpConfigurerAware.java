@@ -1,7 +1,7 @@
 package top.dcenter.security.social.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,16 +19,17 @@ import java.util.Set;
  * @version V1.0  Created by 2020/5/15 22:22
  */
 @Configuration
-@Slf4j
 @ConditionalOnProperty(prefix = "security.social", name = "social-sign-in-is-open", havingValue = "true")
+@AutoConfigureAfter({SocialAuthenticationSignUpConfig.class})
+@Slf4j
 public class SocialAuthenticationSignUpConfigurerAware implements SocialWebSecurityConfigurerAware {
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired(required = false)
-    private SocialAuthenticationSignUpConfig socialAuthenticationSignUpConfig;
+
+    private final SocialAuthenticationSignUpConfig socialAuthenticationSignUpConfig;
     private final SocialProperties socialProperties;
 
-    public SocialAuthenticationSignUpConfigurerAware(SocialProperties socialProperties) {
+    public SocialAuthenticationSignUpConfigurerAware(SocialProperties socialProperties, SocialAuthenticationSignUpConfig socialAuthenticationSignUpConfig) {
         this.socialProperties = socialProperties;
+        this.socialAuthenticationSignUpConfig = socialAuthenticationSignUpConfig;
     }
 
     @Override
@@ -39,21 +40,23 @@ public class SocialAuthenticationSignUpConfigurerAware implements SocialWebSecur
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
         // 短信验证码登录配置
-        if (socialAuthenticationSignUpConfig != null)
+        if (this.socialAuthenticationSignUpConfig != null)
         {
-            http.apply(socialAuthenticationSignUpConfig);
+            http.apply(this.socialAuthenticationSignUpConfig);
         }
     }
 
     @Override
     public Map<String, Set<String>> getAuthorizeRequestMap() {
         Set<String> uriSet = new HashSet<>();
-        uriSet.add(socialProperties.getSignUpUrl());
-        uriSet.add(socialProperties.getFailureUrl());
-        uriSet.add(socialProperties.getSignInUrl());
+        uriSet.add(this.socialProperties.getSignUpUrl());
+        uriSet.add(this.socialProperties.getFailureUrl());
+        uriSet.add(this.socialProperties.getSignInUrl());
 
         Map<String, Set<String>> authorizeRequestMap = new HashMap<>(1);
         authorizeRequestMap.put(permitAll, uriSet);
         return authorizeRequestMap;
     }
 }
+
+

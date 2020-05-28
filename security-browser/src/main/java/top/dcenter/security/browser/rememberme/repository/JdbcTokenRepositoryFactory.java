@@ -1,4 +1,4 @@
-package top.dcenter.security.browser.repository;
+package top.dcenter.security.browser.rememberme.repository;
 
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;

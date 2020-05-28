@@ -29,22 +29,22 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
      */
     protected final SessionStrategy sessionStrategy;
 
-    private final Map<String, ValidateCodeGenerator> validateCodeGenerators;
+    private final Map<String, ValidateCodeGenerator<?>> validateCodeGenerators;
 
     /**
      * 校验码处理逻辑的默认实现抽象类.<br>
      * @param validateCodeGenerators 子类继承时对此参数不需要操作，在子类注入 IOC 容器时，spring自动注入此参数
      */
-    public AbstractValidateCodeProcessor(Map<String, ValidateCodeGenerator> validateCodeGenerators) {
+    public AbstractValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
         this.sessionStrategy = new HttpSessionSessionStrategy();
         if (validateCodeGenerators == null)
         {
             this.validateCodeGenerators = new HashMap<>(0);
             return;
         }
-        Collection<ValidateCodeGenerator> values = validateCodeGenerators.values();
+        Collection<ValidateCodeGenerator<?>> values = validateCodeGenerators.values();
         this.validateCodeGenerators =
-                values.stream().collect(Collectors.toMap((validateCodeGenerator -> validateCodeGenerator.getValidateCodeType()),
+                values.stream().collect(Collectors.toMap((ValidateCodeGenerator::getValidateCodeType),
                                                          validateCodeGenerator -> validateCodeGenerator));
     }
 
@@ -75,7 +75,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     @Override
     public final ValidateCode generate(ServletWebRequest request) {
         try {
-            ValidateCodeGenerator validateCodeGenerator = getValidateCodeGenerator(getValidateCodeType(getValidateCodeType()));
+            ValidateCodeGenerator<?> validateCodeGenerator = getValidateCodeGenerator(getValidateCodeType(getValidateCodeType()));
             return (ValidateCode) validateCodeGenerator.generate(request.getRequest());
         }
         catch (ValidateCodeException e) {
@@ -137,7 +137,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
         if (codeInSession == null)
         {
-            throw new ValidateCodeException("验证码不存在");
+            throw new ValidateCodeException("验证码不存在, 请刷新");
         }
 
         if (codeInSession.isExpired())
@@ -179,15 +179,14 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
     /**
      * 获取校验码生成器
-     * @param type
-     * @return
-     * @throws ValidateCodeException
+     * @param type  验证码类型
+     * @return  验证码生成器
      */
-    private ValidateCodeGenerator getValidateCodeGenerator(ValidateCodeType type) {
+    private ValidateCodeGenerator<?> getValidateCodeGenerator(ValidateCodeType type) {
         try {
             if (validateCodeGenerators != null)
             {
-                ValidateCodeGenerator validateCodeGenerator = validateCodeGenerators.get(type.name().toLowerCase());
+                ValidateCodeGenerator<?> validateCodeGenerator = validateCodeGenerators.get(type.name().toLowerCase());
                 if (validateCodeGenerator != null)
                 {
                     return validateCodeGenerator;
