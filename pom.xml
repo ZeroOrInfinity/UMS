@@ -5,22 +5,24 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.dcenter.security</groupId>
-    <artifactId>security</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>scaffolding</artifactId>
+    <version>1.0.0</version>
     <modules>
-        <module>security-core</module>
-        <module>security-browser</module>
-        <module>security-app</module>
-        <module>security-social</module>
-        <module>security-oauth</module>
-        <module>security-demo</module>
+        <module>core</module>
+        <module>browser</module>
+        <module>app</module>
+        <module>social</module>
+        <module>oauth</module>
+        <module>session</module>
+        <module>demo</module>
     </modules>
     <packaging>pom</packaging>
-    <name>security</name>
+    <name>security-scaffolding</name>
+    <description>spring-security scaffolding, 集成: 验证码、手机登录、第三方登录、session、JWT、SSO</description>
 
     <properties>
         <classifier>top.dcenter.DemoApplication</classifier>
-        <top.dcenter.version>1.0-SNAPSHOT</top.dcenter.version>
+        <top.dcenter.version>1.0.0</top.dcenter.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>

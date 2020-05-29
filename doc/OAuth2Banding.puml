@@ -63,8 +63,8 @@ deactivate BandingConnectSupport
 BandingConnectSupport -> BaseOAuth2ConnectionFactory: 1.9.5 createConnection(accessGrant)
 activate BandingConnectSupport
 BaseOAuth2ConnectionFactory --> BandingConnectSupport: 1.9.6 返回 BandingConnectSupport
-BandingConnectSupport --> BandingConnectController: 1.10 返回 connection
 deactivate BandingConnectSupport
+BandingConnectSupport --> BandingConnectController: 1.10 返回 connection
 deactivate BandingConnectSupport
 end
 deactivate BandingConnectController

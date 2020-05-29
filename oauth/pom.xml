@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>scaffolding</artifactId>
+        <groupId>top.dcenter.security</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>scaffolding-oauth</artifactId>
+    <packaging>jar</packaging>
+
+    <name>security-scaffolding-oauth</name>
+    <description>spring-security scaffolding-JustAuth 实现的 OAuth 模块：qq、weixin、等十几种第三方授权登录，登录后自动注册或通过自定义注册页面注册，绑定第三方账号功能功能</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>top.dcenter.security</groupId>
+            <artifactId>scaffolding-core</artifactId>
+            <version>${top.dcenter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

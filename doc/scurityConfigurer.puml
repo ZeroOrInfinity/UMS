@@ -25,21 +25,22 @@ RememberMe 相关功能的配置不会生效
 
 participant "OAuth2ConfigurerAdapter"  #1565c0
 
-participant "BrowserSecurityConfigurer" #1565c0
-BrowserSecurityConfigurer -> BrowserSecurityConfigurer: 安全配置流程开始
-note right BrowserSecurityConfigurer: 基本配置:\n BrowserSecurityConfigurer: \n\
-social模块 SocialConfiguration\n core模块 SecurityConfiguration\n\
-               ValidateCodeBeanConfiguration\n browser模块 BrowserSecurityConfiguration
+participant "SecurityCoreConfigurer" #1565c0
+SecurityCoreConfigurer -> SecurityCoreConfigurer: 安全配置流程开始
+note right SecurityCoreConfigurer: 基本配置:\n SecurityCoreConfigurer: \n\
+ social模块 SocialConfiguration\n core模块 SecurityConfiguration\n\
+               ValidateCodeBeanConfiguration\n browser模块 BrowserSecurityConfiguration\n\
+ session模块 SecuritySessionConfiguration
 alt afterPropertiesSet
 RememberMeConfigurerAware --> RememberMeConfigurerAware: 1 afterPropertiesSet()
 RememberMeConfigurerAware --> RememberMeConfigurerAware: 1.1 检查数据库是否存在\n persistent_logins\n session表\没有创建\n有就什么都不做
 end
-activate BrowserSecurityConfigurer
+activate SecurityCoreConfigurer
 opt preConfigure
-BrowserSecurityConfigurer --> BrowserSecurityConfigurer: 2 fillingAuthorizeRequestUris(..)\n 对所有的AuthorizeRequestUris\n 按权限进行分类，放入对应的 Set
-activate BrowserSecurityConfigurer
+SecurityCoreConfigurer --> SecurityCoreConfigurer: 2 fillingAuthorizeRequestUris(..)\n 对所有的AuthorizeRequestUris\n 按权限进行分类，放入对应的 Set
+activate SecurityCoreConfigurer
 participant "SocialWebSecurityConfigurerAware" #1565c0
-BrowserSecurityConfigurer -> SocialWebSecurityConfigurerAware: 2.1 对所有的\nSocialWebSecurityConfigurerAware\n进行遍历
+SecurityCoreConfigurer -> SocialWebSecurityConfigurerAware: 2.1 对所有的\nSocialWebSecurityConfigurerAware\n进行遍历
 note left : SmsCodeAuthenticationConfigurerAware\n\
 ValidateCodeConfigurerAware\n\
 SocialSecurityConfigurerAware\n\
@@ -53,14 +54,14 @@ HttpSecurity --> HttpSecurity: 2.1.2 http.apply(config)\n这里对所有的\n co
 note right : SmsCodeAuthenticationConfig\n\
 SocialAuthenticationSignUpConfig\n\
 SocialCoreConfig
-HttpSecurity --> SocialWebSecurityConfigurerAware: 2.1.3 把SocialWebSecurityConfigurerAware中\n所有的AuthorizeRequestUris\n 按权限进行分类，放入对应的 Set\n包括BrowserSecurityConfigurer中
-SocialWebSecurityConfigurerAware --> BrowserSecurityConfigurer: 2.1.4 返回
+HttpSecurity --> SocialWebSecurityConfigurerAware: 2.1.3 把SocialWebSecurityConfigurerAware中\n所有的AuthorizeRequestUris\n 按权限进行分类，放入对应的 Set\n包括SecurityCoreConfigurer中
+SocialWebSecurityConfigurerAware --> SecurityCoreConfigurer: 2.1.4 返回
 end
 deactivate HttpSecurity
 deactivate SocialWebSecurityConfigurerAware
-deactivate BrowserSecurityConfigurer
+deactivate SecurityCoreConfigurer
 opt http.formLogin等配置
-BrowserSecurityConfigurer -> HttpSecurity: 3 http.formLogin()等配置
+SecurityCoreConfigurer -> HttpSecurity: 3 http.formLogin()等配置
 activate HttpSecurity
 HttpSecurity --> HttpSecurity: 3.1 antMatchers(..)\n对所有的AuthorizeRequestUris\n 已按权限分类的所有Set\n进行对应设置
 note right : .antMatchers(permitAllArray).permitAll()\n\
@@ -69,12 +70,12 @@ note right : .antMatchers(permitAllArray).permitAll()\n\
 .antMatchers(authenticatedArray).authenticated()\n\
 .antMatchers(fullyAuthenticatedArray).fullyAuthent\n\
 .antMatchers(rememberMeArray).rememberMe()
-HttpSecurity --> BrowserSecurityConfigurer: 3.2 返回
+HttpSecurity --> SecurityCoreConfigurer: 3.2 返回
 end
 deactivate HttpSecurity
-activate BrowserSecurityConfigurer
+activate SecurityCoreConfigurer
 opt postConfigure
-BrowserSecurityConfigurer -> SocialWebSecurityConfigurerAware: 4 对所有的\nSocialWebSecurityConfigurerAware\n进行遍历
+SecurityCoreConfigurer -> SocialWebSecurityConfigurerAware: 4 对所有的\nSocialWebSecurityConfigurerAware\n进行遍历
 activate SocialWebSecurityConfigurerAware
 activate HttpSecurity
 SocialWebSecurityConfigurerAware -> HttpSecurity: 4.1 postConfigure(http)
@@ -83,19 +84,19 @@ note right : SmsCodeAuthenticationConfig\n\
 SocialAuthenticationSignUpConfig\n\
 SocialCoreConfig
 
-SocialWebSecurityConfigurerAware --> BrowserSecurityConfigurer: 4.3 返回
+SocialWebSecurityConfigurerAware --> SecurityCoreConfigurer: 4.3 返回
 end
 deactivate HttpSecurity
 deactivate SocialWebSecurityConfigurerAware
-deactivate BrowserSecurityConfigurer
+deactivate SecurityCoreConfigurer
 
-deactivate BrowserSecurityConfigurer
+deactivate SecurityCoreConfigurer
 
-BrowserSecurityConfigurer -> BrowserSecurityConfigurer: 安全配置流程结束
+SecurityCoreConfigurer -> SecurityCoreConfigurer: 安全配置流程结束
 
 == API ==
 opt 配置文件相关的 API
-note over BrowserSecurityConfigurer: 所有 HttpSecurity\n最终都通过此配置\n如非必要勿修改
+note over SecurityCoreConfigurer: 所有 HttpSecurity\n最终都通过此配置\n如非必要勿修改
 note over SocialWebSecurityConfigurerAware: 对 HttpSecurity 的配置\n推荐使用此接口\n实现此接口注入IOC容器即可
 
 note over OAuth2ConfigurerAdapter: 第三方API\n 与 Social的适配器\n添加第三方登录API时继承

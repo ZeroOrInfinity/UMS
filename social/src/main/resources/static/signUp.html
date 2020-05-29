@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>signUp</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@1.11.1/dist/jquery.min.js"></script>
+</head>
+<body>
+<h2>Demo注册页, 请替换本页，/authentication/social 用户不需要自己处理，只需要实现 AbstractSocialUserDetailService 就行，可参考
+    security-demo 的 LoginSocialUserDetailService</h2>
+<h3>替换本页，请配置 security.social.signUpUrl 属性来设置自己的注册页面</h3>
+<h2>通过 ajax 请求 /social/user 可以获取第三方登录的用户信息：用户昵称，用户头像，第三方的 ProviderId，ProviderUserId</h2>
+<h2>如要自定义 /social/user 请配置 security.social.socialUserInfo 属性来获取自定义的用户信息</h2>
+<form id="social-form" action="/authentication/social" method="post">
+    <table>
+        <tr>
+            <td>信    息：</td>
+            <td><input id="providerId" type="text" disabled="disabled"/></td>
+        </tr>
+        <tr>
+            <td>providerUserId:</td>
+            <td><input id="providerUserId" type="text" disabled="disabled"/></td>
+        </tr>
+        <tr>
+            <td>用户头像:</td>
+            <td><img id="avatarImg" src="#" style="width: 100px; height: 100px"></td>
+        </tr>
+        <tr>
+            <td>用 户 名：</td>
+            <td><input id="username" type="text" name="username"/><p style="color: #ff0000" id="error"></p></td>
+        </tr>
+        <tr>
+            <td>密码：</td>
+            <td><input type="password" name="password" value="123"></td>
+        </tr>
+        <tr>
+            <td>确认密码：</td>
+            <td><input type="password" name="checkPw" value="123"/></td>
+        </tr>
+        <tr>
+            <td>图形验证码：</td>
+            <td>
+                <input type="text" name="imageCode">
+                <img id="img" src="/code/image" style="width: 67px; height: 23px">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="checkbox" name="remember-me" checked="true">记住我</input></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <button id="btn-regist" type="button" name="type" value="regist">登录</button>
+                <button type="submit" name="type" value="binding">绑定</button>
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+<script>
+
+    $.fn.serializeObject = function()
+    {
+        let o = {};
+        let a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    }
+
+    refreshImg = function () {
+        $.ajax({
+            // 如果用的是模板，则 url 可以使用注入的方式，会跟着配置动态改变
+            url: "/user/info",
+            // url: "/social/user",
+            data: {},
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+                $("#providerId").val(data.providerId)
+                $("#providerUserId").val(data.providerUserId)
+                $("#username").val(data.username)
+                $("#avatarImg").attr("src", data.avatarImg)
+            }
+        })
+    }
+
+    refreshImg()
+
+    $("#img").click(function(){
+        this.setAttribute('src','/code/image?'+Math.random());
+    });
+
+
+
+    $("#btn-regist").click(function () {
+        console.log(JSON.stringify($('#social-form').serializeObject()))
+        $.ajax({
+            // 如果用的是模板，则 url 可以使用注入的方式，会跟着配置动态改变
+            url: "/authentication/social",
+            data: JSON.stringify($('#social-form').serializeObject()),
+            type: "POST",
+            dataType: "json",
+            beforeSend: function(request) {
+                request.setRequestHeader("JSON", "json");
+            },
+            success: function(data) {
+                console.log("==========注册成功============")
+                // 注册成功
+                // ...
+                console.log(data)
+            },
+            error: function (data) {
+                // 注册失败
+                console.log("********注册失败*********")
+                console.log(data)
+                data = data.responseJSON
+                if (undefined !== data) {
+                    console.log(data);
+                    if (data.code) {
+                        $("#error").text(data.msg)
+                    }
+                }
+                $("#img").trigger("click")
+            }
+        })
+        return
+    })
+
+</script>
+</html>
