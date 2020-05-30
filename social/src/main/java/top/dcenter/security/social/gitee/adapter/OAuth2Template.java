@@ -37,16 +37,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
 
 /**
  * 针对 Gitee，处理 gitee 服务商回调时返回的 JSON 进行解析。
@@ -147,7 +144,7 @@ public class OAuth2Template implements OAuth2Operations {
 
 	@Override
 	public AccessGrant exchangeForAccess(String authorizationCode, String redirectUri, MultiValueMap<String, String> additionalParameters) {
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		if (useParametersForClientAuthentication) {
 			params.set("client_id", clientId);
 			params.set("client_secret", clientSecret);
@@ -164,7 +161,7 @@ public class OAuth2Template implements OAuth2Operations {
 
 	@Override
 	public AccessGrant exchangeCredentialsForAccess(String username, String password, MultiValueMap<String, String> additionalParameters) {
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		if (useParametersForClientAuthentication) {
 			params.set("client_id", clientId);
 			params.set("client_secret", clientSecret);
@@ -178,6 +175,7 @@ public class OAuth2Template implements OAuth2Operations {
 		return postForAccessGrant(accessTokenUrl, params);
 	}
 
+	@SuppressWarnings("AliDeprecation")
 	@Override
 	@Deprecated
 	public AccessGrant refreshAccess(String refreshToken, String scope, MultiValueMap<String, String> additionalParameters) {
@@ -187,7 +185,7 @@ public class OAuth2Template implements OAuth2Operations {
 	
 	@Override
 	public AccessGrant refreshAccess(String refreshToken, MultiValueMap<String, String> additionalParameters) {
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		if (useParametersForClientAuthentication) {
 			params.set("client_id", clientId);
 			params.set("client_secret", clientSecret);
@@ -207,7 +205,7 @@ public class OAuth2Template implements OAuth2Operations {
 	
 	@Override
 	public AccessGrant authenticateClient(String scope) {
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		if (useParametersForClientAuthentication) {
 			params.set("client_id", clientId);
 			params.set("client_secret", clientSecret);
@@ -231,7 +229,7 @@ public class OAuth2Template implements OAuth2Operations {
 	protected RestTemplate createRestTemplate() {
 		ClientHttpRequestFactory requestFactory = ClientHttpRequestFactorySelector.getRequestFactory();
 		RestTemplate restTemplate = new RestTemplate(requestFactory);
-		List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>(2);
+		List<HttpMessageConverter<?>> converters = new ArrayList<>(2);
 		converters.add(new FormHttpMessageConverter());
 		converters.add(new FormMapHttpMessageConverter());
 		converters.add(new MappingJackson2HttpMessageConverter());
@@ -240,7 +238,7 @@ public class OAuth2Template implements OAuth2Operations {
 		if (!useParametersForClientAuthentication) {
 			List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
 			if (interceptors == null) {   // defensively initialize list if it is null. (See SOCIAL-430)
-				interceptors = new ArrayList<ClientHttpRequestInterceptor>();
+				interceptors = new ArrayList<>();
 				restTemplate.setInterceptors(interceptors);
 			}
 			interceptors.add(new PreemptiveBasicAuthClientHttpRequestInterceptor(clientId, clientSecret));
@@ -298,13 +296,15 @@ public class OAuth2Template implements OAuth2Operations {
 		} else if (grantType == GrantType.IMPLICIT_GRANT) {
 			authUrl.append('&').append("response_type").append('=').append("token");
 		}
-		for (Iterator<Entry<String, List<String>>> additionalParams = parameters.entrySet().iterator(); additionalParams.hasNext();) {
-			Entry<String, List<String>> param = additionalParams.next();
+		for (Entry<String, List<String>> param : parameters.entrySet())
+		{
 			String name = formEncode(param.getKey());
-			for (Iterator<String> values = param.getValue().iterator(); values.hasNext();) {
+			for (String s : param.getValue())
+			{
 				authUrl.append('&').append(name);
-				String value = values.next();
-				if (StringUtils.hasLength(value)) {
+				String value = s;
+				if (StringUtils.hasLength(value))
+				{
 					authUrl.append('=').append(formEncode(value));
 				}
 			}
@@ -313,13 +313,7 @@ public class OAuth2Template implements OAuth2Operations {
 	}
 	
 	private String formEncode(String data) {
-		try {
-			return URLEncoder.encode(data, CHARSET_UTF8);
-		}
-		catch (UnsupportedEncodingException ex) {
-			// should not happen, UTF-8 is always supported
-			throw new IllegalStateException(ex);
-		}
+		return URLEncoder.encode(data, StandardCharsets.UTF_8);
 	}
 	
 	private AccessGrant extractAccessGrant(Map<String, Object> result) {
@@ -344,7 +338,7 @@ public class OAuth2Template implements OAuth2Operations {
 		private final Charset charset;
 
 		public PreemptiveBasicAuthClientHttpRequestInterceptor(String username, String password) {
-			this(username, password, Charset.forName(CHARSET_UTF8));
+			this(username, password, StandardCharsets.UTF_8);
 		}
 
 		public PreemptiveBasicAuthClientHttpRequestInterceptor(String username, String password, Charset charset) {
@@ -353,6 +347,7 @@ public class OAuth2Template implements OAuth2Operations {
 			this.charset = charset;
 		}
 
+		@SuppressWarnings("NullableProblems")
 		@Override
 		public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
 			// 在 AbstractRememberMeServices#decodeCookie() 中 Base64.getDecoder().decode(cookieValue.getBytes()) 进行解密

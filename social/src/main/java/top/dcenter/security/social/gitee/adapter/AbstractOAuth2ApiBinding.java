@@ -34,13 +34,11 @@ import org.springframework.social.support.ClientHttpRequestFactorySelector;
 import org.springframework.social.support.HttpRequestDecorator;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-
-import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
 
 /**
  * 针对 Gitee，处理 gitee 服务商回调时返回的 JSON 进行解析。
@@ -142,7 +140,7 @@ public abstract class AbstractOAuth2ApiBinding implements ApiBinding, Initializi
 	 * @return a list of message converters to be used by RestTemplate
 	 */
 	protected List<HttpMessageConverter<?>> getMessageConverters() {
-		List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
+		List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
 		messageConverters.add(new StringHttpMessageConverter());
 		messageConverters.add(getFormMessageConverter());
 		messageConverters.add(getJsonMessageConverter());
@@ -159,10 +157,10 @@ public abstract class AbstractOAuth2ApiBinding implements ApiBinding, Initializi
 	 */
 	protected FormHttpMessageConverter getFormMessageConverter() {
 		FormHttpMessageConverter converter = new FormHttpMessageConverter();
-		converter.setCharset(Charset.forName(CHARSET_UTF8));
-		List<HttpMessageConverter<?>> partConverters = new ArrayList<HttpMessageConverter<?>>();
+		converter.setCharset(StandardCharsets.UTF_8);
+		List<HttpMessageConverter<?>> partConverters = new ArrayList<>();
 		partConverters.add(new ByteArrayHttpMessageConverter());
-		StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter(Charset.forName(CHARSET_UTF8));
+		StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
 		stringHttpMessageConverter.setWriteAcceptCharset(false);
 		partConverters.add(stringHttpMessageConverter);
 		partConverters.add(new ResourceHttpMessageConverter());		
@@ -196,7 +194,7 @@ public abstract class AbstractOAuth2ApiBinding implements ApiBinding, Initializi
 	private RestTemplate createRestTemplate(String accessToken, OAuth2Version version, GiteeTokenStrategy giteeTokenStrategy) {
 		RestTemplate client = createRestTemplateWithCulledMessageConverters();
 		ClientHttpRequestInterceptor interceptor = giteeTokenStrategy.interceptor(accessToken, version);
-		List<ClientHttpRequestInterceptor> interceptors = new LinkedList<ClientHttpRequestInterceptor>();
+		List<ClientHttpRequestInterceptor> interceptors = new LinkedList<>();
 		interceptors.add(interceptor);
 		client.setInterceptors(interceptors);
 		return client;
@@ -265,6 +263,7 @@ class OAuth2RequestInterceptor implements ClientHttpRequestInterceptor {
 		this.oauth2Version = oauth2Version;
 	}
 
+	@Override
 	public ClientHttpResponse intercept(final HttpRequest request, final byte[] body, ClientHttpRequestExecution execution) throws IOException {
 		HttpRequest protectedResourceRequest = new HttpRequestDecorator(request);
 		protectedResourceRequest.getHeaders().set("Authorization", oauth2Version.getAuthorizationHeaderValue(accessToken));

@@ -14,10 +14,8 @@ import top.dcenter.security.social.gitee.adapter.OAuth2Template;
 import top.dcenter.security.social.gitee.adapter.RestTemplate;
 import top.dcenter.security.social.gitee.adapter.StringJsonMessageConverterExtractor;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
 
 /**
  * GiteeOauth2Template
@@ -47,7 +45,7 @@ public class GiteeOauth2Template extends OAuth2Template {
         messageConverters.removeIf((c) -> c instanceof MappingJackson2HttpMessageConverter);
         messageConverters.add(new StringJsonMessageConverterExtractor());
         // 添加处理 html 格式的消息体转换器
-        messageConverters.add(new StringHttpMessageConverter(Charset.forName(CHARSET_UTF8)));
+        messageConverters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
 
         return restTemplate;
     }

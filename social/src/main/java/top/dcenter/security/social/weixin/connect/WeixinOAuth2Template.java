@@ -1,6 +1,3 @@
-/**
- *
- */
 package top.dcenter.security.social.weixin.connect;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,10 +13,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
-
-import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
 
 /**
  *
@@ -64,11 +59,16 @@ public class WeixinOAuth2Template extends OAuth2Template {
 
         StringBuilder accessTokenRequestUrl = new StringBuilder(accessTokenUrl);
 
-        accessTokenRequestUrl.append("?appid=" + clientId);
-        accessTokenRequestUrl.append("&secret=" + clientSecret);
-        accessTokenRequestUrl.append("&code=" + authorizationCode);
-        accessTokenRequestUrl.append("&grant_type=authorization_code");
-        accessTokenRequestUrl.append("&redirect_uri=" + redirectUri);
+        accessTokenRequestUrl
+                .append("?appid=")
+                .append(clientId)
+                .append("&secret=")
+                .append(clientSecret)
+                .append("&code=")
+                .append(authorizationCode)
+                .append("&grant_type=authorization_code")
+                .append("&redirect_uri=")
+                .append(redirectUri);
 
         return getAccessToken(accessTokenRequestUrl);
     }
@@ -94,7 +94,7 @@ public class WeixinOAuth2Template extends OAuth2Template {
 
         log.info("获取access_token, 响应内容: " + response);
 
-        Map<String, Object> result = null;
+        Map<String, Object> result;
         try
         {
             result = this.objectMapper.readValue(response, Map.class);
@@ -147,7 +147,7 @@ public class WeixinOAuth2Template extends OAuth2Template {
     @Override
     protected RestTemplate createRestTemplate() {
         RestTemplate restTemplate = super.createRestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter(Charset.forName(CHARSET_UTF8)));
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
         return restTemplate;
     }
 

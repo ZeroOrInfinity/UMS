@@ -1,6 +1,3 @@
-/**
- * 
- */
 package top.dcenter.security.social.weixin.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,10 +7,8 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
 import org.springframework.social.oauth2.TokenStrategy;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
 
 /**
  * Weixin API调用模板， scope为Request的Spring bean, 根据当前用户的accessToken创建。
@@ -31,8 +26,8 @@ public class WeixinImpl extends AbstractOAuth2ApiBinding implements Weixin {
 	private final ObjectMapper objectMapper;
 
 	/**
-     * @param accessToken
-     * @param objectMapper
+     * @param accessToken accessToken
+     * @param objectMapper  objectMapper
      */
 	public WeixinImpl(String accessToken, ObjectMapper objectMapper) {
 		super(accessToken, TokenStrategy.ACCESS_TOKEN_PARAMETER);
@@ -46,7 +41,7 @@ public class WeixinImpl extends AbstractOAuth2ApiBinding implements Weixin {
 	protected List<HttpMessageConverter<?>> getMessageConverters() {
 		List<HttpMessageConverter<?>> messageConverters = super.getMessageConverters();
 		messageConverters.remove(0);
-		messageConverters.add(new StringHttpMessageConverter(Charset.forName(CHARSET_UTF8)));
+		messageConverters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
 		return messageConverters;
 	}
 
