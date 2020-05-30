@@ -1,27 +1,52 @@
-.idea/
+
+# Compiled class file
+*.class
+*.classpath
+*.factorypath
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# temp ignore
+*.cache
+*.diff
+*.patch
+*.tmp
+
+# Maven ignore
+.flattened-pom.xml
+
+
+# IDE Files #
 *.iml
-app/*.iml
-app/*.iml
+.idea
+.idea/
+.project
+.settings
+target
+.DS_Store
 
 app/target/
 browser/target/
-
-browser/*.iml
-browser/browser.iml
-
-core/*.iml
 core/target/
-
-demo/*.iml
 demo/target/
-
-social/*.iml
 social/target/
-
-oauth/*.iml
 oauth/target/
-
 session/target/
-session/*.iml
-
-
