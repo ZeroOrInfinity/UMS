@@ -11,7 +11,7 @@
   # 登录失败跳转页面
   security.browser.failure-url=/login.html
   # 两种登录模式：JSON 与 REDIRECT
-  security.browser.loginType=REDIRECT
+  security.browser.loginPostProcessType=REDIRECT
   
   # 数据库名称
   security.browser.database-name=sso-demo
@@ -24,7 +24,7 @@
   security.browser.auth-redirect-suffix-condition["/order/**"]=/login.html
   security.browser.auth-redirect-suffix-condition["/file/**"]=/login.html
   # /authentication/form 为用户名密码方式注册,/authentication/social 为第三方登录方式注册,/authentication/mobile 为手机登录注册
-  # List 类型：设置需要短信校验码认证的 uri，多个 uri 用 “，”号分开，支持通配符，如：/hello,/user/*；默认为空
+  # List 类型：设置需要短信验证码认证的 uri，多个 uri 用 “，”号分开，支持通配符，如：/hello,/user/*；默认为空
   #security.code.sms.auth-urls=/authentication/form,/authentication/social,/authentication/mobile
   security.code.sms.request-param-sms-code-name=smsCode
   security.code.sms.request-param-mobile-name=mobile
@@ -32,7 +32,7 @@
   security.code.sms.length=6
   # 设置记住我功能的 session 的缓存时长，默认 7 天. If a duration suffix is not specified, seconds will be used.
   security.browser.remember-me-timeout=60
-  # List 类型：设置需要图片校验码认证的 uri，多个 uri 用 “，”号分开，支持通配符，如：/hello,/user/*；默认为 /authentication/form
+  # List 类型：设置需要图片验证码认证的 uri，多个 uri 用 “，”号分开，支持通配符，如：/hello,/user/*；默认为 /authentication/form
   security.code.image.auth-urls=/authentication/form,/authentication/mobile
   security.code.image.expire=1200
   security.code.image.length=4

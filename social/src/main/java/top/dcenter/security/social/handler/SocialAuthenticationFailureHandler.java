@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import top.dcenter.security.core.enums.LoginType;
+import top.dcenter.security.core.enums.LoginPostProcessType;
 import top.dcenter.security.core.exception.RegisterUserFailureException;
 import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.core.vo.ResponseResult;
@@ -21,7 +21,8 @@ import java.io.IOException;
 import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
 
 /**
- * 第三方授权登录错误处理器
+ * 第三方授权登录错误处理器.<br>
+ * 当用户注册异常 {@link RegisterUserFailureException} 时返回 JSON 数据
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/4 13:46
@@ -46,18 +47,18 @@ public class SocialAuthenticationFailureHandler extends SimpleUrlAuthenticationF
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
 
         // 第三方首次授权登录注册时，用户名重名处理
-        // todo SocialAuthenticationSignUpToken 传递不过来，被ProviderManager给拦截了
         if (exception instanceof RegisterUserFailureException)
         {
-            int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
-            response.setStatus(status);
+            RegisterUserFailureException e = (RegisterUserFailureException) exception;
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding(CHARSET_UTF8);
-            response.getWriter().write(objectMapper.writeValueAsString(ResponseResult.fail(status, exception.getMessage())));
+            response.getWriter().write(objectMapper.writeValueAsString(ResponseResult.fail(e.getErrorCodeEnum().getCode(),
+                                                                                           e.getMessage())));
             return;
         }
 
-        if (LoginType.JSON.equals(browserProperties.getLoginType()))
+        if (LoginPostProcessType.JSON.equals(browserProperties.getLoginPostProcessType()))
         {
             int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
             response.setStatus(status);

@@ -1,6 +1,8 @@
 package top.dcenter.security.core.exception;
 
+import lombok.Getter;
 import org.springframework.security.core.AuthenticationException;
+import top.dcenter.security.core.enums.ErrorCodeEnum;
 
 /**
  * 注册用户失败
@@ -9,11 +11,17 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class RegisterUserFailureException extends AuthenticationException {
 
-    public RegisterUserFailureException(String msg, Throwable t) {
-        super(msg, t);
+    private static final long serialVersionUID = 9180897671726519378L;
+    @Getter
+    private ErrorCodeEnum errorCodeEnum;
+
+    public RegisterUserFailureException(ErrorCodeEnum errorCodeEnum, Throwable t) {
+        super(errorCodeEnum.getMsg(), t);
+        this.errorCodeEnum = errorCodeEnum;
     }
 
-    public RegisterUserFailureException(String msg) {
-        super(msg);
+    public RegisterUserFailureException(ErrorCodeEnum errorCodeEnum) {
+        super(errorCodeEnum.getMsg());
+        this.errorCodeEnum = errorCodeEnum;
     }
 }

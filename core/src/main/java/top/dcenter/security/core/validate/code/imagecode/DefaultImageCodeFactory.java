@@ -11,7 +11,7 @@ import javax.servlet.ServletRequest;
 import java.awt.image.BufferedImage;
 
 /**
- * 图片校验码工厂，默认实现，建议自己自定义 {@link ImageCodeFactory}，使用带有缓存池的工厂
+ * 图片验证码工厂，默认实现，建议自己自定义 {@link ImageCodeFactory}，使用带有缓存池的工厂
  * @author zyw
  * @version V1.0  Created by 2020/5/22 11:23
  */

@@ -8,7 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
-import top.dcenter.security.core.enums.LoginType;
+import top.dcenter.security.core.enums.LoginPostProcessType;
 import top.dcenter.security.core.properties.BrowserProperties;
 
 import javax.servlet.ServletException;
@@ -42,7 +42,7 @@ public class BrowserAuthenticationSuccessHandler extends BaseAuthenticationSucce
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         // 网页端成功处理器, 默认无实现，需自己去实现
         log.info("登录成功: {}", authentication.getName());
-        if (LoginType.JSON.equals(browserProperties.getLoginType()))
+        if (LoginPostProcessType.JSON.equals(browserProperties.getLoginPostProcessType()))
         {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding(CHARSET_UTF8);

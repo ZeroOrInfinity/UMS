@@ -5,7 +5,7 @@ import top.dcenter.security.core.api.validate.code.SmsCodeSender;
 import top.dcenter.security.core.api.validate.code.ValidateCodeGenerator;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.validate.code.ValidateCode;
-import top.dcenter.security.core.validate.code.ValidateCodeType;
+import top.dcenter.security.core.enums.ValidateCodeType;
 
 import javax.servlet.ServletRequest;
 

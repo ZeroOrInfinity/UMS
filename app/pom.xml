@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
 
     <name>security-scaffolding-app</name>
-    <description>spring-security scaffolding-app 模块：图片校验码与短信校验码，手机短信登录功能，Remember me功能</description>
+    <description>spring-security scaffolding-app 模块：图片验证码与短信验证码，手机短信登录功能，Remember me功能</description>
 
     <dependencies>
         <dependency>

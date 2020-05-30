@@ -3,82 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <title>登录</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@1.11.1/dist/jquery.min.js"></script>
 </head>
 <body>
-    <h2>demo登录页面</h2>
-    <h3>表单登录</h3>
-    <form action="/authentication/form" method="post">
-        <table>
-            <tr>
-                <td>用户名：</td>
-                <td><input type="text" name="username" value="admin"></td>
-            </tr>
-            <tr>
-                <td>密码：</td>
-                <td><input type="password" name="password" value="admin"></td>
-            </tr>
-            <tr>
-                <td>图形验证码：</td>
-                <td>
-                    <input type="text" name="imageCode">
-                    <img src="/code/image" style="width: 67px; height: 23px">
-                </td>
-            </tr>
-            <tr>
-                <td>手机号码：</td>
-                <td>
-                    <input type="tel" name="mobile" value="13345678980">
-                    <a href="/code/sms?mobile=13345678980" >发送验证码</a>
-                </td>
-            </tr>
-            <tr>
-                <td>手机验证码：</td>
-                <td>
-                    <input type="text" name="smsCode">
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2"><input type="checkbox" name="remember-me" checked="true">记住我</input></td>
-            </tr>
-            <tr>
-                <td colspan="2"><button type="submit">登录</button></td>
-            </tr>
-        </table>
-    </form>
-    <form action="/authentication/mobile" method="post">
-        <table>
-            <tr>
-                <td>手机号码：</td>
-                <td>
-                    <input type="tel" name="mobile" value="13345678980">
-                    <a href="/code/sms?mobile=13345678980" >发送验证码</a>
-                </td>
-            </tr>
-            <tr>
-                <td>手机验证码：</td>
-                <td>
-                    <input type="text" name="smsCode">
-                </td>
-            </tr>
-            <tr>
-                <td>图形验证码：</td>
-                <td>
-                    <input type="text" name="imageCode">
-                    <img src="/code/image" style="width: 67px; height: 23px">
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2"><input type="checkbox" name="remember-me" checked="true">记住我</input></td>
-            </tr>
-            <tr>
-                <td colspan="2"><button type="submit">登录</button></td>
-            </tr>
-        </table>
-    </form>
-    <br>
-    <h3>社交登录</h3>
-    <a href="/auth/callback/qq">QQ登录</a>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <a href="/auth/weixin">微信登录</a>
+<h2>登录页面</h2>
+<h3>表单登录</h3>
+<form action="/authentication/form" method="post">
+    <table>
+        <tr>
+            <td>用户名：</td>
+            <td><input type="text" name="username" value="admin"></td>
+        </tr>
+        <tr>
+            <td>密码：</td>
+            <td><input type="password" name="password" value="admin"></td>
+        </tr>
+        <tr>
+            <td>图形验证码：</td>
+            <td>
+                <input type="text" name="imageCode">
+                <img class=".img" src="/code/image" style="width: 67px; height: 23px">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">如果短信验证码与图片验证码同时配置时，优先使用短信验证码，图片验证码失效</td>
+        </tr>
+        <tr>
+            <td>手机号码：</td>
+            <td>
+                <input type="tel" name="mobile" value="13345678980">
+                <a href="/code/sms?mobile=13345678980" >发送验证码</a>
+            </td>
+        </tr>
+        <tr>
+            <td>手机验证码：</td>
+            <td>
+                <input type="text" name="smsCode">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="checkbox" name="remember-me" checked="true">记住我</input></td>
+        </tr>
+        <tr>
+            <td colspan="2"><button type="submit">登录</button></td>
+        </tr>
+    </table>
+</form>
+<h3>手机登录</h3>
+<form action="/authentication/mobile" method="post">
+    <table>
+        <tr>
+            <td>手机号码：</td>
+            <td>
+                <input type="tel" name="mobile" value="13345678980">
+                <a href="/code/sms?mobile=13345678980" >发送验证码</a>
+            </td>
+        </tr>
+        <tr>
+            <td>手机验证码：</td>
+            <td>
+                <input type="text" name="smsCode">
+            </td>
+        </tr>
+        <tr>
+            <td>图形验证码：</td>
+            <td>
+                <input type="text" name="imageCode">
+                <img class="img" src="/code/image" style="width: 67px; height: 23px">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="checkbox" name="remember-me" checked="true">记住我</input></td>
+        </tr>
+        <tr>
+            <td colspan="2"><button type="submit">登录</button></td>
+        </tr>
+    </table>
+</form>
+<br>
+<h3>社交登录</h3>
+<a href="/auth/callback/qq">QQ登录</a>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="/auth/weixin">微信登录</a>
 </body>
+<script>
+    $(".img").click(function(){
+        this.setAttribute('src','/code/image?'+Math.random());
+    });
+</script>
 </html>

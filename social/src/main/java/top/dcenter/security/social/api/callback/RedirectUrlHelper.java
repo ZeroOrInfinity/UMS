@@ -1,7 +1,7 @@
 package top.dcenter.security.social.api.callback;
 
 import org.springframework.lang.NonNull;
-import top.dcenter.security.core.util.CastUtil;
+import top.dcenter.security.core.util.ConvertUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
@@ -31,8 +31,8 @@ public class RedirectUrlHelper {
         // 解密 state
         byte[] router = Base64.getDecoder().decode(state.substring(state.indexOf(UUID_SEPARATOR) + 1));
         // 提取 redirectUrl
-        Map<String, String> routerMap = CastUtil.string2Map(new String(router), URL_PARAMETER_SEPARATOR,
-                                                            KEY_VALUE_SEPARATOR);
+        Map<String, String> routerMap = ConvertUtil.string2Map(new String(router), URL_PARAMETER_SEPARATOR,
+                                                               KEY_VALUE_SEPARATOR);
         return routerMap.get(CALLBACK_URL_KEY_IN_STATE);
     }
 }

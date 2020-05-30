@@ -1,19 +1,28 @@
 package top.dcenter.security.core.exception;
 
+import lombok.Getter;
 import org.springframework.security.core.AuthenticationException;
+import top.dcenter.security.core.enums.ErrorCodeEnum;
 
 /**
- * 校验码处理异常
+ * 验证码处理异常
  *
  * @author zyw
  * @version V1.0  Created by 2020/5/6 16:04
  */
 public class ValidateCodeProcessException extends AuthenticationException {
-    public ValidateCodeProcessException(String message) {
-        super(message);
+
+    private static final long serialVersionUID = -1186543966394757028L;
+    @Getter
+    private ErrorCodeEnum errorCodeEnum;
+
+    public ValidateCodeProcessException(ErrorCodeEnum errorCodeEnum) {
+        super(errorCodeEnum.getMsg());
+        this.errorCodeEnum = errorCodeEnum;
     }
 
-    public ValidateCodeProcessException(String message, Throwable cause) {
-        super(message, cause);
+    public ValidateCodeProcessException(ErrorCodeEnum errorCodeEnum, Throwable cause) {
+        super(errorCodeEnum.getMsg(), cause);
+        this.errorCodeEnum = errorCodeEnum;
     }
 }

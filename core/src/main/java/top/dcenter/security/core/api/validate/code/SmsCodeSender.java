@@ -16,14 +16,14 @@ public interface SmsCodeSender {
     /**
      * 通过第三方发送短信验证码接口
      * @param mobile     手机号码
-     * @param validateCode  校验码
-     * @return  发送校验码是否成功的状态
+     * @param validateCode  验证码
+     * @return  发送验证码是否成功的状态
      */
     boolean sendSms(String mobile, String validateCode);
 
     /**
-     * 生成校验码
-     * @return
+     * 生成验证码
+     * @return {@link ValidateCode}
      */
     ValidateCode getCode();
 }

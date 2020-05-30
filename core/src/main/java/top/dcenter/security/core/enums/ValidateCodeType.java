@@ -1,4 +1,4 @@
-package top.dcenter.security.core.validate.code;
+package top.dcenter.security.core.enums;
 
 import static top.dcenter.security.core.consts.SecurityConstants.SESSION_KEY_CUSTOMIZE;
 import static top.dcenter.security.core.consts.SecurityConstants.SESSION_KEY_IMAGE;
@@ -8,7 +8,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.SESSION_KEY_SMS
 import static top.dcenter.security.core.consts.SecurityConstants.SESSION_KEY_TRACK;
 
 /**
- * 校验码类型
+ * 验证码类型
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/7 9:35

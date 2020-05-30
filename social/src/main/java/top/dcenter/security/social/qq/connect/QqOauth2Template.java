@@ -8,14 +8,13 @@ import org.springframework.social.oauth2.OAuth2Template;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
-import top.dcenter.security.core.util.CastUtil;
+import top.dcenter.security.core.util.ConvertUtil;
 import top.dcenter.security.social.qq.api.Qq;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
 import static top.dcenter.security.core.consts.SecurityConstants.KEY_VALUE_SEPARATOR;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
 
@@ -46,7 +45,7 @@ public class QqOauth2Template extends OAuth2Template {
         RestTemplate restTemplate = super.createRestTemplate();
         List<HttpMessageConverter<?>> messageConverters = restTemplate.getMessageConverters();
         // 添加处理 html 格式的消息体转换器
-        messageConverters.add(new StringHttpMessageConverter(Charset.forName(CHARSET_UTF8)));
+        messageConverters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
         return restTemplate;
     }
 
@@ -66,6 +65,6 @@ public class QqOauth2Template extends OAuth2Template {
     }
 
     private Map<String, String> extractAccessGrantMap(String responseResult) {
-        return CastUtil.string2Map(responseResult, URL_PARAMETER_SEPARATOR, KEY_VALUE_SEPARATOR);
+        return ConvertUtil.string2Map(responseResult, URL_PARAMETER_SEPARATOR, KEY_VALUE_SEPARATOR);
     }
 }

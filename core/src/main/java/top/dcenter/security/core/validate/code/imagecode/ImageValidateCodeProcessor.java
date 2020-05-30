@@ -5,7 +5,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.api.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.security.core.validate.code.ValidateCode;
 import top.dcenter.security.core.api.validate.code.ValidateCodeGenerator;
-import top.dcenter.security.core.validate.code.ValidateCodeType;
+import top.dcenter.security.core.enums.ValidateCodeType;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
@@ -51,7 +51,7 @@ public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
     }
 
     @Override
-    public String getValidateCodeType() {
-        return ValidateCodeType.IMAGE.name().toLowerCase();
+    public ValidateCodeType getValidateCodeType() {
+        return ValidateCodeType.IMAGE;
     }
 }

@@ -19,7 +19,7 @@ import top.dcenter.security.core.validate.code.smscode.SmsValidateCodeProcessor;
 import java.util.Map;
 
 /**
- * 校验码功能配置
+ * 验证码功能配置
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/5 0:02

@@ -14,10 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX;
+import static top.dcenter.security.core.enums.ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE;
+import static top.dcenter.security.core.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_CODE_TYPE;
 
 
 /**
- * 校验码 控制器
+ * 验证码 控制器
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/3 23:41
@@ -36,7 +38,7 @@ public class ValidateCodeController {
     /**
      * 获取图片验证码, 根据验证码类型不同，调用不同的 {@link ValidateCodeProcessor} 接口实现
      * @param request request 中的 width 的值如果小于 height * 45 / 10, 则 width = height * 45 / 10
-     * @param response
+     * @param response  {@link HttpServletResponse}
      */
     @GetMapping(DEFAULT_VALIDATE_CODE_URL_PREFIX + "/{type}")
     public void createCode(@PathVariable("type") String type,
@@ -51,14 +53,14 @@ public class ValidateCodeController {
         }
         if (validateCodeProcessor == null)
         {
-            throw new ValidateCodeException("非法的校验码类型");
+            throw new ValidateCodeException(ILLEGAL_VALIDATE_CODE_TYPE);
         }
 
         boolean validateStatus = validateCodeProcessor.produce(new ServletWebRequest(request, response));
 
         if (!validateStatus)
         {
-            throw new ValidateCodeProcessException("获取验证码失败，请重试！");
+            throw new ValidateCodeProcessException(GET_VALIDATE_CODE_FAILURE);
         }
 
     }

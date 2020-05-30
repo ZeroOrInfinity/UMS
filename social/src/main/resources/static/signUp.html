@@ -27,7 +27,7 @@
         </tr>
         <tr>
             <td>用 户 名：</td>
-            <td><input id="username" type="text" name="username"/><p style="color: #ff0000" id="error"></p></td>
+            <td><input id="username" type="text" name="username"/><p style="color: #ff0000" id="error-name"></p></td>
         </tr>
         <tr>
             <td>密码：</td>
@@ -45,7 +45,8 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2"><input type="checkbox" name="remember-me" checked="true">记住我</input></td>
+            <td><input type="checkbox" name="remember-me" checked="true">记住我</input></td>
+            <td><p style="color: #ff0000" id="error-code"></p></td>
         </tr>
         <tr>
             <td></td>
@@ -85,6 +86,8 @@
             type: "GET",
             dataType: "json",
             success: function(data) {
+                $("#error-name").text("")
+                $("#error-code").text("")
                 $("#providerId").val(data.providerId)
                 $("#providerUserId").val(data.providerUserId)
                 $("#username").val(data.username)
@@ -113,6 +116,8 @@
                 request.setRequestHeader("JSON", "json");
             },
             success: function(data) {
+                $("#error-name").text("")
+                $("#error-code").text("")
                 console.log("==========注册成功============")
                 // 注册成功
                 // ...
@@ -120,13 +125,18 @@
             },
             error: function (data) {
                 // 注册失败
+                $("#error-name").text("")
+                $("#error-code").text("")
                 console.log("********注册失败*********")
                 console.log(data)
                 data = data.responseJSON
                 if (undefined !== data) {
                     console.log(data);
-                    if (data.code) {
-                        $("#error").text(data.msg)
+                    // 错误代码看ErrorCodeEnum
+                    if (data.code >= 900 && data.code < 1000) {
+                        $("#error-name").text(data.msg)
+                    } else if (data.code >= 600 && data.code < 700) {
+                        $("#error-code").text(data.msg)
                     }
                 }
                 $("#img").trigger("click")

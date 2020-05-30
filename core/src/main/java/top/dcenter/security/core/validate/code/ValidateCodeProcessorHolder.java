@@ -2,6 +2,7 @@ package top.dcenter.security.core.validate.code;
 
 import org.springframework.stereotype.Component;
 import top.dcenter.security.core.api.validate.code.ValidateCodeProcessor;
+import top.dcenter.security.core.enums.ValidateCodeType;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 校验码处理器 Holder
+ * 验证码处理器 Holder
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/7 10:32
@@ -28,7 +29,7 @@ public class ValidateCodeProcessorHolder {
         }
         Collection<ValidateCodeProcessor> values = validateCodeProcessors.values();
         this.validateCodeProcessors =
-                values.stream().collect(Collectors.toMap((validateCodeProcessor -> validateCodeProcessor.getValidateCodeType()),
+                values.stream().collect(Collectors.toMap(validateCodeProcessor -> validateCodeProcessor.getValidateCodeType().name().toLowerCase(),
                                                          validateCodeProcessor -> validateCodeProcessor));
     }
 
@@ -43,7 +44,14 @@ public class ValidateCodeProcessorHolder {
         {
             return null;
         }
-        return this.validateCodeProcessors.get(type.name().toLowerCase());
+        ValidateCodeProcessor validateCodeProcessor;
+        try {
+            validateCodeProcessor = this.validateCodeProcessors.get(type.name().toLowerCase());
+        }
+        catch (Exception e) {
+            validateCodeProcessor = null;
+        }
+        return validateCodeProcessor;
     }
 
     /**

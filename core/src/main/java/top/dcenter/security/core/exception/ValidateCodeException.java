@@ -1,6 +1,8 @@
 package top.dcenter.security.core.exception;
 
+import lombok.Getter;
 import org.springframework.security.core.AuthenticationException;
+import top.dcenter.security.core.enums.ErrorCodeEnum;
 
 /**
  * @author zhailiang
@@ -9,11 +11,17 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class ValidateCodeException extends AuthenticationException {
 
-    public ValidateCodeException(String msg, Throwable t) {
-        super(msg, t);
+    private static final long serialVersionUID = -7608813150135647861L;
+    @Getter
+    private ErrorCodeEnum errorCodeEnum;
+
+    public ValidateCodeException(ErrorCodeEnum errorCodeEnum, Throwable t) {
+        super(errorCodeEnum.getMsg(), t);
+        this.errorCodeEnum = errorCodeEnum;
     }
 
-    public ValidateCodeException(String msg) {
-        super(msg);
+    public ValidateCodeException(ErrorCodeEnum errorCodeEnum) {
+        super(errorCodeEnum.getMsg());
+        this.errorCodeEnum = errorCodeEnum;
     }
 }

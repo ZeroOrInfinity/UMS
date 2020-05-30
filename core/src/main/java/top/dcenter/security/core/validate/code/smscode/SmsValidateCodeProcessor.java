@@ -12,10 +12,13 @@ import top.dcenter.security.core.consts.RegexConst;
 import top.dcenter.security.core.exception.ValidateCodeParamErrorException;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.validate.code.ValidateCode;
-import top.dcenter.security.core.validate.code.ValidateCodeType;
+import top.dcenter.security.core.enums.ValidateCodeType;
 
 import java.util.Map;
 import java.util.regex.PatternSyntaxException;
+
+import static top.dcenter.security.core.enums.ErrorCodeEnum.MOBILE_FORMAT_ERROR;
+import static top.dcenter.security.core.enums.ErrorCodeEnum.MOBILE_PARAMETER_ERROR;
 
 
 /**
@@ -41,12 +44,12 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
     /**
      * @see  AbstractValidateCodeProcessor
      * @param request   ServletWebRequest
-     * @param validateCode  校验码对象
+     * @param validateCode  验证码对象
      * @return boolean
      */
     @Override
     public boolean sent(ServletWebRequest request, ValidateCode validateCode) {
-        String mobile;
+        String mobile = null;
         try
         {
             mobile = ServletRequestUtils.getRequiredStringParameter(request.getRequest(),
@@ -58,15 +61,15 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
         }
         catch (ServletRequestBindingException e)
         {
-            throw new ValidateCodeParamErrorException("不能获取接收验证码手机号");
+            throw new ValidateCodeParamErrorException(MOBILE_PARAMETER_ERROR, validateCodeProperties.getSms().getRequestParamMobileName());
         }
         catch (PatternSyntaxException e) { }
 
-        throw new ValidateCodeParamErrorException("手机号格式错误，请检查你的手机号码");
+        throw new ValidateCodeParamErrorException(MOBILE_FORMAT_ERROR, mobile);
     }
 
     @Override
-    public String getValidateCodeType() {
-        return ValidateCodeType.SMS.name().toLowerCase();
+    public ValidateCodeType getValidateCodeType() {
+        return ValidateCodeType.SMS;
     }
 }

@@ -17,7 +17,7 @@ import java.util.Set;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX;
 
 /**
- * 校验码相关配置
+ * 验证码相关配置
  * @author zyw
  * @version V1.0  Created by 2020/5/15 21:59
  */
@@ -36,12 +36,12 @@ public class ValidateCodeConfigurerAware implements SocialWebSecurityConfigurerA
     }
 
     @Override
-    public void postConfigure(HttpSecurity http) throws Exception {
+    public void postConfigure(HttpSecurity http) {
         http.addFilterBefore(validateCodeFilter, AbstractPreAuthenticatedProcessingFilter.class);
     }
 
     @Override
-    public void preConfigure(HttpSecurity http) throws Exception {
+    public void preConfigure(HttpSecurity http) {
         // do nothing
 
     }

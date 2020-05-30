@@ -1,15 +1,17 @@
 package top.dcenter.security.core.api.validate.code;
 
+import top.dcenter.security.core.enums.ValidateCodeType;
+
 import javax.servlet.ServletRequest;
 
 /**
  * 权限认证验证码生成接口。默认实现 {@link top.dcenter.security.core.validate.code.imagecode.ImageCodeGenerator} 与
  * {@link top.dcenter.security.core.validate.code.smscode.SmsCodeGenerator}<br>
- * 在 {@link top.dcenter.security.core.validate.code.ValidateCodeType} 中还定义了其他未实现的常见验证码：<br>
- *     {@link top.dcenter.security.core.validate.code.ValidateCodeType#SELECTION}，<br>
- *     {@link top.dcenter.security.core.validate.code.ValidateCodeType#SLIDER}，<br>
- *     {@link top.dcenter.security.core.validate.code.ValidateCodeType#TRACK}，<br>
- *     {@link top.dcenter.security.core.validate.code.ValidateCodeType#CUSTOMIZE}。<br>
+ * 在 {@link ValidateCodeType} 中还定义了其他未实现的常见验证码：<br>
+ *     {@link ValidateCodeType#SELECTION}，<br>
+ *     {@link ValidateCodeType#SLIDER}，<br>
+ *     {@link ValidateCodeType#TRACK}，<br>
+ *     {@link ValidateCodeType#CUSTOMIZE}。<br>
  * 自定义生成验证码逻辑时：<br>
  *  1. 实现此验证码生成器接口，<br>
  *  2. 如果要覆盖已有的验证码逻辑，继承他，再向 IOC 容器注册自己。

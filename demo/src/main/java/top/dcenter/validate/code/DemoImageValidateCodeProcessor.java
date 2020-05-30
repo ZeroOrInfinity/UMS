@@ -9,10 +9,11 @@ import top.dcenter.security.core.validate.code.imagecode.ImageCode;
 import top.dcenter.security.core.validate.code.imagecode.ImageValidateCodeProcessor;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**
- * 自定义图片校验码处理器
+ * 自定义图片验证码处理器
  * @author zyw
  * @createrDate 2020-05-14 23:52
  */
@@ -33,7 +34,13 @@ public class DemoImageValidateCodeProcessor extends ImageValidateCodeProcessor {
                 return false;
             }
             ImageCode imageCode = (ImageCode) validateCode;
-            ImageIO.write(imageCode.getImage(), "JPG", request.getResponse().getOutputStream());
+
+            HttpServletResponse response = request.getResponse();
+            if (response == null)
+            {
+                return false;
+            }
+            ImageIO.write(imageCode.getImage(), "JPG", response.getOutputStream());
             log.info("Demo ========>: imageCode = {}", imageCode);
             return true;
         }

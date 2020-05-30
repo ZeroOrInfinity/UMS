@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
-import top.dcenter.security.core.enums.LoginType;
+import top.dcenter.security.core.enums.LoginPostProcessType;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -31,8 +31,7 @@ public class BrowserProperties {
 
     public BrowserProperties() {
 
-        Map<String, String> map = new HashMap<>();
-        this.authRedirectSuffixCondition = map;
+        this.authRedirectSuffixCondition = new HashMap<>();
 
     }
 
@@ -121,7 +120,7 @@ public class BrowserProperties {
     /**
      * 设置默认登录后为 返回 JSON
      */
-    private LoginType loginType = LoginType.JSON;
+    private LoginPostProcessType loginPostProcessType = LoginPostProcessType.JSON;
 
     public String getQueryRememberMeTableExistSql(String databaseName){
         return "SELECT COUNT(1) FROM information_schema.tables WHERE table_schema='" + databaseName + "' AND table_name = 'persistent_logins'";

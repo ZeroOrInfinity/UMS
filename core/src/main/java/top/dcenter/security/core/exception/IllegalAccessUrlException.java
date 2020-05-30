@@ -1,6 +1,8 @@
 package top.dcenter.security.core.exception;
 
+import lombok.Getter;
 import org.springframework.security.core.AuthenticationException;
+import top.dcenter.security.core.enums.ErrorCodeEnum;
 
 /**
  * 非法访问 URL
@@ -9,11 +11,17 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class IllegalAccessUrlException extends AuthenticationException {
 
-    public IllegalAccessUrlException(String msg, Throwable t) {
-        super(msg, t);
+    private static final long serialVersionUID = 5168157568196656844L;
+    @Getter
+    private ErrorCodeEnum errorCodeEnum;
+
+    public IllegalAccessUrlException(ErrorCodeEnum errorCodeEnum, Throwable t) {
+        super(errorCodeEnum.getMsg(), t);
+        this.errorCodeEnum = errorCodeEnum;
     }
 
-    public IllegalAccessUrlException(String msg) {
-        super(msg);
+    public IllegalAccessUrlException(ErrorCodeEnum errorCodeEnum) {
+        super(errorCodeEnum.getMsg());
+        this.errorCodeEnum = errorCodeEnum;
     }
 }

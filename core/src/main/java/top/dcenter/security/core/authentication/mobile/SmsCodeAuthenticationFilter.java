@@ -8,6 +8,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import top.dcenter.security.core.enums.ErrorCodeEnum;
 import top.dcenter.security.core.exception.ParameterErrorException;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 
@@ -55,8 +56,8 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
         String mobile = obtainMobile(request);
 
         if (StringUtils.isEmpty(mobile)) {
-            throw new ParameterErrorException(String.format("%s 不能为空",
-                                                            this.validateCodeProperties.getSms().getRequestParamMobileName()));
+            throw new ParameterErrorException(ErrorCodeEnum.MOBILE_NOT_EMPTY,
+                                              this.validateCodeProperties.getSms().getRequestParamMobileName());
         }
 
         mobile = mobile.trim();

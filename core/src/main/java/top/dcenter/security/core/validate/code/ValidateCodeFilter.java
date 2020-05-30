@@ -6,15 +6,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.security.core.api.validate.code.ValidateCodeProcessor;
+import top.dcenter.security.core.enums.ValidateCodeType;
 import top.dcenter.security.core.exception.ValidateCodeException;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.util.CastUtil;
+import top.dcenter.security.core.util.ConvertUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -25,10 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static top.dcenter.security.core.consts.SecurityConstants.GET_METHOD;
+import static top.dcenter.security.core.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_CODE_TYPE;
 
 
 /**
- * 校验码过滤器
+ * 验证码过滤器
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/4 9:29
@@ -42,7 +45,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
 
     private final AntPathMatcher pathMatcher;
     /**
-     * 校验码处理器 Holder
+     * 验证码处理器 Holder
      */
     private final ValidateCodeProcessorHolder validateCodeProcessorHolder;
 
@@ -64,17 +67,18 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
     public void afterPropertiesSet() throws ServletException {
         super.afterPropertiesSet();
         // 添加图片验证码 urls
-        CastUtil.list2Map(validateCodeProperties.getImage().getAuthUrls(), ValidateCodeType.IMAGE,
-                authUrlMap);
+        ConvertUtil.list2Map(validateCodeProperties.getImage().getAuthUrls(), ValidateCodeType.IMAGE,
+                             authUrlMap);
         // 添加短信验证码 urls
-        CastUtil.list2Map(validateCodeProperties.getSms().getAuthUrls(), ValidateCodeType.SMS, authUrlMap);
+        ConvertUtil.list2Map(validateCodeProperties.getSms().getAuthUrls(), ValidateCodeType.SMS, authUrlMap);
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
         final String requestURI = request.getRequestURI();
-        // 校验码逻辑，当短信验证码与图片验证码 url 相同时，优先使用短信校验码逻辑。
+        // 验证码逻辑，当短信验证码与图片验证码 url 相同时，优先使用短信验证码逻辑。
         ValidateCodeType validateCodeType = getValidateCodeType(request);
 
         try {
@@ -84,16 +88,29 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
                 if (validateCodeProcessor != null)
                 {
                     validateCodeProcessor.validate(new ServletWebRequest(request, response));
-                    log.info("校验请求({})验证码校验通过", requestURI);
+                    if (log.isInfoEnabled())
+                    {
+                        log.info("校验请求({})验证码校验通过", requestURI);
+                    }
                 } else
                 {
-                    throw new ValidateCodeException("不能处理此验证码类型");
+                    throw new ValidateCodeException(ILLEGAL_VALIDATE_CODE_TYPE);
                 }
             }
 
         } catch (Exception e) {
             log.warn("校验请求({}), IP={}: {}", requestURI, request.getRemoteAddr(), e.getMessage());
-            authenticationFailureHandler.onAuthenticationFailure(request, response, new ValidateCodeException(e.getMessage(), e));
+
+            AuthenticationException ex;
+            if (e instanceof AuthenticationException)
+            {
+                ex = (AuthenticationException) e;
+            }
+            else
+            {
+                ex = new AuthenticationServiceException(e.getMessage(), e);
+            }
+            authenticationFailureHandler.onAuthenticationFailure(request, response, ex);
             return;
         }
 
@@ -101,11 +118,10 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
     }
 
     /**
-     * 获取校验码的类型，如果当前请求不需要校验，则返回null
+     * 获取验证码的类型，如果当前请求不需要校验，则返回null
      *
      * @param request   HttpServletRequest
      * @return  ValidateCodeType
-     * @exception AuthenticationServiceException {@link AuthenticationServiceException}
      */
     private ValidateCodeType getValidateCodeType(HttpServletRequest request) {
         ValidateCodeType result;

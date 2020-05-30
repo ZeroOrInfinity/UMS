@@ -25,43 +25,46 @@ public class SecurityControllerExceptionHandler {
     @ExceptionHandler(UserNotExistException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseResult handleUserNOtException(UserNotExistException ex) {
-        ResponseResult responseResult = ResponseResult.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
-        responseResult.setData(ex.getId());
-        log.error(ex.getMessage(), ex);
-        return responseResult;
+    public ResponseResult handleUserNotException(UserNotExistException ex) {
+        String message = ex.getMessage();
+        log.error(message, ex);
+        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message, ex.getId());
     }
 
     @ExceptionHandler(ParameterErrorException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseResult parameterErrorException(ParameterErrorException ex) {
-        log.error(ex.getMessage(), ex);
-        return ResponseResult.fail(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        String message = ex.getMessage();
+        log.error(message, ex);
+        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message, ex.getData());
     }
     
     @ExceptionHandler(ValidateCodeException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult validateCodeException(ValidateCodeException ex) {
-        log.error(ex.getMessage(), ex);
-        return ResponseResult.fail(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+        String message = ex.getMessage();
+        log.error(message, ex);
+        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message);
     }
 
     @ExceptionHandler(ValidateCodeParamErrorException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseResult validateCodeParamErrorException(ValidateCodeParamErrorException ex) {
-        log.error(ex.getMessage(), ex);
-        return ResponseResult.fail(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        String message = ex.getMessage();
+        log.error(message, ex);
+        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message, ex.getData());
     }
 
     @ExceptionHandler(ValidateCodeProcessException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseResult validateCodeProcessException(ValidateCodeProcessException ex) {
-        log.error(ex.getMessage(), ex);
-        return ResponseResult.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
+        String message = ex.getMessage();
+        log.error(message, ex);
+        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message);
     }
     @ExceptionHandler(IllegalAccessUrlException.class)
     @ResponseBody
@@ -69,7 +72,7 @@ public class SecurityControllerExceptionHandler {
     public ResponseResult illegalAccessUrlException(IllegalAccessUrlException ex) {
         String errorMsg = ex.getMessage();
         log.error(errorMsg, ex);
-        return ResponseResult.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorMsg);
+        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), errorMsg);
     }
 
 }

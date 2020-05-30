@@ -1,32 +1,33 @@
 package top.dcenter.security.core.api.validate.code;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.social.connect.web.HttpSessionSessionStrategy;
 import org.springframework.social.connect.web.SessionStrategy;
-import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
+import top.dcenter.security.core.enums.ValidateCodeType;
 import top.dcenter.security.core.exception.ValidateCodeException;
+import top.dcenter.security.core.util.RequestUtil;
 import top.dcenter.security.core.validate.code.ValidateCode;
-import top.dcenter.security.core.validate.code.ValidateCodeType;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static top.dcenter.security.core.consts.SecurityConstants.AJAX_JSON;
+import static top.dcenter.security.core.enums.ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE;
+import static top.dcenter.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_ERROR;
+import static top.dcenter.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_EXPIRED;
+import static top.dcenter.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EMPTY;
 
 /**
- * 校验码处理逻辑的默认实现抽象类
+ * 验证码处理逻辑的默认实现抽象类
+ *
  * @author zhailiang
- * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/6 10:14
+ * @medifiedBy zyw
  */
 @Slf4j
 public abstract class AbstractValidateCodeProcessor implements ValidateCodeProcessor {
@@ -38,8 +39,10 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     private final Map<String, ValidateCodeGenerator<?>> validateCodeGenerators;
 
     private final ObjectMapper objectMapper;
+
     /**
-     * 校验码处理逻辑的默认实现抽象类.<br>
+     * 验证码处理逻辑的默认实现抽象类.<br>
+     *
      * @param validateCodeGenerators 子类继承时对此参数不需要操作，在子类注入 IOC 容器时，spring自动注入此参数
      */
     public AbstractValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
@@ -60,8 +63,8 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
     @Override
     public final boolean produce(ServletWebRequest request) throws ValidateCodeException {
-        ValidateCode validateCode;
 
+        ValidateCode validateCode;
         try
         {
             validateCode = generate(request);
@@ -69,44 +72,56 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             boolean validateStatus = sent(request, validateCode);
             if (!validateStatus)
             {
-                this.sessionStrategy.removeAttribute(request, getValidateCodeType(getValidateCodeType()).getSessionKey());
+                this.sessionStrategy.removeAttribute(request, getValidateCodeType().getSessionKey());
                 return false;
             }
         }
         catch (Exception e)
         {
             log.error(e.getMessage(), e);
-            this.sessionStrategy.removeAttribute(request, getValidateCodeType(getValidateCodeType()).getSessionKey());
-            throw new ValidateCodeException(e.getMessage(), e);
+            this.sessionStrategy.removeAttribute(request, getValidateCodeType().getSessionKey());
+            if (e instanceof ValidateCodeException)
+            {
+                throw e;
+            }
+            else
+            {
+                throw new ValidateCodeException(GET_VALIDATE_CODE_FAILURE, e);
+            }
         }
         return true;
     }
 
     @Override
     public final ValidateCode generate(ServletWebRequest request) {
-        try {
-            ValidateCodeGenerator<?> validateCodeGenerator = getValidateCodeGenerator(getValidateCodeType(getValidateCodeType()));
+        try
+        {
+            ValidateCodeGenerator<?> validateCodeGenerator = getValidateCodeGenerator(getValidateCodeType());
             return (ValidateCode) validateCodeGenerator.generate(request.getRequest());
         }
-        catch (ValidateCodeException e) {
-            throw new ValidateCodeException(e.getMessage(), e);
+        catch (ValidateCodeException e)
+        {
+            throw e;
         }
-        catch (Exception e) {
-            throw new ValidateCodeException("获取验证码失败，请重试", e);
+        catch (Exception e)
+        {
+            throw new ValidateCodeException(GET_VALIDATE_CODE_FAILURE, e);
         }
     }
 
     @Override
     public boolean saveSession(ServletWebRequest request, ValidateCode validateCode) {
-        try {
-            ValidateCodeType validateCodeType = getValidateCodeType(getValidateCodeType());
+        try
+        {
+            ValidateCodeType validateCodeType = getValidateCodeType();
             if (validateCodeType == null)
             {
                 return false;
             }
             this.sessionStrategy.setAttribute(request, validateCodeType.getSessionKey(), validateCode);
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             log.warn(e.getMessage(), e);
             return false;
         }
@@ -118,98 +133,71 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
      * 发送失败，必须清除 sessionKey 的缓存，示例代码: <br>
      * <p>&nbsp;&nbsp;&nbsp;&nbsp;sessionStrategy.removeAttribute(request, sessionKey); </p>
      * <p>&nbsp;&nbsp;&nbsp;&nbsp;sessionKey 获取方式：</p>
-     *        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-     *        如果不清楚是哪种类型 sessionKey，用如下方式：</p>
-     *        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-     *        ValidateCodeType validateCodeType = getValidateCodeType();</p>
-     *        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-     *        String sessionKey = validateCodeType.getSessionKey();</p>
-     * @param request   ServletWebRequest
-     * @param validateCode  校验码对象
-     * @return  是否发送成功的状态
+     * <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     * 如果不清楚是哪种类型 sessionKey，用如下方式：</p>
+     * <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     * ValidateCodeType validateCodeType = getValidateCodeType();</p>
+     * <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     * String sessionKey = validateCodeType.getSessionKey();</p>
+     *
+     * @param request      ServletWebRequest
+     * @param validateCode 验证码对象
+     * @return 是否发送成功的状态
      */
     @Override
     public abstract boolean sent(ServletWebRequest request, ValidateCode validateCode);
 
     @Override
-    public void validate(ServletWebRequest request) throws ServletRequestBindingException, ValidateCodeException {
-        ValidateCodeType validateCodeType = getValidateCodeType(getValidateCodeType());
+    public void validate(ServletWebRequest request) throws ValidateCodeException {
+        ValidateCodeType validateCodeType = getValidateCodeType();
         String sessionKey = validateCodeType.getSessionKey();
 
         String requestParamValidateCodeName = getValidateCodeGenerator(validateCodeType).getRequestParamValidateCodeName();
 
-        HttpServletRequest servletRequest = request.getRequest();
         ValidateCode codeInSession = (ValidateCode) this.sessionStrategy.getAttribute(request, sessionKey);
-        String codeInRequest = ServletRequestUtils.getStringParameter(servletRequest, requestParamValidateCodeName);
-        String json = request.getHeader(AJAX_JSON);
-        if (!StringUtils.isNotBlank(codeInRequest) && AJAX_JSON.equalsIgnoreCase(json))
-        {
-            Map<String, String[]> parameterMap = request.getParameterMap();
-            try
-            {
-                Map<String, Object> map = this.objectMapper.readValue(parameterMap.keySet().iterator().next(), Map.class);
-                codeInRequest = (String) map.get(getValidateCodeGenerator(validateCodeType).getRequestParamValidateCodeName());
-                if (!StringUtils.isNotBlank(codeInRequest))
-                {
-                    throw new ValidateCodeException("验证码的值不能为空");
-                }
-            }
-            catch (JsonProcessingException e)
-            {
-                throw new ValidateCodeException("验证码的值不能为空");
-            }
+        String codeInRequest = RequestUtil.extractRequestDataWithParamName(request, this.objectMapper, requestParamValidateCodeName);
 
+        if (!StringUtils.isNotBlank(codeInRequest))
+        {
+            throw new ValidateCodeException(VALIDATE_CODE_NOT_EMPTY);
         }
 
         if (codeInSession == null)
         {
-            throw new ValidateCodeException("验证码已失效, 请刷新");
+            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED);
         }
 
         if (codeInSession.isExpired())
         {
             sessionStrategy.removeAttribute(request, sessionKey);
-            throw new ValidateCodeException("验证码已过期");
+            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED);
         }
 
         if (!StringUtils.equalsIgnoreCase(codeInSession.getCode(), codeInRequest))
         {
-            throw new ValidateCodeException("验证码不匹配");
+            throw new ValidateCodeException(VALIDATE_CODE_ERROR);
         }
         sessionStrategy.removeAttribute(request, sessionKey);
 
     }
 
-    /**
-     * 获取校验码的类型,
-     * 如果不存在，返回 null
-     * @return  如果不存在，返回 null
-     */
-    protected ValidateCodeType getValidateCodeType(String type) {
-        if (StringUtils.isNotBlank(type))
-        {
-            try {
-                return ValidateCodeType.valueOf(type.toUpperCase());
-            }
-            catch (IllegalArgumentException e) { }
-        }
-        return null;
-    }
+
 
     /**
-     * 获取校验码类型
-     * @return  ValidateCodeType 的小写字符串
+     * 获取验证码类型
+     * @return {@link ValidateCodeType}
      */
     @Override
-    public abstract String getValidateCodeType();
+    public abstract ValidateCodeType getValidateCodeType();
 
     /**
-     * 获取校验码生成器
-     * @param type  验证码类型
-     * @return  验证码生成器
+     * 获取验证码生成器
+     * @param type 验证码类型
+     * @return 验证码生成器
      */
-    private ValidateCodeGenerator<?> getValidateCodeGenerator(ValidateCodeType type) {
-        try {
+    private ValidateCodeGenerator<?> getValidateCodeGenerator(ValidateCodeType type) throws ValidateCodeException {
+        try
+        {
             if (validateCodeGenerators != null)
             {
                 ValidateCodeGenerator<?> validateCodeGenerator = validateCodeGenerators.get(type.name().toLowerCase());
@@ -218,11 +206,11 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
                     return validateCodeGenerator;
                 }
             }
-            throw new  ValidateCodeException("校验码生成失败");
         }
-        catch (Exception e) {
-            throw new ValidateCodeException("校验码类型错误", e);
+        catch (Exception e)
+        {
         }
+        throw new ValidateCodeException(GET_VALIDATE_CODE_FAILURE);
     }
 
 }

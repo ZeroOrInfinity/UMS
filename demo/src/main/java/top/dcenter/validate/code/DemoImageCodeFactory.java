@@ -13,7 +13,7 @@ import javax.servlet.ServletRequest;
 import java.awt.image.BufferedImage;
 
 /**
- * 图片校验码工厂，
+ * 图片验证码工厂，
  * @author zyw
  * @version V1.0  Created by 2020/5/22 11:23
  */

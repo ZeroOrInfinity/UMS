@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.servlet.view.RedirectView;
 import top.dcenter.security.core.exception.ParameterErrorException;
-import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.api.callback.RedirectUrlHelper;
+import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.vo.SocialUserInfo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +22,9 @@ import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_C
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_IDENTIFIER;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_STATE;
+import static top.dcenter.security.core.enums.ErrorCodeEnum.REDIRECT_URL_PARAMETER_ERROR;
+import static top.dcenter.security.core.enums.ErrorCodeEnum.REDIRECT_URL_PARAMETER_ILLEGAL;
+import static top.dcenter.security.core.enums.ErrorCodeEnum.TAMPER_WITH_REDIRECT_URL_PARAMETER;
 
 /**
  * social 第三方登录控制器
@@ -46,8 +49,8 @@ public class SocialController {
 
     /**
      * 当前用户的信息
-     * @param request
-     * @return
+     * @param request {@link HttpServletRequest}
+     * @return  {@link SocialUserInfo}
      */
     @GetMapping("/social/user/info")
     @ConditionalOnProperty(prefix = "security.social", name = "social-user-info", havingValue = "/social/user/info")
@@ -68,8 +71,8 @@ public class SocialController {
 
     /**
      * 统一回调地址路由入口
-     * @param request
-     * @return
+     * @param request   {@link HttpServletRequest}
+     * @return {@link RedirectView}
      */
     @GetMapping("/auth/callback")
     @ConditionalOnProperty(prefix = "security.social", name = "filter-processes-url", havingValue = "/auth/callback")
@@ -88,9 +91,9 @@ public class SocialController {
                 if (redirectUrl.matches(RFC_6819_CHECK_REGEX))
                 {
                     log.error("非法的回调地址: {}", redirectUrl);
-                    throw new ParameterErrorException(String.format("非法的回调地址: %s", redirectUrl));
+                    throw new ParameterErrorException(REDIRECT_URL_PARAMETER_ILLEGAL, redirectUrl);
                 }
-                if (redirectUrl != null && StringUtils.isNotBlank(redirectUrl))
+                if (StringUtils.isNotBlank(redirectUrl))
                 {
                     // 重新组装 url 参数
                     redirectUrl = String.format("%s%s%s%s%s%s%s%s%s",
@@ -106,12 +109,12 @@ public class SocialController {
                     return new RedirectView(redirectUrl, true);
                 }
                 log.warn("回调地址不正确: {}", redirectUrl);
-                throw new ParameterErrorException(String.format("回调地址不正确: %s", redirectUrl));
+                throw new ParameterErrorException(REDIRECT_URL_PARAMETER_ERROR, redirectUrl);
             }
 
         }
         log.warn("回调参数 {} 被篡改", state);
-        throw new ParameterErrorException(String.format("回调参数 {} 被篡改", state));
+        throw new ParameterErrorException(TAMPER_WITH_REDIRECT_URL_PARAMETER, state);
 
     }
 
