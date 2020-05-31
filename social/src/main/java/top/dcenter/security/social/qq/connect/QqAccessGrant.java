@@ -1,7 +1,6 @@
 package top.dcenter.security.social.qq.connect;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.social.oauth2.AccessGrant;
 
 /**
@@ -9,7 +8,6 @@ import org.springframework.social.oauth2.AccessGrant;
  * @version V1.0  Created by 2020/5/19 1:45
  */
 @Getter
-@Setter
 public class QqAccessGrant extends AccessGrant {
     private Long expiresIn;
 

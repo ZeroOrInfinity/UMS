@@ -18,13 +18,13 @@ import java.util.Set;
  */
 @Configuration
 @ConditionalOnProperty(prefix = "security.smsCodeLogin", name = "sms-code-login-is-open", havingValue = "true")
-@AutoConfigureAfter({SmsCodeAuthenticationConfig.class, ValidateCodeBeanConfiguration.class})
+@AutoConfigureAfter({SmsCodeLoginAuthenticationConfig.class, ValidateCodeBeanConfiguration.class})
 @Slf4j
-public class SmsCodeAuthenticationConfigurerAware implements SocialWebSecurityConfigurerAware {
+public class SmsCodeLoginAuthenticationConfigurerAware implements SocialWebSecurityConfigurerAware {
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
-    private SmsCodeAuthenticationConfig smsCodeAuthenticationConfig;
+    private SmsCodeLoginAuthenticationConfig smsCodeLoginAuthenticationConfig;
 
     @Override
     public void postConfigure(HttpSecurity http) throws Exception {
@@ -34,9 +34,9 @@ public class SmsCodeAuthenticationConfigurerAware implements SocialWebSecurityCo
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
         // 短信验证码登录配置
-        if (smsCodeAuthenticationConfig != null)
+        if (smsCodeLoginAuthenticationConfig != null)
         {
-            http.apply(smsCodeAuthenticationConfig);
+            http.apply(smsCodeLoginAuthenticationConfig);
         }
     }
 

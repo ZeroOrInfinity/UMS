@@ -119,7 +119,6 @@ public class ConvertUtil {
         {
             return;
         }
-        int length = splits.length;
 
         for (String split : splits)
         {

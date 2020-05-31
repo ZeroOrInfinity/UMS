@@ -33,28 +33,36 @@ UsernamePasswordAuthenticationFilter --> UsernamePasswordAuthenticationFilter: 1
 activate UsernamePasswordAuthenticationFilter
 UsernamePasswordAuthenticationFilter -> AuthenticationManager: 1.4.2.1.2\n authenticate(token)
 
-AuthenticationManager -> DaoAuthenticationProvider: 1.4.2.1.2.1\n getProvider
-activate DaoAuthenticationProvider
-DaoAuthenticationProvider --> DaoAuthenticationProvider: 1.4.2.1.2.2\n authenticate(token)
-DaoAuthenticationProvider --> DaoAuthenticationProvider: 1.4.2.1.2.2.1\n retrieveUser()
-activate DaoAuthenticationProvider
-deactivate DaoAuthenticationProvider
+AuthenticationManager -> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.1\n getProvider
+activate UsernamePasswordAuthenticationProvider
+UsernamePasswordAuthenticationProvider --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2\n authenticate(token)
+UsernamePasswordAuthenticationProvider --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2.1\n retrieveUser()
+activate UsernamePasswordAuthenticationProvider
+deactivate UsernamePasswordAuthenticationProvider
 participant AbstractUserDetailsService #ff9800
-DaoAuthenticationProvider -> AbstractUserDetailsService: 1.4.2.1.2.2.1.1\n getUserDetailsService()
+UsernamePasswordAuthenticationProvider -> AbstractUserDetailsService: 1.4.2.1.2.2.1.1\n getUserDetailsService()
 AbstractUserDetailsService --> AbstractUserDetailsService: 1.4.2.1.2.2.1.2\n loadUserByUsername(username)
 activate AbstractUserDetailsService
-AbstractUserDetailsService --> DaoAuthenticationProvider: 1.4.2.1.2.2.1.2\n 校验成功，返回 user
-DaoAuthenticationProvider --> AuthenticationManager: 1.4.2.1.2.2\n 校验成功，返回 Authentication
+AbstractUserDetailsService --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2.1.2\n 校验成功，返回 user
+UsernamePasswordAuthenticationProvider --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2.1.3\n createSuccessAuthentication\n\
+(principalToReturn, authentication, user)
+activate UsernamePasswordAuthenticationProvider
+participant UserDetailsPasswordService #ff9800
+UsernamePasswordAuthenticationProvider -> UserDetailsPasswordService: 1.4.2.1.2.2.1.3.1\n 如果有实现UserDetailsPasswordService\n updatePassword(user, newPassword)
+UserDetailsPasswordService --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2.1.3.2\n 返回更新密码后的 user
+deactivate UsernamePasswordAuthenticationProvider
+
+UsernamePasswordAuthenticationProvider --> AuthenticationManager: 1.4.2.1.2.3\n 校验成功，返回 Authentication
 
 AuthenticationManager --> UsernamePasswordAuthenticationFilter: 1.4.2.1.3 校验成功，\n返回 Authentication
 UsernamePasswordAuthenticationFilter --> ValidateCodeFilter: 1.4.3 校验成功，\n返回 Authentication
 
 ValidateCodeFilter --> browser: 1.4.4.1 返回 RedirectUrl\n 或 DefaultSuccessUrl
 else 校验失败
-AbstractUserDetailsService --> DaoAuthenticationProvider: 1.4.2.1.2.2.1.3\n 校验失败，抛出异常
+AbstractUserDetailsService --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2.1.3\n 校验失败，抛出异常
 deactivate AbstractUserDetailsService
-DaoAuthenticationProvider --> AuthenticationManager: 1.4.2.1.2.2\n 校验失败，抛出异常
-deactivate DaoAuthenticationProvider
+UsernamePasswordAuthenticationProvider --> AuthenticationManager: 1.4.2.1.2.3\n 校验失败，抛出异常
+deactivate UsernamePasswordAuthenticationProvider
 AuthenticationManager --> UsernamePasswordAuthenticationFilter: 1.4.2.1.3\n 校验失败，抛出异常
 UsernamePasswordAuthenticationFilter --> ValidateCodeFilter: 1.4.3\n 校验失败，抛出异常
 deactivate UsernamePasswordAuthenticationFilter
@@ -71,5 +79,6 @@ note over AbstractValidateCodeProcessor: 可以根据\n自己的需求自定义
 note over BrowserAuthenticationFailureHandler: 可以根据\n自己的需求自定义\n另外还有个成功处理器\nBrowserAuthenticationSuccessHandler\n可根据需求实现
 note over AbstractUserDetailsService: 可以根据\n自己的需求自定义
 note over AbstractUserDetailsService: 此Service实现了\nRegisterUserDetailsService\n带有注册服务
+note over UserDetailsPasswordService: 如果要对前端传过来的密码进行解密,\n则请实现 UserDetailsPasswordService
 
 @enduml

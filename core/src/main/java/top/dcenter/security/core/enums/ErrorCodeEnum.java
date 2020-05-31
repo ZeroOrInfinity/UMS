@@ -1,7 +1,6 @@
 package top.dcenter.security.core.enums;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import static top.dcenter.security.core.consts.SecurityConstants.INTERNAL_SERVER_ERROR_MSG;
 
@@ -56,13 +55,11 @@ public enum ErrorCodeEnum {
      * 错误代码
      */
     @Getter
-    @Setter
     private Integer code;
     /**
      * 错误消息
      */
     @Getter
-    @Setter
     private String msg;
 
     ErrorCodeEnum(int code, String msg) {

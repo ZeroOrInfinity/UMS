@@ -17,13 +17,16 @@
         <button type="submit" value="">微信绑定</button>
     </form>
     <h3>社交登录解绑</h3>
-    <form action="/connect/gitee" method="delete">
+    <form action="/connect/gitee" method="post">
+        <input type="hidden" name="method" value="DELETE">
         <button type="submit" value="">码云解绑</button>
     </form>
-    <form action="/connect/qq" method="delete">
+    <form action="/connect/qq" method="post">
+        <input type="hidden" name="method" value="DELETE">
         <button type="submit" value="">QQ 解 绑</button>
     </form>
-    <form action="/connect/weixin" method="delete">
+    <form action="/connect/weixin" method="post">
+        <input type="hidden" name="method" value="DELETE">
         <button type="submit" value="">微信解绑</button>
     </form>
 </body>

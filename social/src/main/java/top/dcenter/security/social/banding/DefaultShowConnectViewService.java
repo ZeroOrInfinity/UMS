@@ -43,7 +43,7 @@ public class DefaultShowConnectViewService implements ShowConnectViewService {
         List<Connection<?>> connections = (List<Connection<?>>) model.get(this.socialProperties.getBandingProviderConnectionListName());
 
         List<SocialUserInfo> userInfoList = null;
-        if (!connections.isEmpty()) {
+        if (connections != null && !connections.isEmpty()) {
             userInfoList = connections.stream()
                             .map(Connection::createData)
                             .map((connectionData) -> new SocialUserInfo(connectionData.getProviderId(),

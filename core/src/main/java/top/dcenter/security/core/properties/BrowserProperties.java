@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import top.dcenter.security.core.enums.LoginPostProcessType;
 
 import java.time.Duration;
@@ -41,10 +42,10 @@ public class BrowserProperties {
     public static final String QUERY_REMEMBER_ME_TABLE_EXIST_SQL = "SELECT COUNT(1) FROM information_schema.tables WHERE table_schema='sso-demo' AND table_name = 'persistent_logins'";
 
     /**
-     * 设置记住我功能的 session 的缓存时长，默认 7 天. If a duration suffix is not specified, seconds will be used.
+     * 设置记住我功能的 session 的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
      */
     @DurationUnit(ChronoUnit.SECONDS)
-    private Duration rememberMeTimeout = Duration.parse("P7D");
+    private Duration rememberMeTimeout = Duration.parse("P14D");
 
     /**
      * 设置记住我功能的 CookieName，默认 remember-me
@@ -70,6 +71,22 @@ public class BrowserProperties {
      * 如要此选项生效，sessionNumberSetting 必须为 false
      */
     private Boolean maxSessionsPreventsLogin = false;
+    /**
+     * If set to true,
+     * allows HTTP sessions to be rewritten in the URLs when using HttpServletResponse.encodeRedirectURL(String)
+     * or HttpServletResponse.encodeURL(String), otherwise disallows HTTP sessions to be included in the URL. This prevents leaking information to external domains. 默认为 false。
+     */
+    private Boolean enableSessionUrlRewriting = false;
+    /**
+     * Whether the cookie should be flagged as secure or not. Secure cookies can only be sent over an HTTPS connection and thus cannot be accidentally submitted over HTTP where they could be intercepted.
+     * By default the cookie will be secure if the request is secure. If you only want to use remember-me over HTTPS (recommended) you should set this property to true. 默认为 false。
+     */
+    private Boolean useSecureCookie = false;
+    /**
+     * Specifies the various session creation policies for Spring Security. 默认为 {@link SessionCreationPolicy.ALWAYS}。
+     */
+    @SuppressWarnings("JavadocReference")
+    private SessionCreationPolicy sessionCreationPolicy = SessionCreationPolicy.ALWAYS;
 
 
 

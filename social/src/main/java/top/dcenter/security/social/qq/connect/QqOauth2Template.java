@@ -52,18 +52,21 @@ public class QqOauth2Template extends OAuth2Template {
     @Override
     protected QqAccessGrant postForAccessGrant(String accessTokenUrl, MultiValueMap<String, String> parameters) {
         Map<String, String> responseMap = extractAccessGrantMap(getRestTemplate().postForObject(accessTokenUrl, parameters, String.class));
-        String responseStr = getRestTemplate().postForObject(accessTokenUrl, parameters, String.class);
-        String expiresInStr = responseMap.get(Qq.EXPIRES_IN);
         Long expiresIn = null;
-        if (!StringUtils.isEmpty(expiresInStr))
+        if (!StringUtils.isEmpty(responseMap.get(Qq.EXPIRES_IN)))
         {
-            expiresIn = Long.valueOf(expiresInStr);
+            expiresIn = Long.valueOf(responseMap.get(Qq.EXPIRES_IN));
         }
 
         return new QqAccessGrant(responseMap.get(Qq.ACCESS_TOKEN), responseMap.get(Qq.SCOPE),
                                  responseMap.get(Qq.REFRESH_TOKEN), expiresIn);
     }
 
+    /**
+     * 根据 responseResult 返回 Map.
+     * @param responseResult 格式化字符串, 例如: name=tom,age=18
+     * @return  当 responseResult 无效或内部出现异常直接返回空的 {@link Map} 实列
+     */
     private Map<String, String> extractAccessGrantMap(String responseResult) {
         return ConvertUtil.string2Map(responseResult, URL_PARAMETER_SEPARATOR, KEY_VALUE_SEPARATOR);
     }

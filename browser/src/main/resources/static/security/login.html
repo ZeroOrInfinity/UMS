@@ -8,6 +8,7 @@
 <body>
 <h2>登录页面</h2>
 <h3>表单登录</h3>
+<h5>如果短信验证码与图片验证码同时配置时，优先使用短信验证码，图片验证码失效</h5>
 <form action="/authentication/form" method="post">
     <table>
         <tr>
@@ -24,9 +25,6 @@
                 <input type="text" name="imageCode">
                 <img class=".img" src="/code/image" style="width: 67px; height: 23px">
             </td>
-        </tr>
-        <tr>
-            <td colspan="2">如果短信验证码与图片验证码同时配置时，优先使用短信验证码，图片验证码失效</td>
         </tr>
         <tr>
             <td>手机号码：</td>

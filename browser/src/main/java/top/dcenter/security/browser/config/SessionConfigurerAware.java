@@ -1,9 +1,9 @@
 package top.dcenter.security.browser.config;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
 import top.dcenter.security.core.config.SecurityConfiguration;
 import top.dcenter.security.core.properties.BrowserProperties;
@@ -17,14 +17,17 @@ import java.util.Set;
  * @version V1.0  Created by 2020/5/28 14:06
  */
 @Configuration
-@ConditionalOnClass(name = {"org.springframework.session.Session.class"})
-@AutoConfigureAfter({SecurityConfiguration.class})
+@AutoConfigureAfter(value = {SecuritySessionConfiguration.class, SecurityConfiguration.class})
 public class SessionConfigurerAware implements SocialWebSecurityConfigurerAware {
 
     private final BrowserProperties browserProperties;
+    private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
 
-    public SessionConfigurerAware(BrowserProperties browserProperties) {
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    public SessionConfigurerAware(BrowserProperties browserProperties,
+                                  BaseAuthenticationFailureHandler baseAuthenticationFailureHandler) {
         this.browserProperties = browserProperties;
+        this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
     }
 
     @Override
@@ -34,17 +37,22 @@ public class SessionConfigurerAware implements SocialWebSecurityConfigurerAware 
 
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
+        http.sessionManagement()
+                .sessionCreationPolicy(this.browserProperties.getSessionCreationPolicy())
+                .sessionAuthenticationFailureHandler(this.baseAuthenticationFailureHandler)
+                .sessionAuthenticationErrorUrl(this.browserProperties.getLoginPage())
+                .enableSessionUrlRewriting(this.browserProperties.getEnableSessionUrlRewriting());
+
         // 配置 session 策略
-        if (browserProperties.getSessionNumberSetting())
+        if (this.browserProperties.getSessionNumberSetting())
         {
             // TODO Session 各种 Strategy 未配置
             http.sessionManagement()
-                .sessionAuthenticationErrorUrl(browserProperties.getLoginPage())
                 // 当设置为 1 时，同个用户登录会自动踢掉上一次的登录状态。
-                .maximumSessions(browserProperties.getMaximumSessions())
+                .maximumSessions(this.browserProperties.getMaximumSessions())
                 // 同个用户达到最大 maximumSession 后，自动拒绝用户在登录
-                .maxSessionsPreventsLogin(browserProperties.getMaxSessionsPreventsLogin())
-                .expiredUrl(browserProperties.getLoginPage());
+                .maxSessionsPreventsLogin(this.browserProperties.getMaxSessionsPreventsLogin())
+                .expiredUrl(this.browserProperties.getLoginPage());
         }
     }
 

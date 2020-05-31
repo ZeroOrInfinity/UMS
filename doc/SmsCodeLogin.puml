@@ -16,7 +16,7 @@ AbstractValidateCodeProcessor --> AbstractValidateCodeProcessor: 1.3.1 从 sessi
 AbstractValidateCodeProcessor --> AbstractValidateCodeProcessor: 1.3.2 从 request 获取验证码
 opt 校验成功
 AbstractValidateCodeProcessor --> ValidateCodeFilter: 1.3.3 校验成功，\n删除 session中的验证码
-ValidateCodeFilter -> SmsCodeAuthenticationFilter: 1.4 校验成功.\n doFilter()
+ValidateCodeFilter -> SmsCodeLoginAuthenticationFilter: 1.4 校验成功.\n doFilter()
 else 校验失败
 AbstractValidateCodeProcessor --> ValidateCodeFilter: 1.3.3 校验失败，\n抛出 ValidateCodeException
 deactivate AbstractValidateCodeProcessor
@@ -25,12 +25,12 @@ ValidateCodeFilter -> BrowserAuthenticationFailureHandler: 1.4 校验失败，\n
 BrowserAuthenticationFailureHandler --> browser: 1.4.1 onAuthenticationFailure()\n根据设置的 LoginType \n返回 JSON 或者 HTML 格式
 end
 deactivate ValidateCodeFilter
-activate SmsCodeAuthenticationFilter
-SmsCodeAuthenticationFilter --> SmsCodeAuthenticationFilter: 1.4.2.1 attemptAuthentication()
-SmsCodeAuthenticationFilter --> SmsCodeAuthenticationFilter: 1.4.2.1.1 SmsCodeAuthenticationToken()
+activate SmsCodeLoginAuthenticationFilter
+SmsCodeLoginAuthenticationFilter --> SmsCodeLoginAuthenticationFilter: 1.4.2.1 attemptAuthentication()
+SmsCodeLoginAuthenticationFilter --> SmsCodeLoginAuthenticationFilter: 1.4.2.1.1 SmsCodeLoginAuthenticationToken()
 activate RememberMeAuthenticationFilter
-SmsCodeAuthenticationFilter -> RememberMeAuthenticationFilter: 1.4.2.1.2 authenticate(token)
-deactivate SmsCodeAuthenticationFilter
+SmsCodeLoginAuthenticationFilter -> RememberMeAuthenticationFilter: 1.4.2.1.2 authenticate(token)
+deactivate SmsCodeLoginAuthenticationFilter
 activate RememberMeAuthenticationFilter
 RememberMeAuthenticationFilter -> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.1\n autoLogin(request,response)
 activate PersistentTokenBasedRememberMeServices
@@ -39,10 +39,14 @@ participant UserTokenRepositoryFactory #ff9800
 activate PersistentTokenBasedRememberMeServices
 UserTokenRepositoryFactory -> JdbcTokenRepositoryImpl: api 占位\n getUserTokenRepositoryFactory()
 PersistentTokenBasedRememberMeServices -> JdbcTokenRepositoryImpl: 1.4.2.1.2.0.4\n getTokenForSeries\n(presentedSeries)
+activate JdbcTokenRepositoryImpl
 JdbcTokenRepositoryImpl --> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.5\n 返回 token
+deactivate JdbcTokenRepositoryImpl
 alt token == null
 PersistentTokenBasedRememberMeServices -> JdbcTokenRepositoryImpl: 1.4.2.1.2.0.6\n removeUserTokens(token.getUsername())
+activate JdbcTokenRepositoryImpl
 JdbcTokenRepositoryImpl --> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.7\n 返回
+deactivate JdbcTokenRepositoryImpl
 PersistentTokenBasedRememberMeServices -> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.8\n 抛出异常
 PersistentTokenBasedRememberMeServices -> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.9\n cancelCookie\n(request, response)
 PersistentTokenBasedRememberMeServices --> RememberMeAuthenticationFilter: 1.4.2.1.2.0.10\n 返回 null
@@ -51,7 +55,9 @@ RememberMeAuthenticationFilter --> ProviderManager: 1.4.2.1.2.0.11\n doFilter(re
 activate ProviderManager
 else token != null
 PersistentTokenBasedRememberMeServices -> JdbcTokenRepositoryImpl: 1.4.2.1.2.0.6\n updateToken()
+activate JdbcTokenRepositoryImpl
 JdbcTokenRepositoryImpl --> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.7\n 返回
+deactivate JdbcTokenRepositoryImpl
 PersistentTokenBasedRememberMeServices -> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.8\n addCookie(newToken, \n request, response)
 participant AbstractUserDetailsService #ff9800
 PersistentTokenBasedRememberMeServices -> AbstractUserDetailsService: 1.4.2.1.2.0.9\n loadUserByUsername(..)
@@ -62,21 +68,20 @@ end
 deactivate PersistentTokenBasedRememberMeServices
 RememberMeAuthenticationFilter --> ProviderManager: 1.4.2.1.2.0.11\n authenticate(rememberMeAuth)
 
-
-ProviderManager -> SmsCodeAuthenticationProvider: 1.4.2.1.2.1\n getProvider
+ProviderManager -> SmsCodeLoginAuthenticationProvider: 1.4.2.1.2.1\n getProvider
 deactivate RememberMeAuthenticationFilter
-activate SmsCodeAuthenticationProvider
-SmsCodeAuthenticationProvider --> SmsCodeAuthenticationProvider: 1.4.2.1.2.2\n authenticate(token)
-activate SmsCodeAuthenticationProvider
+activate SmsCodeLoginAuthenticationProvider
+SmsCodeLoginAuthenticationProvider --> SmsCodeLoginAuthenticationProvider: 1.4.2.1.2.2\n authenticate(token)
+activate SmsCodeLoginAuthenticationProvider
 alt 登录成功，未注册则自动注册
 
-SmsCodeAuthenticationProvider -> SmsCodeAuthenticationProvider: 1.4.2.1.2.2.0\n isAuthenticated()
+SmsCodeLoginAuthenticationProvider -> SmsCodeLoginAuthenticationProvider: 1.4.2.1.2.2.0\n isAuthenticated()
 alt 已授权(如：RememberMe通过)
-SmsCodeAuthenticationProvider --> ProviderManager: 1.4.2.1.2.2\n 校验成功，\n返回 Authentication
+SmsCodeLoginAuthenticationProvider --> ProviderManager: 1.4.2.1.2.2\n 校验成功，\n返回 Authentication
 else 未授权
-SmsCodeAuthenticationProvider -> SmsCodeAuthenticationProvider: 1.4.2.1.2.2.0.1\n 校验失败
+SmsCodeLoginAuthenticationProvider -> SmsCodeLoginAuthenticationProvider: 1.4.2.1.2.2.0.1\n 校验失败
 end
-SmsCodeAuthenticationProvider -> AbstractUserDetailsService: 1.4.2.1.2.2.1\n getUserDetailsService()
+SmsCodeLoginAuthenticationProvider -> AbstractUserDetailsService: 1.4.2.1.2.2.1\n getUserDetailsService()
 
 activate AbstractUserDetailsService
 AbstractUserDetailsService --> AbstractUserDetailsService: 1.4.2.1.2.2.1.1\n loadUserByUsername\n(username)
@@ -86,26 +91,26 @@ else user为注册，自动注册
 AbstractUserDetailsService --> AbstractUserDetailsService: 1.4.2.1.2.2.1.2\n 如果返回 null, 用户未注册
 AbstractUserDetailsService --> AbstractUserDetailsService: 1.4.2.1.2.2.1.3\n registerUser()，自动注册
 end
-AbstractUserDetailsService --> SmsCodeAuthenticationProvider: 1.4.2.1.2.2.1\n 如果返回 user 或\n 自动注册后返回 user
-SmsCodeAuthenticationProvider --> ProviderManager: 1.4.2.1.2.2\n 校验成功，\n返回 Authentication
+AbstractUserDetailsService --> SmsCodeLoginAuthenticationProvider: 1.4.2.1.2.2.1\n 如果返回 user 或\n 自动注册后返回 user
+SmsCodeLoginAuthenticationProvider --> ProviderManager: 1.4.2.1.2.2\n 校验成功，\n返回 Authentication
 ProviderManager --> RememberMeAuthenticationFilter: 1.4.2.1.2.2.1\n 校验成功，\n返回 Authentication
-RememberMeAuthenticationFilter --> SmsCodeAuthenticationFilter: 1.4.2.1.3\n 校验成功，\n返回 Authentication
-SmsCodeAuthenticationFilter --> AbstractValidateCodeProcessor: 1.4.2.1\n 校验成功，\n返回 Authentication
+RememberMeAuthenticationFilter --> SmsCodeLoginAuthenticationFilter: 1.4.2.1.3\n 校验成功，\n返回 Authentication
+SmsCodeLoginAuthenticationFilter --> AbstractValidateCodeProcessor: 1.4.2.1\n 校验成功，\n返回 Authentication
 AbstractValidateCodeProcessor --> ValidateCodeFilter: 1.4.3 校验成功，\n返回 Authentication
 ValidateCodeFilter --> browser: 1.4.4.1 返回 RedirectUrl \n或 DefaultSuccessUrl
 
 else 登录失败
-AbstractUserDetailsService --> SmsCodeAuthenticationProvider: 1.4.2.1.2.2.1\n 抛出异常
+AbstractUserDetailsService --> SmsCodeLoginAuthenticationProvider: 1.4.2.1.2.2.1\n 抛出异常
 deactivate AbstractUserDetailsService
-deactivate SmsCodeAuthenticationProvider
-SmsCodeAuthenticationProvider --> ProviderManager: 1.4.2.1.2.2\n 校验失败，抛出异常
-deactivate SmsCodeAuthenticationProvider
+deactivate SmsCodeLoginAuthenticationProvider
+SmsCodeLoginAuthenticationProvider --> ProviderManager: 1.4.2.1.2.2\n 校验失败，抛出异常
+deactivate SmsCodeLoginAuthenticationProvider
 
 ProviderManager --> RememberMeAuthenticationFilter: 1.4.2.1.2.2.1\n 校验失败，抛出异常
-RememberMeAuthenticationFilter --> SmsCodeAuthenticationFilter: 1.4.2.1.3\n 校验失败，抛出异常
+RememberMeAuthenticationFilter --> SmsCodeLoginAuthenticationFilter: 1.4.2.1.3\n 校验失败，抛出异常
 deactivate ProviderManager
 deactivate RememberMeAuthenticationFilter
-SmsCodeAuthenticationFilter --> ValidateCodeFilter: 1.4.3\n 校验失败，抛出异常
+SmsCodeLoginAuthenticationFilter --> ValidateCodeFilter: 1.4.3\n 校验失败，抛出异常
 ValidateCodeFilter -> BrowserAuthenticationFailureHandler: 1.4.4 转交\nBrowserAuthenticationFailureHandler\n处理
 deactivate ValidateCodeFilter
 BrowserAuthenticationFailureHandler --> browser: 1.4.4.2\n 返回 login.html

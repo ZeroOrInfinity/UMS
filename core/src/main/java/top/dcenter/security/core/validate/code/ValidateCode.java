@@ -1,6 +1,8 @@
 package top.dcenter.security.core.validate.code;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -10,7 +12,9 @@ import java.time.LocalDateTime;
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/3 23:38
  */
-@Data
+@Getter
+@Setter
+@ToString
 public class ValidateCode {
     private String code;
     private LocalDateTime expireTime;

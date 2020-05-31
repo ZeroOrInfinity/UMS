@@ -12,11 +12,11 @@ import top.dcenter.security.core.api.service.AbstractUserDetailsService;
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/7 22:51
  */
-public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
+public class SmsCodeLoginAuthenticationProvider implements AuthenticationProvider {
 
     private AbstractUserDetailsService userDetailsService;
 
-    public SmsCodeAuthenticationProvider(AbstractUserDetailsService userDetailsService) {
+    public SmsCodeLoginAuthenticationProvider(AbstractUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
@@ -25,7 +25,7 @@ public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
         if (!supports(authentication.getClass())) {
             return null;
         }
-        SmsCodeAuthenticationToken authenticationToken = (SmsCodeAuthenticationToken) authentication;
+        SmsCodeLoginAuthenticationToken authenticationToken = (SmsCodeLoginAuthenticationToken) authentication;
 
         if (authentication.isAuthenticated())
         {
@@ -38,14 +38,14 @@ public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
             user = this.userDetailsService.registerUser((String) authenticationToken.getPrincipal());
 
         }
-        SmsCodeAuthenticationToken authenticationResult = new SmsCodeAuthenticationToken(user, user.getAuthorities());
+        SmsCodeLoginAuthenticationToken authenticationResult = new SmsCodeLoginAuthenticationToken(user, user.getAuthorities());
         authenticationResult.setDetails(authenticationToken.getDetails());
         return authenticationResult;
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return SmsCodeAuthenticationToken.class.isAssignableFrom(authentication);
+        return SmsCodeLoginAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
 }

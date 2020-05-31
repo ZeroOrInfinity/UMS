@@ -4,14 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
 import top.dcenter.security.core.api.service.AbstractUserDetailsService;
+import top.dcenter.security.core.config.SecurityConfiguration;
 import top.dcenter.security.core.properties.BrowserProperties;
 
 import javax.sql.DataSource;
@@ -30,19 +30,23 @@ import static top.dcenter.security.core.consts.SecurityConstants.QUERY_TABLE_EXI
  * @version V1.0  Created by 2020/5/28 14:06
  */
 @Configuration
-@ConditionalOnMissingClass({"org.springframework.session.Session"})
-@AutoConfigureAfter({BrowserSecurityConfiguration.class})
+@AutoConfigureAfter({SecurityRememberMeConfiguration.class, SecurityConfiguration.class})
 @Slf4j
 public class RememberMeConfigurerAware implements SocialWebSecurityConfigurerAware, InitializingBean {
 
     private final BrowserProperties browserProperties;
-    private final AbstractUserDetailsService userDetailsService;
     private final PersistentTokenRepository persistentTokenRepository;
+    private final AbstractUserDetailsService abstractUserDetailsService;
+    private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
 
-    public RememberMeConfigurerAware(BrowserProperties browserProperties, AbstractUserDetailsService userDetailsService, PersistentTokenRepository persistentTokenRepository) {
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    public RememberMeConfigurerAware(BrowserProperties browserProperties,
+                                     AbstractUserDetailsService abstractUserDetailsService,
+                                     PersistentTokenRepository persistentTokenRepository, BaseAuthenticationFailureHandler baseAuthenticationFailureHandler) {
         this.browserProperties = browserProperties;
-        this.userDetailsService = userDetailsService;
         this.persistentTokenRepository = persistentTokenRepository;
+        this.abstractUserDetailsService = abstractUserDetailsService;
+        this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
     }
 
     @Override
@@ -52,15 +56,15 @@ public class RememberMeConfigurerAware implements SocialWebSecurityConfigurerAwa
 
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
-        // 关闭 session
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER);
+
         // 开启 rememberMe 功能
         http.rememberMe()
                 .rememberMeParameter(DEFAULT_REMEMBER_ME_NAME)
                 .rememberMeCookieName(this.browserProperties.getRememberMeCookieName())
                 .tokenRepository(this.persistentTokenRepository)
-                .tokenValiditySeconds(Integer.valueOf(String.valueOf(this.browserProperties.getRememberMeTimeout().getSeconds())))
-                .userDetailsService(this.userDetailsService);
+                .tokenValiditySeconds(Integer.parseInt(String.valueOf(this.browserProperties.getRememberMeTimeout().getSeconds())))
+                .userDetailsService(this.abstractUserDetailsService)
+                .useSecureCookie(this.browserProperties.getUseSecureCookie());
     }
 
     @Override
@@ -86,22 +90,28 @@ public class RememberMeConfigurerAware implements SocialWebSecurityConfigurerAwa
                 {
                     throw new Exception("初始化 Remember-me 的 persistent_logins 用户表时发生错误");
                 }
-                ResultSet resultSet = connection.prepareStatement(QUERY_DATABASE_NAME_SQL).executeQuery();
-                resultSet.next();
-                String database = resultSet.getString(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
+
+                String database;
+                try (ResultSet resultSet = connection.prepareStatement(QUERY_DATABASE_NAME_SQL).executeQuery())
+                {
+                    resultSet.next();
+                    database = resultSet.getString(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
+                }
+
                 if (StringUtils.isNotBlank(database))
                 {
-                    resultSet =
-                            connection.createStatement().executeQuery(browserProperties.getQueryRememberMeTableExistSql(database));
-                    resultSet.next();
-                    int tableCount = resultSet.getInt(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
-                    if (tableCount < 1)
+                    try (ResultSet resultSet = connection.createStatement().executeQuery(browserProperties.getQueryRememberMeTableExistSql(database)))
                     {
-                        connection.prepareStatement(JdbcTokenRepositoryImpl.CREATE_TABLE_SQL).executeUpdate();
-                        log.info("persistent_logins 表创建成功，SQL：{}", JdbcTokenRepositoryImpl.CREATE_TABLE_SQL);
-                        if (!connection.getAutoCommit())
+                        resultSet.next();
+                        int tableCount = resultSet.getInt(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
+                        if (tableCount < 1)
                         {
-                            connection.commit();
+                            connection.prepareStatement(JdbcTokenRepositoryImpl.CREATE_TABLE_SQL).executeUpdate();
+                            log.info("persistent_logins 表创建成功，SQL：{}", JdbcTokenRepositoryImpl.CREATE_TABLE_SQL);
+                            if (!connection.getAutoCommit())
+                            {
+                                connection.commit();
+                            }
                         }
                     }
                 }

@@ -13,7 +13,7 @@ import java.util.Collection;
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/7 15:25
  */
-public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
+public class SmsCodeLoginAuthenticationToken extends AbstractAuthenticationToken {
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
     // ~ Instance fields
@@ -32,11 +32,11 @@ public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
      * will return <code>false</code>.
      *
      */
-    public SmsCodeAuthenticationToken(String mobile) {
+    public SmsCodeLoginAuthenticationToken(String mobile) {
         this(mobile, (ServletWebRequest) null);
     }
 
-    public SmsCodeAuthenticationToken(String mobile, ServletWebRequest request) {
+    public SmsCodeLoginAuthenticationToken(String mobile, ServletWebRequest request) {
         super(null);
         this.principal = mobile;
         this.request = request;
@@ -52,8 +52,8 @@ public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
      * @param principal
      * @param authorities
      */
-    public SmsCodeAuthenticationToken(Object principal,
-                                               Collection<? extends GrantedAuthority> authorities) {
+    public SmsCodeLoginAuthenticationToken(Object principal,
+                                           Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.request = null;

@@ -10,6 +10,7 @@ import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFa
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
 import top.dcenter.security.core.properties.BrowserProperties;
+import top.dcenter.security.core.provider.UsernamePasswordAuthenticationProvider;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -36,8 +37,8 @@ import static top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAw
         PropertiesConfiguration.class,
         SecurityConfiguration.class,
         ValidateCodeBeanConfiguration.class,
-        SmsCodeAuthenticationConfig.class,
-        SmsCodeAuthenticationConfigurerAware.class,
+        SmsCodeLoginAuthenticationConfig.class,
+        SmsCodeLoginAuthenticationConfigurerAware.class,
         ValidateCodeConfigurerAware.class})
 @Slf4j
 public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
@@ -45,6 +46,7 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
     private final BrowserProperties browserProperties;
     private final BaseAuthenticationSuccessHandler  baseAuthenticationSuccessHandler;
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
+    private UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
 
 
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
@@ -52,11 +54,12 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
     private Map<String, SocialWebSecurityConfigurerAware> socialWebSecurityConfigurerMap;
 
     public SecurityCoreConfigurer(BrowserProperties browserProperties,
-                                  BaseAuthenticationSuccessHandler  baseAuthenticationSuccessHandler,
-                                  BaseAuthenticationFailureHandler baseAuthenticationFailureHandler) {
+                                  BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
+                                  BaseAuthenticationFailureHandler baseAuthenticationFailureHandler, UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider) {
         this.browserProperties = browserProperties;
         this.baseAuthenticationSuccessHandler = baseAuthenticationSuccessHandler;
         this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
+        this.usernamePasswordAuthenticationProvider = usernamePasswordAuthenticationProvider;
     }
 
     @Override
@@ -82,16 +85,22 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
         String[] fullyAuthenticatedArray = set2Array(fullyAuthenticatedSet, fullyAuthenticated);
         String[] rememberMeArray = set2Array(rememberMeSet, rememberMe);
 
-
-        http.formLogin()
+        /* 用户密码登录的 Provider, 只是对 org.springframework.security.authentication.dao.DaoAuthenticationProvider 的 copy.
+         * 替换 org.springframework.security.authentication.dao.DaoAuthenticationProvider 的一个原因是:
+         * 当有 IOC 容器中有多个 UserDetailsService 时, org.springframework.security.authentication.dao
+         * .DaoAuthenticationProvider 会失效.
+         * 如果要对前端传过来的密码进行解密,则请实现 UserDetailsPasswordService
+         */
+        http.authenticationProvider(this.usernamePasswordAuthenticationProvider)
+            .formLogin()
                 // uri 需要自己实现
-                .loginPage(browserProperties.getLoginUnAuthenticationUrl())
-                .successHandler(baseAuthenticationSuccessHandler)
-                .failureHandler(baseAuthenticationFailureHandler)
-                .failureUrl(browserProperties.getFailureUrl())
-                .defaultSuccessUrl(browserProperties.getSuccessUrl())
+                .loginPage(this.browserProperties.getLoginUnAuthenticationUrl())
+                .successHandler(this.baseAuthenticationSuccessHandler)
+                .failureHandler(this.baseAuthenticationFailureHandler)
+                .failureUrl(this.browserProperties.getFailureUrl())
+                .defaultSuccessUrl(this.browserProperties.getSuccessUrl())
                 // 由 Spring Security 接管，不用任何处理
-                .loginProcessingUrl(browserProperties.getLoginProcessingUrl())
+                .loginProcessingUrl(this.browserProperties.getLoginProcessingUrl())
                 // 配置 uri 验证与授权信息
                 .and()
                 .authorizeRequests()
@@ -107,9 +116,9 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable();
 
-        if (socialWebSecurityConfigurerMap != null)
+        if (this.socialWebSecurityConfigurerMap != null)
         {
-            for (SocialWebSecurityConfigurerAware postConfigurer : socialWebSecurityConfigurerMap.values())
+            for (SocialWebSecurityConfigurerAware postConfigurer : this.socialWebSecurityConfigurerMap.values())
             {
                 postConfigurer.postConfigure(http);
             }
@@ -146,9 +155,9 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
                                              Set<String> authenticatedSet,
                                              Set<String> fullyAuthenticatedSet,
                                              Set<String> rememberMeSet) throws Exception {
-        if (socialWebSecurityConfigurerMap != null)
+        if (this.socialWebSecurityConfigurerMap != null)
         {
-            for (SocialWebSecurityConfigurerAware configurer : socialWebSecurityConfigurerMap.values())
+            for (SocialWebSecurityConfigurerAware configurer : this.socialWebSecurityConfigurerMap.values())
             {
                 configurer.preConfigure(http);
                 Map<String, Set<String>> authorizeRequestMap = configurer.getAuthorizeRequestMap();
@@ -167,13 +176,13 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
     private Set<String> addPermitAllUriSet() {
         Set<String> permitAllSet = new HashSet<>();
 
-        permitAllSet.add(browserProperties.getLoginUnAuthenticationUrl());
-        permitAllSet.add(browserProperties.getFailureUrl());
-        permitAllSet.add(browserProperties.getLoginPage());
-        permitAllSet.add(browserProperties.getSuccessUrl());
-        permitAllSet.add(browserProperties.getErrorUrl());
-        permitAllSet.add(browserProperties.getError4Url());
-        permitAllSet.add(browserProperties.getError5Url());
+        permitAllSet.add(this.browserProperties.getLoginUnAuthenticationUrl());
+        permitAllSet.add(this.browserProperties.getFailureUrl());
+        permitAllSet.add(this.browserProperties.getLoginPage());
+        permitAllSet.add(this.browserProperties.getSuccessUrl());
+        permitAllSet.add(this.browserProperties.getErrorUrl());
+        permitAllSet.add(this.browserProperties.getError4Url());
+        permitAllSet.add(this.browserProperties.getError5Url());
 
         return permitAllSet;
     }

@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
-import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
+import top.dcenter.security.core.authentication.handler.BrowserAuthenticationFailureHandler;
 import top.dcenter.security.core.enums.LoginPostProcessType;
 import top.dcenter.security.core.exception.RegisterUserFailureException;
 import top.dcenter.security.core.exception.ValidateCodeException;
@@ -30,12 +30,13 @@ import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
  */
 @Component
 @Slf4j
-public class DemoAuthenticationFailureHandler extends BaseAuthenticationFailureHandler {
+public class DemoAuthenticationFailureHandler extends BrowserAuthenticationFailureHandler {
 
     private final ObjectMapper objectMapper;
     private final BrowserProperties browserProperties;
 
     public DemoAuthenticationFailureHandler(ObjectMapper objectMapper, BrowserProperties browserProperties) {
+        super(objectMapper,browserProperties);
         this.objectMapper = objectMapper;
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.browserProperties = browserProperties;

@@ -3,6 +3,7 @@
  */
 package top.dcenter.security.social.weixin.connect;
 
+import lombok.Getter;
 import org.springframework.social.oauth2.AccessGrant;
 
 /**
@@ -21,6 +22,7 @@ public class WeixinAccessGrant extends AccessGrant {
 	private static final long serialVersionUID = -7243374526633186782L;
 	
 	private String openId;
+	@Getter
 	private Long expiresIn;
 
 	public WeixinAccessGrant() {

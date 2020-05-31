@@ -1,4 +1,4 @@
-package top.dcenter.security.browser.authentication.handler;
+package top.dcenter.security.core.authentication.handler;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

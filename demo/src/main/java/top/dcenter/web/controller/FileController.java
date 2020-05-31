@@ -74,7 +74,10 @@ public class FileController {
                 response.setContentType("application/x-download");
                 // 2.设置文件头：最后一个参数是设置下载文件名(假如我们叫a.pdf)
                 response.setHeader("Content-Disposition", "attachment;fileName=" + fileName);
-                localChannel.transferTo(0, localChannel.size(), targetChannel);
+                if (localChannel != null)
+                {
+                    localChannel.transferTo(0, localChannel.size(), targetChannel);
+                }
             }
         }
     }

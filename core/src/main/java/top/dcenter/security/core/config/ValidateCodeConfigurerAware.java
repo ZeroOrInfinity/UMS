@@ -22,7 +22,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDAT
  * @version V1.0  Created by 2020/5/15 21:59
  */
 @Configuration
-@AutoConfigureAfter({SmsCodeAuthenticationConfig.class, ValidateCodeBeanConfiguration.class})
+@AutoConfigureAfter({SmsCodeLoginAuthenticationConfig.class, ValidateCodeBeanConfiguration.class})
 @Slf4j
 public class ValidateCodeConfigurerAware implements SocialWebSecurityConfigurerAware {
 

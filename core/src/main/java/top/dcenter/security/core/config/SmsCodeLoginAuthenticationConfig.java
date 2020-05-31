@@ -14,8 +14,8 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.security.core.api.service.AbstractUserDetailsService;
-import top.dcenter.security.core.authentication.mobile.SmsCodeAuthenticationFilter;
-import top.dcenter.security.core.authentication.mobile.SmsCodeAuthenticationProvider;
+import top.dcenter.security.core.authentication.mobile.SmsCodeLoginAuthenticationFilter;
+import top.dcenter.security.core.authentication.mobile.SmsCodeLoginAuthenticationProvider;
 import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 
@@ -32,7 +32,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REMEMBE
 @Configuration
 @ConditionalOnProperty(prefix = "security.smsCodeLogin", name = "sms-code-login-is-open", havingValue = "true")
 @AutoConfigureAfter({SecurityConfiguration.class})
-public class SmsCodeAuthenticationConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
+public class SmsCodeLoginAuthenticationConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
     private final ValidateCodeProperties validateCodeProperties;
     private final AuthenticationFailureHandler browserAuthenticationFailureHandler;
@@ -48,9 +48,10 @@ public class SmsCodeAuthenticationConfig extends SecurityConfigurerAdapter<Defau
     @Autowired
     private BrowserProperties browserProperties;
 
-    public SmsCodeAuthenticationConfig(ValidateCodeProperties validateCodeProperties,
-                                       AuthenticationFailureHandler browserAuthenticationFailureHandler,
-                                       AuthenticationSuccessHandler browserAuthenticationSuccessHandler) {
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    public SmsCodeLoginAuthenticationConfig(ValidateCodeProperties validateCodeProperties,
+                                            AuthenticationFailureHandler browserAuthenticationFailureHandler,
+                                            AuthenticationSuccessHandler browserAuthenticationSuccessHandler) {
         this.validateCodeProperties = validateCodeProperties;
         this.browserAuthenticationFailureHandler = browserAuthenticationFailureHandler;
         this.browserAuthenticationSuccessHandler = browserAuthenticationSuccessHandler;
@@ -60,27 +61,27 @@ public class SmsCodeAuthenticationConfig extends SecurityConfigurerAdapter<Defau
     @Override
     public void configure(HttpSecurity http) {
 
-        SmsCodeAuthenticationFilter smsCodeAuthenticationFilter =
-                new SmsCodeAuthenticationFilter(this.validateCodeProperties);
-        smsCodeAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
-        smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(this.browserAuthenticationSuccessHandler);
-        smsCodeAuthenticationFilter.setAuthenticationFailureHandler(this.browserAuthenticationFailureHandler);
+        SmsCodeLoginAuthenticationFilter smsCodeLoginAuthenticationFilter =
+                new SmsCodeLoginAuthenticationFilter(this.validateCodeProperties);
+        smsCodeLoginAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
+        smsCodeLoginAuthenticationFilter.setAuthenticationSuccessHandler(this.browserAuthenticationSuccessHandler);
+        smsCodeLoginAuthenticationFilter.setAuthenticationFailureHandler(this.browserAuthenticationFailureHandler);
 
         if (persistentTokenRepository != null)
         {
             PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices =
                     new PersistentTokenBasedRememberMeServices(getKey(), this.userDetailsService,
                                                                this.persistentTokenRepository);
-            persistentTokenBasedRememberMeServices.setTokenValiditySeconds(Integer.valueOf(String.valueOf(this.browserProperties.getRememberMeTimeout().getSeconds())));
+            persistentTokenBasedRememberMeServices.setTokenValiditySeconds(Integer.parseInt(String.valueOf(this.browserProperties.getRememberMeTimeout().getSeconds())));
             persistentTokenBasedRememberMeServices.setParameter(DEFAULT_REMEMBER_ME_NAME);
             // 添加rememberMe功能配置
-            smsCodeAuthenticationFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
+            smsCodeLoginAuthenticationFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
         }
 
 
-        SmsCodeAuthenticationProvider smsCodeAuthenticationProvider = new SmsCodeAuthenticationProvider(this.userDetailsService);
-        http.authenticationProvider(smsCodeAuthenticationProvider)
-            .addFilterAfter(smsCodeAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
+        SmsCodeLoginAuthenticationProvider smsCodeLoginAuthenticationProvider = new SmsCodeLoginAuthenticationProvider(this.userDetailsService);
+        http.authenticationProvider(smsCodeLoginAuthenticationProvider)
+            .addFilterAfter(smsCodeLoginAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
 
 
     }

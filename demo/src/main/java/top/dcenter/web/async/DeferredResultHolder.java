@@ -22,7 +22,4 @@ public class DeferredResultHolder {
         return map;
     }
 
-    public void setMap(Map<String, DeferredResult<String>> map) {
-        this.map = map;
-    }
 }

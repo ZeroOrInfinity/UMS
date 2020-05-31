@@ -65,6 +65,7 @@ public class ImageUtil {
         File dir = outputFile.getParentFile();
         try {
             if (!dir.exists()) {
+                //noinspection ResultOfMethodCallIgnored
                 dir.mkdirs();
             }
             boolean newFile = outputFile.createNewFile();

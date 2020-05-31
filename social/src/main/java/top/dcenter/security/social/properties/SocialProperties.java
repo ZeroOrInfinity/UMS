@@ -3,6 +3,7 @@ package top.dcenter.security.social.properties;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.controller.SocialController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +36,7 @@ public class SocialProperties {
     /**
      * 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /authentication/social 进行处理，由 Social 处理，不需要用户实现
      */
-    private final String socialUserRegistUrl = DEFAULT_LOGIN_PROCESSING_URL_SOCIAL;
+    private String socialUserRegistUrl = DEFAULT_LOGIN_PROCESSING_URL_SOCIAL;
     /**
      * 第三方登录用户授权成功且未注册，则跳转的注册页面， 默认为 /signUp.html，
      * autoSignIn=true 且实现 ConnectionSignUp 接口则自动登录时 signUpUrl 会失效
@@ -181,8 +182,8 @@ public class SocialProperties {
     /**
      * 第三方登录用户数据库用户表创建语句。 <br>
      * 修改第三方登录用户数据库用户表创建语句时，要注意：修改字段名称可以直接修改上面的字段名称即可，不用修改建表语句，不可以减少字段，但可以另外增加字段。<br>
-     * 用户需要对第三方登录的用户表与 curd 的 sql 语句结构进行更改时（curd 语句更改功能暂时没实现），
-     * 如果需要，请实现 UsersConnectionRepositoryFactory，可以参考 OAuth2UsersConnectionRepositoryFactory。<br>
+     * 用户需要对第三方登录的用户表与 curd 的 sql 语句结构进行更改时, 必须实现对应的 {@link UsersConnectionRepositoryFactory}，
+     * 如果需要，请实现 {@link UsersConnectionRepositoryFactory}，可以参考 {@link OAuth2UsersConnectionRepositoryFactory}。<br>
      * 注意： sql 语句中的 %s 必须写上，且 %s 的顺序必须与后面的字段名称所对应的含义对应 :<br>
      * tableName、<br>
      * userIdColumnName、<br>
@@ -203,6 +204,7 @@ public class SocialProperties {
      * providerIdColumnName、<br>
      * rankColumnName
      */
+    @SuppressWarnings("JavadocReference")
     private String creatUserConnectionTableSql = "create table %s (%s " +
             "varchar(255) not null,\n" +
             "\t%s varchar(255) not null,\n" +
@@ -220,37 +222,37 @@ public class SocialProperties {
 
     /**
      * 第三方登录用户数据库用户表查询 userIds 的查询语句。 <br>
-     * 注意： sql 语句中的 %s 必须写上，%s按顺序会用对应的 :<br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br>
      * databaseName、<br>
      * tableName
      */
-    private final String queryUserConnectionTableExistSql = "SELECT COUNT(1) FROM information_schema.tables WHERE " +
+    private String queryUserConnectionTableExistSql = "SELECT COUNT(1) FROM information_schema.tables WHERE " +
             "table_schema='%s' AND table_name = '%s'";
 
 
     /**
      * 第三方登录用户数据库用户表查询 userIds 的查询语句。 <br>
-     * 注意： sql 语句中的 %s 必须写上，%s按顺序会用对应的 :<br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br>
      * userIdColumnName、<br>
      * tableName、<br>
      * providerIdColumnName、<br>
      * providerUserIdColumnName
      */
-    private final String findUserIdsWithConnectionSql = "select %s from %s where %s = ? and %s = ?";
+    private String findUserIdsWithConnectionSql = "select %s from %s where %s = ? and %s = ?";
 
     /**
      * 通过第三方服务提供商提供的 providerId 与 providerUserIds 从数据库用户表查询 userIds 的查询语句。 <br>
-     * 注意： sql 语句中的 %s 必须写上，%s按顺序会用对应的 :<br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br>
      * userIdColumnName、<br>
      * tableName、<br>
      * providerIdColumnName、<br>
      * providerUserIdColumnName
      */
-    private final String findUserIdsConnectedToSql = "select %s from %S where %s = :%s and %s in (:%s)";
+    private String findUserIdsConnectedToSql = "select %s from %S where %s = :%s and %s in (:%s)";
 
     /**
      * 通过第三方服务提供商提供的 providerId 与 providerUserIds 从数据库用户表查询 userIds 的查询语句。 <br>
-     * 注意： sql 语句中的 %s 必须写上，%s按顺序会用对应的 :<br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br>
      * userIdColumnName、<br>
      * providerIdColumnName、<br>
      * providerUserIdColumnName、<br>
@@ -263,11 +265,11 @@ public class SocialProperties {
      * expireTimeColumnName、<br>
      * tableName
      */
-    private final String selectFromUserConnectionSql = "select %s, %s, %s, %s, %s, %s, %s, %s, %s, %s from %s";
+    private String selectFromUserConnectionSql = "select %s, %s, %s, %s, %s, %s, %s, %s, %s, %s from %s";
 
     /**
      * 第三方登录用户数据库用户表更新语句。 <br>
-     * 注意： sql 语句中的 %s 必须写上，%s按顺序会用对应的 :<br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br>
      * tableName、<br>
      * displayNameColumnName、<br>
      * profileUrlColumnName、<br>
@@ -280,7 +282,7 @@ public class SocialProperties {
      * providerIdColumnName、<br>
      * providerUserIdColumnName
      */
-    private final String updateConnectionSql = "update %s " +
+    private String updateConnectionSql = "update %s " +
             "set %s = ?, " +
             "%s = ?, " +
             "%s = ?, " +
@@ -294,7 +296,7 @@ public class SocialProperties {
 
     /**
      * 第三方登录用户数据库用户表添加用户语句。 <br>
-     * 注意： sql 语句中的 %s 必须写上，%s按顺序会用对应的 :<br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br>
      * tableName、<br>
      * userIdColumnName、<br>
      * providerIdColumnName、<br>
@@ -308,37 +310,37 @@ public class SocialProperties {
      * refreshTokenColumnName、<br>
      * expireTimeColumnName
      */
-    private final String addConnectionSql = "insert into %s(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " +
+    private String addConnectionSql = "insert into %s(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " +
             "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     /**
      * 第三方登录用户数据库用户表查询添加用户时的所需 rank 的值。 <br>
-     * 注意： sql 语句中的 %s 必须写上，%s按顺序会用对应的 :<br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br>
      * rankColumnName、<br>
      * rankColumnName、<br>
      * tableName、<br>
      * userIdColumnName、<br>
      * providerIdColumnName
      */
-    private final String addConnectionQueryForRankSql = "select coalesce(max(%s) + 1, 1) as %s from %s where %s = ? and %s = ?";
+    private String addConnectionQueryForRankSql = "select coalesce(max(%s) + 1, 1) as %s from %s where %s = ? and %s = ?";
 
     /**
      * 第三方登录用户数据库用户表根据 userId 与 providerId 删除多个用户。 <br>
-     * 注意： sql 语句中的 %s 必须写上，%s按顺序会用对应的 :<br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br>
      * tableName、<br>
      * userIdColumnName、<br>
      * providerIdColumnName
      */
-    private final String removeConnectionsSql = "delete from %s where %s = ? and %s = ?";
+    private String removeConnectionsSql = "delete from %s where %s = ? and %s = ?";
     /**
      * 第三方登录用户数据库用户表根据 userId、providerId、providerUserId 删除一个用户。 <br>
-     * 注意： sql 语句中的 %s 必须写上，%s按顺序会用对应的 :<br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br>
      * tableName、<br>
      * userIdColumnName、<br>
      * providerIdColumnName、<br>
      * providerUserIdColumnName
      */
-    private final String removeConnectionSql = "delete from %s where %s = ? and %s = ? and %s = ?";
+    private String removeConnectionSql = "delete from %s where %s = ? and %s = ? and %s = ?";
 
 
 

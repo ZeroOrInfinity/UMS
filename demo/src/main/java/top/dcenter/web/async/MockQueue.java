@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 模拟队列
+ * 模拟队列, 未实现多线程安全问题
  * @author zhailiang
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/2 23:12
@@ -15,12 +15,17 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class MockQueue {
     private String placeOrder;
-    private String completeOrder;
+    private volatile String completeOrder;
 
     public String getPlaceOrder() {
         return placeOrder;
     }
 
+    /**
+     * 模拟队列, 未实现多线程安全问题
+     * @param placeOrder
+     * @throws InterruptedException
+     */
     public void setPlaceOrder(String placeOrder) throws InterruptedException {
         new Thread(() -> {
             log.info("接到下单请求：{}", placeOrder);

@@ -3,7 +3,7 @@ package top.dcenter.security.core.config;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import top.dcenter.security.core.properties.BrowserProperties;
-import top.dcenter.security.core.properties.SmsCodeAuthenticationProperties;
+import top.dcenter.security.core.properties.SmsCodeLoginAuthenticationProperties;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 
 /**
@@ -13,6 +13,6 @@ import top.dcenter.security.core.properties.ValidateCodeProperties;
  */
 @Configuration()
 @EnableConfigurationProperties({BrowserProperties.class, ValidateCodeProperties.class,
-        SmsCodeAuthenticationProperties.class})
+        SmsCodeLoginAuthenticationProperties.class})
 public class PropertiesConfiguration {
 }

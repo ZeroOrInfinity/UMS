@@ -29,7 +29,7 @@ participant "SecurityCoreConfigurer" #1565c0
 SecurityCoreConfigurer -> SecurityCoreConfigurer: 安全配置流程开始
 note right SecurityCoreConfigurer: 基本配置:\n SecurityCoreConfigurer: \n\
  social模块 SocialConfiguration\n core模块 SecurityConfiguration\n\
-               ValidateCodeBeanConfiguration\n browser模块 BrowserSecurityConfiguration\n\
+               ValidateCodeBeanConfiguration\n browser模块 SecurityRememberMeConfiguration\n\
  session模块 SecuritySessionConfiguration
 alt afterPropertiesSet
 RememberMeConfigurerAware --> RememberMeConfigurerAware: 1 afterPropertiesSet()
@@ -41,7 +41,7 @@ SecurityCoreConfigurer --> SecurityCoreConfigurer: 2 fillingAuthorizeRequestUris
 activate SecurityCoreConfigurer
 participant "SocialWebSecurityConfigurerAware" #1565c0
 SecurityCoreConfigurer -> SocialWebSecurityConfigurerAware: 2.1 对所有的\nSocialWebSecurityConfigurerAware\n进行遍历
-note left : SmsCodeAuthenticationConfigurerAware\n\
+note left : SmsCodeLoginAuthenticationConfigurerAware\n\
 ValidateCodeConfigurerAware\n\
 SocialSecurityConfigurerAware\n\
 SocialAuthenticationSignUpConfigurerAware\n\
@@ -51,7 +51,7 @@ activate SocialWebSecurityConfigurerAware
 activate HttpSecurity
 SocialWebSecurityConfigurerAware -> HttpSecurity: 2.1.1 preConfigure(http)
 HttpSecurity --> HttpSecurity: 2.1.2 http.apply(config)\n这里对所有的\n config进行配置
-note right : SmsCodeAuthenticationConfig\n\
+note right : SmsCodeLoginAuthenticationConfig\n\
 SocialAuthenticationSignUpConfig\n\
 SocialCoreConfig
 HttpSecurity --> SocialWebSecurityConfigurerAware: 2.1.3 把SocialWebSecurityConfigurerAware中\n所有的AuthorizeRequestUris\n 按权限进行分类，放入对应的 Set\n包括SecurityCoreConfigurer中
@@ -80,7 +80,7 @@ activate SocialWebSecurityConfigurerAware
 activate HttpSecurity
 SocialWebSecurityConfigurerAware -> HttpSecurity: 4.1 postConfigure(http)
 HttpSecurity --> HttpSecurity: 4.2 http.apply(config)\n这里对所有的\n config进行配置
-note right : SmsCodeAuthenticationConfig\n\
+note right : SmsCodeLoginAuthenticationConfig\n\
 SocialAuthenticationSignUpConfig\n\
 SocialCoreConfig
 

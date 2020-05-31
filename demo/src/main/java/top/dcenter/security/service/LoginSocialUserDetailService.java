@@ -1,8 +1,9 @@
-package top.dcenter.security;
+package top.dcenter.security.service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -20,6 +21,7 @@ import top.dcenter.security.core.exception.RegisterUserFailureException;
 import top.dcenter.security.core.exception.UserNotExistException;
 import top.dcenter.security.core.util.RequestUtil;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
+import top.dcenter.security.social.api.service.SocialCacheUserDetailsService;
 
 import java.util.List;
 
@@ -50,6 +52,9 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
 
     private final ObjectMapper objectMapper;
     private final JdbcTemplate jdbcTemplate;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired(required = false)
+    private SocialCacheUserDetailsService cacheUserDetailsService;
 
     public LoginSocialUserDetailService(ApplicationContext applicationContext, JdbcTemplate jdbcTemplate) {
         super(applicationContext);
@@ -63,14 +68,23 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try
         {
+            // 从缓存中查询用户信息
+            if (this.cacheUserDetailsService != null)
+            {
+                UserDetails userDetails = this.cacheUserDetailsService.loadUserByUsername(username);
+                if (userDetails != null)
+                {
+                    return userDetails;
+                }
+            }
+
             // 根据用户名获取用户信息
 
             // 获取用户信息逻辑。。。
             // ...
 
             // 示例：只是从用户登录日志表中提取的信息，
-            List<String> list = jdbcTemplate.queryForList("select username from persistent_logins where username = ?",
-                                                          String.class, username);
+            List<String> list = jdbcTemplate.queryForList("select username from persistent_logins where username = ?", String.class, username);
             if (list.contains(username))
             {
                 for (String name : list)
@@ -87,9 +101,7 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
                                         AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
 
                     }
-
                 }
-
             }
             log.info("Demo ======>: 登录用户名：{}, 登录失败", username);
             return null;
@@ -104,6 +116,16 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
     public SocialUserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
         try
         {
+            // 从缓存中查询用户信息
+            if (this.cacheUserDetailsService != null)
+            {
+                SocialUserDetails userDetails = this.cacheUserDetailsService.loadUserByUserId(userId);
+                if (userDetails != null)
+                {
+                    return userDetails;
+                }
+            }
+
             // 根据用户名获取用户信息。
 
             // 获取用户信息逻辑。。。
@@ -155,14 +177,19 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
         // ...
 
         log.info("Demo ======>: 手机短信登录用户 {}：注册成功", mobile);
-        return new User(mobile,
-                        passwordEncoder.encode("admin"),
-                        true,
-                        true,
-                        true,
-                        true,
-                        AuthorityUtils.commaSeparatedStringToAuthorityList("admin")
+        User user = new User(mobile,
+                             passwordEncoder.encode("admin"),
+                             true,
+                             true,
+                             true,
+                             true,
+                             AuthorityUtils.commaSeparatedStringToAuthorityList("admin")
         );
+
+        // 把用户信息存入缓存
+        cacheUserDetailsService.saveUserInCache(user.getUsername(), user);
+
+        return user;
     }
 
     @Override
@@ -177,14 +204,19 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
         String encodedPassword = passwordEncoder.encode(password);
 
         log.info("Demo ======>: 用户名：{}, 注册成功", username);
-        return new User(username,
-                        encodedPassword,
-                        true,
-                        true,
-                        true,
-                        true,
-                        AuthorityUtils.commaSeparatedStringToAuthorityList("admin")
+        User user = new User(username,
+                              encodedPassword,
+                              true,
+                              true,
+                              true,
+                              true,
+                              AuthorityUtils.commaSeparatedStringToAuthorityList("admin")
         );
+
+        // 把用户信息存入缓存
+        cacheUserDetailsService.saveUserInCache(user.getUsername(), user);
+
+        return user;
 
     }
 
@@ -206,14 +238,19 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
             // OAuth 信息存储
             providerSignInUtils.doPostSignUp(username, request);
             log.info("Demo ======>: 第三方登录用户：{}, 注册成功", username);
-            return new User(username,
-                            encodedPassword,
-                            true,
-                            true,
-                            true,
-                            true,
-                            AuthorityUtils.commaSeparatedStringToAuthorityList("admin")
+            User user = new User(username,
+                                  encodedPassword,
+                                  true,
+                                  true,
+                                  true,
+                                  true,
+                                  AuthorityUtils.commaSeparatedStringToAuthorityList("admin")
             );
+
+            // 把用户信息存入缓存
+            cacheUserDetailsService.saveUserInCache(user.getUsername(), user);
+
+            return user;
         }
         catch (Exception e)
         {

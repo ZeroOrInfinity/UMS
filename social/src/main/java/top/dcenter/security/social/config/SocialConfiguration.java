@@ -166,27 +166,33 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
         {
             if (connection == null)
             {
-                throw new Exception(String.format("初始化第三方登录的 %s 用户表时发生错误",
-                                                  socialProperties.getTableName()));
+                throw new Exception(String.format("初始化第三方登录的 %s 用户表时发生错误", socialProperties.getTableName()));
             }
-            ResultSet resultSet = connection.prepareStatement(QUERY_DATABASE_NAME_SQL).executeQuery();
-            resultSet.next();
-            String database = resultSet.getString(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
+
+            String database;
+            try (ResultSet resultSet = connection.prepareStatement(QUERY_DATABASE_NAME_SQL).executeQuery())
+            {
+                resultSet.next();
+                database = resultSet.getString(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
+            }
+
             if (StringUtils.isNotBlank(database))
             {
                 String queryUserConnectionTableExistSql = socialProperties.getQueryUserConnectionTableExistSql(database);
-                resultSet = connection.prepareStatement(queryUserConnectionTableExistSql).executeQuery();
-                resultSet.next();
-                int tableCount = resultSet.getInt(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
-                if (tableCount < 1)
+                try (ResultSet resultSet = connection.prepareStatement(queryUserConnectionTableExistSql).executeQuery())
                 {
-                    String creatUserConnectionTableSql = socialProperties.getCreatUserConnectionTableSql();
-                    connection.prepareStatement(creatUserConnectionTableSql).executeUpdate();
-                    log.info("{} 表创建成功，SQL：{}", socialProperties.getTableName(),
-                            creatUserConnectionTableSql);
-                    if (!connection.getAutoCommit())
+                    resultSet.next();
+                    int tableCount = resultSet.getInt(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
+                    if (tableCount < 1)
                     {
-                        connection.commit();
+                        String creatUserConnectionTableSql = socialProperties.getCreatUserConnectionTableSql();
+                        connection.prepareStatement(creatUserConnectionTableSql).executeUpdate();
+                        log.info("{} 表创建成功，SQL：{}", socialProperties.getTableName(),
+                                 creatUserConnectionTableSql);
+                        if (!connection.getAutoCommit())
+                        {
+                            connection.commit();
+                        }
                     }
                 }
             }

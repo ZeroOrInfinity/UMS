@@ -13,7 +13,6 @@ import top.dcenter.security.social.properties.SocialProperties;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_SOCIAL;
 import static top.dcenter.security.core.consts.SecurityConstants.POST_METHOD;
 
 /**
@@ -41,7 +40,7 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
     // ===================================================================================================
 
     public SocialAuthenticationSignUpFilter(SocialProperties socialProperties) {
-        super(new AntPathRequestMatcher(DEFAULT_LOGIN_PROCESSING_URL_SOCIAL, POST_METHOD));
+        super(new AntPathRequestMatcher(socialProperties.getSocialUserRegistUrl(), POST_METHOD));
         this.socialProperties = socialProperties;
     }
 

@@ -38,7 +38,7 @@ public class BrowserSecurityController implements BaseBrowserSecurityController 
      */
     public static final String URL_REGEX  = "^.*://[^/]*(/.*$)";
     /**
-     * 相对于 URL_REGEX 的 挂号部分
+     * 相对于 URL_REGEX 的括号部分
      */
     public static final String URI_$1  = "$1";
 

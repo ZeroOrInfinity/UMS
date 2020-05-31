@@ -25,7 +25,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.POST_METHOD;
  * @version V1.0  Created by 2020/5/7 15:34
  */
 @Slf4j
-public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     // ~ Static fields/initializers
     // =====================================================================================
 
@@ -36,7 +36,7 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
     // ~ Constructors
     // ===================================================================================================
 
-    public SmsCodeAuthenticationFilter(ValidateCodeProperties validateCodeProperties) {
+    public SmsCodeLoginAuthenticationFilter(ValidateCodeProperties validateCodeProperties) {
         super(new AntPathRequestMatcher(DEFAULT_LOGIN_PROCESSING_URL_MOBILE, POST_METHOD));
         this.validateCodeProperties = validateCodeProperties;
         this.mobileParameter = validateCodeProperties.getSms().getRequestParamMobileName();
@@ -62,7 +62,7 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
 
         mobile = mobile.trim();
 
-        SmsCodeAuthenticationToken authRequest = new SmsCodeAuthenticationToken(mobile);
+        SmsCodeLoginAuthenticationToken authRequest = new SmsCodeLoginAuthenticationToken(mobile);
 
         // Allow subclasses to set the "details" property
         setDetails(request, authRequest);
@@ -92,7 +92,7 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
      * set
      */
     protected void setDetails(HttpServletRequest request,
-                              SmsCodeAuthenticationToken authRequest) {
+                              SmsCodeLoginAuthenticationToken authRequest) {
         authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
     }
 
