@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestUtils;
 import top.dcenter.security.core.api.validate.code.ImageCodeFactory;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.util.CodeUtil;
+import top.dcenter.security.core.util.ValidateCodeUtil;
 import top.dcenter.security.core.util.ImageUtil;
 import top.dcenter.security.core.validate.code.imagecode.ImageCode;
 
@@ -31,14 +31,21 @@ public class DemoImageCodeFactory implements ImageCodeFactory {
     public ImageCode getImageCode(ServletRequest request) {
 
         ValidateCodeProperties.ImageCodeProperties imageProp = this.validateCodeProperties.getImage();
+
+        int width = imageProp.getWidth();
+        int height = imageProp.getHeight();
         int w = ServletRequestUtils.getIntParameter(request, imageProp.getRequestParaWidthName(),
-                                                    imageProp.getWidth());
+                                                    width);
         int h = ServletRequestUtils.getIntParameter(request, imageProp.getRequestParaHeightName(),
-                                                    imageProp.getHeight());
+                                                    height);
+        // 防止恶意图片攻击
+        w = Math.min(width * 2, w);
+        h = Math.min(height * 2, h);
+
         int expireIn = imageProp.getExpire();
         int codeLength = imageProp.getLength();
 
-        String code = CodeUtil.generateVerifyCode(codeLength);
+        String code = ValidateCodeUtil.generateVerifyCode(codeLength);
 
         BufferedImage bufferedImage = ImageUtil.getBufferedImage(w, h, code);
         if (log.isDebugEnabled())

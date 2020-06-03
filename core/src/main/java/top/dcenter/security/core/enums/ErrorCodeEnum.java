@@ -1,6 +1,7 @@
 package top.dcenter.security.core.enums;
 
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 import static top.dcenter.security.core.consts.SecurityConstants.INTERNAL_SERVER_ERROR_MSG;
 
@@ -11,7 +12,13 @@ import static top.dcenter.security.core.consts.SecurityConstants.INTERNAL_SERVER
  */
 public enum ErrorCodeEnum {
 
-    SERVER_ERROR(500, INTERNAL_SERVER_ERROR_MSG),
+
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "操作未授权"),
+    INVALID_SESSION(HttpStatus.UNAUTHORIZED.value(), "session 失效"),
+    CONCURRENT_SESSION(HttpStatus.UNAUTHORIZED.value(), "用户在其他客户端上登录, 此客户端退出登录状态"),
+    SESSION_ENHANCE_CHECK(HttpStatus.UNAUTHORIZED.value(), "session 非法"),
+    SERVER_ERROR(500, "功能还在开发中"),
+    INTERNAL_SERVER_ERROR(404, INTERNAL_SERVER_ERROR_MSG),
 
     USERNAME_USED(900, "用户名重名"),
     USER_NOT_EXIST(901, "用户不存在"),

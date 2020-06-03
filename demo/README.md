@@ -7,11 +7,11 @@
 - 基本功能：在 core 包中；
 - ```properties
   # 表单登录页
-  security.browser.loginPage=/login.html
+  security.browser.login-page=/login.html
   # 登录失败跳转页面
   security.browser.failure-url=/login.html
   # 两种登录模式：JSON 与 REDIRECT
-  security.browser.loginPostProcessType=REDIRECT
+  security.browser.login-process-type=REDIRECT
   
   # 数据库名称
   security.browser.database-name=sso-demo
@@ -25,28 +25,28 @@
   security.browser.auth-redirect-suffix-condition["/file/**"]=/login.html
   # /authentication/form 为用户名密码方式注册,/authentication/social 为第三方登录方式注册,/authentication/mobile 为手机登录注册
   # List 类型：设置需要短信验证码认证的 uri，多个 uri 用 “，”号分开，支持通配符，如：/hello,/user/*；默认为空
-  #security.code.sms.auth-urls=/authentication/form,/authentication/social,/authentication/mobile
-  security.code.sms.request-param-sms-code-name=smsCode
-  security.code.sms.request-param-mobile-name=mobile
-  security.code.sms.expire=120
-  security.code.sms.length=6
+  #security.codes.sms.auth-urls=/authentication/form,/authentication/social,/authentication/mobile
+  security.codes.sms.request-param-sms-code-name=smsCode
+  security.codes.sms.request-param-mobile-name=mobile
+  security.codes.sms.expire=120
+  security.codes.sms.length=6
   # 设置记住我功能的 session 的缓存时长，默认 7 天. If a duration suffix is not specified, seconds will be used.
   security.browser.remember-me-timeout=60
   # List 类型：设置需要图片验证码认证的 uri，多个 uri 用 “，”号分开，支持通配符，如：/hello,/user/*；默认为 /authentication/form
-  security.code.image.auth-urls=/authentication/form,/authentication/mobile
-  security.code.image.expire=1200
-  security.code.image.length=4
-  security.code.image.height=60
-  security.code.image.width=270
-  security.code.image.request-para-height-name=height
-  security.code.image.request-para-width-name=width
-  security.code.image.request-param-image-code-name=imageCode
+  security.codes.image.auth-urls=/authentication/form,/authentication/mobile
+  security.codes.image.expire=1200
+  security.codes.image.length=4
+  security.codes.image.height=60
+  security.codes.image.width=270
+  security.codes.image.request-para-height-name=height
+  security.codes.image.request-para-width-name=width
+  security.codes.image.request-param-image-code-name=imageCode
 
 ## 手机登录
 - 在 core 模块
 - ```properties
   # 手机验证码登录是否开启, 默认 false，
-  # 手机验证码登录开启后 必须配置 security.code.sms.auth-urls=/authentication/mobile
+  # 手机验证码登录开启后 必须配置 security.codes.sms.auth-urls=/authentication/mobile
   security.smsCodeLogin.sms-code-login-is-open=true
   # 手机验证码登录请求处理url, 默认 /authentication/mobile
   security.smsCodeLogin.login-processing-url-mobile=/authentication/mobile
@@ -79,7 +79,7 @@
   security.social.domain=http://www.dcenter.top 
   # 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth/callback
   # 如果更改此 url，更改后的必须要实现 SocialController#authCallbackRouter(HttpServletRequest) 的功能
-  security.social.filter-processes-url=/auth/callback
+  security.social.callback-url=/auth/callback
   
   # ================= 第三方登录 key 与 secret 加密相关 =================
   # 第三方登录用户数据库表的字段 key 与 secret 加密专用密码
@@ -88,7 +88,6 @@
   # security.social.textEncryptorSalt = "cd538b1b077542aca5f86942b6507fe2";
 
   # 自定义 social 表字段
-  security.social.table-prefix=social_
   security.social.table-name=social_UserConnection
   security.social.userIdColumnName=userId
   security.social.providerIdColumnName=providerId

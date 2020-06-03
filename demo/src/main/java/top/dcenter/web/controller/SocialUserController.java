@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.dto.User;
+import top.dcenter.security.core.enums.ErrorCodeEnum;
 import top.dcenter.security.core.vo.ResponseResult;
 import top.dcenter.security.social.vo.SocialUserInfo;
 
@@ -80,7 +80,7 @@ public class SocialUserController {
         // 不管是注册用户还是绑定用户，都会拿到一个用户唯一标识，
         if (providerSignInUtils == null)
         {
-            return ResponseResult.fail(500, "服务不存在");
+            return ResponseResult.fail(ErrorCodeEnum.INTERNAL_SERVER_ERROR);
         }
         String userId = user.getUsername();
         try
@@ -90,11 +90,21 @@ public class SocialUserController {
         catch (DuplicateConnectionException e)
         {
             log.info("用户注册失败：{}", user);
-            return ResponseResult.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), "用户注册失败");
+            return ResponseResult.fail(String.format("{} 用户注册失败", user.getUsername()), ErrorCodeEnum.USER_REGISTER_FAILURE);
         }
 
         log.info("Demo ========>: 用户注册成功：{}", user);
         return ResponseResult.success(user);
+    }
+
+    @GetMapping("/me")
+    public Object getCurrentUser(@AuthenticationPrincipal UserDetails userDetails, Authentication authentication) {
+
+        Map<String, Object> map = new HashMap<>(16);
+        map.put("authenticationHolder", SecurityContextHolder.getContext().getAuthentication());
+        map.put("userDetails", userDetails);
+        map.put("authentication", authentication);
+        return map;
     }
 
     @GetMapping("/testWebSecurityPostConfigurer")
@@ -103,7 +113,7 @@ public class SocialUserController {
         Connection<?> connection = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
         if (connection == null)
         {
-            return ResponseResult.fail(HttpStatus.NON_AUTHORITATIVE_INFORMATION.value(), "没有第三方授权信息");
+            return ResponseResult.fail("没有第三方授权信息", ErrorCodeEnum.UNAUTHORIZED);
         }
         SocialUserInfo userInfo = new SocialUserInfo();
         userInfo.setProviderId(connection.getKey().getProviderId());
@@ -113,16 +123,6 @@ public class SocialUserController {
         log.info("用户注册成功：{}", userInfo);
         return ResponseResult.success(userInfo);
     }
-
-    @GetMapping("/me")
-    public Object getCurrentUser(@AuthenticationPrincipal UserDetails userDetails, Authentication authentication) {
-        Map<String, Object> map = new HashMap<>(16);
-        map.put("authenticationHolder", SecurityContextHolder.getContext().getAuthentication());
-        map.put("userDetails", userDetails);
-        map.put("authentication", authentication);
-        return map;
-    }
-
 
     @GetMapping(value = "")
     @JsonView(User.UserSimpleView.class)

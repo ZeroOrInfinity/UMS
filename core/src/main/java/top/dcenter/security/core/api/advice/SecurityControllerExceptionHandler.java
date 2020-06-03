@@ -28,7 +28,7 @@ public class SecurityControllerExceptionHandler {
     public ResponseResult handleUserNotException(UserNotExistException ex) {
         String message = ex.getMessage();
         log.error(message, ex);
-        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message, ex.getId());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getId());
     }
 
     @ExceptionHandler(ParameterErrorException.class)
@@ -37,7 +37,7 @@ public class SecurityControllerExceptionHandler {
     public ResponseResult parameterErrorException(ParameterErrorException ex) {
         String message = ex.getMessage();
         log.error(message, ex);
-        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message, ex.getData());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
     
     @ExceptionHandler(ValidateCodeException.class)
@@ -46,7 +46,7 @@ public class SecurityControllerExceptionHandler {
     public ResponseResult validateCodeException(ValidateCodeException ex) {
         String message = ex.getMessage();
         log.error(message, ex);
-        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message);
+        return ResponseResult.fail(message, ex.getErrorCodeEnum());
     }
 
     @ExceptionHandler(ValidateCodeParamErrorException.class)
@@ -55,7 +55,7 @@ public class SecurityControllerExceptionHandler {
     public ResponseResult validateCodeParamErrorException(ValidateCodeParamErrorException ex) {
         String message = ex.getMessage();
         log.error(message, ex);
-        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message, ex.getData());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
 
     @ExceptionHandler(ValidateCodeProcessException.class)
@@ -64,7 +64,7 @@ public class SecurityControllerExceptionHandler {
     public ResponseResult validateCodeProcessException(ValidateCodeProcessException ex) {
         String message = ex.getMessage();
         log.error(message, ex);
-        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message);
+        return ResponseResult.fail(message, ex.getErrorCodeEnum());
     }
     @ExceptionHandler(IllegalAccessUrlException.class)
     @ResponseBody
@@ -72,7 +72,7 @@ public class SecurityControllerExceptionHandler {
     public ResponseResult illegalAccessUrlException(IllegalAccessUrlException ex) {
         String errorMsg = ex.getMessage();
         log.error(errorMsg, ex);
-        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), errorMsg);
+        return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum());
     }
 
 }

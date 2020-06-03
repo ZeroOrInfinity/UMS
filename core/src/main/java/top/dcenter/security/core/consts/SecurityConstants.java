@@ -39,6 +39,18 @@ public class SecurityConstants {
      * The default name for remember me parameter name and remember me cookie name
      */
     public static final String DEFAULT_REMEMBER_ME_NAME = "remember-me";
+    /**
+     * 把 session enhance check value 存储在 session 时所用的 key
+     */
+    public static final String SESSION_ENHANCE_CHECK_KEY = "SESSION_ENHANCE_CHECK_KEY";
+
+    /**
+     * authorizeRequestsMap: 把权限作为 key 与之相对应的 uriSet 作为 value, 分类放入 authorizeRequestsMap, 此 map 存储在 servletContext 时所用的 key
+     */
+    public static final String SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY = "SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY";
+
+
+
 
     // =================== error相关 ===================
 
@@ -162,6 +174,15 @@ public class SecurityConstants {
      * url 请求上带的参数 scope
      */
     public static final String URL_PARAMETER_SCOPE = "scope";
+
+    /**
+     * request header: User-Agent
+     */
+    public static final String HEADER_USER_AGENT = "User-Agent";
+    /**
+     * request header: "Referer"
+     */
+    public static final String HEADER_REFERER = "Referer";
 
 
 

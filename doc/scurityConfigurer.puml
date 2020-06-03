@@ -39,26 +39,26 @@ activate SecurityCoreConfigurer
 opt preConfigure
 SecurityCoreConfigurer --> SecurityCoreConfigurer: 2 fillingAuthorizeRequestUris(..)\n 对所有的AuthorizeRequestUris\n 按权限进行分类，放入对应的 Set
 activate SecurityCoreConfigurer
-participant "SocialWebSecurityConfigurerAware" #1565c0
-SecurityCoreConfigurer -> SocialWebSecurityConfigurerAware: 2.1 对所有的\nSocialWebSecurityConfigurerAware\n进行遍历
+participant "WebSecurityConfigurerAware" #1565c0
+SecurityCoreConfigurer -> WebSecurityConfigurerAware: 2.1 对所有的\nWebSecurityConfigurerAware\n进行遍历
 note left : SmsCodeLoginAuthenticationConfigurerAware\n\
 ValidateCodeConfigurerAware\n\
 SocialSecurityConfigurerAware\n\
 SocialAuthenticationSignUpConfigurerAware\n\
 RememberMeConfigurerAware\n\
 SessionConfigurerAware
-activate SocialWebSecurityConfigurerAware
+activate WebSecurityConfigurerAware
 activate HttpSecurity
-SocialWebSecurityConfigurerAware -> HttpSecurity: 2.1.1 preConfigure(http)
+WebSecurityConfigurerAware -> HttpSecurity: 2.1.1 preConfigure(http)
 HttpSecurity --> HttpSecurity: 2.1.2 http.apply(config)\n这里对所有的\n config进行配置
 note right : SmsCodeLoginAuthenticationConfig\n\
 SocialAuthenticationSignUpConfig\n\
 SocialCoreConfig
-HttpSecurity --> SocialWebSecurityConfigurerAware: 2.1.3 把SocialWebSecurityConfigurerAware中\n所有的AuthorizeRequestUris\n 按权限进行分类，放入对应的 Set\n包括SecurityCoreConfigurer中
-SocialWebSecurityConfigurerAware --> SecurityCoreConfigurer: 2.1.4 返回
+HttpSecurity --> WebSecurityConfigurerAware: 2.1.3 把WebSecurityConfigurerAware中\n所有的AuthorizeRequestUris\n 按权限进行分类，放入对应的 Set\n包括SecurityCoreConfigurer中
+WebSecurityConfigurerAware --> SecurityCoreConfigurer: 2.1.4 返回
 end
 deactivate HttpSecurity
-deactivate SocialWebSecurityConfigurerAware
+deactivate WebSecurityConfigurerAware
 deactivate SecurityCoreConfigurer
 opt http.formLogin等配置
 SecurityCoreConfigurer -> HttpSecurity: 3 http.formLogin()等配置
@@ -75,19 +75,19 @@ end
 deactivate HttpSecurity
 activate SecurityCoreConfigurer
 opt postConfigure
-SecurityCoreConfigurer -> SocialWebSecurityConfigurerAware: 4 对所有的\nSocialWebSecurityConfigurerAware\n进行遍历
-activate SocialWebSecurityConfigurerAware
+SecurityCoreConfigurer -> WebSecurityConfigurerAware: 4 对所有的\nWebSecurityConfigurerAware\n进行遍历
+activate WebSecurityConfigurerAware
 activate HttpSecurity
-SocialWebSecurityConfigurerAware -> HttpSecurity: 4.1 postConfigure(http)
+WebSecurityConfigurerAware -> HttpSecurity: 4.1 postConfigure(http)
 HttpSecurity --> HttpSecurity: 4.2 http.apply(config)\n这里对所有的\n config进行配置
 note right : SmsCodeLoginAuthenticationConfig\n\
 SocialAuthenticationSignUpConfig\n\
 SocialCoreConfig
 
-SocialWebSecurityConfigurerAware --> SecurityCoreConfigurer: 4.3 返回
+WebSecurityConfigurerAware --> SecurityCoreConfigurer: 4.3 返回
 end
 deactivate HttpSecurity
-deactivate SocialWebSecurityConfigurerAware
+deactivate WebSecurityConfigurerAware
 deactivate SecurityCoreConfigurer
 
 deactivate SecurityCoreConfigurer
@@ -97,7 +97,7 @@ SecurityCoreConfigurer -> SecurityCoreConfigurer: 安全配置流程结束
 == API ==
 opt 配置文件相关的 API
 note over SecurityCoreConfigurer: 所有 HttpSecurity\n最终都通过此配置\n如非必要勿修改
-note over SocialWebSecurityConfigurerAware: 对 HttpSecurity 的配置\n推荐使用此接口\n实现此接口注入IOC容器即可
+note over WebSecurityConfigurerAware: 对 HttpSecurity 的配置\n推荐使用此接口\n实现此接口注入IOC容器即可
 
 note over OAuth2ConfigurerAdapter: 第三方API\n 与 Social的适配器\n添加第三方登录API时继承
 note over OAuth2ConfigurerAdapter: 目前有三个子类\nGiteeAutoConfiguration\nQqAutoConfiguration\nWeixinAutoConfiguration

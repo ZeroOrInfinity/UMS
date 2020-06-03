@@ -2,6 +2,7 @@ package top.dcenter.security.core.validate.code.imagecode;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.Transient;
 import top.dcenter.security.core.validate.code.ValidateCode;
 
 import java.awt.image.BufferedImage;
@@ -15,7 +16,11 @@ import java.awt.image.BufferedImage;
 @Getter
 @Setter
 public class ImageCode extends ValidateCode {
-    private BufferedImage image;
+
+    private static final long serialVersionUID = 2978186282822455898L;
+
+    @Transient
+    private transient BufferedImage image;
 
     public ImageCode(BufferedImage image, String code, int expireIn) {
         super(code, expireIn);

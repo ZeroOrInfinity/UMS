@@ -19,7 +19,7 @@
     <dependencies>
         <dependency>
             <groupId>top.dcenter.security</groupId>
-            <artifactId>scaffolding-browser</artifactId>
+            <artifactId>scaffolding-core</artifactId>
             <version>${top.dcenter.version}</version>
         </dependency>
         <dependency>

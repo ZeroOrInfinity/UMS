@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
 import top.dcenter.security.social.properties.SocialProperties;
 
 import java.util.HashMap;
@@ -22,7 +22,7 @@ import java.util.Set;
 @ConditionalOnProperty(prefix = "security.social", name = "social-sign-in-is-open", havingValue = "true")
 @AutoConfigureAfter({SocialAuthenticationSignUpConfig.class})
 @Slf4j
-public class SocialAuthenticationSignUpConfigurerAware implements SocialWebSecurityConfigurerAware {
+public class SocialAuthenticationSignUpConfigurerAware implements WebSecurityConfigurerAware {
 
     private final SocialAuthenticationSignUpConfig socialAuthenticationSignUpConfig;
     private final SocialProperties socialProperties;

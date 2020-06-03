@@ -3,10 +3,11 @@ package top.dcenter.security.core.util;
 import java.util.Random;
 
 /**
+ * 验证码工具
  * @author zyw
  * @version V1.0  Created by 2020/5/4 9:25
  */
-public class CodeUtil {
+public class ValidateCodeUtil {
 
     public static final String VERIFY_CODES = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
     public static final String NUMBER_VERIFY_CODES = "0123456789";

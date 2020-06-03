@@ -32,7 +32,7 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     public ResponseResult handleUserNotException(UserNotExistException ex) {
         String message = ex.getMessage();
         log.error(message, ex);
-        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message, ex.getId());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getId());
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     public ResponseResult parameterErrorException(ParameterErrorException ex) {
         String message = ex.getMessage();
         log.error(message, ex);
-        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message, ex.getData());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     public ResponseResult validateCodeException(ValidateCodeException ex) {
         String message = ex.getMessage();
         log.error(message, ex);
-        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message);
+        return ResponseResult.fail(message, ex.getErrorCodeEnum());
     }
 
     @Override
@@ -62,7 +62,7 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     public ResponseResult validateCodeParamErrorException(ValidateCodeParamErrorException ex) {
         String message = ex.getMessage();
         log.error(message, ex);
-        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message, ex.getData());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
 
     @Override
@@ -72,7 +72,7 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     public ResponseResult validateCodeProcessException(ValidateCodeProcessException ex) {
         String message = ex.getMessage();
         log.error(message, ex);
-        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), message);
+        return ResponseResult.fail(message, ex.getErrorCodeEnum());
     }
     @Override
     @ExceptionHandler(IllegalAccessUrlException.class)
@@ -81,7 +81,7 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     public ResponseResult illegalAccessUrlException(IllegalAccessUrlException ex) {
         String errorMsg = ex.getMessage();
         log.error(errorMsg, ex);
-        return ResponseResult.fail(ex.getErrorCodeEnum().getCode(), errorMsg);
+        return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum());
     }
 
 }

@@ -4,12 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
-import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
 import top.dcenter.security.core.api.service.AbstractUserDetailsService;
 import top.dcenter.security.core.config.SecurityConfiguration;
 import top.dcenter.security.core.properties.BrowserProperties;
@@ -29,10 +28,10 @@ import static top.dcenter.security.core.consts.SecurityConstants.QUERY_TABLE_EXI
  * @author zyw
  * @version V1.0  Created by 2020/5/28 14:06
  */
-@Configuration
+//@Configuration
 @AutoConfigureAfter({SecurityRememberMeConfiguration.class, SecurityConfiguration.class})
 @Slf4j
-public class RememberMeConfigurerAware implements SocialWebSecurityConfigurerAware, InitializingBean {
+public class RememberMeConfigurerAware implements WebSecurityConfigurerAware, InitializingBean {
 
     private final BrowserProperties browserProperties;
     private final PersistentTokenRepository persistentTokenRepository;
@@ -60,11 +59,11 @@ public class RememberMeConfigurerAware implements SocialWebSecurityConfigurerAwa
         // 开启 rememberMe 功能
         http.rememberMe()
                 .rememberMeParameter(DEFAULT_REMEMBER_ME_NAME)
-                .rememberMeCookieName(this.browserProperties.getRememberMeCookieName())
+                .rememberMeCookieName(this.browserProperties.getRememberMe().getRememberMeCookieName())
                 .tokenRepository(this.persistentTokenRepository)
-                .tokenValiditySeconds(Integer.parseInt(String.valueOf(this.browserProperties.getRememberMeTimeout().getSeconds())))
+                .tokenValiditySeconds(Integer.parseInt(String.valueOf(this.browserProperties.getRememberMe().getRememberMeTimeout().getSeconds())))
                 .userDetailsService(this.abstractUserDetailsService)
-                .useSecureCookie(this.browserProperties.getUseSecureCookie());
+                .useSecureCookie(this.browserProperties.getSession().getUseSecureCookie());
     }
 
     @Override

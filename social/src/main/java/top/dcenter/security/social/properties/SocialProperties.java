@@ -120,7 +120,7 @@ public class SocialProperties {
      */
     private String textEncryptorPassword = "7ca5d913a17b4942942d16a974e3fecc";
     /**
-     * 第三方登录用户数据库表的字段 key 与 secret 加密专用密码
+     * 第三方登录用户数据库表的字段 key 与 secret 加密专用 salt
      */
     private String textEncryptorSalt = "cd538b1b077542aca5f86942b6507fe2";
 
@@ -496,7 +496,6 @@ public class SocialProperties {
 
     /**
      * @author zhailiang
-     *
      */
     @Getter
     @Setter

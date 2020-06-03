@@ -6,7 +6,7 @@ package top.dcenter.security.core.enums;
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/4 15:29
  */
-public enum LoginPostProcessType {
+public enum LoginProcessType {
     /**
      * 登录后跳转
      */

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -15,7 +16,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-public class ValidateCode {
+public class ValidateCode implements Serializable {
+
+    private static final long serialVersionUID = 8564646192066649173L;
+
     private String code;
     private LocalDateTime expireTime;
 

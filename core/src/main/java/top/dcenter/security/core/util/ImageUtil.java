@@ -28,7 +28,7 @@ public class ImageUtil {
      * @throws IOException
      */
     public static String outputVerifyImage(int w, int h, File outputFile, int verifySize) throws IOException {
-        String verifyCode = CodeUtil.generateVerifyCode(verifySize);
+        String verifyCode = ValidateCodeUtil.generateVerifyCode(verifySize);
         outputImage(w, h, outputFile, verifyCode);
         return verifyCode;
     }
@@ -44,7 +44,7 @@ public class ImageUtil {
      * @throws IOException
      */
     public static String outputVerifyImage(int w, int h, OutputStream os, int verifySize) throws IOException {
-        String verifyCode = CodeUtil.generateVerifyCode(verifySize);
+        String verifyCode = ValidateCodeUtil.generateVerifyCode(verifySize);
         outputImage(w, h, os, verifyCode);
         return verifyCode;
     }

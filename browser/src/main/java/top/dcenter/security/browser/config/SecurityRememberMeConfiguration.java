@@ -1,5 +1,6 @@
 package top.dcenter.security.browser.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -31,8 +32,8 @@ public class SecurityRememberMeConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.security.browser.api.controller.BaseBrowserSecurityController")
-    public BrowserSecurityController browserSecurityController() {
-        return new BrowserSecurityController(this.browserProperties);
+    public BrowserSecurityController browserSecurityController(ObjectMapper objectMapper) {
+        return new BrowserSecurityController(this.browserProperties, objectMapper);
     }
 
     /**

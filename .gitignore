@@ -50,3 +50,9 @@ demo/target/
 social/target/
 oauth/target/
 session/target/
+/demo/src/main/resources/application.yml
+/temp/
+/temp/application.properties
+/temp/application-dev.properties
+/temp/application-test.properties
+

@@ -72,7 +72,7 @@ public class SmsCodeLoginAuthenticationConfig extends SecurityConfigurerAdapter<
             PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices =
                     new PersistentTokenBasedRememberMeServices(getKey(), this.userDetailsService,
                                                                this.persistentTokenRepository);
-            persistentTokenBasedRememberMeServices.setTokenValiditySeconds(Integer.parseInt(String.valueOf(this.browserProperties.getRememberMeTimeout().getSeconds())));
+            persistentTokenBasedRememberMeServices.setTokenValiditySeconds(Integer.parseInt(String.valueOf(this.browserProperties.getRememberMe().getRememberMeTimeout().getSeconds())));
             persistentTokenBasedRememberMeServices.setParameter(DEFAULT_REMEMBER_ME_NAME);
             // 添加rememberMe功能配置
             smsCodeLoginAuthenticationFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);

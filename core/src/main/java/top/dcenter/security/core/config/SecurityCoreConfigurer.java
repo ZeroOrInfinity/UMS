@@ -3,26 +3,32 @@ package top.dcenter.security.core.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
-import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
 import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.core.provider.UsernamePasswordAuthenticationProvider;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
-import static top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware.anonymous;
-import static top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware.authenticated;
-import static top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware.denyAll;
-import static top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware.fullyAuthenticated;
-import static top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware.permitAll;
-import static top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware.rememberMe;
+import static top.dcenter.security.core.api.config.WebSecurityConfigurerAware.anonymous;
+import static top.dcenter.security.core.api.config.WebSecurityConfigurerAware.authenticated;
+import static top.dcenter.security.core.api.config.WebSecurityConfigurerAware.denyAll;
+import static top.dcenter.security.core.api.config.WebSecurityConfigurerAware.fullyAuthenticated;
+import static top.dcenter.security.core.api.config.WebSecurityConfigurerAware.permitAll;
+import static top.dcenter.security.core.api.config.WebSecurityConfigurerAware.rememberMe;
+import static top.dcenter.security.core.consts.SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY;
 
 /**
  * 核心 HttpSecurity 安全相关配置
@@ -46,44 +52,42 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
     private final BrowserProperties browserProperties;
     private final BaseAuthenticationSuccessHandler  baseAuthenticationSuccessHandler;
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
-    private UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
-
+    private final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
+    private final ServletWebServerApplicationContext servletWebServerApplicationContext;
 
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
-    private Map<String, SocialWebSecurityConfigurerAware> socialWebSecurityConfigurerMap;
+    private Map<String, WebSecurityConfigurerAware> socialWebSecurityConfigurerMap;
 
     public SecurityCoreConfigurer(BrowserProperties browserProperties,
                                   BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
-                                  BaseAuthenticationFailureHandler baseAuthenticationFailureHandler, UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider) {
+                                  BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
+                                  UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider,
+                                  ServletWebServerApplicationContext servletWebServerApplicationContext) {
         this.browserProperties = browserProperties;
         this.baseAuthenticationSuccessHandler = baseAuthenticationSuccessHandler;
         this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
         this.usernamePasswordAuthenticationProvider = usernamePasswordAuthenticationProvider;
+        this.servletWebServerApplicationContext = servletWebServerApplicationContext;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        Set<String> permitAllSet = new HashSet<>();
-        Set<String> denyAllSet = new HashSet<>();
-        Set<String> anonymousSet = new HashSet<>();
-        Set<String> authenticatedSet = new HashSet<>();
-        Set<String> fullyAuthenticatedSet = new HashSet<>();
-        Set<String> rememberMeSet = new HashSet<>();
+        Map<String, Set<String>> authorizeRequestMap = new HashMap<>(16);
 
-        // 对所有的AuthorizeRequestUris 进行分类，放入对应的 Set
-        // 对所有的问题都是一样的
-        fillingAuthorizeRequestUris(http, permitAllSet, denyAllSet, anonymousSet, authenticatedSet,
-                                    fullyAuthenticatedSet, rememberMeSet);
+        // 对所有的AuthorizeRequestUris 进行分类，放入对应的 Map
+        // 把从 WebSecurityConfigurerAware#getAuthorizeRequestMap() 获取的 authorizeRequestMap 根据权限分类进行合并,
+        // 把权限作为 key 与之相对应的 uriSet 作为 value, 分类放入 map, 此 authorizeRequestMap 存储在 ServletContext 时所用的 key
+        fillingAuthorizeRequestUris(http, authorizeRequestMap);
 
         // 将 AuthorizeRequestUriSet 转换为对应的 array
-        String[] permitAllArray = set2Array(permitAllSet, permitAll);
-        String[] denyAllArray = set2Array(denyAllSet, denyAll);
-        String[] anonymousArray = set2Array(anonymousSet, anonymous);
-        String[] authenticatedArray = set2Array(authenticatedSet, authenticated);
-        String[] fullyAuthenticatedArray = set2Array(fullyAuthenticatedSet, fullyAuthenticated);
-        String[] rememberMeArray = set2Array(rememberMeSet, rememberMe);
+        String[] permitAllArray = set2Array(authorizeRequestMap, permitAll);
+        String[] denyAllArray = set2Array(authorizeRequestMap, denyAll);
+        String[] anonymousArray = set2Array(authorizeRequestMap, anonymous);
+        String[] authenticatedArray = set2Array(authorizeRequestMap, authenticated);
+        String[] fullyAuthenticatedArray = set2Array(authorizeRequestMap, fullyAuthenticated);
+        String[] rememberMeArray = set2Array(authorizeRequestMap, rememberMe);
 
         /* 用户密码登录的 Provider, 只是对 org.springframework.security.authentication.dao.DaoAuthenticationProvider 的 copy.
          * 替换 org.springframework.security.authentication.dao.DaoAuthenticationProvider 的一个原因是:
@@ -118,91 +122,98 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
 
         if (this.socialWebSecurityConfigurerMap != null)
         {
-            for (SocialWebSecurityConfigurerAware postConfigurer : this.socialWebSecurityConfigurerMap.values())
+            for (WebSecurityConfigurerAware postConfigurer : this.socialWebSecurityConfigurerMap.values())
             {
                 postConfigurer.postConfigure(http);
             }
         }
     }
 
-    private String[] set2Array(Set<String> permitAllSet, String authorizeRequestType) {
-        String[] permitAllArray;
-        permitAllArray = new String[permitAllSet.size()];
-        permitAllSet.toArray(permitAllArray);
-        if (log.isDebugEnabled())
+    /**
+     * 把指定 authorizeRequestType 类型的 Set 转成 Array
+     * @param authorizeRequestMap   存储种 authorizeRequestType 的 map
+     * @param authorizeRequestType  authorizeRequestType
+     * @return  当 authorizeRequestType 对应的 Set 为 null 时, 返回 new String[0];
+     */
+    private String[] set2Array(Map<String, Set<String>> authorizeRequestMap, String authorizeRequestType) {
+        Set<String> set = authorizeRequestMap.get(authorizeRequestType);
+        if (set != null)
         {
-            log.debug("{} = {}", authorizeRequestType, Arrays.toString(permitAllArray));
+            String[] permitAllArray;
+            permitAllArray = new String[set.size()];
+            set.toArray(permitAllArray);
+            if (log.isDebugEnabled())
+            {
+                log.debug("{} = {}", authorizeRequestType, Arrays.toString(permitAllArray));
+            }
+            return permitAllArray;
+
         }
-        return permitAllArray;
+        return new String[0];
     }
 
     /**
-     * 传入参数都不能为 null
-     *
+     * 把从 {@link WebSecurityConfigurerAware#getAuthorizeRequestMap()} 获取的 Map 根据权限分类进行合并,
+     * 把权限作为 key 与之相对应的 uriSet 作为 value, 分类放入 map, 此 map 存储在 applicationContent 时所用的 key
+     * 传入参数都不能为 null.
      * @param http  HttpSecurity
-     * @param permitAllSet  permitAllSet
-     * @param denyAllSet    denyAllSet
-     * @param anonymousSet  anonymousSet
-     * @param authenticatedSet  authenticatedSet
-     * @param fullyAuthenticatedSet fullyAuthenticatedSet
-     * @param rememberMeSet rememberMeSet
+     * @param targetAuthorizeRequestMap  targetAuthorizeRequestMap
      * @throws Exception  Exception
      */
-    private void fillingAuthorizeRequestUris(HttpSecurity http,
-                                             Set<String> permitAllSet,
-                                             Set<String> denyAllSet,
-                                             Set<String> anonymousSet,
-                                             Set<String> authenticatedSet,
-                                             Set<String> fullyAuthenticatedSet,
-                                             Set<String> rememberMeSet) throws Exception {
+    private void fillingAuthorizeRequestUris(@NonNull HttpSecurity http,
+                                              @NonNull Map<String, Set<String>> targetAuthorizeRequestMap) throws Exception {
         if (this.socialWebSecurityConfigurerMap != null)
         {
-            for (SocialWebSecurityConfigurerAware configurer : this.socialWebSecurityConfigurerMap.values())
+            for (WebSecurityConfigurerAware configurer : this.socialWebSecurityConfigurerMap.values())
             {
                 configurer.preConfigure(http);
                 Map<String, Set<String>> authorizeRequestMap = configurer.getAuthorizeRequestMap();
-
-                add2Set(permitAllSet, authorizeRequestMap, permitAll);
-                add2Set(denyAllSet, authorizeRequestMap, denyAll);
-                add2Set(anonymousSet, authorizeRequestMap, anonymous);
-                add2Set(authenticatedSet, authorizeRequestMap, authenticated);
-                add2Set(fullyAuthenticatedSet, authorizeRequestMap, fullyAuthenticated);
-                add2Set(rememberMeSet, authorizeRequestMap, rememberMe);
+                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, permitAll);
+                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, denyAll);
+                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, anonymous);
+                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, authenticated);
+                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, fullyAuthenticated);
+                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, rememberMe);
             }
+
+            // 把 targetAuthorizeRequestMap 添加到 ServletContext
+            Objects.requireNonNull(this.servletWebServerApplicationContext.getServletContext())
+                    .setAttribute(SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY, targetAuthorizeRequestMap);
         }
-        permitAllSet.addAll(addPermitAllUriSet());
     }
 
-    private Set<String> addPermitAllUriSet() {
-        Set<String> permitAllSet = new HashSet<>();
-
-        permitAllSet.add(this.browserProperties.getLoginUnAuthenticationUrl());
-        permitAllSet.add(this.browserProperties.getFailureUrl());
-        permitAllSet.add(this.browserProperties.getLoginPage());
-        permitAllSet.add(this.browserProperties.getSuccessUrl());
-        permitAllSet.add(this.browserProperties.getErrorUrl());
-        permitAllSet.add(this.browserProperties.getError4Url());
-        permitAllSet.add(this.browserProperties.getError5Url());
-
-        return permitAllSet;
-    }
 
     /**
-     * 把 根据 authorizeRequestType 从 authorizeRequestMap 提取的 uri 添加到数组中
+     * 把 根据权限类型从 authorizeRequestMap 提取的 uriSet 添加到 map 中
      *
-     * @param resultSet            不可以为null
-     * @param authorizeRequestMap  可以为 null
+     * @param targetAuthorizeRequestMap 不可以为null
+     * @param srcAuthorizeRequestMap  可以为 null
      * @param authorizeRequestType 不允许为 null
      */
-    private void add2Set(Set<String> resultSet, Map<String, Set<String>> authorizeRequestMap,
-                         String authorizeRequestType) {
-        if (authorizeRequestMap != null)
+    private void groupByMap(@NonNull Map<String, Set<String>> targetAuthorizeRequestMap,
+                            @Nullable Map<String, Set<String>> srcAuthorizeRequestMap,
+                            @NonNull String authorizeRequestType) {
+
+        if (srcAuthorizeRequestMap != null)
         {
-            Set<String> authorizeRequestSet = authorizeRequestMap.get(authorizeRequestType);
-            if (authorizeRequestSet != null && !authorizeRequestSet.isEmpty())
+            Set<String> set = srcAuthorizeRequestMap.get(authorizeRequestType);
+            if (set == null)
             {
-                resultSet.addAll(authorizeRequestSet);
+                set = new HashSet<>();
             }
+            final Set<String> uriSet = set;
+
+            targetAuthorizeRequestMap.compute(authorizeRequestType, (k, v) -> {
+
+                if (v == null)
+                {
+                    v = uriSet;
+                } else
+                {
+                    v.addAll(uriSet);
+                }
+                return v;
+            });
         }
     }
 

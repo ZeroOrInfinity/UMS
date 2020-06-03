@@ -1,6 +1,9 @@
 package top.dcenter.security.core.vo;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import top.dcenter.security.core.enums.ErrorCodeEnum;
 
 /**
  * 简单的 Vo 对象封装, code = 0 表示处理成功信息，其他表示失败。<br>
@@ -8,7 +11,9 @@ import lombok.Data;
  * @version V1.0  Created by 2020/5/3 19:39
  * @medifiedBy zyw
  */
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
 public class ResponseResult {
     /**
      * 0 表示处理成功信息，其他表示失败
@@ -67,24 +72,39 @@ public class ResponseResult {
     }
 
     /**
-     * @param code
-     * @param msg
+     * @param errorCodeEnum
      * @return
      */
-    public static ResponseResult fail(int code, String msg) {
-        return ResponseResult.fail(code, msg, null);
+    public static ResponseResult fail(ErrorCodeEnum errorCodeEnum) {
+        return ResponseResult.fail(errorCodeEnum, null);
     }
 
     /**
-     * @param code
-     * @param msg
+     * @param errorCodeEnum
      * @param data
      * @return
      */
-    public static ResponseResult fail(int code, String msg, Object data) {
-        ResponseResult responseResult = new ResponseResult(code, msg);
-        responseResult.setData(data);
-        return responseResult;
+    public static ResponseResult fail(ErrorCodeEnum errorCodeEnum, Object data) {
+        return new ResponseResult(errorCodeEnum.getCode(), errorCodeEnum.getMsg(), data);
+    }
+
+    /**
+     * @param errorMsg
+     * @param errorCodeEnum
+     * @return
+     */
+    public static ResponseResult fail(String errorMsg, ErrorCodeEnum errorCodeEnum) {
+        return new ResponseResult(errorCodeEnum.getCode(), errorMsg, null);
+    }
+
+    /**
+     * @param errorMsg
+     * @param errorCodeEnum
+     * @param data
+     * @return
+     */
+    public static ResponseResult fail(String errorMsg, ErrorCodeEnum errorCodeEnum, Object data) {
+        return new ResponseResult(errorCodeEnum.getCode(), errorMsg, data);
     }
 
 }

@@ -3,7 +3,7 @@ package top.dcenter.security.core.validate.code.smscode;
 import lombok.extern.slf4j.Slf4j;
 import top.dcenter.security.core.api.validate.code.SmsCodeSender;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.util.CodeUtil;
+import top.dcenter.security.core.util.ValidateCodeUtil;
 import top.dcenter.security.core.validate.code.ValidateCode;
 
 /**
@@ -35,7 +35,7 @@ public class DefaultSmsCodeSender implements SmsCodeSender {
         int expireIn = smsCodeProp.getExpire();
         int codeLength = smsCodeProp.getLength();
 
-        String code = CodeUtil.generateNumberVerifyCode(codeLength);
+        String code = ValidateCodeUtil.generateNumberVerifyCode(codeLength);
 
         return new ValidateCode(code, expireIn);
     }

@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
 import top.dcenter.security.social.api.config.SocialCoreConfig;
 import top.dcenter.security.social.properties.SocialProperties;
 
@@ -15,14 +15,14 @@ import java.util.Set;
 
 /**
  * 把 social 第三方授权登录相关配置添加到 HttpSecurity 中。
- * @see SocialWebSecurityConfigurerAware
+ * @see WebSecurityConfigurerAware
  * @author zyw
  * @version V1.0  Created by 2020/5/12 12:02
  */
 @Configuration
 @AutoConfigureAfter({SocialConfiguration.class})
 @Slf4j
-public class SocialSecurityConfigurerAware implements SocialWebSecurityConfigurerAware {
+public class SocialSecurityConfigurerAware implements WebSecurityConfigurerAware {
 
     private final SocialProperties socialProperties;
 

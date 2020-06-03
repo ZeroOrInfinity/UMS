@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.social.connect.Connection;
-import top.dcenter.security.core.enums.LoginPostProcessType;
+import top.dcenter.security.core.enums.LoginProcessType;
 import top.dcenter.security.core.properties.BrowserProperties;
 import top.dcenter.security.core.vo.ResponseResult;
 import top.dcenter.security.social.properties.SocialProperties;
@@ -53,7 +53,7 @@ public class DefaultShowConnectViewService implements ShowConnectViewService {
                             .collect(Collectors.toList());
         }
         // JSON
-        if (LoginPostProcessType.JSON.equals(browserProperties.getLoginPostProcessType()))
+        if (LoginProcessType.JSON.equals(browserProperties.getLoginProcessType()))
         {
             response.setStatus(HttpStatus.OK.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);

@@ -3,7 +3,7 @@ package top.dcenter.validate.code;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.util.CodeUtil;
+import top.dcenter.security.core.util.ValidateCodeUtil;
 import top.dcenter.security.core.validate.code.ValidateCode;
 import top.dcenter.security.core.api.validate.code.SmsCodeSender;
 
@@ -33,7 +33,7 @@ public class DemoSmsCodeSender implements SmsCodeSender {
         int expireIn = smsCodeProp.getExpire();
         int codeLength = smsCodeProp.getLength();
 
-        String code = CodeUtil.generateNumberVerifyCode(codeLength);
+        String code = ValidateCodeUtil.generateNumberVerifyCode(codeLength);
         if (log.isDebugEnabled())
         {
             log.debug("Demo =======>: {} = {}", this.validateCodeProperties.getSms().getRequestParamSmsCodeName(),

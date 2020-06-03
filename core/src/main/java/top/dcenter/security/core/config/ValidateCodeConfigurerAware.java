@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
-import top.dcenter.security.core.api.config.SocialWebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.validate.code.ValidateCodeFilter;
 
@@ -24,7 +24,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDAT
 @Configuration
 @AutoConfigureAfter({SmsCodeLoginAuthenticationConfig.class, ValidateCodeBeanConfiguration.class})
 @Slf4j
-public class ValidateCodeConfigurerAware implements SocialWebSecurityConfigurerAware {
+public class ValidateCodeConfigurerAware implements WebSecurityConfigurerAware {
 
     private final ValidateCodeProperties validateCodeProperties;
     private final ValidateCodeFilter validateCodeFilter;
