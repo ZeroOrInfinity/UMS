@@ -1,5 +1,6 @@
 package top.dcenter.security.browser.session.strategy;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -32,7 +33,7 @@ public class BrowserExpiredSessionStrategy implements SessionInformationExpiredS
 
     public BrowserExpiredSessionStrategy(BrowserProperties browserProperties, ObjectMapper objectMapper) {
         this.browserProperties = browserProperties;
-        this.objectMapper = objectMapper;
+        this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.redirectStrategy = new DefaultRedirectStrategy();
     }
 
@@ -51,7 +52,7 @@ public class BrowserExpiredSessionStrategy implements SessionInformationExpiredS
         {
             redirectProcessingByLoginProcessType(request, response, browserProperties, objectMapper,
                                                  redirectStrategy, ErrorCodeEnum.CONCURRENT_SESSION,
-                                                 browserProperties.getLoginPage());
+                                                 browserProperties.getSession().getInvalidSessionOfConcurrentUrl());
         }
         catch (Exception e)
         {

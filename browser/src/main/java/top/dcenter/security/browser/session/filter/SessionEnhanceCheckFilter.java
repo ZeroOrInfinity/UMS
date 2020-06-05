@@ -5,8 +5,8 @@ import org.apache.commons.collections.MapUtils;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+import top.dcenter.security.browser.api.session.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.security.browser.api.session.SessionEnhanceCheckService;
-import top.dcenter.security.browser.session.strategy.EnhanceChangeSessionIdAuthenticationStrategy;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
 import top.dcenter.security.core.exception.SessionEnhanceCheckException;
@@ -23,14 +23,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static top.dcenter.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
 import static top.dcenter.security.core.consts.SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY;
 import static top.dcenter.security.core.consts.SecurityConstants.SESSION_ENHANCE_CHECK_KEY;
-import static top.dcenter.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
 import static top.dcenter.security.core.enums.ErrorCodeEnum.SESSION_ENHANCE_CHECK;
 
 /**
  * session 增强检测, 如对客户端特征码检测, 增强对 session 攻击的防御,
- * 依赖 {@link EnhanceChangeSessionIdAuthenticationStrategy}. <br>
+ * 依赖 {@link EnhanceConcurrentControlAuthenticationStrategy}. <br>
  *     属性 authorizeRequestMap 通过 {@link top.dcenter.security.core.config.SecurityCoreConfigurer} 方法
  *     fillingAuthorizeRequestUris() 注入
  * @author zyw

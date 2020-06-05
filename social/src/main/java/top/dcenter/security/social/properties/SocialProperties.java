@@ -3,6 +3,7 @@ package top.dcenter.security.social.properties;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.controller.SocialController;
 
@@ -23,9 +24,12 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_P
 @ConfigurationProperties("security.social")
 public class SocialProperties {
 
-    private QqProperties qq = new QqProperties();
-    private GiteeProperties gitee = new GiteeProperties();
-    private WeixinProperties weixin = new WeixinProperties();
+    @NestedConfigurationProperty
+    private final QqProperties qq = new QqProperties();
+    @NestedConfigurationProperty
+    private final GiteeProperties gitee = new GiteeProperties();
+    @NestedConfigurationProperty
+    private final WeixinProperties weixin = new WeixinProperties();
 
     // ================= 第三方登录注册相关功能 =================
 
@@ -42,6 +46,7 @@ public class SocialProperties {
      * autoSignIn=true 且实现 ConnectionSignUp 接口则自动登录时 signUpUrl 会失效
      */
     private String signUpUrl = "/signUp.html";
+
     /**
      * 第三方登录页面， 默认为 /signIn.html
      */
@@ -477,7 +482,6 @@ public class SocialProperties {
          * 回调地址(格式必须是：domain/callbackUrl/providerId)，默认
          */
         private String redirectUrl = domain + callbackUrl + "/" + providerId;
-
     }
 
     @Getter

@@ -1,6 +1,9 @@
 package top.dcenter.security.core.properties;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +22,14 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REQUEST
 @ConfigurationProperties("security.codes")
 public class ValidateCodeProperties {
 
+    @NestedConfigurationProperty
     private final ImageCodeProperties image = new ImageCodeProperties();
+    @NestedConfigurationProperty
     private final SmsCodeProperties sms = new SmsCodeProperties();
 
     public ImageCodeProperties getImage() {
         return image;
     }
-
     public SmsCodeProperties getSms() {
         return sms;
     }
@@ -36,6 +40,8 @@ public class ValidateCodeProperties {
      * @medifiedBy  zyw
      * @version V1.0  Created by 2020/5/4 16:04
      */
+    @Getter
+    @Setter
     public static class SmsCodeProperties {
 
         public SmsCodeProperties() {
@@ -64,45 +70,7 @@ public class ValidateCodeProperties {
          */
         private List<String> authUrls;
 
-        public int getLength() {
-            return length;
-        }
 
-        public void setLength(int length) {
-            this.length = length;
-        }
-
-        public int getExpire() {
-            return expire;
-        }
-
-        public void setExpire(int expire) {
-            this.expire = expire;
-        }
-
-        public String getRequestParamSmsCodeName() {
-            return requestParamSmsCodeName;
-        }
-
-        public void setRequestParamSmsCodeName(String requestParamSmsCodeName) {
-            this.requestParamSmsCodeName = requestParamSmsCodeName;
-        }
-
-        public String getRequestParamMobileName() {
-            return requestParamMobileName;
-        }
-
-        public void setRequestParamMobileName(String requestParamMobileName) {
-            this.requestParamMobileName = requestParamMobileName;
-        }
-
-        public List<String> getAuthUrls() {
-            return authUrls;
-        }
-
-        public void setAuthUrls(List<String> authUrls) {
-            this.authUrls = authUrls;
-        }
     }
 
     /**
@@ -111,6 +79,8 @@ public class ValidateCodeProperties {
      * @medifiedBy  zyw
      * @version V1.0  Created by 2020/5/4 16:04
      */
+    @Getter
+    @Setter
     public static class ImageCodeProperties {
 
         public ImageCodeProperties() {
@@ -155,68 +125,5 @@ public class ValidateCodeProperties {
          */
         private List<String> authUrls;
 
-        public int getWidth() {
-            return width;
-        }
-
-        public void setWidth(int width) {
-            this.width = width;
-        }
-
-        public int getHeight() {
-            return height;
-        }
-
-        public void setHeight(int height) {
-            this.height = height;
-        }
-
-        public int getLength() {
-            return length;
-        }
-
-        public void setLength(int length) {
-            this.length = length;
-        }
-
-        public int getExpire() {
-            return expire;
-        }
-
-        public void setExpire(int expire) {
-            this.expire = expire;
-        }
-
-        public String getRequestParaWidthName() {
-            return requestParaWidthName;
-        }
-
-        public void setRequestParaWidthName(String requestParaWidthName) {
-            this.requestParaWidthName = requestParaWidthName;
-        }
-
-        public String getRequestParaHeightName() {
-            return requestParaHeightName;
-        }
-
-        public void setRequestParaHeightName(String requestParaHeightName) {
-            this.requestParaHeightName = requestParaHeightName;
-        }
-
-        public String getRequestParamImageCodeName() {
-            return requestParamImageCodeName;
-        }
-
-        public void setRequestParamImageCodeName(String requestParamImageCodeName) {
-            this.requestParamImageCodeName = requestParamImageCodeName;
-        }
-
-        public List<String> getAuthUrls() {
-            return authUrls;
-        }
-
-        public void setAuthUrls(List<String> authUrls) {
-            this.authUrls = authUrls;
-        }
     }
 }

@@ -15,10 +15,10 @@ public enum ErrorCodeEnum {
 
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "操作未授权"),
     INVALID_SESSION(HttpStatus.UNAUTHORIZED.value(), "session 失效"),
-    CONCURRENT_SESSION(HttpStatus.UNAUTHORIZED.value(), "用户在其他客户端上登录, 此客户端退出登录状态"),
+    CONCURRENT_SESSION(HttpStatus.UNAUTHORIZED.value(), "你的账号在其他客户端上登录, 此客户端退出登录状态, 如非本来, 请更改密码"),
     SESSION_ENHANCE_CHECK(HttpStatus.UNAUTHORIZED.value(), "session 非法"),
-    SERVER_ERROR(500, "功能还在开发中"),
-    INTERNAL_SERVER_ERROR(404, INTERNAL_SERVER_ERROR_MSG),
+    SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "功能还在开发中"),
+    INTERNAL_SERVER_ERROR(HttpStatus.NOT_FOUND.value(), INTERNAL_SERVER_ERROR_MSG),
 
     USERNAME_USED(900, "用户名重名"),
     USER_NOT_EXIST(901, "用户不存在"),

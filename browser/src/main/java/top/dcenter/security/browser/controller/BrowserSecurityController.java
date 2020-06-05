@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import top.dcenter.security.browser.api.controller.BaseBrowserSecurityController;
+import top.dcenter.security.browser.api.controller.BaseSecurityController;
 import top.dcenter.security.core.enums.ErrorCodeEnum;
 import top.dcenter.security.core.exception.IllegalAccessUrlException;
 import top.dcenter.security.core.properties.BrowserProperties;
@@ -27,12 +27,12 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_SESSION_INVALID_URL;
-import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UNAUTHENTICATION_URL;
+import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UN_AUTHENTICATION_URL;
 import static top.dcenter.security.core.util.AuthenticationUtil.redirectProcessingByLoginProcessType;
 
 /**
  * 网页端认证 controller.<br>
- * 如果要自定义网页端 url 认证与授权的路由控制，请实现 {@link BaseBrowserSecurityController} 接口，并注入 IOC 容器即可
+ * 如果要自定义网页端 url 认证与授权的路由控制，请实现 {@link BaseSecurityController} 接口，并注入 IOC 容器即可
  *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 17:43
@@ -40,7 +40,7 @@ import static top.dcenter.security.core.util.AuthenticationUtil.redirectProcessi
  */
 @Slf4j
 @ResponseBody
-public class BrowserSecurityController implements BaseBrowserSecurityController {
+public class BrowserSecurityController implements BaseSecurityController {
 
     /**
      * url regex
@@ -73,7 +73,7 @@ public class BrowserSecurityController implements BaseBrowserSecurityController 
      * @param response {@link HttpServletResponse}
      */
     @Override
-    @RequestMapping(DEFAULT_UNAUTHENTICATION_URL)
+    @RequestMapping(DEFAULT_UN_AUTHENTICATION_URL)
     public void requireAuthentication(HttpServletRequest request, HttpServletResponse response) {
         try
         {
@@ -110,10 +110,11 @@ public class BrowserSecurityController implements BaseBrowserSecurityController 
         }
     }
 
+    @Override
     @GetMapping(DEFAULT_SESSION_INVALID_URL)
     @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
     @ConditionalOnProperty(prefix = "security.browser", name = "invalid-session-url", havingValue = DEFAULT_SESSION_INVALID_URL)
-    public void invalidSession(HttpServletRequest request, HttpServletResponse response) {
+    public void invalidSessionHandler(HttpServletRequest request, HttpServletResponse response) {
 
         try
         {
