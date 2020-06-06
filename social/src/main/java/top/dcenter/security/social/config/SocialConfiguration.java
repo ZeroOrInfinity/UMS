@@ -21,7 +21,7 @@ import org.springframework.social.connect.web.ConnectInterceptor;
 import org.springframework.social.connect.web.DisconnectInterceptor;
 import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.util.CollectionUtils;
-import top.dcenter.security.core.properties.BrowserProperties;
+import top.dcenter.security.core.properties.ClientProperties;
 import top.dcenter.security.social.api.callback.RedirectUrlHelper;
 import top.dcenter.security.social.api.callback.ShowConnectViewService;
 import top.dcenter.security.social.api.config.SocialCoreConfig;
@@ -139,8 +139,8 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.callback.ShowConnectViewService")
-    public ShowConnectViewService showConnectViewService(BrowserProperties browserProperties, ObjectMapper objectMapper) {
-        return new DefaultShowConnectViewService(browserProperties, objectMapper, this.socialProperties);
+    public ShowConnectViewService showConnectViewService(ClientProperties clientProperties, ObjectMapper objectMapper) {
+        return new DefaultShowConnectViewService(clientProperties, objectMapper, this.socialProperties);
     }
 
     @Bean
@@ -152,12 +152,9 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.config.SocialCoreConfig")
     public SocialCoreConfig socialCoreConfigurer() {
-        SocialCoreConfig socialCoreConfig =
-                new SocialCoreConfig(socialProperties);
-        return socialCoreConfig;
+        return new SocialCoreConfig(socialProperties);
     }
 
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Override
     public void afterPropertiesSet() throws Exception {
 
@@ -166,6 +163,7 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
         {
             if (connection == null)
             {
+                log.error("错误: 初始化第三方登录的 {} 用户表时发生错误", socialProperties.getTableName());
                 throw new Exception(String.format("初始化第三方登录的 %s 用户表时发生错误", socialProperties.getTableName()));
             }
 
@@ -198,6 +196,7 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
             }
             else
             {
+                log.error("错误: 初始化第三方登录的 {} 用户表时发生错误", socialProperties.getTableName());
                 throw new Exception(String.format("初始化第三方登录的 %s 用户表时发生错误",
                                                   socialProperties.getTableName()));
             }

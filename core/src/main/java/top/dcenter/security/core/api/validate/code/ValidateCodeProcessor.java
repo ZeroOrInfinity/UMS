@@ -3,7 +3,7 @@ package top.dcenter.security.core.api.validate.code;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.enums.ValidateCodeType;
 import top.dcenter.security.core.exception.ValidateCodeException;
-import top.dcenter.security.core.validate.code.ValidateCode;
+import top.dcenter.security.core.auth.validate.codes.ValidateCode;
 
 /**
  * 验证码处理逻辑接口
@@ -17,7 +17,7 @@ public interface ValidateCodeProcessor {
      * 处理验证码逻辑：产生，缓存到session，发送
      * @param request   ServletWebRequest
      * @return  是否成功的状态
-     * @throws {@link ValidateCodeException}
+     * @throws ValidateCodeException 验证码异常
      */
     boolean produce(ServletWebRequest request) throws ValidateCodeException;
 
@@ -53,7 +53,7 @@ public interface ValidateCodeProcessor {
     /**
      * 校验验证码
      * @param request   {@link ServletWebRequest}
-     * @throws {@link ValidateCodeException}
+     * @throws ValidateCodeException 验证码异常
      */
     void validate(ServletWebRequest request) throws ValidateCodeException;
 }

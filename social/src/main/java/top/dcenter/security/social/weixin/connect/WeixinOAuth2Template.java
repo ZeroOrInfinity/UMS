@@ -88,11 +88,9 @@ public class WeixinOAuth2Template extends OAuth2Template {
     @SuppressWarnings("unchecked")
     private AccessGrant getAccessToken(StringBuilder accessTokenRequestUrl) {
 
-        log.info("获取access_token, 请求URL: " + accessTokenRequestUrl.toString());
-
         String response = getRestTemplate().getForObject(accessTokenRequestUrl.toString(), String.class);
 
-        log.info("获取access_token, 响应内容: " + response);
+        log.info("获取access_token: 请求URL={}, 响应内容={}", accessTokenRequestUrl.toString(), response);
 
         Map<String, Object> result;
         try

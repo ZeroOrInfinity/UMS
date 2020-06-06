@@ -2,11 +2,9 @@ package top.dcenter.security.core.properties;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE;
-import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REQUEST_PARAM_MOBILE_NAME;
 
 /**
  * 短信验证码登录属性
@@ -16,18 +14,12 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REQUEST
  */
 @Getter
 @Setter
-@ConfigurationProperties("security.sms-code-login")
-@ConditionalOnProperty(prefix = "security.sms-code-login", name = "sms-code-login-is-open", havingValue = "true")
+@ConfigurationProperties("security.mobile.login")
 public class SmsCodeLoginAuthenticationProperties {
     /**
      * 手机验证码登录请求处理url, 默认 /authentication/mobile
      */
     public String loginProcessingUrlMobile = DEFAULT_LOGIN_PROCESSING_URL_MOBILE;
-
-    /**
-     * 提交短信验证码请求时，请求中带的手机号变量名，默认 mobile
-     */
-    private String requestParamMobileName = DEFAULT_REQUEST_PARAM_MOBILE_NAME;
 
     /**
      * 手机验证码登录是否开启, 默认 false

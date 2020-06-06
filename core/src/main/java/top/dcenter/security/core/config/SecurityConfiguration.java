@@ -11,11 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import top.dcenter.security.core.api.advice.SecurityControllerExceptionHandler;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
-import top.dcenter.security.core.authentication.handler.BrowserAuthenticationFailureHandler;
-import top.dcenter.security.core.authentication.handler.BrowserAuthenticationSuccessHandler;
-import top.dcenter.security.core.properties.BrowserProperties;
-
-import javax.sql.DataSource;
+import top.dcenter.security.core.auth.handler.ClientAuthenticationFailureHandler;
+import top.dcenter.security.core.auth.handler.ClientAuthenticationSuccessHandler;
+import top.dcenter.security.core.properties.ClientProperties;
 
 /**
  * security 配置
@@ -27,29 +25,25 @@ import javax.sql.DataSource;
 @AutoConfigureAfter({PropertiesConfiguration.class})
 public class SecurityConfiguration {
 
-    private final BrowserProperties browserProperties;
-    private final DataSource dataSource;
+    private final ClientProperties clientProperties;
     protected final ObjectMapper objectMapper;
 
-    public SecurityConfiguration(BrowserProperties browserProperties, DataSource dataSource, ObjectMapper objectMapper) {
-        this.browserProperties = browserProperties;
-        this.dataSource = dataSource;
+    public SecurityConfiguration(ClientProperties clientProperties, ObjectMapper objectMapper) {
+        this.clientProperties = clientProperties;
         this.objectMapper = objectMapper;
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler")
-    public BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler(ObjectMapper objectMapper,
-                                                                                BrowserProperties browserProperties) {
-        return new BrowserAuthenticationSuccessHandler(objectMapper, browserProperties);
+    public BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler() {
+        return new ClientAuthenticationSuccessHandler(objectMapper, clientProperties);
     }
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler")
-    public BaseAuthenticationFailureHandler baseAuthenticationFailureHandler(ObjectMapper objectMapper,
-                                                                                BrowserProperties browserProperties) {
-        return new BrowserAuthenticationFailureHandler(objectMapper, browserProperties);
+    public BaseAuthenticationFailureHandler baseAuthenticationFailureHandler() {
+        return new ClientAuthenticationFailureHandler(objectMapper, clientProperties);
     }
 
     @Bean

@@ -92,9 +92,9 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	
 	private final ConnectionRepository connectionRepository;
 
-	private final MultiValueMap<Class<?>, ConnectInterceptor<?>> connectInterceptors = new LinkedMultiValueMap<Class<?>, ConnectInterceptor<?>>();
+	private final MultiValueMap<Class<?>, ConnectInterceptor<?>> connectInterceptors = new LinkedMultiValueMap<>();
 
-	private final MultiValueMap<Class<?>, DisconnectInterceptor<?>> disconnectInterceptors = new LinkedMultiValueMap<Class<?>, DisconnectInterceptor<?>>();
+	private final MultiValueMap<Class<?>, DisconnectInterceptor<?>> disconnectInterceptors = new LinkedMultiValueMap<>();
 
 	private final SocialProperties socialProperties;
 
@@ -118,7 +118,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	/**
 	 * Constructs a BandingConnectController.
 	 * @param connectionFactoryLocator the locator for {@link ConnectionFactory} instances needed to establish connections
-	 * @param socialProperties
+	 * @param socialProperties  socialProperties
 	 * @param connectionRepository the current user's {@link ConnectionRepository} needed to persist connections;
 	 *                             must be a proxy to a request-scoped bean<br>
 	 *                             在创建时通过 spring 自动注入一个代理，在调用 connectionRepository的方法之前，通过
@@ -209,7 +209,10 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	 */
 	public void addInterceptor(ConnectInterceptor<?> interceptor) {
 		Class<?> serviceApiType = GenericTypeResolver.resolveTypeArgument(interceptor.getClass(), ConnectInterceptor.class);
-		connectInterceptors.add(serviceApiType, interceptor);
+		if (serviceApiType != null)
+		{
+			connectInterceptors.add(serviceApiType, interceptor);
+		}
 	}
 
 	/**
@@ -219,11 +222,14 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	 */
 	public void addDisconnectInterceptor(DisconnectInterceptor<?> interceptor) {
 		Class<?> serviceApiType = GenericTypeResolver.resolveTypeArgument(interceptor.getClass(), DisconnectInterceptor.class);
-		disconnectInterceptors.add(serviceApiType, interceptor);
+		if (serviceApiType != null)
+		{
+			disconnectInterceptors.add(serviceApiType, interceptor);
+		}
 	}
 
 	/**
-	 * Render the status of connections across all providers to the user as HTML in their web browser.
+	 * Render the status of connections across all providers to the user as HTML in their web client.
 	 * @param request the request
 	 * @param model the model
 	 * @return the view name of the connection status page for all providers
@@ -239,7 +245,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	}
 	
 	/**
-	 * Render the status of the connections to the service provider to the user as HTML in their web browser.
+	 * Render the status of the connections to the service provider to the user as HTML in their web client.
 	 * @param providerId the ID of the provider to show connection status
      * @param request the request
      * @param model the model
@@ -281,7 +287,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 
 	/**
 	 * Process the authorization callback from an OAuth 2 service provider.
-	 * Called after the user authorizes the connection, generally done by having he or she click "Allow" in their web browser at the provider's site.
+	 * Called after the user authorizes the connection, generally done by having he or she click "Allow" in their web client at the provider's site.
 	 * On authorization verification, connects the user's local account to the account they hold at the service provider.
      * @param providerId the provider ID to connect to
      * @param request the request
@@ -329,7 +335,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	/**
 	 * Remove all provider connections for a user account.
 	 * The user has decided they no longer wish to use the service provider from this application.
-	 * Note: requires {@link HiddenHttpMethodFilter} to be registered with the '_method' request parameter set to 'DELETE' to convert web browser POSTs to DELETE requests.
+	 * Note: requires {@link HiddenHttpMethodFilter} to be registered with the '_method' request parameter set to 'DELETE' to convert web client POSTs to DELETE requests.
      * @param providerId the provider ID to remove the connections for
      * @param request the request
      * @return a RedirectView to the connection status page
@@ -346,7 +352,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	/**
 	 * Remove a single provider connection associated with a user account.
 	 * The user has decided they no longer wish to use the service provider account from this application.
-	 * Note: requires {@link HiddenHttpMethodFilter} to be registered with the '_method' request parameter set to 'DELETE' to convert web browser POSTs to DELETE requests.
+	 * Note: requires {@link HiddenHttpMethodFilter} to be registered with the '_method' request parameter set to 'DELETE' to convert web client POSTs to DELETE requests.
      * @param providerId the provider ID to remove connections for
      * @param providerUserId the user's ID at the provider
      * @param request the request
@@ -426,7 +432,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	// internal helpers
 
 	private boolean prependServletPath(HttpServletRequest request) {
-		return !this.urlPathHelper.getPathWithinServletMapping(request).equals("");
+		return !"".equals(this.urlPathHelper.getPathWithinServletMapping(request));
 	}
 	
 	/*

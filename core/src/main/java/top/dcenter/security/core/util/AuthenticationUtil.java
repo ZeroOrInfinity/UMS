@@ -1,15 +1,15 @@
 package top.dcenter.security.core.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.RedirectStrategy;
 import top.dcenter.security.core.enums.ErrorCodeEnum;
 import top.dcenter.security.core.enums.LoginProcessType;
-import top.dcenter.security.core.exception.RegisterUserFailureException;
-import top.dcenter.security.core.exception.ValidateCodeException;
-import top.dcenter.security.core.properties.BrowserProperties;
+import top.dcenter.security.core.exception.AbstractResponseJsonAuthenticationException;
+import top.dcenter.security.core.properties.ClientProperties;
 import top.dcenter.security.core.vo.ResponseResult;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +20,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
 import static top.dcenter.security.core.consts.SecurityConstants.HEADER_REFERER;
 
 /**
- * authentication util
+ * auth util
  *
  * @author zyw
  * @version V1.0  Created by 2020/6/1 22:39
@@ -34,61 +34,90 @@ public class AuthenticationUtil {
 
     /**
      * 认证失败处理
-     *
+     * {@link AbstractResponseJsonAuthenticationException} 类的异常, Response 会返回 Json 数据.
      * @param response          {@link javax.servlet.http.HttpServletRequest}
      * @param exception         {@link HttpServletResponse}
      * @param objectMapper      {@link ObjectMapper}
-     * @param browserProperties {@link BrowserProperties}
+     * @param clientProperties {@link ClientProperties}
      * @return 如果通过 {@link HttpServletResponse} 返回 JSON 数据则返回 true, 否则 false
-     * @throws IOException
+     * @throws IOException IOException
      */
     public static boolean authenticationFailureProcessing(HttpServletResponse response, AuthenticationException exception,
-                                                          ObjectMapper objectMapper, BrowserProperties browserProperties) throws IOException {
-        // 注册时，用户名重名处理, 返回 Json 格式
-        if (exception instanceof RegisterUserFailureException)
-        {
-            RegisterUserFailureException e = (RegisterUserFailureException) exception;
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding(CHARSET_UTF8);
-            response.getWriter().write(objectMapper.writeValueAsString(ResponseResult.fail(e.getMessage(),
-                                                                                           e.getErrorCodeEnum())));
-            return true;
-        }
+                                                          AbstractResponseJsonAuthenticationException e, String acceptHeader,
+                                                          ObjectMapper objectMapper, ClientProperties clientProperties) throws IOException {
 
-        // 验证码异常时，返回 JSON 格式
-        if (exception instanceof ValidateCodeException)
-        {
-            ValidateCodeException e = (ValidateCodeException) exception;
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding(CHARSET_UTF8);
-            response.getWriter().write(objectMapper.writeValueAsString(ResponseResult.fail(e.getMessage(),
-                                                                                           e.getErrorCodeEnum())));
-            return true;
-        }
-
-        if (LoginProcessType.JSON.equals(browserProperties.getLoginProcessType()))
+        // 检测是否接收 json 格式
+        if (StringUtils.isNotBlank(acceptHeader) && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
         {
             int status = HttpStatus.UNAUTHORIZED.value();
-            response.setStatus(status);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding(CHARSET_UTF8);
-            response.getWriter().write(objectMapper.writeValueAsString(ResponseResult.fail(exception.getMessage(),
-                                                                                           ErrorCodeEnum.UNAUTHORIZED)));
+            ResponseResult result;
+            if (e != null)
+            {
+                status = e.getErrorCodeEnum().getCode();
+                result = ResponseResult.fail(e.getErrorCodeEnum(), e.getData());
+            } else
+            {
+                result = ResponseResult.fail(exception.getMessage(), ErrorCodeEnum.UNAUTHORIZED);
+            }
+
+            AuthenticationUtil.responseWithJson(response, status, objectMapper.writeValueAsString(result));
+            return true;
+        }
+
+        // 注册时，用户名重名处理, 返回 Json 格式
+        // 用户不存在, 返回 Json 格式
+        // 验证码异常时，返回 JSON 格式
+        if (e != null)
+        {
+            responseWithJson(response, HttpStatus.UNAUTHORIZED.value(),
+                             objectMapper.writeValueAsString(ResponseResult.fail(e.getMessage(), e.getErrorCodeEnum(), e.getData())));
+            return true;
+        }
+        // 判断是否返回 json 类型
+        if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
+        {
+            int status = HttpStatus.UNAUTHORIZED.value();
+            responseWithJson(response, status, objectMapper.writeValueAsString(ResponseResult.fail(exception.getMessage(),
+                                                                                                   ErrorCodeEnum.UNAUTHORIZED)));
             return true;
         }
 
         return false;
     }
 
+    /**
+     * 向客户端响应 json 格式
+     * @param response  response
+     * @param status    响应的状态码
+     * @param result    相应的结果字符串
+     * @throws IOException IOException
+     */
+    public static void responseWithJson(HttpServletResponse response, int status,
+                                         String result) throws IOException {
+        response.setStatus(status);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(CHARSET_UTF8);
+        response.getWriter().write(result);
+    }
+
+    /**
+     * 根据 LoginProcessType 进行转发处理
+     * @param request   request
+     * @param response  response
+     * @param clientProperties  clientProperties
+     * @param objectMapper  objectMapper
+     * @param redirectStrategy  redirectStrategy
+     * @param errorCodeEnum errorCodeEnum
+     * @param redirectUrl   redirectUrl
+     * @throws IOException IOException
+     */
     public static void redirectProcessingByLoginProcessType(HttpServletRequest request, HttpServletResponse response,
-                                                            BrowserProperties browserProperties, ObjectMapper objectMapper,
+                                                            ClientProperties clientProperties, ObjectMapper objectMapper,
                                                             RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum,
                                                             String redirectUrl) throws IOException {
 
         String referer = request.getHeader(HEADER_REFERER);
-        if (LoginProcessType.JSON.equals(browserProperties.getLoginProcessType()))
+        if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
         {
             int status = HttpStatus.UNAUTHORIZED.value();
             response.setStatus(status);

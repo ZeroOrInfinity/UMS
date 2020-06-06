@@ -1,12 +1,14 @@
 package top.dcenter.security.core.api.validate.code;
 
+import top.dcenter.security.core.auth.validate.codes.image.ImageCodeGenerator;
+import top.dcenter.security.core.auth.validate.codes.sms.SmsCodeGenerator;
 import top.dcenter.security.core.enums.ValidateCodeType;
 
 import javax.servlet.ServletRequest;
 
 /**
- * 权限认证验证码生成接口。默认实现 {@link top.dcenter.security.core.validate.code.imagecode.ImageCodeGenerator} 与
- * {@link top.dcenter.security.core.validate.code.smscode.SmsCodeGenerator}<br>
+ * 权限认证验证码生成接口。默认实现 {@link ImageCodeGenerator} 与
+ * {@link SmsCodeGenerator}<br>
  * 在 {@link ValidateCodeType} 中还定义了其他未实现的常见验证码：<br>
  *     {@link ValidateCodeType#SELECTION}，<br>
  *     {@link ValidateCodeType#SLIDER}，<br>

@@ -3,7 +3,7 @@ package top.dcenter.session.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-import top.dcenter.security.browser.api.session.SessionEnhanceCheckService;
+import top.dcenter.security.core.api.session.SessionEnhanceCheckService;
 import top.dcenter.security.core.enums.ErrorCodeEnum;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,7 +15,7 @@ import static top.dcenter.security.core.util.AuthenticationUtil.extractUserAgent
 
 /**
  * DemoSessionEnhanceCheckService
- * @see top.dcenter.security.browser.api.session.SessionEnhanceCheckService
+ * @see SessionEnhanceCheckService
  * @author zyw
  * @version V1.0  Created by 2020/6/2 14:02
  */

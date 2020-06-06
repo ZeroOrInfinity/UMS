@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import top.dcenter.security.core.api.advice.SecurityControllerExceptionHandler;
+import top.dcenter.security.core.exception.ExpiredSessionDetectedException;
 import top.dcenter.security.core.exception.IllegalAccessUrlException;
 import top.dcenter.security.core.exception.ParameterErrorException;
 import top.dcenter.security.core.exception.UserNotExistException;
@@ -32,7 +33,7 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     public ResponseResult handleUserNotException(UserNotExistException ex) {
         String message = ex.getMessage();
         log.error(message, ex);
-        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getId());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
     }
 
     @Override
@@ -79,6 +80,16 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseResult illegalAccessUrlException(IllegalAccessUrlException ex) {
+        String errorMsg = ex.getMessage();
+        log.error(errorMsg, ex);
+        return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum());
+    }
+
+    @Override
+    @ExceptionHandler(ExpiredSessionDetectedException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseResult expiredSessionDetectedException(ExpiredSessionDetectedException ex) {
         String errorMsg = ex.getMessage();
         log.error(errorMsg, ex);
         return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum());

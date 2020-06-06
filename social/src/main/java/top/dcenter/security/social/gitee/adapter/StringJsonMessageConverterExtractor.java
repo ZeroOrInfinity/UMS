@@ -13,6 +13,7 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class StringJsonMessageConverterExtractor implements GenericHttpMessageCo
     public String read(Class<? extends String> clazz, HttpInputMessage inputMessage) throws IOException,
             HttpMessageNotReadableException {
         byte[] bytes = IOUtils.toByteArray(inputMessage.getBody());
-        return new String(bytes, "utf-8");
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -70,7 +71,7 @@ public class StringJsonMessageConverterExtractor implements GenericHttpMessageCo
     @Override
     public String read(Type type, Class<?> contextClass, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
         byte[] bytes = IOUtils.toByteArray(inputMessage.getBody());
-        return new String(bytes, "utf-8");
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     @Override

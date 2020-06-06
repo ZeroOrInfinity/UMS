@@ -1,5 +1,6 @@
 package top.dcenter.security.social.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,10 +14,10 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.social.connect.web.ProviderSignInUtils;
-import top.dcenter.security.core.properties.BrowserProperties;
+import top.dcenter.security.core.properties.ClientProperties;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
-import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.handler.SocialAuthenticationFailureHandler;
+import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.signup.SocialAuthenticationSignUpFilter;
 import top.dcenter.security.social.signup.SocialAuthenticationSignUpProvider;
 
@@ -33,7 +34,7 @@ import java.util.UUID;
 public class SocialAuthenticationSignUpConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
     private final ProviderSignInUtils providerSignInUtils;
-    private final AuthenticationSuccessHandler browserAuthenticationSuccessHandler;
+    private final AuthenticationSuccessHandler clientAuthenticationSuccessHandler;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private AbstractSocialUserDetailService userDetailsService;
@@ -42,30 +43,30 @@ public class SocialAuthenticationSignUpConfig extends SecurityConfigurerAdapter<
     @Autowired(required = false)
     private PersistentTokenRepository persistentTokenRepository;
     private final ObjectMapper objectMapper;
-    private final BrowserProperties browserProperties;
+    private final ClientProperties clientProperties;
     private final SocialProperties socialProperties;
 
 
     public SocialAuthenticationSignUpConfig(ProviderSignInUtils providerSignInUtils,
-                                            AuthenticationSuccessHandler browserAuthenticationSuccessHandler,
+                                            AuthenticationSuccessHandler clientAuthenticationSuccessHandler,
                                             ObjectMapper objectMapper,
                                             SocialProperties socialProperties,
-                                            BrowserProperties browserProperties) {
+                                            ClientProperties clientProperties) {
         this.providerSignInUtils = providerSignInUtils;
-        this.browserAuthenticationSuccessHandler = browserAuthenticationSuccessHandler;
-        this.objectMapper = objectMapper;
-        this.browserProperties = browserProperties;
+        this.clientAuthenticationSuccessHandler = clientAuthenticationSuccessHandler;
+        this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.clientProperties = clientProperties;
         this.socialProperties = socialProperties;
     }
 
     @Override
     public void configure(HttpSecurity http) {
 
-        SocialAuthenticationSignUpFilter socialAuthenticationSignUpFilter = new SocialAuthenticationSignUpFilter(this.socialProperties);
+        SocialAuthenticationSignUpFilter socialAuthenticationSignUpFilter = new SocialAuthenticationSignUpFilter(this.socialProperties, objectMapper);
         socialAuthenticationSignUpFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
-        socialAuthenticationSignUpFilter.setAuthenticationSuccessHandler(browserAuthenticationSuccessHandler);
+        socialAuthenticationSignUpFilter.setAuthenticationSuccessHandler(clientAuthenticationSuccessHandler);
         SocialAuthenticationFailureHandler socialAuthenticationFailureHandler = new SocialAuthenticationFailureHandler(this.objectMapper,
-                                                                                                                       this.socialProperties,this.browserProperties);
+                                                                                                                       this.socialProperties, this.clientProperties, cacheUserDetailsService);
         socialAuthenticationSignUpFilter.setAuthenticationFailureHandler(socialAuthenticationFailureHandler);
 
         if (persistentTokenRepository != null)
@@ -96,10 +97,10 @@ public class SocialAuthenticationSignUpConfig extends SecurityConfigurerAdapter<
     }
 
     /**
-     * Sets the key to identify tokens created for remember me authentication. Default is
+     * Sets the key to identify tokens created for remember me auth. Default is
      * a secure randomly generated key.
      *
-     * @param key the key to identify tokens created for remember me authentication
+     * @param key the key to identify tokens created for remember me auth
      */
     public void key(String key) {
         this.key = key;

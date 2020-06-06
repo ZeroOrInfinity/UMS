@@ -28,8 +28,8 @@ public class SocialAuthenticationSignUpToken extends AbstractAuthenticationToken
     // ===================================================================================================
     /**
      * This constructor can be safely used by any code that wishes to create a
-     * <code>UsernamePasswordAuthenticationToken</code>, as the {@link #isAuthenticated()}
-     * will return <code>false</code>.
+     * <code>UsernamePasswordAuthenticationToken</codes>, as the {@link #isAuthenticated()}
+     * will return <codes>false</codes>.
      *
      */
     public SocialAuthenticationSignUpToken(Object principal, Object credentials) {
@@ -37,9 +37,9 @@ public class SocialAuthenticationSignUpToken extends AbstractAuthenticationToken
     }
 
     /**
-     * This constructor can be safely used by any code that wishes to create a
-     * <code>UsernamePasswordAuthenticationToken</code>, as the {@link #isAuthenticated()}
-     * will return <code>false</code>.
+     * This constructor can be safely used by any codes that wishes to create a
+     * <codes>UsernamePasswordAuthenticationToken</codes>, as the {@link #isAuthenticated()}
+     * will return <codes>false</codes>.
      *
      */
     public SocialAuthenticationSignUpToken(Object principal, Object credentials, ServletWebRequest request) {
@@ -51,13 +51,13 @@ public class SocialAuthenticationSignUpToken extends AbstractAuthenticationToken
     }
 
     /**
-     * This constructor should only be used by <code>AuthenticationManager</code> or
-     * <code>AuthenticationProvider</code> implementations that are satisfied with
-     * producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
-     * authentication token.
+     * This constructor should only be used by <codes>AuthenticationManager</codes> or
+     * <codes>AuthenticationProvider</codes> implementations that are satisfied with
+     * producing a trusted (i.e. {@link #isAuthenticated()} = <codes>true</codes>)
+     * auth token.
      *
-     * @param principal
-     * @param authorities
+     * @param principal principal
+     * @param authorities   authorities
      */
     public SocialAuthenticationSignUpToken(Object principal, Object credentials,
                                            Collection<? extends GrantedAuthority> authorities) {

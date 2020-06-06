@@ -262,7 +262,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	/**
 	 * Configure default URI variable values. This is a shortcut for:
-	 * <pre class="code">
+	 * <pre class="codes">
 	 * DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory();
 	 * handler.setDefaultUriVariables(...);
 	 *

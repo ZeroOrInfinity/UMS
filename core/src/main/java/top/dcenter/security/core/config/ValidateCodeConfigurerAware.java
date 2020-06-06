@@ -7,7 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.validate.code.ValidateCodeFilter;
+import top.dcenter.security.core.auth.validate.codes.ValidateCodeFilter;
 
 import java.util.HashMap;
 import java.util.HashSet;

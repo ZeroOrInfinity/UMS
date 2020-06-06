@@ -67,8 +67,8 @@ public class SocialUserController {
         SocialUserInfo userInfo = new SocialUserInfo();
         userInfo.setProviderId(connection.getKey().getProviderId());
         userInfo.setProviderUserId(connection.getKey().getProviderUserId());
-        userInfo.setUsername(connection.getDisplayName());
-        userInfo.setAvatarImg(connection.getImageUrl());
+        userInfo.setUserId(connection.getDisplayName());
+        userInfo.setAvatarUrl(connection.getImageUrl());
         return userInfo;
     }
 
@@ -118,8 +118,8 @@ public class SocialUserController {
         SocialUserInfo userInfo = new SocialUserInfo();
         userInfo.setProviderId(connection.getKey().getProviderId());
         userInfo.setProviderUserId(connection.getKey().getProviderUserId());
-        userInfo.setUsername(connection.getDisplayName());
-        userInfo.setAvatarImg(connection.getImageUrl());
+        userInfo.setUserId(connection.getDisplayName());
+        userInfo.setAvatarUrl(connection.getImageUrl());
         log.info("用户注册成功：{}", userInfo);
         return ResponseResult.success(userInfo);
     }

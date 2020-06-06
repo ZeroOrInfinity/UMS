@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import top.dcenter.security.browser.api.controller.BaseSecurityController;
+import top.dcenter.security.core.api.controller.BaseSecurityController;
 import top.dcenter.security.core.enums.ErrorCodeEnum;
 import top.dcenter.security.core.exception.IllegalAccessUrlException;
-import top.dcenter.security.core.properties.BrowserProperties;
+import top.dcenter.security.core.properties.ClientProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,7 +31,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UN_AUTH
 import static top.dcenter.security.core.util.AuthenticationUtil.redirectProcessingByLoginProcessType;
 
 /**
- * 网页端认证 controller.<br> *
+ * 客户端认证 controller.<br> *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 17:43
  * @medifiedBy zyw
@@ -51,13 +51,13 @@ public class DemoSecurityController implements BaseSecurityController {
 
     private final RequestCache requestCache;
     private final RedirectStrategy redirectStrategy;
-    private final BrowserProperties browserProperties;
+    private final ClientProperties clientProperties;
     private final AntPathMatcher pathMatcher;
     private final ObjectMapper objectMapper;
 
 
-    public DemoSecurityController(BrowserProperties browserProperties, ObjectMapper objectMapper) {
-        this.browserProperties = browserProperties;
+    public DemoSecurityController(ClientProperties clientProperties, ObjectMapper objectMapper) {
+        this.clientProperties = clientProperties;
         this.objectMapper = objectMapper;
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.requestCache = new HttpSessionRequestCache();
@@ -80,14 +80,11 @@ public class DemoSecurityController implements BaseSecurityController {
             if (savedRequest != null)
             {
                 String targetUrl = savedRequest.getRedirectUrl();
-                if (log.isInfoEnabled())
-                {
-                    log.info("demo ===>: 引发跳转的请求是：{}", targetUrl);
-                }
+
                 if (StringUtils.isNotBlank(targetUrl))
                 {
                     targetUrl = targetUrl.replaceFirst(URL_REGEX, URI_$1);
-                    Iterator<Map.Entry<String, String>> iterator = browserProperties.getAuthRedirectSuffixCondition().entrySet().iterator();
+                    Iterator<Map.Entry<String, String>> iterator = clientProperties.getAuthRedirectSuffixCondition().entrySet().iterator();
                     Map.Entry<String, String> entry;
                     while (iterator.hasNext())
                     {
@@ -100,12 +97,12 @@ public class DemoSecurityController implements BaseSecurityController {
                     }
                 }
             }
-            redirectStrategy.sendRedirect(request, response, browserProperties.getLoginPage());
+            redirectStrategy.sendRedirect(request, response, clientProperties.getLoginPage());
         }
         catch (Exception e)
         {
             log.error(e.getMessage(), e);
-            throw new IllegalAccessUrlException(ErrorCodeEnum.SERVER_ERROR);
+            throw new IllegalAccessUrlException(ErrorCodeEnum.SERVER_ERROR, request.getRemoteAddr());
         }
     }
 
@@ -117,14 +114,14 @@ public class DemoSecurityController implements BaseSecurityController {
 
         try
         {
-            redirectProcessingByLoginProcessType(request, response, browserProperties, objectMapper,
+            redirectProcessingByLoginProcessType(request, response, clientProperties, objectMapper,
                                                  redirectStrategy, ErrorCodeEnum.INVALID_SESSION,
-                                                 browserProperties.getLoginPage());
+                                                 clientProperties.getLoginPage());
         }
         catch (Exception e)
         {
             log.error(e.getMessage(), e);
-            throw new IllegalAccessUrlException(ErrorCodeEnum.SERVER_ERROR);
+            throw new IllegalAccessUrlException(ErrorCodeEnum.SERVER_ERROR, request.getRemoteAddr());
         }
     }
 

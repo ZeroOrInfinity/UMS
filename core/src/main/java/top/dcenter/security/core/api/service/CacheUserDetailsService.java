@@ -1,33 +1,30 @@
 package top.dcenter.security.core.api.service;
 
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.social.security.SocialUserDetails;
 
 /**
- * 从缓存中查询用户信息, 把用户信息存入缓存
+ * 从缓存中查询用户信息, 把用户信息存入缓存, 移除缓存.
+ * 只是对 {@link UserCache} 的 copy, 防止 IOC 容器中的其他 UserCache 注入本框架
+ * 用法可以参考 demo 模块的 {@link top.dcenter.security.service.LoginSocialUserDetailService}.
+ * @see UserCache
  * @author zyw23
  * @version V1.0
  * Created by 2020/5/31 15:30
  */
-public interface CacheUserDetailsService{
+@SuppressWarnings("JavadocReference")
+public interface CacheUserDetailsService extends UserCache {
 
     /**
-     * 从缓存中查询用户信息
-     * @see org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername(String)
-     * @param principal the principal identifying the user whose data is required.
+     * 只是对 {@link #getUserFromCache(String)} 返回结果转换为 {@link SocialUserDetails}
+     * Obtains a {@link UserDetails} from the cache.
      *
-     * @return a fully populated user record (never <code>null</code>)
+     * @param userId the {@link User#getUsername()} used to place the user in the cache
      *
-     * @throws UsernameNotFoundException if the user could not be found or the user has no
-     * GrantedAuthority
+     * @return the populated <codes>UserDetails</codes> or <codes>null</codes> if the user
+     * could not be found or if the cache entry has expired
      */
-    UserDetails loadUserByUsername(String principal) throws UsernameNotFoundException;
-
-    /**
-     * 保存用户信息到缓存
-     * @param principal  the principal identifying the user whose data is required.
-     * @param user  用户信息
-     * @return  返回是否保存成功
-     */
-    boolean saveUserInCache(String principal, UserDetails user);
+    SocialUserDetails getSocialUserFromCache(String userId);
 }

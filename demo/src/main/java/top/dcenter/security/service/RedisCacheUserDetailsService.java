@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Component;
-import top.dcenter.security.social.api.service.SocialCacheUserDetailsService;
+import top.dcenter.security.core.api.service.CacheUserDetailsService;
 
 /**
  * 从缓存中查询用户信息(包含第三方登录用户信息), 包用户信息保持到缓存中
@@ -21,7 +21,7 @@ import top.dcenter.security.social.api.service.SocialCacheUserDetailsService;
  */
 @Component
 @Slf4j
-public class RedisCacheUserDetailsService implements SocialCacheUserDetailsService {
+public class RedisCacheUserDetailsService implements CacheUserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
     private final ObjectMapper objectMapper;
@@ -33,20 +33,8 @@ public class RedisCacheUserDetailsService implements SocialCacheUserDetailsServi
     }
 
     @Override
-    public SocialUserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
-        log.info("Demo ======>: cache 中登录, 用户名：{}, 登录成功", userId);
-        return new SocialUser(userId,
-                                   passwordEncoder.encode("admin"),
-                                   true,
-                                   true,
-                                   true,
-                                   true,
-                                   AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("Demo ======>: cache 中登录, 用户名：{}, 登录成功", username);
+    public UserDetails getUserFromCache(String username) throws UsernameNotFoundException {
+        log.info("Demo ======>: 从 cache 获取到用户信息, 用户名：{}, 登录成功", username);
         return new User(username,
                         passwordEncoder.encode("admin"),
                         true,
@@ -56,21 +44,39 @@ public class RedisCacheUserDetailsService implements SocialCacheUserDetailsServi
                         AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
     }
 
+
     @Override
-    public boolean saveUserInCache(String principal, UserDetails user) {
+    public SocialUserDetails getSocialUserFromCache(String userId) {
+        UserDetails userFromCache = getUserFromCache(userId);
+        log.info("Demo ======>: 从 cache 获取到用户信息, 用户名：{}, 登录成功", userId);
+        return new SocialUser(userFromCache.getUsername(),
+                              userFromCache.getPassword(),
+                              userFromCache.isEnabled(),
+                              userFromCache.isAccountNonExpired(),
+                              userFromCache.isCredentialsNonExpired(),
+                              userFromCache.isAccountNonLocked(),
+                              userFromCache.getAuthorities());
+    }
+
+    @Override
+    public void putUserInCache(UserDetails user) {
 
         try
         {
             String userAsString = this.objectMapper.writeValueAsString(user);
-            log.info("Demo ======>: 用户名：{}, 缓存成功: {}", principal, userAsString);
+            log.info("Demo ======>: 用户名：{}, 缓存到 cache 成功: {}", user.getUsername(), userAsString);
 
         }
         catch (JsonProcessingException e)
         {
             log.error(e.getMessage(), e);
         }
+    }
 
-        return true;
+    @Override
+    public void removeUserFromCache(String username) {
+        // do removeUserFromCache(String username);
+        log.info("Demo ======>: 用户名：{}, 从 cache 中移除用户信息成功", username);
     }
 
 }

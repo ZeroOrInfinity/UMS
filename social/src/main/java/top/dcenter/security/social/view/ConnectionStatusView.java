@@ -17,7 +17,6 @@ import org.springframework.web.servlet.view.AbstractView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -48,14 +47,10 @@ public class ConnectionStatusView extends AbstractView {
 			HttpServletResponse response) throws Exception {
 		
 		Map<String, List<Connection<?>>> connections = (Map<String, List<Connection<?>>>) model.get("connectionMap");
-		Object providerIds = model.get("providerIds");
-		log.info("providerIds = {}", providerIds);
-		log.info("connections = {}", connections);
-		Map<String, Boolean> result = new HashMap<>();
-		Iterator<Map.Entry<String, List<Connection<?>>>> iterator = connections.entrySet().iterator();
-		while (iterator.hasNext())
+
+		Map<String, Boolean> result = new HashMap<>(16);
+		for (Map.Entry<String, List<Connection<?>>> next : connections.entrySet())
 		{
-			Map.Entry<String, List<Connection<?>>> next = iterator.next();
 			result.put(next.getKey(), CollectionUtils.isNotEmpty(next.getValue()));
 		}
 

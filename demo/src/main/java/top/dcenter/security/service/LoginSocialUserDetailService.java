@@ -16,14 +16,19 @@ import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
+import top.dcenter.entity.UserInfo;
+import top.dcenter.security.core.api.service.CacheUserDetailsService;
 import top.dcenter.security.core.enums.ErrorCodeEnum;
 import top.dcenter.security.core.exception.RegisterUserFailureException;
 import top.dcenter.security.core.exception.UserNotExistException;
 import top.dcenter.security.core.util.RequestUtil;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
-import top.dcenter.security.social.api.service.SocialCacheUserDetailsService;
+import top.dcenter.security.social.properties.SocialProperties;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * 用户密码与手机短信登录与 OAuth 登录与注册服务：<br>
@@ -54,11 +59,14 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
     private final JdbcTemplate jdbcTemplate;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
-    private SocialCacheUserDetailsService cacheUserDetailsService;
+    private CacheUserDetailsService cacheUserDetailsService;
 
-    public LoginSocialUserDetailService(ApplicationContext applicationContext, JdbcTemplate jdbcTemplate) {
+    private SocialProperties socialProperties;
+
+    public LoginSocialUserDetailService(ApplicationContext applicationContext, JdbcTemplate jdbcTemplate, SocialProperties socialProperties) {
         super(applicationContext);
         this.jdbcTemplate = jdbcTemplate;
+        this.socialProperties = socialProperties;
         this.objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
@@ -68,15 +76,17 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try
         {
+            // 从缓存中查询用户信息:
             // 从缓存中查询用户信息
             if (this.cacheUserDetailsService != null)
             {
-                UserDetails userDetails = this.cacheUserDetailsService.loadUserByUsername(username);
+                SocialUserDetails userDetails = this.cacheUserDetailsService.getSocialUserFromCache(username);
                 if (userDetails != null)
                 {
                     return userDetails;
                 }
             }
+
 
             // 根据用户名获取用户信息
 
@@ -108,6 +118,7 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
         }
         catch (Exception e)
         {
+            log.error(e.getMessage(), e);
             throw new UserNotExistException(ErrorCodeEnum.QUERY_USER_INFO_ERROR, e, username);
         }
     }
@@ -119,7 +130,7 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
             // 从缓存中查询用户信息
             if (this.cacheUserDetailsService != null)
             {
-                SocialUserDetails userDetails = this.cacheUserDetailsService.loadUserByUserId(userId);
+                SocialUserDetails userDetails = this.cacheUserDetailsService.getSocialUserFromCache(userId);
                 if (userDetails != null)
                 {
                     return userDetails;
@@ -170,7 +181,7 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
 
         if (mobile == null)
         {
-            throw new RegisterUserFailureException(ErrorCodeEnum.MOBILE_NOT_EMPTY);
+            throw new RegisterUserFailureException(ErrorCodeEnum.MOBILE_NOT_EMPTY, null);
         }
 
         // 用户信息持久化逻辑。。。
@@ -187,7 +198,7 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
         );
 
         // 把用户信息存入缓存
-        cacheUserDetailsService.saveUserInCache(user.getUsername(), user);
+        cacheUserDetailsService.putUserInCache(user);
 
         return user;
     }
@@ -197,6 +208,9 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
 
         String username = getValueOfRequest(request, PARAM_USERNAME, ErrorCodeEnum.USERNAME_NOT_EMPTY);
         String password = getValueOfRequest(request, PARAM_PASSWORD, ErrorCodeEnum.PASSWORD_NOT_EMPTY);
+        // ...
+
+        // UserInfo userInfo = getUserInfo(request)
 
         // 用户信息持久化逻辑。。。
         // ...
@@ -214,7 +228,7 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
         );
 
         // 把用户信息存入缓存
-        cacheUserDetailsService.saveUserInCache(user.getUsername(), user);
+        cacheUserDetailsService.putUserInCache(user);
 
         return user;
 
@@ -223,8 +237,10 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
     @Override
     public UserDetails registerUser(ServletWebRequest request, ProviderSignInUtils providerSignInUtils) throws RegisterUserFailureException {
 
-        String username = getValueOfRequest(request, PARAM_USERNAME, ErrorCodeEnum.USERNAME_NOT_EMPTY);
-        String password = getValueOfRequest(request, PARAM_PASSWORD, ErrorCodeEnum.PASSWORD_NOT_EMPTY);
+        //String userId = getValueOfRequest(request, socialProperties.getUserIdParamName(),ErrorCodeEnum.USERNAME_NOT_EMPTY)
+        //String password = getValueOfRequest(request, socialProperties.getPasswordParamName(), ErrorCodeEnum.PASSWORD_NOT_EMPTY)
+
+        UserInfo userInfo = getUserInfo(request);
 
         try
         {
@@ -234,11 +250,11 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
             // 用户信息持久化逻辑。。。
             // ...
 
-            String encodedPassword = passwordEncoder.encode(password);
+            String encodedPassword = passwordEncoder.encode(userInfo.getPassword());
             // OAuth 信息存储
-            providerSignInUtils.doPostSignUp(username, request);
-            log.info("Demo ======>: 第三方登录用户：{}, 注册成功", username);
-            User user = new User(username,
+            providerSignInUtils.doPostSignUp(userInfo.getUserId(), request);
+            log.info("Demo ======>: 第三方登录用户：{}, 注册成功", userInfo.getUserId());
+            User user = new User(userInfo.getUserId(),
                                   encodedPassword,
                                   true,
                                   true,
@@ -248,21 +264,64 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
             );
 
             // 把用户信息存入缓存
-            cacheUserDetailsService.saveUserInCache(user.getUsername(), user);
+            cacheUserDetailsService.putUserInCache(user);
 
             return user;
         }
         catch (Exception e)
         {
-            throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_FAILURE, e);
+            log.error(e.getMessage(), e);
+            throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_FAILURE, e, userInfo.getUserId());
         }
     }
 
-    private String getValueOfRequest(ServletWebRequest request, String paramName, ErrorCodeEnum usernameNotEmpty) {
-        String username = RequestUtil.extractRequestDataWithParamName(request, this.objectMapper, paramName);
+    /**
+     * 从 request 中获取 UserInfo
+     * @param request request
+     * @return  UserInfo
+     */
+    private UserInfo getUserInfo(ServletWebRequest request) {
+
+        Map<String, Object> parameterMap = RequestUtil.extractRequestJsonData(request.getRequest(), this.objectMapper);
+        if (parameterMap != null)
+        {
+            String userId = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getUserIdParamName()), "");
+            userId = userId.trim();
+            String password = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getPasswordParamName()), "");
+            String avatarUrl = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getUserIdParamName()), "");
+            String providerId = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getUserIdParamName()), "");
+            String providerUserId = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getUserIdParamName()), "");
+            return new UserInfo(userId, password, avatarUrl, providerId, providerUserId);
+        }
+
+        throw new RegisterUserFailureException(ErrorCodeEnum.GET_REQUEST_PARAMETER_FAILURE, request.getSessionId());
+    }
+
+    /**
+     * 从 request 中获取 UserInfo
+     * @param request request
+     * @return  UserInfo
+     */
+    private UserInfo getUserInfo2(ServletWebRequest request) {
+
+        try
+        {
+            byte[] bytes = request.getRequest().getInputStream().readAllBytes();
+            return objectMapper.readValue(new String(bytes, StandardCharsets.UTF_8), UserInfo.class);
+        }
+        catch (Exception e)
+        {
+            log.error(e.getMessage(), e);
+            throw new RegisterUserFailureException(ErrorCodeEnum.GET_REQUEST_PARAMETER_FAILURE, request.getSessionId());
+        }
+
+    }
+
+    private String getValueOfRequest(ServletWebRequest request, String paramName, ErrorCodeEnum usernameNotEmpty) throws RegisterUserFailureException {
+        String username = (String) RequestUtil.extractRequestDataWithParamName(request.getRequest(), this.objectMapper, paramName);
         if (username == null)
         {
-            throw new RegisterUserFailureException(usernameNotEmpty);
+            throw new RegisterUserFailureException(usernameNotEmpty, request.getSessionId());
         }
         return username;
     }

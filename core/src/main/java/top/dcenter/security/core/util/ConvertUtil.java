@@ -68,6 +68,34 @@ public class ConvertUtil {
         int length = splits.length;
         Map<String, String> map = new HashMap<>(length);
 
+        string2Map(kvSeparator, splits, map);
+
+        return map;
+    }
+
+    /**
+     * 字符转换为 Map 类型，比如：name=tom,age=18
+     * 当 kvStrings 为空时，返回空的 map
+     * @param kvStrings   字符串
+     * @param separator 分隔符，不为 null
+     * @param kvSeparator key 与 value 的分隔符，不为 null
+     * @return  HashMap<String, Object>, 当 kvStrings 为空时，返回空的 map
+     */
+    public static Map<String, Object> string2MapOfObj(String kvStrings, String separator, String kvSeparator){
+        String[] splits = StringUtils.splitByWholeSeparator(kvStrings, separator);
+        if (splits == null)
+        {
+            return new HashMap<>(0);
+        }
+        int length = splits.length;
+        Map<String, Object> map = new HashMap<>(length);
+
+        string2Map(kvSeparator, splits, map);
+
+          return map;
+    }
+
+    private static void string2Map(String kvSeparator, String[] splits, Map<String, ? super String> map) {
         String[] kvArr;
         for (String split : splits)
         {
@@ -80,13 +108,13 @@ public class ConvertUtil {
                 }
             }
         }
-        return map;
     }
 
+
     /**
-     * 字符转换为 Map 类型，比如：name=tom,age=18
-     * @param keyStr   字符串
-     * @param separator 分隔符，不为 null
+     * 字符转换为 Map 类型
+     * @param keyStr   keyStr 格式：name,age
+     * @param separator 分隔符, 如 ','，不为 null
      * @param value map 的 value，不为 null
      * @return  HashMap<String, T>, 当 keyStr 为空时，返回空的 map
      */
@@ -108,8 +136,8 @@ public class ConvertUtil {
 
     /**
      * 字符转换为 Map 类型，比如：name=tom,age=18
-     * @param keyStr   字符串
-     * @param separator 分隔符，不为 null
+     * @param keyStr   keyStr 格式：name,age
+     * @param separator 分隔符, 如 ','，不为 null
      * @param value map 的 value，不为 null
      * @param map 用于存储结果的 Map
      */

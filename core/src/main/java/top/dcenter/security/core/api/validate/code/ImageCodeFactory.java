@@ -1,8 +1,8 @@
 package top.dcenter.security.core.api.validate.code;
 
 import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.validate.code.imagecode.DefaultImageCodeFactory;
-import top.dcenter.security.core.validate.code.imagecode.ImageCode;
+import top.dcenter.security.core.auth.validate.codes.image.DefaultImageCodeFactory;
+import top.dcenter.security.core.auth.validate.codes.image.ImageCode;
 
 import javax.servlet.ServletRequest;
 
@@ -20,7 +20,7 @@ public interface ImageCodeFactory {
      *     .request-para-height-name=height 和 security.codes.image.request-para-width-name=width 一致。
      *     如果 request 中没有传递相关参数，则会使用 security.codes.image.height=60 和 security.codes.image.width=270 默认配置。<br>
      *     以上参数都可以自定义配置。
-     * @param request
+     * @param request request
      * @return 图片验证码
      */
     ImageCode getImageCode(ServletRequest request);

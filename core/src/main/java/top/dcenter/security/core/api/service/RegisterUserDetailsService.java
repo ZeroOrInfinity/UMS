@@ -23,7 +23,7 @@ public interface RegisterUserDetailsService {
 
     /**
      * 用户名密码注册
-     * @param request
+     * @param request request
      * @return  注册后的 UserDetails 信息
      * @exception RegisterUserFailureException
      */
@@ -31,7 +31,7 @@ public interface RegisterUserDetailsService {
 
     /**
      * OAuth 登录的用户注册
-     * @param request
+     * @param request   request
      * @return  注册后的 UserDetails 信息
      * @exception RegisterUserFailureException
      */

@@ -33,10 +33,6 @@ public class DefaultConnectionSignUp implements BaseConnectionSignUp {
             SocialUserDetails socialUserDetails = userDetailsService.loadUserByUserId(connection.getDisplayName());
             if (socialUserDetails == null)
             {
-                if (log.isInfoEnabled())
-                {
-                    log.info("connection.displayName = {}", connection.getDisplayName());
-                }
                 return connection.getDisplayName();
             }
             return null;

@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.social.connect.Connection;
 import top.dcenter.security.core.enums.LoginProcessType;
-import top.dcenter.security.core.properties.BrowserProperties;
+import top.dcenter.security.core.properties.ClientProperties;
 import top.dcenter.security.core.vo.ResponseResult;
 import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.api.callback.ShowConnectViewService;
@@ -26,12 +26,12 @@ import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
  */
 public class DefaultShowConnectViewService implements ShowConnectViewService {
 
-    private final BrowserProperties browserProperties;
+    private final ClientProperties clientProperties;
     private final ObjectMapper objectMapper;
     private final SocialProperties socialProperties;
 
-    public DefaultShowConnectViewService(BrowserProperties browserProperties, ObjectMapper objectMapper, SocialProperties socialProperties) {
-        this.browserProperties = browserProperties;
+    public DefaultShowConnectViewService(ClientProperties clientProperties, ObjectMapper objectMapper, SocialProperties socialProperties) {
+        this.clientProperties = clientProperties;
         this.objectMapper = objectMapper;
         this.socialProperties = socialProperties;
     }
@@ -53,7 +53,7 @@ public class DefaultShowConnectViewService implements ShowConnectViewService {
                             .collect(Collectors.toList());
         }
         // JSON
-        if (LoginProcessType.JSON.equals(browserProperties.getLoginProcessType()))
+        if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
         {
             response.setStatus(HttpStatus.OK.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -75,10 +75,10 @@ public class DefaultShowConnectViewService implements ShowConnectViewService {
             sb.append("<ul>\n");
             userInfoList.forEach(userInfo -> sb.append("<li>\n")
               .append("<img src=\"")
-              .append(userInfo.getAvatarImg())
+              .append(userInfo.getAvatarUrl())
               .append("\" style=\"width: 100px; height: 100px\"/>\n")
-              .append("<p>nickName = ")
-              .append(userInfo.getUsername())
+              .append("<p>userId = ")
+              .append(userInfo.getUserId())
               .append("</p>\n")
               .append("<p>providerId = ")
               .append(userInfo.getProviderId())

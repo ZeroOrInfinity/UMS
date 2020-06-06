@@ -1,7 +1,7 @@
 package top.dcenter.security.core.api.validate.code;
 
-import top.dcenter.security.core.validate.code.ValidateCode;
-import top.dcenter.security.core.validate.code.smscode.DefaultSmsCodeSender;
+import top.dcenter.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.security.core.auth.validate.codes.sms.DefaultSmsCodeSender;
 
 /**
  * 发送短信验证码接口，更改短息验证码实现此接口。<br>

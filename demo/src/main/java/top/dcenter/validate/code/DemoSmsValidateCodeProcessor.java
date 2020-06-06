@@ -9,12 +9,12 @@ import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.api.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.security.core.api.validate.code.SmsCodeSender;
 import top.dcenter.security.core.api.validate.code.ValidateCodeGenerator;
-import top.dcenter.security.core.consts.RegexConst;
+import top.dcenter.security.core.consts.RegexConstants;
 import top.dcenter.security.core.enums.ValidateCodeType;
 import top.dcenter.security.core.exception.ValidateCodeParamErrorException;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.validate.code.ValidateCode;
-import top.dcenter.security.core.validate.code.smscode.SmsValidateCodeProcessor;
+import top.dcenter.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor;
 
 import java.util.Map;
 import java.util.regex.PatternSyntaxException;
@@ -55,7 +55,7 @@ public class DemoSmsValidateCodeProcessor extends SmsValidateCodeProcessor {
         {
             mobile = ServletRequestUtils.getRequiredStringParameter(request.getRequest(),
                                                                     validateCodeProperties.getSms().getRequestParamMobileName());
-            if (StringUtils.isNotBlank(mobile) && mobile.matches(RegexConst.MOBILE_PATTERN))
+            if (StringUtils.isNotBlank(mobile) && mobile.matches(RegexConstants.MOBILE_PATTERN))
             {
                 log.info("短信验证码发生成功：{} = {}", mobile, validateCode.getCode());
                 return smsCodeSender.sendSms(mobile, validateCode.getCode());
@@ -63,11 +63,11 @@ public class DemoSmsValidateCodeProcessor extends SmsValidateCodeProcessor {
         }
         catch (ServletRequestBindingException e)
         {
-            throw new ValidateCodeParamErrorException(MOBILE_PARAMETER_ERROR, validateCodeProperties.getSms().getRequestParamMobileName());
+            throw new ValidateCodeParamErrorException(MOBILE_PARAMETER_ERROR, validateCodeProperties.getSms().getRequestParamMobileName(), request.getRequest().getRemoteAddr());
         }
         catch (PatternSyntaxException e) { }
 
-        throw new ValidateCodeParamErrorException(MOBILE_FORMAT_ERROR, mobile);
+        throw new ValidateCodeParamErrorException(MOBILE_FORMAT_ERROR, mobile, request.getRequest().getRemoteAddr());
     }
 
     @Override

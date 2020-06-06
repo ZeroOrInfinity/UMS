@@ -20,9 +20,9 @@ else
 AbstractValidateCodeProcessor --> ValidateCodeFilter: 1.3.3 校验失败，抛出\n ValidateCodeException
 end
 deactivate AbstractValidateCodeProcessor
-participant BrowserAuthenticationFailureHandler #ff9800
-ValidateCodeFilter -> BrowserAuthenticationFailureHandler: 1.4 校验失败，抛出\n ValidateCodeException
-BrowserAuthenticationFailureHandler --> browser: 1.4.1 onAuthenticationFailure()\n根据设置的 LoginType \n返回 JSON 或者 HTML 格式
+participant ClientAuthenticationFailureHandler #ff9800
+ValidateCodeFilter -> ClientAuthenticationFailureHandler: 1.4 校验失败，抛出\n ValidateCodeException
+ClientAuthenticationFailureHandler --> browser: 1.4.1 onAuthenticationFailure()\n根据设置的 LoginType \n返回 JSON 或者 HTML 格式
 
 ValidateCodeFilter -> UsernamePasswordAuthenticationFilter: 1.4.2 校验成功.\n doFilter()
 end
@@ -68,15 +68,15 @@ UsernamePasswordAuthenticationFilter --> ValidateCodeFilter: 1.4.3\n 校验失�
 deactivate UsernamePasswordAuthenticationFilter
 end
 deactivate UsernamePasswordAuthenticationFilter
-ValidateCodeFilter -> BrowserAuthenticationFailureHandler: 1.4.4 转交\nBrowserAuthenticationFailureHandler\n处理
+ValidateCodeFilter -> ClientAuthenticationFailureHandler: 1.4.4 转交\nClientAuthenticationFailureHandler\n处理
 deactivate ValidateCodeFilter
-BrowserAuthenticationFailureHandler --> browser: 1.4.4.2 返回 login.html
+ClientAuthenticationFailureHandler --> browser: 1.4.4.2 返回 login.html
 
 browser --> browser: 密码登录图片验证码校验流程结束
 
 == API ==
 note over AbstractValidateCodeProcessor: 可以根据\n自己的需求自定义
-note over BrowserAuthenticationFailureHandler: 可以根据\n自己的需求自定义\n另外还有个成功处理器\nBrowserAuthenticationSuccessHandler\n可根据需求实现
+note over ClientAuthenticationFailureHandler: 可以根据\n自己的需求自定义\n另外还有个成功处理器\nClientAuthenticationSuccessHandler\n可根据需求实现
 note over AbstractUserDetailsService: 可以根据\n自己的需求自定义
 note over AbstractUserDetailsService: 此Service实现了\nRegisterUserDetailsService\n带有注册服务
 note over UserDetailsPasswordService: 如果要对前端传过来的密码进行解密,\n则请实现 UserDetailsPasswordService

@@ -1,5 +1,6 @@
 package top.dcenter.security.social.signup;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -8,10 +9,15 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.ServletWebRequest;
+import top.dcenter.security.core.util.RequestUtil;
 import top.dcenter.security.social.properties.SocialProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import static top.dcenter.security.core.consts.SecurityConstants.POST_METHOD;
 
@@ -35,13 +41,15 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
     private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
 
     private SocialProperties socialProperties;
+    private final ObjectMapper objectMapper;
 
     // ~ Constructors
     // ===================================================================================================
 
-    public SocialAuthenticationSignUpFilter(SocialProperties socialProperties) {
+    public SocialAuthenticationSignUpFilter(SocialProperties socialProperties, ObjectMapper objectMapper) {
         super(new AntPathRequestMatcher(socialProperties.getSocialUserRegistUrl(), POST_METHOD));
         this.socialProperties = socialProperties;
+        this.objectMapper = objectMapper;
     }
 
     // ~ Methods
@@ -59,15 +67,14 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
         String username = obtainUsername(request);
         String password = obtainPassword(request);
 
+        Map<String, Object> parameterMap;
 
-        if (username == null)
+        if (username == null && password == null)
         {
-            username = "";
-        }
+            parameterMap = Objects.requireNonNullElse(RequestUtil.extractRequestJsonData(request, this.objectMapper), new HashMap<>(0));
 
-        if (password == null)
-        {
-            password = "";
+            username = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getUserIdParamName()), "");
+            password = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getPasswordParamName()), "");
         }
 
         username = username.trim();
@@ -98,7 +105,7 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
      * request token to the <code>AuthenticationManager</code>
      */
     protected String obtainPassword(HttpServletRequest request) {
-        return request.getParameter(SPRING_SECURITY_FORM_PASSWORD_KEY);
+        return (String) RequestUtil.extractRequestDataWithParamName(request, this.objectMapper, passwordParameter);
     }
 
     /**
@@ -107,19 +114,19 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
      *
      * @param request so that request attributes can be retrieved
      * @return the username that will be presented in the <code>Authentication</code>
-     * request token to the <code>AuthenticationManager</code>
+     * request token to the <codes>AuthenticationManager</codes>
      */
     protected String obtainUsername(HttpServletRequest request) {
-        return request.getParameter(SPRING_SECURITY_FORM_USERNAME_KEY);
+        return (String) RequestUtil.extractRequestDataWithParamName(request, this.objectMapper, usernameParameter);
     }
 
 
     /**
-     * Provided so that subclasses may configure what is put into the authentication
+     * Provided so that subclasses may configure what is put into the auth
      * request's details property.
      *
-     * @param request     that an authentication request is being created for
-     * @param authRequest the authentication request object that should have its details
+     * @param request     that an auth request is being created for
+     * @param authRequest the auth request object that should have its details
      *                    set
      */
     protected void setDetails(HttpServletRequest request,
@@ -151,10 +158,10 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
 
     /**
      * Defines whether only HTTP POST requests will be allowed by this filter. If set to
-     * true, and an authentication request is received which is not a POST request, an
-     * exception will be raised immediately and authentication will not be attempted. The
+     * true, and an auth request is received which is not a POST request, an
+     * exception will be raised immediately and auth will not be attempted. The
      * <tt>unsuccessfulAuthentication()</tt> method will be called as if handling a failed
-     * authentication.
+     * auth.
      * <p>
      * Defaults to <tt>true</tt> but may be overridden by subclasses.
      */

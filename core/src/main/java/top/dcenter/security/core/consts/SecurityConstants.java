@@ -25,7 +25,7 @@ public class SecurityConstants {
     /**
      * 默认的 social OAuth2 注册请求处理url
      */
-    public static final String DEFAULT_LOGIN_PROCESSING_URL_SOCIAL = "/authentication/social";
+    public static final String DEFAULT_SIGN_UP_PROCESSING_URL_SOCIAL = "/authentication/social";
     /**
      * 默认登录页面
      */
@@ -183,6 +183,10 @@ public class SecurityConstants {
      * request header: "Referer"
      */
     public static final String HEADER_REFERER = "Referer";
+    /**
+     * request header: "accept"
+     */
+    public static final String HEADER_ACCEPT = "accept";
 
 
 
@@ -196,11 +200,6 @@ public class SecurityConstants {
      * UUID 分隔符
      */
     public static final String UUID_SEPARATOR = "-";
-    /**
-     * RFC 6819 安全检查(https://oauth.net/advisories/2014-1-covert-redirect/)时, 使用的正则表达式
-     */
-    public static final String RFC_6819_CHECK_REGEX = "^(([a-zA-z]+://)?[^/]+)+/.*$";
-
 
 
 

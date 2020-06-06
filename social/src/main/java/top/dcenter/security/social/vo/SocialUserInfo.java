@@ -16,9 +16,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SocialUserInfo {
+
     private String providerId;
     private String providerUserId;
-    private String username;
-    private String avatarImg;
+    private String userId;
+    private String avatarUrl;
+
 }
 

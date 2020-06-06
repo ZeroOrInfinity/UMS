@@ -73,7 +73,7 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
 	 * type and message converters. The given converters must support the response type.
 	 */
 	public HttpMessageConverterExtractor(Type responseType, List<HttpMessageConverter<?>> messageConverters) {
-		this(responseType, messageConverters, LogFactory.getLog(org.springframework.web.client.HttpMessageConverterExtractor.class));
+		this(responseType, messageConverters, LogFactory.getLog(HttpMessageConverterExtractor.class));
 	}
 
 	@SuppressWarnings("unchecked")

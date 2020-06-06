@@ -19,16 +19,16 @@ Server --> browser: 7 返回/user/me
 end
 opt 未认证
 SessionManagementFilter --> SessionManagementFilter: 4.1 未认证
-participant BaseBrowserSecurityController #ff9800
-SessionManagementFilter -> BaseBrowserSecurityController: 8 根据不同 uri(支持通配符)\n 跳转到不同的认证入口
+participant BaseSecurityController #ff9800
+SessionManagementFilter -> BaseSecurityController: 8 根据不同 uri(支持通配符)\n 跳转到不同的认证入口
 deactivate SessionManagementFilter
 end
 end
-BaseBrowserSecurityController --> browser: 9 跳转到认证入口，\n 例如 login.html
+BaseSecurityController --> browser: 9 跳转到认证入口，\n 例如 login.html
 browser --> browser: 进入需登录权限路由流程结束
 
 == API ==
-note over BaseBrowserSecurityController: api 可以根据\n自己的需求自定义
+note over BaseSecurityController: api 可以根据\n自己的需求自定义
 
 
 

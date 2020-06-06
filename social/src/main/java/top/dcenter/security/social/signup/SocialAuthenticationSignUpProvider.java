@@ -1,5 +1,6 @@
 package top.dcenter.security.social.signup;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -15,6 +16,7 @@ import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
  * @medifiedBy  zyw
  * @version V1.0  Created by 2020/5/7 22:51
  */
+@Slf4j
 public class SocialAuthenticationSignUpProvider implements AuthenticationProvider {
 
     private final ProviderSignInUtils providerSignInUtils;
@@ -31,13 +33,20 @@ public class SocialAuthenticationSignUpProvider implements AuthenticationProvide
             return null;
         }
         SocialAuthenticationSignUpToken authenticationToken = (SocialAuthenticationSignUpToken) authentication;
-
         if (authentication.isAuthenticated())
         {
             return authentication;
         }
 
-        UserDetails user = userDetailsService.loadUserByUserId((String) authenticationToken.getPrincipal());
+        UserDetails user;
+        try {
+            user = userDetailsService.loadUserByUserId((String) authenticationToken.getPrincipal());
+        }
+        catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RegisterUserFailureException(ErrorCodeEnum.QUERY_USER_INFO_ERROR, e, authentication.getName());
+        }
+
         if (user == null)
         {
             user = userDetailsService.registerUser(authenticationToken.getRequest(), providerSignInUtils);
@@ -48,7 +57,8 @@ public class SocialAuthenticationSignUpProvider implements AuthenticationProvide
             authenticationResult.setDetails(authenticationToken.getDetails());
             return authenticationResult;
         }
-        throw new RegisterUserFailureException(ErrorCodeEnum.USERNAME_USED);
+
+        throw new RegisterUserFailureException(ErrorCodeEnum.USERNAME_USED, authentication.getName());
     }
 
     @Override

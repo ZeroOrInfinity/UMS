@@ -19,9 +19,6 @@ ActorFontName Aapex
 }
 participant "SocialCoreConfig"  #1565c0
 participant "RememberMeConfigurerAware"  #1565c0
-note over RememberMeConfigurerAware: RememberMe 相关配置\n\
-如果依赖中有 spring session 包\n\
-RememberMe 相关功能的配置不会生效
 
 participant "OAuth2ConfigurerAdapter"  #1565c0
 
@@ -29,40 +26,43 @@ participant "SecurityCoreConfigurer" #1565c0
 SecurityCoreConfigurer -> SecurityCoreConfigurer: 安全配置流程开始
 note right SecurityCoreConfigurer: 基本配置:\n SecurityCoreConfigurer: \n\
  social模块 SocialConfiguration\n core模块 SecurityConfiguration\n\
-               ValidateCodeBeanConfiguration\n browser模块 SecurityRememberMeConfiguration\n\
- session模块 SecuritySessionConfiguration
+               ValidateCodeBeanConfiguration\n               SecurityRememberMeConfiguration\n\
+               PropertiesConfiguration\n\                SecuritySessionConfiguration\n
 alt afterPropertiesSet
 RememberMeConfigurerAware --> RememberMeConfigurerAware: 1 afterPropertiesSet()
 RememberMeConfigurerAware --> RememberMeConfigurerAware: 1.1 检查数据库是否存在\n persistent_logins\n session表\没有创建\n有就什么都不做
 end
 activate SecurityCoreConfigurer
 opt preConfigure
-SecurityCoreConfigurer --> SecurityCoreConfigurer: 2 fillingAuthorizeRequestUris(..)\n 对所有的AuthorizeRequestUris\n 按权限进行分类，放入对应的 Set
+SecurityCoreConfigurer --> SecurityCoreConfigurer: 2 fillingAuthorizeRequestUris(..)\n 对所有的AuthorizeRequestUris\n 按权限进行分类，放入 Map
 activate SecurityCoreConfigurer
 participant "WebSecurityConfigurerAware" #1565c0
 SecurityCoreConfigurer -> WebSecurityConfigurerAware: 2.1 对所有的\nWebSecurityConfigurerAware\n进行遍历
-note left : SmsCodeLoginAuthenticationConfigurerAware\n\
+activate WebSecurityConfigurerAware
+note right : 实现类:\n\
+SmsCodeLoginAuthenticationConfigurerAware\n\
 ValidateCodeConfigurerAware\n\
 SocialSecurityConfigurerAware\n\
 SocialAuthenticationSignUpConfigurerAware\n\
 RememberMeConfigurerAware\n\
-SessionConfigurerAware
-activate WebSecurityConfigurerAware
-activate HttpSecurity
+SessionConfigurerAware\n\
+ClientConfigurerAware
 WebSecurityConfigurerAware -> HttpSecurity: 2.1.1 preConfigure(http)
+activate HttpSecurity
 HttpSecurity --> HttpSecurity: 2.1.2 http.apply(config)\n这里对所有的\n config进行配置
 note right : SmsCodeLoginAuthenticationConfig\n\
 SocialAuthenticationSignUpConfig\n\
 SocialCoreConfig
 HttpSecurity --> WebSecurityConfigurerAware: 2.1.3 把WebSecurityConfigurerAware中\n所有的AuthorizeRequestUris\n 按权限进行分类，放入对应的 Set\n包括SecurityCoreConfigurer中
+deactivate HttpSecurity
 WebSecurityConfigurerAware --> SecurityCoreConfigurer: 2.1.4 返回
 end
-deactivate HttpSecurity
 deactivate WebSecurityConfigurerAware
 deactivate SecurityCoreConfigurer
 opt http.formLogin等配置
-SecurityCoreConfigurer -> HttpSecurity: 3 http.formLogin()等配置
+SecurityCoreConfigurer -> HttpSecurity: 3 http formLogin authorizeRequests logout csrf等配置
 activate HttpSecurity
+HttpSecurity --> HttpSecurity: .. 设置
 HttpSecurity --> HttpSecurity: 3.1 antMatchers(..)\n对所有的AuthorizeRequestUris\n 已按权限分类的所有Set\n进行对应设置
 note right : .antMatchers(permitAllArray).permitAll()\n\
 .antMatchers(denyAllArray).denyAll()\n\
@@ -70,6 +70,7 @@ note right : .antMatchers(permitAllArray).permitAll()\n\
 .antMatchers(authenticatedArray).authenticated()\n\
 .antMatchers(fullyAuthenticatedArray).fullyAuthent\n\
 .antMatchers(rememberMeArray).rememberMe()
+HttpSecurity --> HttpSecurity: .. 设置
 HttpSecurity --> SecurityCoreConfigurer: 3.2 返回
 end
 deactivate HttpSecurity

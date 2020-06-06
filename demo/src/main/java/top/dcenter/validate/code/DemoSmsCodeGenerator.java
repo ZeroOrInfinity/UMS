@@ -3,15 +3,15 @@ package top.dcenter.validate.code;
 import lombok.extern.slf4j.Slf4j;
 import top.dcenter.security.core.api.validate.code.SmsCodeSender;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.validate.code.ValidateCode;
-import top.dcenter.security.core.validate.code.smscode.SmsCodeGenerator;
+import top.dcenter.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.security.core.auth.validate.codes.sms.SmsCodeGenerator;
 
 import javax.servlet.ServletRequest;
 
 /**
  * 推荐实现此接口 {@link SmsCodeSender}。
  * @author zyw
- * @createrDate 2020-05-14 22:23
+ * @version V1.0  Created by 2020-05-14 22:23
  */
 //@Component()
 @Slf4j

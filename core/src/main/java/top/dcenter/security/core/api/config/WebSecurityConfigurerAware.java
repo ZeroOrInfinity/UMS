@@ -15,12 +15,11 @@ import java.util.Set;
  *      3. WebSecurityConfigurerAdapter 多个配置类继承此类是会报错，且 authorizeRequests 配置时候要
  *         authorizeRequests().anyRequest().authenticate 放到最后，不然在之后配置的都不会生效。实现
  *         {@link WebSecurityConfigurerAware#getAuthorizeRequestMap() } 方法。<br>
- * 使用方法请看：{@link top.dcenter.security.browser.config.BrowserSecurityConfigurer}
+ * 最终在：{@link top.dcenter.security.core.config.SecurityCoreConfigurer} 中配置
  * @author zyw
  * @version V1.0
  * Created by 2020/5/12 12:22
  */
-@SuppressWarnings("JavadocReference")
 public interface WebSecurityConfigurerAware {
 
     String permitAll = "permitAll";
@@ -31,22 +30,20 @@ public interface WebSecurityConfigurerAware {
     String rememberMe = "rememberMe";
 
     /**
-     * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在最后处理的配置。<br>
-     * 使用方法请看：{@link top.dcenter.security.browser.BrowserSecurityConfig}
+     * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在前面处理的配置。<br>
+     * 最终在：{@link top.dcenter.security.core.config.SecurityCoreConfigurer} 中配置
      * @param http  HttpSecurity
      * @throws Exception    exception
      */
-    @SuppressWarnings("JavadocReference")
-    void postConfigure(HttpSecurity http) throws Exception;
+    void preConfigure(HttpSecurity http) throws Exception;
 
     /**
-     * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在前面处理的配置。<br>
-     * 使用方法请看：{@link top.dcenter.security.browser.BrowserSecurityConfig}
+     * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在最后处理的配置。<br>
+     * 最终在：{@link top.dcenter.security.core.config.SecurityCoreConfigurer} 中配置
      * @param http  HttpSecurity
      * @throws Exception    exception
      */
-    @SuppressWarnings("JavadocReference")
-    void preConfigure(HttpSecurity http) throws Exception;
+    void postConfigure(HttpSecurity http) throws Exception;
 
     /**
      * 因为 authorizeRequests 配置时候要 authorizeRequests().anyRequest().authenticate 放到最后，所以这里临时把 权限与 uri 放入 map

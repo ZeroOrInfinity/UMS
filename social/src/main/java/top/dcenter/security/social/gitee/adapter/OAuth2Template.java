@@ -69,7 +69,7 @@ public class OAuth2Template implements OAuth2Operations {
 
 	/**
 	 * Constructs an OAuth2Template for a given set of client credentials. 
-	 * Assumes that the authorization URL is the same as the authentication URL.
+	 * Assumes that the authorization URL is the same as the auth URL.
 	 * @param clientId the client ID
 	 * @param clientSecret the client secret
 	 * @param authorizeUrl the base URL to redirect to when doing authorization code or implicit grant authorization
@@ -84,7 +84,7 @@ public class OAuth2Template implements OAuth2Operations {
 	 * @param clientId the client ID
 	 * @param clientSecret the client secret
 	 * @param authorizeUrl the base URL to redirect to when doing authorization code or implicit grant authorization
-	 * @param authenticateUrl the URL to redirect to when doing authentication via authorization code grant
+	 * @param authenticateUrl the URL to redirect to when doing auth via authorization code grant
 	 * @param accessTokenUrl the URL at which an authorization code, refresh token, or user credentials may be exchanged for an access token
 	 */
 	public OAuth2Template(String clientId, String clientSecret, String authorizeUrl, String authenticateUrl, String accessTokenUrl) {
@@ -105,7 +105,7 @@ public class OAuth2Template implements OAuth2Operations {
 	}
 	
 	/**
-	 * Set to true to pass client credentials to the provider as parameters instead of using HTTP Basic authentication.
+	 * Set to true to pass client credentials to the provider as parameters instead of using HTTP Basic auth.
 	 * @param useParametersForClientAuthentication true if the client credentials should be passed as parameters; false if passed via HTTP Basic
 	 */
 	public void setUseParametersForClientAuthentication(boolean useParametersForClientAuthentication) {
@@ -302,10 +302,9 @@ public class OAuth2Template implements OAuth2Operations {
 			for (String s : param.getValue())
 			{
 				authUrl.append('&').append(name);
-				String value = s;
-				if (StringUtils.hasLength(value))
+				if (StringUtils.hasLength(s))
 				{
-					authUrl.append('=').append(formEncode(value));
+					authUrl.append('=').append(formEncode(s));
 				}
 			}
 		}

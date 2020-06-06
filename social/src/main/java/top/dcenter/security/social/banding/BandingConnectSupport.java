@@ -60,8 +60,8 @@ public class BandingConnectSupport {
     }
 
     /**
-     * Flag indicating if this instance will support OAuth-based authentication instead of the traditional user authorization.
-     * Some providers expose a special "authenticateUrl" the user should be redirected to as part of an OAuth-based authentication attempt.
+     * Flag indicating if this instance will support OAuth-based auth instead of the traditional user authorization.
+     * Some providers expose a special "authenticateUrl" the user should be redirected to as part of an OAuth-based auth attempt.
      * Setting this flag to true has {@link #buildOAuthUrl(ConnectionFactory, NativeWebRequest) oauthUrl} return this authenticate URL.
      * @param useAuthenticateUrl whether to use the authenticat url or not
      * @see OAuth1Operations#buildAuthenticateUrl(String, OAuth1Parameters)
@@ -153,8 +153,7 @@ public class BandingConnectSupport {
             AccessGrant accessGrant = connectionFactory.getOAuthOperations().exchangeForAccess(code, callbackUrl(request), null);
             return connectionFactory.createConnection(accessGrant);
         } catch (HttpClientErrorException e) {
-            log.warn("HttpClientErrorException while completing connection: " + e.getMessage());
-            log.warn("      Response body: " + e.getResponseBodyAsString());
+            log.warn("错误: HttpClientErrorException while completing connection: {}\n      Response body: {}" + e.getMessage(), e.getResponseBodyAsString());
             throw e;
         }
     }
@@ -187,7 +186,7 @@ public class BandingConnectSupport {
         OAuth2Parameters parameters = getOAuth2Parameters(request, defaultScope, additionalParameters, providerId);
         // 添加统一的回调地址由 callbackUrl(request) 设置，功能性回调地址由此处通过generateState() 注入 state。
         String state =
-                ((BaseOAuth2ConnectionFactory) connectionFactory).generateState("/connect"+ URL_SEPARATOR + providerId);
+                ((BaseOAuth2ConnectionFactory<?>) connectionFactory).generateState("/connect"+ URL_SEPARATOR + providerId);
 
         parameters.add(URL_PARAMETER_STATE, state);
         sessionStrategy.setAttribute(request, OAUTH2_STATE_ATTRIBUTE, state);
@@ -230,7 +229,7 @@ public class BandingConnectSupport {
 
     private MultiValueMap<String, String> getRequestParameters(NativeWebRequest request, String... ignoredParameters) {
         List<String> ignoredParameterList = asList(ignoredParameters);
-        MultiValueMap<String, String> convertedMap = new LinkedMultiValueMap<String, String>();
+        MultiValueMap<String, String> convertedMap = new LinkedMultiValueMap<>();
         for (Map.Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
             if (!ignoredParameterList.contains(entry.getKey())) {
                 convertedMap.put(entry.getKey(), asList(entry.getValue()));

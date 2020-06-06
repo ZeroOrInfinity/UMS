@@ -17,7 +17,7 @@ import top.dcenter.security.social.vo.SocialUserInfo;
 import javax.servlet.http.HttpServletRequest;
 
 import static top.dcenter.security.core.consts.SecurityConstants.KEY_VALUE_SEPARATOR;
-import static top.dcenter.security.core.consts.SecurityConstants.RFC_6819_CHECK_REGEX;
+import static top.dcenter.security.core.consts.RegexConstants.RFC_6819_CHECK_REGEX;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_CODE;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_IDENTIFIER;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
@@ -64,8 +64,8 @@ public class SocialController {
         SocialUserInfo userInfo = new SocialUserInfo();
         userInfo.setProviderId(connection.getKey().getProviderId());
         userInfo.setProviderUserId(connection.getKey().getProviderUserId());
-        userInfo.setUsername(connection.getDisplayName());
-        userInfo.setAvatarImg(connection.getImageUrl());
+        userInfo.setUserId(connection.getDisplayName());
+        userInfo.setAvatarUrl(connection.getImageUrl());
         return userInfo;
     }
 
@@ -78,7 +78,6 @@ public class SocialController {
     @ConditionalOnProperty(prefix = "security.social", name = "filter-processes-url", havingValue = "/auth/callback")
     public RedirectView authCallbackRouter(HttpServletRequest request) {
 
-        String code = request.getParameter(URL_PARAMETER_CODE);
         String state = request.getParameter(URL_PARAMETER_STATE);
         if (StringUtils.isNotBlank(state))
         {
@@ -90,11 +89,13 @@ public class SocialController {
                 // RFC 6819 安全检查：https://oauth.net/advisories/2014-1-covert-redirect/
                 if (redirectUrl.matches(RFC_6819_CHECK_REGEX))
                 {
-                    log.error("非法的回调地址: {}", redirectUrl);
-                    throw new ParameterErrorException(REDIRECT_URL_PARAMETER_ILLEGAL, redirectUrl);
+                    log.error("state被篡改: 非法的回调地址: {}", redirectUrl);
+                    throw new ParameterErrorException(REDIRECT_URL_PARAMETER_ILLEGAL, redirectUrl,
+                                                      request.getSession(true).getId());
                 }
                 if (StringUtils.isNotBlank(redirectUrl))
                 {
+                    String code = request.getParameter(URL_PARAMETER_CODE);
                     // 重新组装 url 参数
                     redirectUrl = String.format("%s%s%s%s%s%s%s%s%s",
                                                 redirectUrl,
@@ -108,13 +109,15 @@ public class SocialController {
                                                 state);
                     return new RedirectView(redirectUrl, true);
                 }
-                log.warn("回调地址不正确: {}", redirectUrl);
-                throw new ParameterErrorException(REDIRECT_URL_PARAMETER_ERROR, redirectUrl);
+                log.warn("state被篡改: 回调地址不正确: {}", redirectUrl);
+                throw new ParameterErrorException(REDIRECT_URL_PARAMETER_ERROR, redirectUrl,
+                                                  request.getSession(true).getId());
             }
 
         }
-        log.warn("回调参数 {} 被篡改", state);
-        throw new ParameterErrorException(TAMPER_WITH_REDIRECT_URL_PARAMETER, state);
+        log.warn("state被篡改: 回调参数 {} 被篡改", state);
+        throw new ParameterErrorException(TAMPER_WITH_REDIRECT_URL_PARAMETER, state,
+                                          request.getSession(true).getId());
 
     }
 

@@ -23,11 +23,12 @@
         </tr>
         <tr>
             <td>用户头像:</td>
-            <td><img id="avatarImg" src="#" style="width: 100px; height: 100px"></td>
+            <td><img id="avatarUrl" src="#" style="width: 100px; height: 100px"><input id="avatar-input" type="hidden" name="avatarUrl"/></td>
+
         </tr>
         <tr>
             <td>用 户 名：</td>
-            <td><input id="username" type="text" name="username"/><p style="color: #ff0000" id="error-name"></p></td>
+            <td><input id="username" type="text" name="userId"/><p style="color: #ff0000" id="error-name"></p></td>
         </tr>
         <tr>
             <td>密码：</td>
@@ -52,7 +53,6 @@
             <td></td>
             <td>
                 <button id="btn-regist" type="button" name="type" value="regist">登录</button>
-                <button type="submit" name="type" value="binding">绑定</button>
             </td>
         </tr>
     </table>
@@ -90,8 +90,9 @@
                 $("#error-code").text("")
                 $("#providerId").val(data.providerId)
                 $("#providerUserId").val(data.providerUserId)
-                $("#username").val(data.username)
-                $("#avatarImg").attr("src", data.avatarImg)
+                $("#username").val(data.userId)
+                $("#avatarUrl").attr("src", data.avatarUrl)
+                $("#avatar-input").attr("value", data.avatarUrl)
             }
         })
     }

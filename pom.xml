@@ -9,8 +9,6 @@
     <version>1.0.0</version>
     <modules>
         <module>core</module>
-        <module>browser</module>
-        <module>app</module>
         <module>social</module>
         <module>oauth</module>
         <module>session</module>

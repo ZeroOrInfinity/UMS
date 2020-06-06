@@ -3,10 +3,10 @@ package top.dcenter.validate.code;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.security.core.validate.code.ValidateCode;
+import top.dcenter.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.security.core.api.validate.code.ValidateCodeGenerator;
-import top.dcenter.security.core.validate.code.imagecode.ImageCode;
-import top.dcenter.security.core.validate.code.imagecode.ImageValidateCodeProcessor;
+import top.dcenter.security.core.auth.validate.codes.image.ImageCode;
+import top.dcenter.security.core.auth.validate.codes.image.ImageValidateCodeProcessor;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;

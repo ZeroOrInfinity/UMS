@@ -7,7 +7,7 @@ import top.dcenter.security.core.api.validate.code.ImageCodeFactory;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.util.ValidateCodeUtil;
 import top.dcenter.security.core.util.ImageUtil;
-import top.dcenter.security.core.validate.code.imagecode.ImageCode;
+import top.dcenter.security.core.auth.validate.codes.image.ImageCode;
 
 import javax.servlet.ServletRequest;
 import java.awt.image.BufferedImage;

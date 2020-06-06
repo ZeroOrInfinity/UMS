@@ -26,6 +26,7 @@ public enum ErrorCodeEnum {
     PASSWORD_NOT_EMPTY(903, "密码不能为空"),
     QUERY_USER_INFO_ERROR(904, "未能获取到用户信息，请重试"),
     USER_REGISTER_FAILURE(905, "用户注册失败"),
+    GET_REQUEST_PARAMETER_FAILURE(906, "获取注册信息失败"),
 
     VALIDATE_CODE_PARAM_ERROR(600, "验证码参数错误"),
     VALIDATE_CODE_NOT_EMPTY(601, "验证码的值不能为空"),

@@ -1,5 +1,7 @@
 package top.dcenter.security.core.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -12,8 +14,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
-import top.dcenter.security.core.properties.BrowserProperties;
-import top.dcenter.security.core.provider.UsernamePasswordAuthenticationProvider;
+import top.dcenter.security.core.api.service.CacheUserDetailsService;
+import top.dcenter.security.core.auth.logout.DefaultLogoutSuccessHandler;
+import top.dcenter.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
+import top.dcenter.security.core.properties.ClientProperties;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,26 +53,33 @@ import static top.dcenter.security.core.consts.SecurityConstants.SERVLET_CONTEXT
 @Slf4j
 public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
 
-    private final BrowserProperties browserProperties;
+    private final ClientProperties clientProperties;
     private final BaseAuthenticationSuccessHandler  baseAuthenticationSuccessHandler;
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
     private final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
     private final ServletWebServerApplicationContext servletWebServerApplicationContext;
+    private final ObjectMapper objectMapper;
+
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
+    @Autowired(required = false)
+    private CacheUserDetailsService cacheUserDetailsService;
 
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
     private Map<String, WebSecurityConfigurerAware> socialWebSecurityConfigurerMap;
 
-    public SecurityCoreConfigurer(BrowserProperties browserProperties,
+    public SecurityCoreConfigurer(ClientProperties clientProperties,
                                   BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
                                   BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
                                   UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider,
+                                  ObjectMapper objectMapper,
                                   ServletWebServerApplicationContext servletWebServerApplicationContext) {
-        this.browserProperties = browserProperties;
+        this.clientProperties = clientProperties;
         this.baseAuthenticationSuccessHandler = baseAuthenticationSuccessHandler;
         this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
         this.usernamePasswordAuthenticationProvider = usernamePasswordAuthenticationProvider;
         this.servletWebServerApplicationContext = servletWebServerApplicationContext;
+        this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
@@ -89,22 +100,23 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
         String[] fullyAuthenticatedArray = set2Array(authorizeRequestMap, fullyAuthenticated);
         String[] rememberMeArray = set2Array(authorizeRequestMap, rememberMe);
 
-        /* 用户密码登录的 Provider, 只是对 org.springframework.security.authentication.dao.DaoAuthenticationProvider 的 copy.
-         * 替换 org.springframework.security.authentication.dao.DaoAuthenticationProvider 的一个原因是:
-         * 当有 IOC 容器中有多个 UserDetailsService 时, org.springframework.security.authentication.dao
+
+        /* 用户密码登录的 Provider, 只是对 org.springframework.security.auth.dao.DaoAuthenticationProvider 的 copy.
+         * 替换 org.springframework.security.auth.dao.DaoAuthenticationProvider 的一个原因是:
+         * 当有 IOC 容器中有多个 UserDetailsService 时, org.springframework.security.auth.dao
          * .DaoAuthenticationProvider 会失效.
          * 如果要对前端传过来的密码进行解密,则请实现 UserDetailsPasswordService
          */
-        http.authenticationProvider(this.usernamePasswordAuthenticationProvider)
+        http.authenticationProvider(usernamePasswordAuthenticationProvider)
             .formLogin()
                 // uri 需要自己实现
-                .loginPage(this.browserProperties.getLoginUnAuthenticationUrl())
-                .successHandler(this.baseAuthenticationSuccessHandler)
-                .failureHandler(this.baseAuthenticationFailureHandler)
-                .failureUrl(this.browserProperties.getFailureUrl())
-                .defaultSuccessUrl(this.browserProperties.getSuccessUrl())
+                .loginPage(clientProperties.getLoginUnAuthenticationUrl())
+                .successHandler(baseAuthenticationSuccessHandler)
+                .failureHandler(baseAuthenticationFailureHandler)
+                .failureUrl(clientProperties.getFailureUrl())
+                .defaultSuccessUrl(clientProperties.getSuccessUrl())
                 // 由 Spring Security 接管，不用任何处理
-                .loginProcessingUrl(this.browserProperties.getLoginProcessingUrl())
+                .loginProcessingUrl(clientProperties.getLoginProcessingUrl())
                 // 配置 uri 验证与授权信息
                 .and()
                 .authorizeRequests()
@@ -116,13 +128,22 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers(rememberMeArray).rememberMe()
                 .anyRequest()
                 .authenticated()
+                // logout
+                .and()
+                .logout()
+                .logoutUrl(clientProperties.getLogoutUrl())
+                .logoutSuccessHandler(new DefaultLogoutSuccessHandler(clientProperties, objectMapper, cacheUserDetailsService))
+                .deleteCookies(clientProperties.getRememberMe().getRememberMeCookieName(),
+                               clientProperties.getSession().getSessionCookieName())
+                .clearAuthentication(true)
+                .invalidateHttpSession(true)
                 // 配置 csrf
                 .and()
                 .csrf().disable();
 
-        if (this.socialWebSecurityConfigurerMap != null)
+        if (socialWebSecurityConfigurerMap != null)
         {
-            for (WebSecurityConfigurerAware postConfigurer : this.socialWebSecurityConfigurerMap.values())
+            for (WebSecurityConfigurerAware postConfigurer : socialWebSecurityConfigurerMap.values())
             {
                 postConfigurer.postConfigure(http);
             }
@@ -177,7 +198,7 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
             }
 
             // 把 targetAuthorizeRequestMap 添加到 ServletContext
-            Objects.requireNonNull(this.servletWebServerApplicationContext.getServletContext())
+            Objects.requireNonNull(servletWebServerApplicationContext.getServletContext())
                     .setAttribute(SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY, targetAuthorizeRequestMap);
         }
     }

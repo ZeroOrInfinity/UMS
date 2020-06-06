@@ -7,22 +7,22 @@
 - 基本功能：在 core 包中；
 - ```properties
   # 表单登录页
-  security.browser.login-page=/login.html
+  security.client.login-page=/login.html
   # 登录失败跳转页面
-  security.browser.failure-url=/login.html
+  security.client.failure-url=/login.html
   # 两种登录模式：JSON 与 REDIRECT
-  security.browser.login-process-type=REDIRECT
+  security.client.login-process-type=REDIRECT
   
   # 数据库名称
-  security.browser.database-name=sso-demo
+  security.client.database-name=sso-demo
   
   # Map 类型：必须配置；设置 uri 的特定后缀对应的跳转登录页, 例如：key=/**: value=/security/login.html。 默认为空
   # 支持通配符，匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*
-  security.browser.auth-redirect-suffix-condition["/*.html"]=/login.html
-  security.browser.auth-redirect-suffix-condition["/hello"]=/login.html
-  security.browser.auth-redirect-suffix-condition["/user/**"]=/login.html
-  security.browser.auth-redirect-suffix-condition["/order/**"]=/login.html
-  security.browser.auth-redirect-suffix-condition["/file/**"]=/login.html
+  security.client.auth-redirect-suffix-condition["/*.html"]=/login.html
+  security.client.auth-redirect-suffix-condition["/hello"]=/login.html
+  security.client.auth-redirect-suffix-condition["/user/**"]=/login.html
+  security.client.auth-redirect-suffix-condition["/order/**"]=/login.html
+  security.client.auth-redirect-suffix-condition["/file/**"]=/login.html
   # /authentication/form 为用户名密码方式注册,/authentication/social 为第三方登录方式注册,/authentication/mobile 为手机登录注册
   # List 类型：设置需要短信验证码认证的 uri，多个 uri 用 “，”号分开，支持通配符，如：/hello,/user/*；默认为空
   #security.codes.sms.auth-urls=/authentication/form,/authentication/social,/authentication/mobile
@@ -31,7 +31,7 @@
   security.codes.sms.expire=120
   security.codes.sms.length=6
   # 设置记住我功能的 session 的缓存时长，默认 7 天. If a duration suffix is not specified, seconds will be used.
-  security.browser.remember-me-timeout=60
+  security.client.remember-me-timeout=60
   # List 类型：设置需要图片验证码认证的 uri，多个 uri 用 “，”号分开，支持通配符，如：/hello,/user/*；默认为 /authentication/form
   security.codes.image.auth-urls=/authentication/form,/authentication/mobile
   security.codes.image.expire=1200

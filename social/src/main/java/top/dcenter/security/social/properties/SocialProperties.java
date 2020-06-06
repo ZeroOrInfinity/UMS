@@ -9,7 +9,7 @@ import top.dcenter.security.social.controller.SocialController;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_SOCIAL;
+import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_SIGN_UP_PROCESSING_URL_SOCIAL;
 
 /**
  * social 第三方登录属性
@@ -40,7 +40,7 @@ public class SocialProperties {
     /**
      * 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /authentication/social 进行处理，由 Social 处理，不需要用户实现
      */
-    private String socialUserRegistUrl = DEFAULT_LOGIN_PROCESSING_URL_SOCIAL;
+    private String socialUserRegistUrl = DEFAULT_SIGN_UP_PROCESSING_URL_SOCIAL;
     /**
      * 第三方登录用户授权成功且未注册，则跳转的注册页面， 默认为 /signUp.html，
      * autoSignIn=true 且实现 ConnectionSignUp 接口则自动登录时 signUpUrl 会失效
@@ -64,19 +64,24 @@ public class SocialProperties {
 
 
     /**
-     * 第三方登录用户用户唯一 ID 字段名称， 默认为 userId
+     * 第三方登录用户注册时: 用户唯一 ID 字段名称， 默认为 userId
      */
     private String userIdParamName = "userId";
     /**
-     * 第三方服务商 providerId 字段名称， 默认为 providerId
+     * 第三方登录用户注册时: 密码 字段名称， 默认为 password
+     */
+    private String passwordParamName = "password";
+
+    /**
+     * 第三方录用户注册时: 服务商 providerId 字段名称， 默认为 providerId
      */
     private String providerIdParamName = "providerId";
     /**
-     * 第三方登录用户在服务商用户唯一ID providerUserId 字段名称， 默认为 providerUserId
+     * 第三方登录用户注册时: 在服务商那的用户唯一ID providerUserId 字段名称， 默认为 providerUserId
      */
     private String providerUserIdParamName = "providerUserId";
     /**
-     * 第三方登录用户头像 avatarUrl 字段名称， 默认为 providerUserId
+     * 第三方登录用户注册时: 用户头像 avatarUrl 字段名称， 默认为 providerUserId
      */
     private String avatarUrlParamName = "avatarUrl";
 
