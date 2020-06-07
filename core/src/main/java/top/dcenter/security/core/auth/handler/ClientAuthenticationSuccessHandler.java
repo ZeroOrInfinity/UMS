@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static java.util.Objects.requireNonNullElse;
 import static top.dcenter.security.core.consts.SecurityConstants.HEADER_ACCEPT;
 import static top.dcenter.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
 import static top.dcenter.security.core.util.AuthenticationUtil.responseWithJson;
@@ -75,11 +76,13 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
 
                 if (StringUtils.isNotBlank(targetUrl))
                 {
-                    super.setDefaultTargetUrl(targetUrl);
+                    setDefaultTargetUrl(targetUrl);
+
                 }
             }
+
             // 判断是否返回 json 类型
-            userInfoJsonVo.setUrl(super.getDefaultTargetUrl());
+            userInfoJsonVo.setUrl(requireNonNullElse(getDefaultTargetUrl(), "/"));
             if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
             {
                 responseWithJson(response, HttpStatus.OK.value(),

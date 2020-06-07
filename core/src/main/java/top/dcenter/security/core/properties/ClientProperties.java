@@ -161,7 +161,7 @@ public class ClientProperties {
         private Duration rememberMeTimeout = Duration.parse("P14D");
 
         /**
-         * 设置记住我功能的 CookieName，默认 remember-me
+         * 设置记住我功能的 CookieName，默认 rememberMe
          */
         private String rememberMeCookieName = DEFAULT_REMEMBER_ME_NAME;
 

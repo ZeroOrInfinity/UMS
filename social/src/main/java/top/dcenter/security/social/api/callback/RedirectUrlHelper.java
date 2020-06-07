@@ -32,9 +32,9 @@ public class RedirectUrlHelper {
         // 解密 state
         byte[] router = Base64.getDecoder().decode(state.substring(state.indexOf(UUID_SEPARATOR) + 1));
         // 提取 redirectUrl
-        Map<String, String> routerMap = ConvertUtil.string2Map(new String(router, UTF_8),
-                                                               URL_PARAMETER_SEPARATOR,
-                                                               KEY_VALUE_SEPARATOR);
-        return routerMap.get(CALLBACK_URL_KEY_IN_STATE);
+        Map<String, Object> routerMap = ConvertUtil.string2JsonMap(new String(router, UTF_8),
+                                                                   URL_PARAMETER_SEPARATOR,
+                                                                   KEY_VALUE_SEPARATOR);
+        return (String) routerMap.get(CALLBACK_URL_KEY_IN_STATE);
     }
 }

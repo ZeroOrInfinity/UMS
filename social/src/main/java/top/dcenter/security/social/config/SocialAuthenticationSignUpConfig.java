@@ -66,7 +66,7 @@ public class SocialAuthenticationSignUpConfig extends SecurityConfigurerAdapter<
         socialAuthenticationSignUpFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
         socialAuthenticationSignUpFilter.setAuthenticationSuccessHandler(clientAuthenticationSuccessHandler);
         SocialAuthenticationFailureHandler socialAuthenticationFailureHandler = new SocialAuthenticationFailureHandler(this.objectMapper,
-                                                                                                                       this.socialProperties, this.clientProperties, cacheUserDetailsService);
+                                                                                                                       this.socialProperties, this.clientProperties);
         socialAuthenticationSignUpFilter.setAuthenticationFailureHandler(socialAuthenticationFailureHandler);
 
         if (persistentTokenRepository != null)

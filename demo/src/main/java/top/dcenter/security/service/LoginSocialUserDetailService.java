@@ -25,10 +25,7 @@ import top.dcenter.security.core.util.RequestUtil;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
 import top.dcenter.security.social.properties.SocialProperties;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * 用户密码与手机短信登录与 OAuth 登录与注册服务：<br>
@@ -240,7 +237,7 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
         //String userId = getValueOfRequest(request, socialProperties.getUserIdParamName(),ErrorCodeEnum.USERNAME_NOT_EMPTY)
         //String password = getValueOfRequest(request, socialProperties.getPasswordParamName(), ErrorCodeEnum.PASSWORD_NOT_EMPTY)
 
-        UserInfo userInfo = getUserInfo(request);
+        UserInfo userInfo = RequestUtil.extractRequest2Object(request.getRequest(), objectMapper, UserInfo.class);
 
         try
         {
@@ -275,55 +272,14 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
         }
     }
 
-    /**
-     * 从 request 中获取 UserInfo
-     * @param request request
-     * @return  UserInfo
-     */
-    private UserInfo getUserInfo(ServletWebRequest request) {
-
-        Map<String, Object> parameterMap = RequestUtil.extractRequestJsonData(request.getRequest(), this.objectMapper);
-        if (parameterMap != null)
-        {
-            String userId = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getUserIdParamName()), "");
-            userId = userId.trim();
-            String password = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getPasswordParamName()), "");
-            String avatarUrl = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getUserIdParamName()), "");
-            String providerId = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getUserIdParamName()), "");
-            String providerUserId = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getUserIdParamName()), "");
-            return new UserInfo(userId, password, avatarUrl, providerId, providerUserId);
-        }
-
-        throw new RegisterUserFailureException(ErrorCodeEnum.GET_REQUEST_PARAMETER_FAILURE, request.getSessionId());
-    }
-
-    /**
-     * 从 request 中获取 UserInfo
-     * @param request request
-     * @return  UserInfo
-     */
-    private UserInfo getUserInfo2(ServletWebRequest request) {
-
-        try
-        {
-            byte[] bytes = request.getRequest().getInputStream().readAllBytes();
-            return objectMapper.readValue(new String(bytes, StandardCharsets.UTF_8), UserInfo.class);
-        }
-        catch (Exception e)
-        {
-            log.error(e.getMessage(), e);
-            throw new RegisterUserFailureException(ErrorCodeEnum.GET_REQUEST_PARAMETER_FAILURE, request.getSessionId());
-        }
-
-    }
 
     private String getValueOfRequest(ServletWebRequest request, String paramName, ErrorCodeEnum usernameNotEmpty) throws RegisterUserFailureException {
-        String username = (String) RequestUtil.extractRequestDataWithParamName(request.getRequest(), this.objectMapper, paramName);
-        if (username == null)
+        String result = (String) RequestUtil.getParameter(request.getRequest(), this.objectMapper, paramName);
+        if (result == null)
         {
             throw new RegisterUserFailureException(usernameNotEmpty, request.getSessionId());
         }
-        return username;
+        return result;
     }
 
 }

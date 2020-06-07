@@ -35,6 +35,12 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        // BCryptPasswordEncoder 的实现了添加随机 salt 算法，并且能从hash后的字符串中获取 salt 进行原始密码与hash后的密码的对比
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler")
     public BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler() {
         return new ClientAuthenticationSuccessHandler(objectMapper, clientProperties);
@@ -50,12 +56,6 @@ public class SecurityConfiguration {
     @ConditionalOnMissingBean(type = "top.dcenter.security.core.api.advice.SecurityControllerExceptionHandler")
     public SecurityControllerExceptionHandler securityControllerExceptionHandler() {
         return new SecurityControllerExceptionHandler();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        // BCryptPasswordEncoder 的实现了添加随机 salt 算法，并且能从hash后的字符串中获取 salt 进行原始密码与hash后的密码的对比
-        return new BCryptPasswordEncoder();
     }
 
 }

@@ -47,32 +47,27 @@ public class AuthenticationUtil {
                                                           ObjectMapper objectMapper, ClientProperties clientProperties) throws IOException {
 
         // 检测是否接收 json 格式
-        if (StringUtils.isNotBlank(acceptHeader) && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
+        if (StringUtils.isNotBlank(acceptHeader)
+                && (acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE)
+                      || acceptHeader.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE)))
         {
+
             int status = HttpStatus.UNAUTHORIZED.value();
             ResponseResult result;
             if (e != null)
             {
                 status = e.getErrorCodeEnum().getCode();
                 result = ResponseResult.fail(e.getErrorCodeEnum(), e.getData());
-            } else
+            }
+            else
             {
                 result = ResponseResult.fail(exception.getMessage(), ErrorCodeEnum.UNAUTHORIZED);
             }
 
-            AuthenticationUtil.responseWithJson(response, status, objectMapper.writeValueAsString(result));
+            responseWithJson(response, status, objectMapper.writeValueAsString(result));
             return true;
         }
 
-        // 注册时，用户名重名处理, 返回 Json 格式
-        // 用户不存在, 返回 Json 格式
-        // 验证码异常时，返回 JSON 格式
-        if (e != null)
-        {
-            responseWithJson(response, HttpStatus.UNAUTHORIZED.value(),
-                             objectMapper.writeValueAsString(ResponseResult.fail(e.getMessage(), e.getErrorCodeEnum(), e.getData())));
-            return true;
-        }
         // 判断是否返回 json 类型
         if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
         {

@@ -85,7 +85,7 @@ public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProc
      * request token to the <codes>AuthenticationManager</codes>
      */
     protected String obtainMobile(HttpServletRequest request) {
-        return (String) RequestUtil.extractRequestDataWithParamName(request, this.objectMapper, mobileParameter);
+        return (String) RequestUtil.getParameter(request, this.objectMapper, mobileParameter);
     }
 
     /**

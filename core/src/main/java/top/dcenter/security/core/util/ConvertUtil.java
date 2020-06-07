@@ -1,9 +1,12 @@
 package top.dcenter.security.core.util;
 
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -57,54 +60,46 @@ public class ConvertUtil {
      * @param kvStrings   字符串
      * @param separator 分隔符，不为 null
      * @param kvSeparator key 与 value 的分隔符，不为 null
-     * @return  HashMap<String, String>, 当 kvStrings 为空时，返回空的 map
-     */
-    public static Map<String, String> string2Map(String kvStrings, String separator, String kvSeparator){
-        String[] splits = StringUtils.splitByWholeSeparator(kvStrings, separator);
-        if (splits == null)
-        {
-            return new HashMap<>(0);
-        }
-        int length = splits.length;
-        Map<String, String> map = new HashMap<>(length);
-
-        string2Map(kvSeparator, splits, map);
-
-        return map;
-    }
-
-    /**
-     * 字符转换为 Map 类型，比如：name=tom,age=18
-     * 当 kvStrings 为空时，返回空的 map
-     * @param kvStrings   字符串
-     * @param separator 分隔符，不为 null
-     * @param kvSeparator key 与 value 的分隔符，不为 null
      * @return  HashMap<String, Object>, 当 kvStrings 为空时，返回空的 map
      */
-    public static Map<String, Object> string2MapOfObj(String kvStrings, String separator, String kvSeparator){
+    public static Map<String, Object> string2JsonMap(String kvStrings, String separator, String kvSeparator){
         String[] splits = StringUtils.splitByWholeSeparator(kvStrings, separator);
         if (splits == null)
         {
-            return new HashMap<>(0);
+            return new JsonMap<>(0);
         }
         int length = splits.length;
-        Map<String, Object> map = new HashMap<>(length);
+        Map<String, Object> map = new JsonMap<>(length);
 
-        string2Map(kvSeparator, splits, map);
+        string2JsonMap(kvSeparator, splits, map);
 
           return map;
     }
 
-    private static void string2Map(String kvSeparator, String[] splits, Map<String, ? super String> map) {
-        String[] kvArr;
+    private static void string2JsonMap(String kvSeparator, String[] splits, Map<String, Object> map) {
         for (String split : splits)
         {
             if (StringUtils.isNotBlank(split))
             {
-                kvArr = StringUtils.splitByWholeSeparator(split, kvSeparator);
+                final String[] kvArr = StringUtils.splitByWholeSeparator(split, kvSeparator);
                 if (kvArr != null && kvArr.length == 2)
                 {
-                    map.put(kvArr[0], kvArr[1]);
+                    map.compute(kvArr[0], (k, v) -> {
+                        if (v == null)
+                        {
+                            v = kvArr[1];
+                        } else if (v instanceof JsonList)
+                        {
+                            ((JsonList) v).add(kvArr[1]);
+                        } else
+                        {
+                            List list = new JsonList<>();
+                            list.add(v);
+                            list.add(kvArr[1]);
+                            v = list;
+                        }
+                        return v;
+                    });
                 }
             }
         }
@@ -151,6 +146,110 @@ public class ConvertUtil {
         for (String split : splits)
         {
             map.put(split, value);
+        }
+    }
+
+    /**
+     * 修改 toString 输出符合Json 格式.
+     * @param <K>
+     * @param <V>
+     */
+    private static class JsonMap<K, V> extends HashMap<K, V> {
+
+        public JsonMap(int initialCapacity, float loadFactor) {
+            super(initialCapacity, loadFactor);
+        }
+
+        public JsonMap(int initialCapacity) {
+            super(initialCapacity);
+        }
+
+        public JsonMap() {
+        }
+
+        public JsonMap(Map<? extends K, ? extends V> m) {
+            super(m);
+        }
+
+        @Override
+        public String toString() {
+            Iterator<Entry<K,V>> i = entrySet().iterator();
+            if (! i.hasNext())
+            {
+                return "{}";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.append('{');
+            for (;;) {
+                Entry<K,V> e = i.next();
+                K key = e.getKey();
+                V value = e.getValue();
+                if (key != this)
+                {
+                    sb.append("\"");
+                    sb.append(key);
+                    sb.append("\"");
+
+                    sb.append(":");
+                    if (value != this)
+                    {
+                        if (value instanceof String)
+                        {
+                            sb.append("\"");
+                        }
+                        sb.append(value);
+                        if (value instanceof String)
+                        {
+                            sb.append("\"");
+                        }
+                    }
+                    if (! i.hasNext())
+                    {
+                        return sb.append('}').toString();
+                    }
+                    sb.append(',');
+                }
+            }
+        }
+    }
+
+    private static class JsonList<E> extends ArrayList<E> {
+        public JsonList(int initialCapacity) {
+            super(initialCapacity);
+        }
+
+        public JsonList() {
+        }
+
+        public JsonList(@NotNull Collection<? extends E> c) {
+            super(c);
+        }
+
+        @Override
+        public String toString() {
+            Iterator<E> it = iterator();
+            if (! it.hasNext())
+            {
+                return "[]";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.append('[');
+            for (;;) {
+                E e = it.next();
+                if (e != this)
+                {
+                    sb.append("\"");
+                    sb.append(e);
+                    sb.append("\"");
+                    if (! it.hasNext())
+                    {
+                        return sb.append(']').toString();
+                    }
+                    sb.append(',');
+                }
+            }
         }
     }
 

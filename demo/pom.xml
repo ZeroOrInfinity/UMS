@@ -61,11 +61,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-        <dependency>
-            <groupId>top.dcenter.security</groupId>
-            <artifactId>scaffolding-browser</artifactId>
-            <version>1.0.0</version>
-        </dependency>
     </dependencies>
 
     <build>

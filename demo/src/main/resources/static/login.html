@@ -27,6 +27,12 @@
             </td>
         </tr>
         <tr>
+            <td>temp:</td>
+            <td><input type="checkbox" name="aa" value="tom1" checked/><input type="checkbox" name="aa" value="tom2"
+                                                                              checked/><input type="checkbox"
+                                                                                              name="aa" value="tom3" checked/></td>
+        </tr>
+        <tr>
             <td>手机号码：</td>
             <td>
                 <input type="tel" name="mobile" value="13345678980">
@@ -40,12 +46,13 @@
             </td>
         </tr>
         <tr>
-            <td ><input type="checkbox" name="remember-me" checked="true">记住我</input></td>
+            <td ><input type="checkbox" name="rememberMe" checked="true">记住我</input></td>
             <td><p style="color: #ff0000" id="error-code"></p></td>
         </tr>
         <tr>
             <td ><button id="btn-reg" type="button">登录ajax</button></td>
-            <td colspan="2"><button type="submit">登录</button></td>
+            <!-- 通过 form submit 不能接收错误信息, 通过 ajax 可接收错误信息 -->
+            <td ><button type="submit">登录</button></td>
         </tr>
     </table>
 </form>
@@ -74,12 +81,13 @@
             </td>
         </tr>
         <tr>
-            <td ><input type="checkbox" name="remember-me" checked="true">记住我</input></td>
+            <td ><input type="checkbox" name="rememberMe" checked="true">记住我</input></td>
             <td><p style="color: #ff0000" id="error-code-mobile"></p></td>
         </tr>
         <tr>
             <td ><button id="btn-mobile" type="button">登录ajax</button></td>
-            <td colspan="2"><button type="submit">登录</button></td>
+            <!-- 通过 form submit 不能接收错误信息, 通过 ajax 可接收错误信息 -->
+            <td ><button type="submit">登录</button></td>
         </tr>
     </table>
 </form>
@@ -128,8 +136,11 @@
                     // 注册成功
                     // ...
                     console.log(data)
-                    console.log(data.msg)
-                    window.location.href = data.msg
+                    let uri = data.data.url
+                    if (uri === null) {
+                        uri = '/'
+                    }
+                    window.location.href = uri;
                 },
                 error: function (data) {
                     // 注册失败

@@ -38,7 +38,7 @@ public class SecurityConstants {
     /**
      * The default name for remember me parameter name and remember me cookie name
      */
-    public static final String DEFAULT_REMEMBER_ME_NAME = "remember-me";
+    public static final String DEFAULT_REMEMBER_ME_NAME = "rememberMe";
     /**
      * 把 session enhance check value 存储在 session 时所用的 key
      */
@@ -65,7 +65,7 @@ public class SecurityConstants {
     /**
      * 需要验证码校验的 authUrls 之间的分隔符
      */
-    public static final String URI_SEPARATOR = ",";
+    public static final String AUTH_URI_SEPARATOR = ",";
     /**
      * 默认的处理验证码的url前缀
      */

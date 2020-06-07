@@ -71,7 +71,7 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
 
         if (username == null && password == null)
         {
-            parameterMap = Objects.requireNonNullElse(RequestUtil.extractRequestJsonData(request, this.objectMapper), new HashMap<>(0));
+            parameterMap = Objects.requireNonNullElse(RequestUtil.extractRequestJsonData2Map(request, this.objectMapper), new HashMap<>(0));
 
             username = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getUserIdParamName()), "");
             password = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getPasswordParamName()), "");
@@ -105,7 +105,7 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
      * request token to the <code>AuthenticationManager</code>
      */
     protected String obtainPassword(HttpServletRequest request) {
-        return (String) RequestUtil.extractRequestDataWithParamName(request, this.objectMapper, passwordParameter);
+        return (String) RequestUtil.getParameter(request, this.objectMapper, passwordParameter);
     }
 
     /**
@@ -117,7 +117,7 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
      * request token to the <codes>AuthenticationManager</codes>
      */
     protected String obtainUsername(HttpServletRequest request) {
-        return (String) RequestUtil.extractRequestDataWithParamName(request, this.objectMapper, usernameParameter);
+        return (String) RequestUtil.getParameter(request, this.objectMapper, usernameParameter);
     }
 
 

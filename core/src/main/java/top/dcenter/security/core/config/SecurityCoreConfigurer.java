@@ -5,16 +5,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
+import top.dcenter.security.core.api.service.AbstractUserDetailsService;
 import top.dcenter.security.core.api.service.CacheUserDetailsService;
+import top.dcenter.security.core.auth.filter.JsonUsernamePasswordAuthenticationFilter;
 import top.dcenter.security.core.auth.logout.DefaultLogoutSuccessHandler;
 import top.dcenter.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
 import top.dcenter.security.core.properties.ClientProperties;
@@ -56,13 +63,17 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
     private final ClientProperties clientProperties;
     private final BaseAuthenticationSuccessHandler  baseAuthenticationSuccessHandler;
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
-    private final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
     private final ServletWebServerApplicationContext servletWebServerApplicationContext;
     private final ObjectMapper objectMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
     private CacheUserDetailsService cacheUserDetailsService;
+
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
+    @Autowired
+    private AbstractUserDetailsService abstractUserDetailsService;
 
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
@@ -71,15 +82,15 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
     public SecurityCoreConfigurer(ClientProperties clientProperties,
                                   BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
                                   BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
-                                  UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider,
                                   ObjectMapper objectMapper,
-                                  ServletWebServerApplicationContext servletWebServerApplicationContext) {
+                                  ServletWebServerApplicationContext servletWebServerApplicationContext,
+                                  PasswordEncoder passwordEncoder) {
         this.clientProperties = clientProperties;
         this.baseAuthenticationSuccessHandler = baseAuthenticationSuccessHandler;
         this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
-        this.usernamePasswordAuthenticationProvider = usernamePasswordAuthenticationProvider;
         this.servletWebServerApplicationContext = servletWebServerApplicationContext;
         this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -100,6 +111,8 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
         String[] fullyAuthenticatedArray = set2Array(authorizeRequestMap, fullyAuthenticated);
         String[] rememberMeArray = set2Array(authorizeRequestMap, rememberMe);
 
+        // 替换原来的 UsernamePasswordAuthenticationFilter 使其支持 Json 格式解析
+        http.addFilterAt(usernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         /* 用户密码登录的 Provider, 只是对 org.springframework.security.auth.dao.DaoAuthenticationProvider 的 copy.
          * 替换 org.springframework.security.auth.dao.DaoAuthenticationProvider 的一个原因是:
@@ -107,7 +120,7 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
          * .DaoAuthenticationProvider 会失效.
          * 如果要对前端传过来的密码进行解密,则请实现 UserDetailsPasswordService
          */
-        http.authenticationProvider(usernamePasswordAuthenticationProvider)
+        http.authenticationProvider(usernamePasswordAuthenticationProvider())
             .formLogin()
                 // uri 需要自己实现
                 .loginPage(clientProperties.getLoginUnAuthenticationUrl())
@@ -141,6 +154,7 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable();
 
+
         if (socialWebSecurityConfigurerMap != null)
         {
             for (WebSecurityConfigurerAware postConfigurer : socialWebSecurityConfigurerMap.values())
@@ -148,6 +162,29 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
                 postConfigurer.postConfigure(http);
             }
         }
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.security.core.auth.provider.UsernamePasswordAuthenticationProvider")
+    public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider() {
+        return new UsernamePasswordAuthenticationProvider(passwordEncoder, abstractUserDetailsService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter")
+    public UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter() throws Exception {
+        JsonUsernamePasswordAuthenticationFilter jsonUsernamePasswordAuthenticationFilter = new JsonUsernamePasswordAuthenticationFilter(objectMapper);
+        jsonUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(baseAuthenticationSuccessHandler);
+        jsonUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(baseAuthenticationFailureHandler);
+        jsonUsernamePasswordAuthenticationFilter.setFilterProcessesUrl(clientProperties.getLoginProcessingUrl());
+        jsonUsernamePasswordAuthenticationFilter.setAuthenticationManager(authenticationManagerBean());
+        return jsonUsernamePasswordAuthenticationFilter;
+    }
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 
     /**

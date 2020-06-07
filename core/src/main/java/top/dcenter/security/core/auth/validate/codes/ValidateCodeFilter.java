@@ -5,14 +5,14 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.security.core.api.validate.code.ValidateCodeProcessor;
+import top.dcenter.security.core.enums.ErrorCodeEnum;
 import top.dcenter.security.core.enums.ValidateCodeType;
+import top.dcenter.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.security.core.exception.ValidateCodeException;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.util.ConvertUtil;
@@ -98,14 +98,14 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
         } catch (Exception e) {
             log.warn("验证码: 校验请求({}), IP={}, 错误信息={}", requestURI, request.getRemoteAddr(), e.getMessage());
 
-            AuthenticationException ex;
-            if (e instanceof AuthenticationException)
+            AbstractResponseJsonAuthenticationException ex;
+            if (e instanceof AbstractResponseJsonAuthenticationException)
             {
-                ex = (AuthenticationException) e;
+                ex = (AbstractResponseJsonAuthenticationException) e;
             }
             else
             {
-                ex = new AuthenticationServiceException(e.getMessage(), e);
+                ex = new ValidateCodeException(ErrorCodeEnum.VALIDATE_CODE_ERROR, e, request.getRemoteAddr());
             }
             baseAuthenticationFailureHandler.onAuthenticationFailure(request, response, ex);
             return;

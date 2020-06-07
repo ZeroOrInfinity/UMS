@@ -15,7 +15,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import top.dcenter.security.core.api.service.AbstractUserDetailsService;
 
@@ -32,7 +31,6 @@ import top.dcenter.security.core.api.service.AbstractUserDetailsService;
  * @medifiedBy zyw
  * @version V1.0  Created by 2020/5/31 0:51
  */
-@Component
 public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
     // ~ Static fields/initializers
