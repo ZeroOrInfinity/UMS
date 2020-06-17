@@ -28,7 +28,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.PUT_METHOD;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
 
 /**
- * 增加对 Ajax 格式与 form 格式的解析, 覆写了 {@link JsonRequest#getParameter(String)},
+ * 增加对 Ajax 格式与 form 格式的解析, 解析数据时默认使用 UTF-8 格式, 覆写了 {@link JsonRequest#getParameter(String)},
  * {@link JsonRequest#getInputStream()}, 添加了 {@link JsonRequest#getFormMap()}, {@link JsonRequest#getBody()}
  * @author zyw
  * @version V1.0  Created by 2020/6/9 14:01
