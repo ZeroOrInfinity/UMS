@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>signUp</title>
@@ -11,24 +11,31 @@
 <h3>替换本页，请配置 security.social.signUpUrl 属性来设置自己的注册页面</h3>
 <h2>通过 ajax 请求 /social/user 可以获取第三方登录的用户信息：用户昵称，用户头像，第三方的 ProviderId，ProviderUserId</h2>
 <h2>如要自定义 /social/user 请配置 security.social.socialUserInfo 属性来获取自定义的用户信息</h2>
-<form id="social-form" action="/authentication/social" method="post">
+<!-- 通过 th:action 的方式支持 csrf 或者 添加隐藏域<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
+<form id="social-form" th:action="@{/authentication/social}" method="post">
     <table>
         <tr>
             <td>信    息：</td>
-            <td><input id="providerId" type="text" disabled="disabled"/></td>
+            <td><input id="providerId" type="text" name="providerId" th:value="${userInfo?.providerId}"
+                       readonly/></td>
         </tr>
         <tr>
             <td>providerUserId:</td>
-            <td><input id="providerUserId" type="text" disabled="disabled"/></td>
+            <td><input id="providerUserId" type="text" name="providerUserId" th:value="${userInfo?.providerUserId}"
+                       readonly/></td>
         </tr>
         <tr>
             <td>用户头像:</td>
-            <td><img id="avatarUrl" src="#" style="width: 100px; height: 100px"><input id="avatar-input" type="hidden" name="avatarUrl"/></td>
+            <td><img id="avatarUrl" th:src="${userInfo?.avatarUrl}" name="avatarUrl"
+                     style="width: 100px; height: 100px"><input id="avatar-input" type="hidden"
+                                                                name="avatarUrl" th:value="${userInfo?.avatarUrl}"/></td>
 
         </tr>
         <tr>
             <td>用 户 名：</td>
-            <td><input id="username" type="text" name="userId"/><p style="color: #ff0000" id="error-name"></p></td>
+            <td><input id="username" type="text" name="username" th:value="${userInfo?.userId}"/><p style="color: #ff0000"
+                                                                                   id="error-name" >
+                </p></td>
         </tr>
         <tr>
             <td>密码：</td>
@@ -52,8 +59,8 @@
         <tr>
             <td></td>
             <td>
-                <button id="btn-regist" type="button" name="type" value="regist">登录</button>
-            </td>
+                <button id="btn-register" type="button" name="type" value="register">登录</button>
+            </td>22222
         </tr>
     </table>
 </form>
@@ -77,39 +84,18 @@
         return o;
     }
 
-    refreshImg = function () {
-        $.ajax({
-            // 如果用的是模板，则 url 可以使用注入的方式，会跟着配置动态改变
-            url: "/user/info",
-            // url: "/social/user",
-            data: {},
-            type: "GET",
-            dataType: "json",
-            success: function(data) {
-                $("#error-name").text("")
-                $("#error-code").text("")
-                $("#providerId").val(data.providerId)
-                $("#providerUserId").val(data.providerUserId)
-                $("#username").val(data.userId)
-                $("#avatarUrl").attr("src", data.avatarUrl)
-                $("#avatar-input").attr("value", data.avatarUrl)
-            }
-        })
-    }
-
-    refreshImg()
-
     $("#img").click(function(){
         this.setAttribute('src','/code/image?'+Math.random());
     });
 
 
 
-    $("#btn-regist").click(function () {
+    $("#btn-register").click(function () {
         console.log(JSON.stringify($('#social-form').serializeObject()))
         $.ajax({
             // 如果用的是模板，则 url 可以使用注入的方式，会跟着配置动态改变
-            url: "/authentication/social",
+            url: $('#social-form').attr("action"),
+            // url: "/authentication/social",
             data: JSON.stringify($('#social-form').serializeObject()),
             type: "POST",
             dataType: "json",
@@ -123,6 +109,7 @@
                 // 注册成功
                 // ...
                 console.log(data)
+                window.location.href = data.data.url
             },
             error: function (data) {
                 // 注册失败

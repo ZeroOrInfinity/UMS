@@ -53,7 +53,7 @@ public abstract class AbstractOAuth2ApiBinding implements ApiBinding, Initializi
 	private RestTemplate restTemplate;
 
 	/**
-	 * Constructs the API template without user authorization. This is useful for accessing operations on a provider's API that do not require user authorization.
+	 * Constructs the API template without user authorization. This is useful for accessing operations on a provider's API that dto not require user authorization.
 	 */
 	protected AbstractOAuth2ApiBinding() {
 		accessToken = null;

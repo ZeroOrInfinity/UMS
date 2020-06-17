@@ -8,9 +8,9 @@ import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
 import top.dcenter.security.social.api.signup.BaseConnectionSignUp;
 
 /**
- * 默认的第三方授权登录时自动注册处理器。<br>
- * {@link ConnectionSignUp#execute(Connection)} 功能：第三方登录自动注册时, 从第三方的 connection 中获取用户唯一标识。<br>
- * 当实现 {@link BaseConnectionSignUp} 接口且 security.social.autoSignIn=true 则第三方授权登录时自动注册.<br>
+ * 默认的第三方授权登录时自动注册处理器。<br><br>
+ * {@link ConnectionSignUp#execute(Connection)} 功能：第三方登录自动注册时, 从第三方的 connection 中获取用户唯一标识。<br><br>
+ * 当实现 {@link BaseConnectionSignUp} 接口且 security.social.autoSignIn=true 则第三方授权登录时自动注册.<br><br>
  *     注意：要替换此类，实现 {@link BaseConnectionSignUp} 接口且注册 IOC 容器
  * @see ConnectionSignUp
  * @author zyw

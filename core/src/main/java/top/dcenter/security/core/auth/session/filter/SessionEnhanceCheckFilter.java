@@ -5,7 +5,7 @@ import org.apache.commons.collections.MapUtils;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-import top.dcenter.security.core.auth.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
+import top.dcenter.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.security.core.api.session.SessionEnhanceCheckService;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
@@ -29,8 +29,9 @@ import static top.dcenter.security.core.consts.SecurityConstants.SESSION_ENHANCE
 import static top.dcenter.security.core.enums.ErrorCodeEnum.SESSION_ENHANCE_CHECK;
 
 /**
- * session 增强检测, 如对客户端特征码检测, 增强对 session 攻击的防御,
- * 依赖 {@link EnhanceConcurrentControlAuthenticationStrategy}. <br>
+ * session 增强检测, 如对客户端特征码检测, 增强对 session 攻击的防御. <br>
+ * 如果要修改检测逻辑, 实现 {@link SessionEnhanceCheckService}, 注入 IOC 容器即可
+ * 依赖 {@link EnhanceConcurrentControlAuthenticationStrategy}. <br><br>
  *     属性 authorizeRequestMap 通过 {@link top.dcenter.security.core.config.SecurityCoreConfigurer} 方法
  *     fillingAuthorizeRequestUris() 注入
  * @author zyw

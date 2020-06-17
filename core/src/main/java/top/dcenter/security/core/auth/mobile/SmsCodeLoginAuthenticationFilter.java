@@ -13,7 +13,6 @@ import top.dcenter.security.core.enums.ErrorCodeEnum;
 import top.dcenter.security.core.exception.LoginFailureException;
 import top.dcenter.security.core.properties.SmsCodeLoginAuthenticationProperties;
 import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.util.RequestUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,7 +33,6 @@ public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProc
     private String mobileParameter;
     private boolean postOnly = true;
     private final ValidateCodeProperties validateCodeProperties;
-    private final ObjectMapper objectMapper;
 
     // ~ Constructors
     // ===================================================================================================
@@ -43,7 +41,6 @@ public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProc
         super(new AntPathRequestMatcher(smsCodeLoginAuthenticationProperties.getLoginProcessingUrlMobile(), POST_METHOD));
         this.validateCodeProperties = validateCodeProperties;
         this.mobileParameter = validateCodeProperties.getSms().getRequestParamMobileName();
-        this.objectMapper = objectMapper;
     }
 
     // ~ Methods
@@ -85,7 +82,7 @@ public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProc
      * request token to the <codes>AuthenticationManager</codes>
      */
     protected String obtainMobile(HttpServletRequest request) {
-        return (String) RequestUtil.getParameter(request, this.objectMapper, mobileParameter);
+        return request.getParameter(mobileParameter);
     }
 
     /**

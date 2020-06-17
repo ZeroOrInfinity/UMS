@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
 
 /**
- * social 第三方登录：从第三方的 connection 中获取用户唯一标识。<br>
+ * social 第三方登录：从第三方的 connection 中获取用户唯一标识。<br><br>
  * 当实现 ConnectionSignUp 接口且 security.social.autoSignIn=true 则第三方授权登录时自动注册
  * @see ConnectionSignUp
  * @author zhailiang

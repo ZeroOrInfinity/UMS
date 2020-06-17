@@ -20,6 +20,11 @@ import java.util.Set;
 @AutoConfigureAfter(value = {SecurityConfiguration.class})
 public class ClientConfigurerAware implements WebSecurityConfigurerAware {
 
+    /**
+     *  网站图标
+     */
+    public static final String FAVICON = "/favicon.ico";
+
     private final ClientProperties clientProperties;
 
     public ClientConfigurerAware(ClientProperties clientProperties) {
@@ -28,12 +33,12 @@ public class ClientConfigurerAware implements WebSecurityConfigurerAware {
 
     @Override
     public void postConfigure(HttpSecurity http) throws Exception {
-        // do nothing
+        // dto nothing
     }
 
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
-        // do nothing
+        // dto nothing
 
     }
 
@@ -42,6 +47,7 @@ public class ClientConfigurerAware implements WebSecurityConfigurerAware {
 
         Set<String> permitAllSet = new HashSet<>(16);
 
+        permitAllSet.add(FAVICON);
         permitAllSet.add(clientProperties.getLoginUnAuthenticationUrl());
         permitAllSet.add(clientProperties.getFailureUrl());
         permitAllSet.add(clientProperties.getLoginPage());
@@ -49,6 +55,8 @@ public class ClientConfigurerAware implements WebSecurityConfigurerAware {
         permitAllSet.add(clientProperties.getErrorUrl());
         permitAllSet.add(clientProperties.getError4Url());
         permitAllSet.add(clientProperties.getError5Url());
+
+        permitAllSet.addAll(clientProperties.getPermitUrls());
 
         Map<String, Set<String>> permitAllMap = new HashMap<>(1);
 

@@ -2,6 +2,7 @@ package top.dcenter.security.core.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -11,8 +12,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import top.dcenter.security.core.api.advice.SecurityControllerExceptionHandler;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
+import top.dcenter.security.core.api.logout.DefaultLogoutSuccessHandler;
+import top.dcenter.security.core.api.service.AbstractUserDetailsService;
+import top.dcenter.security.core.api.service.CacheUserDetailsService;
 import top.dcenter.security.core.auth.handler.ClientAuthenticationFailureHandler;
 import top.dcenter.security.core.auth.handler.ClientAuthenticationSuccessHandler;
+import top.dcenter.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
 import top.dcenter.security.core.properties.ClientProperties;
 
 /**
@@ -26,7 +31,14 @@ import top.dcenter.security.core.properties.ClientProperties;
 public class SecurityConfiguration {
 
     private final ClientProperties clientProperties;
-    protected final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
+
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
+    @Autowired
+    private AbstractUserDetailsService abstractUserDetailsService;
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
+    @Autowired(required = false)
+    private CacheUserDetailsService cacheUserDetailsService;
 
     public SecurityConfiguration(ClientProperties clientProperties, ObjectMapper objectMapper) {
         this.clientProperties = clientProperties;
@@ -56,6 +68,19 @@ public class SecurityConfiguration {
     @ConditionalOnMissingBean(type = "top.dcenter.security.core.api.advice.SecurityControllerExceptionHandler")
     public SecurityControllerExceptionHandler securityControllerExceptionHandler() {
         return new SecurityControllerExceptionHandler();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.security.core.auth.provider.UsernamePasswordAuthenticationProvider")
+    public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider(PasswordEncoder passwordEncoder) {
+        return new UsernamePasswordAuthenticationProvider(passwordEncoder, abstractUserDetailsService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.security.core.api.logout.DefaultLogoutSuccessHandler")
+    public DefaultLogoutSuccessHandler defaultLogoutSuccessHandler() {
+        DefaultLogoutSuccessHandler defaultLogoutSuccessHandler = new DefaultLogoutSuccessHandler(clientProperties, objectMapper, cacheUserDetailsService);
+        return defaultLogoutSuccessHandler;
     }
 
 }

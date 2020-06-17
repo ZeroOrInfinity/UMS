@@ -145,7 +145,10 @@ public class SecurityConstants {
     /**
      * request POST Method
      */
-    public static final String POST_METHOD = "POST";
+    public static final String POST_METHOD = "POST";/**
+     * request put Method
+     */
+    public static final String PUT_METHOD = "PUT";
     /**
      * url 参数标识符
      */

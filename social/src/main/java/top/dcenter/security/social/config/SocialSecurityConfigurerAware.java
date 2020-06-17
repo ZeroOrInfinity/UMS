@@ -43,7 +43,7 @@ public class SocialSecurityConfigurerAware implements WebSecurityConfigurerAware
 
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
-        // do nothing
+        // dto nothing
     }
 
     @Override
@@ -51,8 +51,7 @@ public class SocialSecurityConfigurerAware implements WebSecurityConfigurerAware
         Set<String> uriSet = new HashSet<>();
         uriSet.add(socialProperties.getCallbackUrl());
         uriSet.add(socialProperties.getCallbackUrl() + "/*");
-        uriSet.add(socialProperties.getSocialUserInfo());
-        uriSet.add(socialProperties.getSocialUserRegistUrl());
+        uriSet.add(socialProperties.getSocialUserRegisterUrl());
         Map<String, Set<String>> authorizeRequestMap = new HashMap<>(1);
         authorizeRequestMap.put(permitAll, uriSet);
         return authorizeRequestMap;

@@ -44,7 +44,7 @@ target
 .DS_Store
 
 app/target/
-browser/target/
+client/target/
 core/target/
 demo/target/
 social/target/

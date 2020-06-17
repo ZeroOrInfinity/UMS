@@ -8,7 +8,10 @@ import top.dcenter.security.social.api.config.SocialCoreConfig;
 import top.dcenter.security.social.properties.SocialProperties;
 
 /**
- * 自定义第三方授权登录核心配置 SocialCoreConfig，
+ * 自定义第三方授权登录核心配置 SocialCoreConfig，注意: 覆写方法 {@link #postProcess(Object)} 时一定要调用
+ * <code>
+ *     super.postProcess(object);
+ * </code>
  * @author zyw
  * @version V1.0  Created by 2020/5/14 20:06
  */
@@ -18,12 +21,12 @@ import top.dcenter.security.social.properties.SocialProperties;
 public class DemoSocialConfig extends SocialCoreConfig {
 
     private final SocialProperties socialProperties;
-    private final AuthenticationFailureHandler browserAuthenticationFailureHandler;
+    private final AuthenticationFailureHandler clientAuthenticationFailureHandler;
 
-    public DemoSocialConfig(SocialProperties socialProperties, SocialProperties socialProperties1, AuthenticationFailureHandler browserAuthenticationFailureHandler) {
+    public DemoSocialConfig(SocialProperties socialProperties, SocialProperties socialProperties1, AuthenticationFailureHandler clientAuthenticationFailureHandler) {
         super(socialProperties);
         this.socialProperties = socialProperties1;
-        this.browserAuthenticationFailureHandler = browserAuthenticationFailureHandler;
+        this.clientAuthenticationFailureHandler = clientAuthenticationFailureHandler;
     }
 
     @SuppressWarnings("unchecked")
@@ -37,4 +40,5 @@ public class DemoSocialConfig extends SocialCoreConfig {
         log.info("Demo ======>: DemoSocialConfig.postProcess");
         return (T) filter;
     }
+
 }

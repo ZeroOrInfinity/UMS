@@ -60,7 +60,7 @@ public class StringJsonMessageConverterExtractor implements GenericHttpMessageCo
 
     @Override
     public void write(String s, MediaType contentType, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
-        // do nothing
+        // dto nothing
     }
 
     @Override
@@ -81,7 +81,7 @@ public class StringJsonMessageConverterExtractor implements GenericHttpMessageCo
 
     @Override
     public void write(String giteeAccessGrant, Type type, MediaType contentType, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
-        // do nothing
+        // dto nothing
     }
 
 }

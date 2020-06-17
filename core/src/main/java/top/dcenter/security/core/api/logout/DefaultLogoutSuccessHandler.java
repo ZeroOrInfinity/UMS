@@ -1,4 +1,4 @@
-package top.dcenter.security.core.auth.logout;
+package top.dcenter.security.core.api.logout;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,23 +16,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.time.Instant;
 
+import static top.dcenter.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
 import static top.dcenter.security.core.consts.SecurityConstants.SESSION_ENHANCE_CHECK_KEY;
-import static top.dcenter.security.core.util.AuthenticationUtil.redirectProcessingByLoginProcessType;
+import static top.dcenter.security.core.util.AuthenticationUtil.redirectProcessingLogoutByLoginProcessType;
 
 /**
- * 登出成功处理器
+ * 登出成功处理器, 如要替换此类, 继承后注入 IOC 容器即可
  * @author zyw
  * @version V1.0  Created by 2020/6/4 23:20
  */
 @Slf4j
 public class DefaultLogoutSuccessHandler implements LogoutSuccessHandler {
 
-    private final RedirectStrategy redirectStrategy;
-    private final ClientProperties clientProperties;
-    private final ObjectMapper objectMapper;
-    private CacheUserDetailsService cacheUserDetailsService;
+    protected final RedirectStrategy redirectStrategy;
+    protected final ClientProperties clientProperties;
+    protected final ObjectMapper objectMapper;
+    protected CacheUserDetailsService cacheUserDetailsService;
 
     public DefaultLogoutSuccessHandler(ClientProperties clientProperties, ObjectMapper objectMapper, CacheUserDetailsService cacheUserDetailsService) {
         this.clientProperties = clientProperties;
@@ -47,21 +47,20 @@ public class DefaultLogoutSuccessHandler implements LogoutSuccessHandler {
         HttpSession session = request.getSession();
 
         log.info("登出成功: user={}, ip={}, ua={}, sid={}",
-                 authentication.getPrincipal(),
-                 Instant.now().toEpochMilli(),
+                 authentication != null ? authentication.getPrincipal() : "",
                  request.getRemoteAddr(),
+                 request.getHeader(HEADER_USER_AGENT),
                  session.getId(),
                  session.getAttribute(SESSION_ENHANCE_CHECK_KEY));
 
-        // 清楚缓存
+        // 清理缓存
         session.removeAttribute(SESSION_ENHANCE_CHECK_KEY);
-        if (cacheUserDetailsService != null)
+        if (cacheUserDetailsService != null && authentication != null)
         {
             cacheUserDetailsService.removeUserFromCache(authentication.getName());
         }
 
-        redirectProcessingByLoginProcessType(request, response, clientProperties, objectMapper,
-                                             redirectStrategy, ErrorCodeEnum.CONCURRENT_SESSION,
-                                             clientProperties.getLogoutSuccessUrl());
+        redirectProcessingLogoutByLoginProcessType(request, response, clientProperties, objectMapper,
+                                                   redirectStrategy, ErrorCodeEnum.CONCURRENT_SESSION);
     }
 }

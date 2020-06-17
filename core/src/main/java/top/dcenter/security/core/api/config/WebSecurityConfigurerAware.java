@@ -6,15 +6,15 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 对 WebSecurityConfigurerAdapter 的扩展，使其能跨模块的灵活的添加 HttpSecurity 配置。<br>
- * 注意：<br>
+ * 对 WebSecurityConfigurerAdapter 的扩展，使其能跨模块的灵活的添加 HttpSecurity 配置。<br><br>
+ * 注意：<br><br>
  *      1. 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在最后处理的配置。实现
- *         {@link WebSecurityConfigurerAware#postConfigure(HttpSecurity http) } 方法。<br>
+ *         {@link WebSecurityConfigurerAware#postConfigure(HttpSecurity http) } 方法。<br><br>
  *      2. 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在前面处理的配置。实现
- *         {@link WebSecurityConfigurerAware#preConfigure(HttpSecurity http) } 方法。<br>
+ *         {@link WebSecurityConfigurerAware#preConfigure(HttpSecurity http) } 方法。<br><br>
  *      3. WebSecurityConfigurerAdapter 多个配置类继承此类是会报错，且 authorizeRequests 配置时候要
  *         authorizeRequests().anyRequest().authenticate 放到最后，不然在之后配置的都不会生效。实现
- *         {@link WebSecurityConfigurerAware#getAuthorizeRequestMap() } 方法。<br>
+ *         {@link WebSecurityConfigurerAware#getAuthorizeRequestMap() } 方法。<br><br>
  * 最终在：{@link top.dcenter.security.core.config.SecurityCoreConfigurer} 中配置
  * @author zyw
  * @version V1.0
@@ -30,7 +30,7 @@ public interface WebSecurityConfigurerAware {
     String rememberMe = "rememberMe";
 
     /**
-     * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在前面处理的配置。<br>
+     * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在前面处理的配置。<br><br>
      * 最终在：{@link top.dcenter.security.core.config.SecurityCoreConfigurer} 中配置
      * @param http  HttpSecurity
      * @throws Exception    exception
@@ -38,7 +38,7 @@ public interface WebSecurityConfigurerAware {
     void preConfigure(HttpSecurity http) throws Exception;
 
     /**
-     * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在最后处理的配置。<br>
+     * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在最后处理的配置。<br><br>
      * 最终在：{@link top.dcenter.security.core.config.SecurityCoreConfigurer} 中配置
      * @param http  HttpSecurity
      * @throws Exception    exception
@@ -47,7 +47,7 @@ public interface WebSecurityConfigurerAware {
 
     /**
      * 因为 authorizeRequests 配置时候要 authorizeRequests().anyRequest().authenticate 放到最后，所以这里临时把 权限与 uri 放入 map
-     * 给主配置器处理<br>
+     * 给主配置器处理<br><br>
      * @return authorizeRequestMap key 为权限类型({@link #permitAll},{@link #permitAll},{@link #denyAll},
      * {@link #anonymous},{@link #authenticated},{@link #fullyAuthenticated},{@link #rememberMe})， value 为 uriSet
      */

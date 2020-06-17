@@ -15,9 +15,10 @@ import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_S
 import static top.dcenter.security.core.consts.SecurityConstants.UUID_SEPARATOR;
 
 /**
- * 解析 state，返回真实的回调地址，支持通过统一的回调地址路由到多个回调地址的解析助手。<br>
+ * 解析 state，返回真实的回调地址，支持通过统一的回调地址路由到多个回调地址的解析助手。<br><br>
  *     注意：如果修改回调地址解密逻辑，同时要修改 {@link BaseOAuth2ConnectionFactory#buildReturnToUrl(HttpServletRequest, Set)} 与
- *     {@link BaseOAuth2ConnectionFactory#generateState(String)}的加密逻辑。
+ *     {@link BaseOAuth2ConnectionFactory#generateState(String)}的加密逻辑。<br><br>
+ *     自定义此逻辑: 继承并注入 IOC 容器即可替换
  *
  * @author zyw
  * @version V1.0  Created by 2020/5/25 20:54

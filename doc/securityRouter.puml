@@ -1,8 +1,8 @@
 @startuml
 
-browser --> browser: 进入需登录权限的路由流程开始
+client --> client: 进入需登录权限的路由流程开始
 
-browser -> Server: 1 /user/me
+client -> Server: 1 /user/me
 Server -> AbstractAuthenticationProcessingFilter: 2 doFilter
 AbstractAuthenticationProcessingFilter -> RememberMeAuthenticationFilter: 3 doFilter
 alt isAuth
@@ -15,7 +15,7 @@ SessionManagementFilter -> UserController: 5 /user/me
 UserController --> RememberMeAuthenticationFilter: 5.1 返回/user/me页面数据\n 这里中间的过滤器步骤省略
 RememberMeAuthenticationFilter --> Server: 6 返回/user/me页面数据\n 这里中间的过滤器步骤省略
 deactivate RememberMeAuthenticationFilter
-Server --> browser: 7 返回/user/me
+Server --> client: 7 返回/user/me
 end
 opt 未认证
 SessionManagementFilter --> SessionManagementFilter: 4.1 未认证
@@ -24,8 +24,8 @@ SessionManagementFilter -> BaseSecurityController: 8 根据不同 uri(支持通�
 deactivate SessionManagementFilter
 end
 end
-BaseSecurityController --> browser: 9 跳转到认证入口，\n 例如 login.html
-browser --> browser: 进入需登录权限路由流程结束
+BaseSecurityController --> client: 9 跳转到认证入口，\n 例如 login.html
+client --> client: 进入需登录权限路由流程结束
 
 == API ==
 note over BaseSecurityController: api 可以根据\n自己的需求自定义

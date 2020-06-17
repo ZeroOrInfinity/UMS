@@ -1,5 +1,6 @@
 package top.dcenter.entity;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserInfo {
 
+    @JsonAlias({"username"})
     private String userId;
     private String password;
     private String avatarUrl;

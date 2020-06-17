@@ -8,7 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import top.dcenter.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.security.core.properties.ClientProperties;
-import top.dcenter.security.core.util.RequestUtil;
 import top.dcenter.security.social.properties.SocialProperties;
 
 import javax.servlet.ServletException;
@@ -19,9 +18,10 @@ import java.io.IOException;
 import static top.dcenter.security.core.consts.SecurityConstants.HEADER_ACCEPT;
 import static top.dcenter.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
 import static top.dcenter.security.core.util.AuthenticationUtil.authenticationFailureProcessing;
+import static top.dcenter.security.core.util.AuthenticationUtil.getAbstractResponseJsonAuthenticationException;
 
 /**
- * 第三方授权登录错误处理器.<br>
+ * 第三方授权登录错误处理器.<br><br>
  * 当用户注册异常 {@link AbstractResponseJsonAuthenticationException} 时返回 JSON 数据
  * @author zhailiang
  * @medifiedBy  zyw
@@ -51,11 +51,7 @@ public class SocialAuthenticationFailureHandler extends SimpleUrlAuthenticationF
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
 
-        AbstractResponseJsonAuthenticationException e = null;
-        if (exception instanceof AbstractResponseJsonAuthenticationException)
-        {
-            e = (AbstractResponseJsonAuthenticationException) exception;
-        }
+        AbstractResponseJsonAuthenticationException e = getAbstractResponseJsonAuthenticationException(exception);
 
         log.info("登录失败: user={}, ip={}, ua={}, sid={}",
                  e == null ? null : e.getUid(),
@@ -63,8 +59,7 @@ public class SocialAuthenticationFailureHandler extends SimpleUrlAuthenticationF
                  request.getHeader(HEADER_USER_AGENT),
                  request.getSession(true).getId());
 
-        // 进行必要的清理缓存
-        request.removeAttribute(RequestUtil.REQUEST_PARAMETER_MAP);
+        // 进行必要的缓存清理
 
         // 检测是否接收 json 格式
         String acceptHeader = request.getHeader(HEADER_ACCEPT);
@@ -78,4 +73,5 @@ public class SocialAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
         super.onAuthenticationFailure(request, response, exception);
     }
+
 }

@@ -2,26 +2,17 @@ package top.dcenter.security.core.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.GenericApplicationListenerAdapter;
-import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.context.DelegatingApplicationListener;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.session.SessionManagementFilter;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
-import top.dcenter.security.core.api.service.CacheUserDetailsService;
-import top.dcenter.security.core.api.session.SessionEnhanceCheckService;
+import top.dcenter.security.core.api.session.strategy.DefaultRedirectInvalidSessionStrategy;
+import top.dcenter.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.security.core.auth.session.filter.SessionEnhanceCheckFilter;
 import top.dcenter.security.core.auth.session.strategy.ClientExpiredSessionStrategy;
-import top.dcenter.security.core.auth.session.strategy.DefaultRedirectInvalidSessionStrategy;
-import top.dcenter.security.core.auth.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.security.core.properties.ClientProperties;
 
 import java.util.HashMap;
@@ -36,36 +27,36 @@ import java.util.Set;
  */
 @Configuration
 @AutoConfigureAfter(value = {SecuritySessionConfiguration.class, SecurityConfiguration.class})
+@Slf4j
 public class SessionConfigurerAware implements WebSecurityConfigurerAware {
 
     private final ClientProperties clientProperties;
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired(required = false)
-    private SessionEnhanceCheckService sessionEnhanceCheckService;
     private final SessionEnhanceCheckFilter sessionEnhanceCheckFilter;
-    private ObjectMapper objectMapper;
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired(required = false)
-    private SessionRegistry sessionRegistry;
+    private final DefaultRedirectInvalidSessionStrategy defaultRedirectInvalidSessionStrategy;
+    private final ObjectMapper objectMapper;
 
-    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
-    @Autowired(required = false)
-    private CacheUserDetailsService cacheUserDetailsService;
+    private final EnhanceConcurrentControlAuthenticationStrategy enhanceConcurrentControlAuthenticationStrategy;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public SessionConfigurerAware(ClientProperties clientProperties,
                                   BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
-                                  SessionEnhanceCheckFilter sessionEnhanceCheckFilter, ObjectMapper objectMapper) {
+                                  SessionEnhanceCheckFilter sessionEnhanceCheckFilter,
+                                  DefaultRedirectInvalidSessionStrategy defaultRedirectInvalidSessionStrategy,
+                                  ObjectMapper objectMapper,
+                                  EnhanceConcurrentControlAuthenticationStrategy enhanceConcurrentControlAuthenticationStrategy) throws Exception {
         this.clientProperties = clientProperties;
         this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
         this.sessionEnhanceCheckFilter = sessionEnhanceCheckFilter;
+        this.defaultRedirectInvalidSessionStrategy = defaultRedirectInvalidSessionStrategy;
         this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        this.enhanceConcurrentControlAuthenticationStrategy = enhanceConcurrentControlAuthenticationStrategy;
     }
 
     @Override
     public void postConfigure(HttpSecurity http) throws Exception {
-        // do nothing
+        // dto nothing
     }
 
     @Override
@@ -78,9 +69,9 @@ public class SessionConfigurerAware implements WebSecurityConfigurerAware {
         http.sessionManagement()
                 .sessionCreationPolicy(clientProperties.getSession().getSessionCreationPolicy())
                 .sessionAuthenticationFailureHandler(baseAuthenticationFailureHandler)
-                .sessionAuthenticationStrategy(new EnhanceConcurrentControlAuthenticationStrategy(sessionEnhanceCheckService, getSessionRegistry(http), clientProperties))
+                .sessionAuthenticationStrategy(enhanceConcurrentControlAuthenticationStrategy)
                 .sessionAuthenticationErrorUrl(clientProperties.getLoginPage())
-                .invalidSessionStrategy(new DefaultRedirectInvalidSessionStrategy(clientProperties.getSession().getInvalidSessionUrl()))
+                .invalidSessionStrategy(defaultRedirectInvalidSessionStrategy)
                 .enableSessionUrlRewriting(clientProperties.getSession().getEnableSessionUrlRewriting());
 
 
@@ -109,29 +100,4 @@ public class SessionConfigurerAware implements WebSecurityConfigurerAware {
         return permitMap;
     }
 
-
-    private SessionRegistry getSessionRegistry(HttpSecurity http) {
-        if (this.sessionRegistry == null) {
-            SessionRegistryImpl sessionRegistryImpl = new SessionRegistryImpl();
-            registerDelegateApplicationListener(http, sessionRegistryImpl);
-            this.sessionRegistry = sessionRegistryImpl;
-        }
-        return this.sessionRegistry;
-    }
-
-    private void registerDelegateApplicationListener(HttpSecurity http,
-                                                     ApplicationListener<?> delegate) {
-        ApplicationContext context = http.getSharedObject(ApplicationContext.class);
-        if (context == null) {
-            return;
-        }
-        if (context.getBeansOfType(DelegatingApplicationListener.class).isEmpty()) {
-            return;
-        }
-        DelegatingApplicationListener delegating = context
-                .getBean(DelegatingApplicationListener.class);
-        SmartApplicationListener smartListener = new GenericApplicationListenerAdapter(
-                delegate);
-        delegating.addListener(smartListener);
-    }
 }

@@ -15,6 +15,7 @@ import top.dcenter.security.core.vo.ResponseResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 
 import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
 import static top.dcenter.security.core.consts.SecurityConstants.HEADER_REFERER;
@@ -31,6 +32,22 @@ public class AuthenticationUtil {
      * 在提取 User-Agent 时, 需要被移除掉的字符的正则表达式
      */
     public static final String EXTRACT_USER_AGENT_REGEX = "[\\.|\\d|\\s|\\(|\\)]";
+
+
+    /**
+     * 判断 exception 是不是 {@link AbstractResponseJsonAuthenticationException} 的子类, 如果不是, 则返回 null.
+     * @param exception not null
+     * @return  如果不是 {@link AbstractResponseJsonAuthenticationException} 的子类, 则返回 null.
+     */
+    public static AbstractResponseJsonAuthenticationException getAbstractResponseJsonAuthenticationException(AuthenticationException exception) {
+        AbstractResponseJsonAuthenticationException e = null;
+        if (exception instanceof AbstractResponseJsonAuthenticationException)
+        {
+            e = (AbstractResponseJsonAuthenticationException) exception;
+        }
+        return e;
+    }
+
 
     /**
      * 认证失败处理
@@ -96,6 +113,35 @@ public class AuthenticationUtil {
     }
 
     /**
+     * 去除 User-Agent 中的(\.|\s|\(|\)|\d), 再返回剩余的字符
+     *
+     * @param userAgent User-Agent
+     * @return 去掉 User-Agent 中的(\.|\s|\(|\)|\d), 再返回剩余的字符
+     */
+    public static String extractUserAgent(String userAgent) {
+        return userAgent.replaceAll(EXTRACT_USER_AGENT_REGEX, "");
+    }
+
+    /**
+     * 根据 LoginProcessType 进行 logout 转发处理
+     * @param request   request
+     * @param response  response
+     * @param clientProperties  clientProperties
+     * @param objectMapper  objectMapper
+     * @param redirectStrategy  redirectStrategy
+     * @param errorCodeEnum errorCodeEnum
+     * @throws IOException IOException
+     */
+    public static void redirectProcessingLogoutByLoginProcessType(HttpServletRequest request,
+                                                                HttpServletResponse response,
+                                                            ClientProperties clientProperties, ObjectMapper objectMapper,
+                                                            RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum) throws IOException {
+
+        redirectProcessing(request, response, clientProperties, objectMapper, redirectStrategy, errorCodeEnum,
+                           clientProperties.getLogoutSuccessUrl());
+    }
+
+    /**
      * 根据 LoginProcessType 进行转发处理
      * @param request   request
      * @param response  response
@@ -111,7 +157,13 @@ public class AuthenticationUtil {
                                                             RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum,
                                                             String redirectUrl) throws IOException {
 
-        String referer = request.getHeader(HEADER_REFERER);
+        String referer = Objects.requireNonNullElse(request.getHeader(HEADER_REFERER), redirectUrl);
+
+        redirectProcessing(request, response, clientProperties, objectMapper, redirectStrategy, errorCodeEnum, referer);
+    }
+
+
+    private static void redirectProcessing(HttpServletRequest request, HttpServletResponse response, ClientProperties clientProperties, ObjectMapper objectMapper, RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum, String redirectUrl) throws IOException {
         if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
         {
             int status = HttpStatus.UNAUTHORIZED.value();
@@ -119,21 +171,12 @@ public class AuthenticationUtil {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding(CHARSET_UTF8);
 
+            // 在 ResponseResult 中的 data 为请求头中的 referer
             response.getWriter().write(objectMapper.writeValueAsString(ResponseResult.fail(errorCodeEnum,
-                                                                                           referer)));
+                                                                                           redirectUrl)));
             return;
         }
 
         redirectStrategy.sendRedirect(request, response, redirectUrl);
-    }
-
-    /**
-     * 去除 User-Agent 中的(\.|\s|\(|\)|\d), 再返回剩余的字符
-     *
-     * @param userAgent User-Agent
-     * @return 去掉 User-Agent 中的(\.|\s|\(|\)|\d), 再返回剩余的字符
-     */
-    public static String extractUserAgent(String userAgent) {
-        return userAgent.replaceAll(EXTRACT_USER_AGENT_REGEX, "");
     }
 }

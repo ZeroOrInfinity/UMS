@@ -67,7 +67,7 @@
   # 第三方登录页面， 默认为 /signIn.html
   security.social.sign-in-url=/signIn.html
   # 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /authentication/social 进行处理，由 Social 处理，不需要用户实现
-  # security.social.social-user-regist-url=/authentication/social
+  # security.social.social-user-register-url=/authentication/social
   # 第三方登录用户授权成功且未注册，则跳转的注册页面时，需要获取的 SocialUserInfo 信息， 默认从 /social/user 获取。
   # 注意：此 url 是 permitAll 权限, 同时修改 signUpUrl 的 ajax 请求 url
   security.social.social-user-info=/social/user

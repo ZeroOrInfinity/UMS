@@ -28,10 +28,10 @@ import top.dcenter.security.social.properties.SocialProperties;
 import java.util.List;
 
 /**
- * 用户密码与手机短信登录与 OAuth 登录与注册服务：<br>
- * 1. 用于第三方登录与手机短信登录逻辑。<br>
- * 2. 用于用户密码登录逻辑。<br>
- * 3. 用于 OAuth 用户注册逻辑。<br>
+ * 用户密码与手机短信登录与 OAuth 登录与注册服务：<br><br>
+ * 1. 用于第三方登录与手机短信登录逻辑。<br><br>
+ * 2. 用于用户密码登录逻辑。<br><br>
+ * 3. 用于 OAuth 用户注册逻辑。<br><br>
  *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 14:15
@@ -130,7 +130,7 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
                 SocialUserDetails userDetails = this.cacheUserDetailsService.getSocialUserFromCache(userId);
                 if (userDetails != null)
                 {
-                    return userDetails;
+                    return null;
                 }
             }
 
@@ -234,9 +234,6 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
     @Override
     public UserDetails registerUser(ServletWebRequest request, ProviderSignInUtils providerSignInUtils) throws RegisterUserFailureException {
 
-        //String userId = getValueOfRequest(request, socialProperties.getUserIdParamName(),ErrorCodeEnum.USERNAME_NOT_EMPTY)
-        //String password = getValueOfRequest(request, socialProperties.getPasswordParamName(), ErrorCodeEnum.PASSWORD_NOT_EMPTY)
-
         UserInfo userInfo = RequestUtil.extractRequest2Object(request.getRequest(), objectMapper, UserInfo.class);
 
         try
@@ -274,7 +271,7 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
 
 
     private String getValueOfRequest(ServletWebRequest request, String paramName, ErrorCodeEnum usernameNotEmpty) throws RegisterUserFailureException {
-        String result = (String) RequestUtil.getParameter(request.getRequest(), this.objectMapper, paramName);
+        String result = request.getParameter(paramName);
         if (result == null)
         {
             throw new RegisterUserFailureException(usernameNotEmpty, request.getSessionId());

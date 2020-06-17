@@ -1,6 +1,5 @@
 package top.dcenter.security.social.signup;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -9,13 +8,10 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.security.core.util.RequestUtil;
 import top.dcenter.security.social.properties.SocialProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -40,16 +36,11 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
     private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
     private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
 
-    private SocialProperties socialProperties;
-    private final ObjectMapper objectMapper;
-
     // ~ Constructors
     // ===================================================================================================
 
-    public SocialAuthenticationSignUpFilter(SocialProperties socialProperties, ObjectMapper objectMapper) {
-        super(new AntPathRequestMatcher(socialProperties.getSocialUserRegistUrl(), POST_METHOD));
-        this.socialProperties = socialProperties;
-        this.objectMapper = objectMapper;
+    public SocialAuthenticationSignUpFilter(SocialProperties socialProperties) {
+        super(new AntPathRequestMatcher(socialProperties.getSocialUserRegisterUrl(), POST_METHOD));
     }
 
     // ~ Methods
@@ -64,18 +55,10 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
                     "Authentication method not supported: " + request.getMethod());
         }
 
-        String username = obtainUsername(request);
-        String password = obtainPassword(request);
+        String username = Objects.requireNonNullElse(obtainUsername(request), "");
+        String password = Objects.requireNonNullElse(obtainPassword(request), "");
 
         Map<String, Object> parameterMap;
-
-        if (username == null && password == null)
-        {
-            parameterMap = Objects.requireNonNullElse(RequestUtil.extractRequestJsonData2Map(request, this.objectMapper), new HashMap<>(0));
-
-            username = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getUserIdParamName()), "");
-            password = (String) Objects.requireNonNullElse(parameterMap.get(socialProperties.getPasswordParamName()), "");
-        }
 
         username = username.trim();
 
@@ -105,7 +88,7 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
      * request token to the <code>AuthenticationManager</code>
      */
     protected String obtainPassword(HttpServletRequest request) {
-        return (String) RequestUtil.getParameter(request, this.objectMapper, passwordParameter);
+        return request.getParameter(passwordParameter);
     }
 
     /**
@@ -117,7 +100,7 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
      * request token to the <codes>AuthenticationManager</codes>
      */
     protected String obtainUsername(HttpServletRequest request) {
-        return (String) RequestUtil.getParameter(request, this.objectMapper, usernameParameter);
+        return request.getParameter(usernameParameter);
     }
 
 

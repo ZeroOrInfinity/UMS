@@ -73,6 +73,6 @@ public class GiteeAdapter implements ApiAdapter<Gitee> {
 
     @Override
     public void updateStatus(Gitee api, String message) {
-        // do nothing
+        // dto nothing
     }
 }

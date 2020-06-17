@@ -35,12 +35,12 @@ public class DemoSecurityConfigurerAware implements WebSecurityConfigurerAware {
 
     @Override
     public void postConfigure(HttpSecurity http) throws Exception {
-        // do nothing
+        // dto nothing
     }
 
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
-        // do nothing
+        // dto nothing
     }
 
     @Override

@@ -22,9 +22,9 @@ import top.dcenter.security.core.api.service.AbstractUserDetailsService;
  * 用户密码登录的 Provider, 只是对 {@link org.springframework.security.authentication.dao.DaoAuthenticationProvider} 的 copy.
  * 替换 {@link org.springframework.security.authentication.dao.DaoAuthenticationProvider} 的一个原因是: 当有 IOC 容器中有多个
  * {@link UserDetailsService} 时, {@link org.springframework.security.authentication.dao.DaoAuthenticationProvider}
- * 会失效.<br>
- *     注意: <br>
- *         1. 如果要对前端传过来的密码进行解密,则请实现 {@link UserDetailsPasswordService}.<br>
+ * 会失效.<br><br>
+ *     注意: <br><br>
+ *         1. 如果要对前端传过来的密码进行解密,则请实现 {@link UserDetailsPasswordService}.<br><br>
  *         2. 这里默认缓存是 {@link NullUserCache}, 如果要自定义缓存, 请通过 {@link #setUserCache(UserCache)}设置.
  * @author Ben Alex
  * @author Rob Winch
@@ -161,7 +161,7 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.isAssignableFrom(UsernamePasswordAuthenticationToken.class);
+        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
     protected PasswordEncoder getPasswordEncoder() {

@@ -54,29 +54,11 @@ public class SocialUserController {
         this.providerSignInUtils = providerSignInUtils;
     }
 
-    @GetMapping("/info")
-    public SocialUserInfo getSocialUserInfo(HttpServletRequest request) {
-        // 获取用户信息逻辑
-        // ...
-        log.info("Demo =======>: SocialUserController.getSocialUserInfo");
-        Connection<?> connection = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
-        if (connection == null)
-        {
-            return null;
-        }
-        SocialUserInfo userInfo = new SocialUserInfo();
-        userInfo.setProviderId(connection.getKey().getProviderId());
-        userInfo.setProviderUserId(connection.getKey().getProviderUserId());
-        userInfo.setUserId(connection.getDisplayName());
-        userInfo.setAvatarUrl(connection.getImageUrl());
-        return userInfo;
-    }
-
-    @PostMapping("/regist")
-    public ResponseResult regist(User user, HttpServletRequest request, HttpServletResponse response) {
+    @PostMapping("/register")
+    public ResponseResult register(User user, HttpServletRequest request, HttpServletResponse response) {
         // 注册用户逻辑
         // ...
-        log.info("Demo ========>: SocialUserController.regist");
+        log.info("Demo ========>: SocialUserController.register");
         // 不管是注册用户还是绑定用户，都会拿到一个用户唯一标识，
         if (providerSignInUtils == null)
         {

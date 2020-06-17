@@ -36,7 +36,7 @@ public class SmsCodeLoginAuthenticationConfigurerAware implements WebSecurityCon
 
     @Override
     public void postConfigure(HttpSecurity http) throws Exception {
-        // do nothing
+        // dto nothing
     }
 
     @Override

@@ -31,7 +31,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UN_AUTH
 import static top.dcenter.security.core.util.AuthenticationUtil.redirectProcessingByLoginProcessType;
 
 /**
- * 客户端认证 controller.<br>
+ * 客户端 url 认证与授权的路由控制与 session 失效后处理的控制器.<br><br>
  * 如果要自定义客户端 url 认证与授权的路由控制，请实现 {@link BaseSecurityController} 接口，并注入 IOC 容器即可
  *
  * @author zhailiang
@@ -65,14 +65,9 @@ public class ClientSecurityController implements BaseSecurityController {
         pathMatcher = new AntPathMatcher();
     }
 
-    /**
-     * 当需要身份认证时，跳转到这里, 根据不同 uri(支持通配符) 跳转到不同的认证入口
-     *
-     * @param request  {@link HttpServletRequest}
-     * @param response {@link HttpServletResponse}
-     */
     @Override
     @RequestMapping(DEFAULT_UN_AUTHENTICATION_URL)
+    @ConditionalOnProperty(prefix = "security.client", name = "login_un_authentication_url", havingValue = DEFAULT_UN_AUTHENTICATION_URL)
     public void requireAuthentication(HttpServletRequest request, HttpServletResponse response) {
         try
         {
@@ -106,10 +101,11 @@ public class ClientSecurityController implements BaseSecurityController {
         }
     }
 
+
     @Override
     @GetMapping(DEFAULT_SESSION_INVALID_URL)
     @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
-    @ConditionalOnProperty(prefix = "security.browser", name = "invalid-session-url", havingValue = DEFAULT_SESSION_INVALID_URL)
+    @ConditionalOnProperty(prefix = "security.client", name = "invalid-session-url", havingValue = DEFAULT_SESSION_INVALID_URL)
     public void invalidSessionHandler(HttpServletRequest request, HttpServletResponse response) {
 
         try

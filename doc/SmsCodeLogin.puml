@@ -1,8 +1,8 @@
 @startuml
 
-browser --> browser: 手机短信验证码登录流程开始
+client --> client: 手机短信验证码登录流程开始
 
-browser -> ValidateCodeFilter: /authentication/mobile
+client -> ValidateCodeFilter: /authentication/mobile
 activate ValidateCodeFilter
 ValidateCodeFilter --> ValidateCodeFilter: 1. doFilterInternal(),\n 验证码逻辑
 activate ValidateCodeFilter
@@ -22,7 +22,7 @@ AbstractValidateCodeProcessor --> ValidateCodeFilter: 1.3.3 校验失败，\n抛
 deactivate AbstractValidateCodeProcessor
 participant ClientAuthenticationFailureHandler #ff9800
 ValidateCodeFilter -> ClientAuthenticationFailureHandler: 1.4 校验失败，\n抛出 ValidateCodeException
-ClientAuthenticationFailureHandler --> browser: 1.4.1 onAuthenticationFailure()\n根据设置的 LoginType \n返回 JSON 或者 HTML 格式
+ClientAuthenticationFailureHandler --> client: 1.4.1 onAuthenticationFailure()\n根据设置的 LoginType \n返回 JSON 或者 HTML 格式
 end
 deactivate ValidateCodeFilter
 activate SmsCodeLoginAuthenticationFilter
@@ -35,9 +35,9 @@ activate RememberMeAuthenticationFilter
 RememberMeAuthenticationFilter -> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.1\n autoLogin(request,response)
 activate PersistentTokenBasedRememberMeServices
 PersistentTokenBasedRememberMeServices --> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.2\n processAutoLoginCookie\n(cookieTokens, request, response)
-participant UserTokenRepositoryFactory #ff9800
+participant BasedRememberMeTokenRepositoryFactory #ff9800
 activate PersistentTokenBasedRememberMeServices
-UserTokenRepositoryFactory -> JdbcTokenRepositoryImpl: api 占位\n getUserTokenRepositoryFactory()
+BasedRememberMeTokenRepositoryFactory -> JdbcTokenRepositoryImpl: api 占位\n getPersistentTokenRepositoryFactory()
 PersistentTokenBasedRememberMeServices -> JdbcTokenRepositoryImpl: 1.4.2.1.2.0.4\n getTokenForSeries\n(presentedSeries)
 activate JdbcTokenRepositoryImpl
 JdbcTokenRepositoryImpl --> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.5\n 返回 token
@@ -97,7 +97,7 @@ ProviderManager --> RememberMeAuthenticationFilter: 1.4.2.1.2.2.1\n 校验成功
 RememberMeAuthenticationFilter --> SmsCodeLoginAuthenticationFilter: 1.4.2.1.3\n 校验成功，\n返回 Authentication
 SmsCodeLoginAuthenticationFilter --> AbstractValidateCodeProcessor: 1.4.2.1\n 校验成功，\n返回 Authentication
 AbstractValidateCodeProcessor --> ValidateCodeFilter: 1.4.3 校验成功，\n返回 Authentication
-ValidateCodeFilter --> browser: 1.4.4.1 返回 RedirectUrl \n或 DefaultSuccessUrl
+ValidateCodeFilter --> client: 1.4.4.1 返回 RedirectUrl \n或 DefaultSuccessUrl
 
 else 登录失败
 AbstractUserDetailsService --> SmsCodeLoginAuthenticationProvider: 1.4.2.1.2.2.1\n 抛出异常
@@ -113,14 +113,14 @@ deactivate RememberMeAuthenticationFilter
 SmsCodeLoginAuthenticationFilter --> ValidateCodeFilter: 1.4.3\n 校验失败，抛出异常
 ValidateCodeFilter -> ClientAuthenticationFailureHandler: 1.4.4 转交\nClientAuthenticationFailureHandler\n处理
 deactivate ValidateCodeFilter
-ClientAuthenticationFailureHandler --> browser: 1.4.4.2\n 返回 login.html
+ClientAuthenticationFailureHandler --> client: 1.4.4.2\n 返回 login.html
 end
-browser --> browser: 手机短信验证码登录流程结束
+client --> client: 手机短信验证码登录流程结束
 
 == API ==
 note over AbstractValidateCodeProcessor: api 可以根据\n自己的需求自定义\n如saveSession()\n validate()\n generate()\n sent()
 note over ClientAuthenticationFailureHandler: api 可以根据自己的需求自定义\n继承此类并注入 IOC容器即可
-note over UserTokenRepositoryFactory: api 可以根据\n自己的需求自定义\n如把用户session放入redis等
+note over BasedRememberMeTokenRepositoryFactory: api 可以根据\n自己的需求自定义\n如把token放入redis等
 note over AbstractUserDetailsService: api 可以根据自己的需求自定义\n此Service实现了\nRegisterUserDetailsService\n带有注册服务
 
 @enduml

@@ -34,7 +34,7 @@ public class SocialAuthenticationSignUpConfigurerAware implements WebSecurityCon
 
     @Override
     public void postConfigure(HttpSecurity http) throws Exception {
-        // do nothing
+        // dto nothing
     }
 
     @Override

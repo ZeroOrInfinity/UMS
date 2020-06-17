@@ -1,4 +1,4 @@
-package top.dcenter.security.core.auth.session.strategy;
+package top.dcenter.security.core.api.session.strategy;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEvent;
@@ -23,8 +23,9 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * 组合了 {@link ConcurrentSessionControlAuthenticationStrategy} 与 {@link ChangeSessionIdAuthenticationStrategy}.<br>
- * 增加机器特征的校验,
+ * 组合了 {@link ConcurrentSessionControlAuthenticationStrategy} 与 {@link ChangeSessionIdAuthenticationStrategy}.<br><br>
+ * 增加 client 特征的校验, 增强 csrf 防范. <br><br>
+ *     继承此类后注入 IOC 容器可替换此类
  * @see ConcurrentSessionControlAuthenticationStrategy
  * @see ChangeSessionIdAuthenticationStrategy
  * @author zyw
@@ -65,7 +66,7 @@ public class EnhanceConcurrentControlAuthenticationStrategy extends ConcurrentSe
 
 
     /**
-     * 1. concurrent control. <br>
+     * 1. concurrent control. <br><br>
      * 2. In addition to the steps from the superclass, the sessionRegistry will be updated
      * with the new session information.
      */
@@ -142,7 +143,6 @@ public class EnhanceConcurrentControlAuthenticationStrategy extends ConcurrentSe
                 }
 
                 onSessionChange(originalSessionId, session, authentication);
-
                 if (this.sessionEnhanceCheckService != null)
                 {
                     this.sessionEnhanceCheckService.setEnhanceCheckValue(session, request);

@@ -22,11 +22,11 @@ public interface UsersConnectionRepositoryFactory {
      * @param connectionFactoryLocator
      * @param textEncryptor     对 key 与 secret 进行加解密。
      * @param socialProperties
-     * @param connectionSignUp 用于第三方登录自动注册为用户功能的开关，共有两个条件, 这俩个条件同时满足时才有效（另一个是 autoSignIn）：<br>
+     * @param connectionSignUp 用于第三方登录自动注册为用户功能的开关，共有两个条件, 这俩个条件同时满足时才有效（另一个是 autoSignIn）：<br><br>
      *                         当传 null 值时关闭自动注册，当不为 null 且 autoSignIn=true 时开启自动注册功能，需自己实现 ConnectionSignUp，
-     *                         {@link ConnectionSignUp#execute(Connection)} 从第三方的 connection 中获取用户唯一标识。<br>
+     *                         {@link ConnectionSignUp#execute(Connection)} 从第三方的 connection 中获取用户唯一标识。<br><br>
      *
-     * @param autoSignIn     当传 false 时关闭自动注册，当为 true 且 connectionSignUp 不为 null 时开启自动注册功能，<br>
+     * @param autoSignIn     当传 false 时关闭自动注册，当为 true 且 connectionSignUp 不为 null 时开启自动注册功能，<br><br>
      *                       通过配置 security.social.{providerId}.autoSignIn=true，默认为 false，可以从socialProperties获取。
      * @return
      */

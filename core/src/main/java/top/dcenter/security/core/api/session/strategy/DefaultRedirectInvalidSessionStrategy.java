@@ -1,4 +1,4 @@
-package top.dcenter.security.core.auth.session.strategy;
+package top.dcenter.security.core.api.session.strategy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,7 +16,8 @@ import static top.dcenter.security.core.consts.SecurityConstants.SESSION_ENHANCE
 
 /**
  * Performs a redirect to a fixed URL when an invalid requested session is detected by the
- * {@code SessionManagementFilter}.
+ * {@code SessionManagementFilter}.<br><br>
+ *     继承此类并注入 IOC 容器会替换此类
  * @author Luke Taylor
  * @medifiedBy zyw
  */

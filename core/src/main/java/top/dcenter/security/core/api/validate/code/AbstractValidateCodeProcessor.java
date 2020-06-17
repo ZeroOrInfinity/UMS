@@ -1,16 +1,13 @@
 package top.dcenter.security.core.api.validate.code;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.social.connect.web.HttpSessionSessionStrategy;
 import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.web.context.request.ServletWebRequest;
+import top.dcenter.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.security.core.enums.ValidateCodeType;
 import top.dcenter.security.core.exception.ValidateCodeException;
-import top.dcenter.security.core.util.RequestUtil;
-import top.dcenter.security.core.auth.validate.codes.ValidateCode;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,16 +35,12 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
     private final Map<String, ValidateCodeGenerator<?>> validateCodeGenerators;
 
-    private final ObjectMapper objectMapper;
-
     /**
-     * 验证码处理逻辑的默认实现抽象类.<br>
+     * 验证码处理逻辑的默认实现抽象类.<br><br>
      *
      * @param validateCodeGenerators 子类继承时对此参数不需要操作，在子类注入 IOC 容器时，spring自动注入此参数
      */
     public AbstractValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
-        this.objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         this.sessionStrategy = new HttpSessionSessionStrategy();
         if (validateCodeGenerators == null)
@@ -130,7 +123,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
     /**
      * 发送验证码，由子类实现,
-     * 发送失败，必须清除 sessionKey 的缓存，示例代码: <br>
+     * 发送失败，必须清除 sessionKey 的缓存，示例代码: <br><br>
      * <p>&nbsp;&nbsp;&nbsp;&nbsp;sessionStrategy.removeAttribute(request, sessionKey); </p>
      * <p>&nbsp;&nbsp;&nbsp;&nbsp;sessionKey 获取方式：</p>
      * <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -155,8 +148,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         String requestParamValidateCodeName = getValidateCodeGenerator(validateCodeType).getRequestParamValidateCodeName();
 
         ValidateCode codeInSession = (ValidateCode) this.sessionStrategy.getAttribute(request, sessionKey);
-        String codeInRequest = (String) RequestUtil.getParameter(request.getRequest(), this.objectMapper,
-                                                                 requestParamValidateCodeName);
+        String codeInRequest = request.getParameter(requestParamValidateCodeName);
 
         if (!StringUtils.isNotBlank(codeInRequest))
         {

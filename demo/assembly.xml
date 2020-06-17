@@ -14,7 +14,6 @@
             <useAllReactorProjects>true</useAllReactorProjects>
             <includes>
                 <include>top.dcenter.security:security-core</include>
-                <include>top.dcenter.security:security-browser</include>
                 <include>top.dcenter.security:security-social</include>
             </includes>
             <binaries>

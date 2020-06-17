@@ -42,7 +42,7 @@ public class ValidateCodeConfigurerAware implements WebSecurityConfigurerAware {
 
     @Override
     public void preConfigure(HttpSecurity http) {
-        // do nothing
+        // dto nothing
 
     }
 

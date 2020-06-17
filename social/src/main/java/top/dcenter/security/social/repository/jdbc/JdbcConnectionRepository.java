@@ -1,11 +1,13 @@
 package top.dcenter.security.social.repository.jdbc;
 
+import lombok.Getter;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
@@ -20,9 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import top.dcenter.security.social.properties.SocialProperties;
+import top.dcenter.security.social.repository.jdbc.dto.ConnectionDataDTO;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -30,64 +31,55 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static top.dcenter.security.social.config.RedisCacheConfig.USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME;
+import static top.dcenter.security.social.config.RedisCacheConfig.USER_CONNECTION_HASH_CACHE_NAME;
 
 /**
  * {@link org.springframework.social.connect.jdbc.JdbcConnectionRepository}  的扩展版本, 各个方法的实现逻辑都一样， 只是抽取了 sql 语句，与 用户表的字段名称到 {@link SocialProperties},
- *  更便于用户自定义。
+ *  更便于用户自定义; 增加了 redis 缓存功能.
  * @see org.springframework.social.connect.jdbc.JdbcConnectionRepository
  */
 @SuppressWarnings({"JavadocReference"})
+@CacheConfig(cacheManager = "socialRedisHashCacheManager")
 class JdbcConnectionRepository implements ConnectionRepository {
 
+	@Getter
 	private final String userId;
 	
 	private final JdbcTemplate jdbcTemplate;
-	
+	@Getter
 	private final ConnectionFactoryLocator connectionFactoryLocator;
 
 	private final TextEncryptor textEncryptor;
 
 	private final SocialProperties socialProperties;
 
-	public JdbcConnectionRepository(String userId, JdbcTemplate jdbcTemplate, ConnectionFactoryLocator connectionFactoryLocator, TextEncryptor textEncryptor, SocialProperties socialProperties) {
+	private final JdbcConnectionDataRepository jdbcConnectionDataRepository;
+
+	public JdbcConnectionRepository(String userId,
+	                                JdbcTemplate jdbcTemplate,
+	                                ConnectionFactoryLocator connectionFactoryLocator,
+	                                TextEncryptor textEncryptor,
+	                                SocialProperties socialProperties,
+	                                JdbcConnectionDataRepository jdbcConnectionDataRepository) {
 		this.userId = userId;
 		this.jdbcTemplate = jdbcTemplate;
 		this.connectionFactoryLocator = connectionFactoryLocator;
 		this.textEncryptor = textEncryptor;
 		this.socialProperties = socialProperties;
+		this.jdbcConnectionDataRepository = jdbcConnectionDataRepository;
 	}
-	
+
 	@Override
 	public MultiValueMap<String, Connection<?>> findAllConnections() {
-		List<Connection<?>> resultList = jdbcTemplate.query(String.format("%s where %s = ? order by %s, %s",
-		                                                                  socialProperties.getSelectFromUserConnectionSql(),
-		                                                                  socialProperties.getUserIdColumnName(),
-		                                                                  socialProperties.getProviderIdColumnName(),
-		                                                                  socialProperties.getRankColumnName()),
-		                                                    connectionMapper, userId);
-		MultiValueMap<String, Connection<?>> connections = new LinkedMultiValueMap<>();
-		Set<String> registeredProviderIds = connectionFactoryLocator.registeredProviderIds();
-		for (String registeredProviderId : registeredProviderIds) {
-			connections.put(registeredProviderId, Collections.emptyList());
-		}
-		for (Connection<?> connection : resultList) {
-			String providerId = connection.getKey().getProviderId();
-			if (connections.get(providerId).size() == 0) {
-				connections.put(providerId, new LinkedList<>());
-			}
-			connections.add(providerId, connection);
-		}
-		return connections;
+		return getConnectionMap(jdbcConnectionDataRepository.findAllConnections(userId));
 	}
 
 	@Override
 	public List<Connection<?>> findConnections(String providerId) {
-		return jdbcTemplate.query(String.format("%s where %s = ? and %s = ? order by %s",
-		                                        socialProperties.getSelectFromUserConnectionSql(),
-		                                        socialProperties.getUserIdColumnName(),
-		                                        socialProperties.getProviderIdColumnName(),
-		                                        socialProperties.getRankColumnName()),
-		                          connectionMapper, userId, providerId);
+		return getConnectionList(jdbcConnectionDataRepository.findConnections(userId, providerId));
 	}
 
 	@Override
@@ -96,7 +88,7 @@ class JdbcConnectionRepository implements ConnectionRepository {
 		List<?> connections = findConnections(getProviderId(apiType));
 		return (List<Connection<A>>) connections;
 	}
-	
+
 	@Override
 	public MultiValueMap<String, Connection<?>>
 	findConnectionsToUsers(MultiValueMap<String, String> providerUsers) {
@@ -121,42 +113,16 @@ class JdbcConnectionRepository implements ConnectionRepository {
 				providerUsersCriteriaSql.append(" or " );
 			}
 		}
-		List<Connection<?>> resultList = new NamedParameterJdbcTemplate(jdbcTemplate)
-				.query(String.format("%s where %s = :userId and %s order by %s, %s",
-                                          socialProperties.getSelectFromUserConnectionSql(),
-                                          socialProperties.getUserIdColumnName(),
-                                          providerUsersCriteriaSql,
-                                          socialProperties.getProviderIdColumnName(),
-                                          socialProperties.getRankColumnName()),
-                            parameters, connectionMapper);
-		MultiValueMap<String, Connection<?>> connectionsForUsers = new LinkedMultiValueMap<>();
-		for (Connection<?> connection : resultList) {
-			String providerId = connection.getKey().getProviderId();
-			List<String> userIds = providerUsers.get(providerId);
-			List<Connection<?>> connections = connectionsForUsers.get(providerId);
-			if (connections == null) {
-				connections = new ArrayList<>(userIds.size());
-				for (int i = 0; i < userIds.size(); i++) {
-					connections.add(null);
-				}
-				connectionsForUsers.put(providerId, connections);
-			}
-			String providerUserId = connection.getKey().getProviderUserId();
-			int connectionIndex = userIds.indexOf(providerUserId);
-			connections.set(connectionIndex, connection);
-		}
-		return connectionsForUsers;
+		return getConnectionMap(jdbcConnectionDataRepository
+				                        .findConnectionsToUsers(parameters, providerUsersCriteriaSql.toString(), userId),
+		                        providerUsers);
+
 	}
 
 	@Override
 	public Connection<?> getConnection(ConnectionKey connectionKey) {
 		try {
-			return jdbcTemplate.queryForObject(String.format("%s where %s = ? and %s = ? and %s = ?",
-			                                                 socialProperties.getSelectFromUserConnectionSql(),
-			                                                 socialProperties.getUserIdColumnName(),
-			                                                 socialProperties.getProviderIdColumnName(),
-			                                                 socialProperties.getProviderUserIdColumnName()),
-			                                   connectionMapper, userId, connectionKey.getProviderId(), connectionKey.getProviderUserId());
+			return getConnection(toConnectionData(jdbcConnectionDataRepository.getConnection(userId, connectionKey)));
 		} catch (EmptyResultDataAccessException e) {
 			throw new NoSuchConnectionException(connectionKey);
 		}
@@ -186,7 +152,16 @@ class JdbcConnectionRepository implements ConnectionRepository {
 		String providerId = getProviderId(apiType);
 		return (Connection<A>) findPrimaryConnection(providerId);
 	}
-	
+
+	@Caching(
+		evict = {@CacheEvict(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME,
+							 keyGenerator = "userIdKeyGenerator", beforeInvocation = true),
+				 @CacheEvict(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME,
+						     key = "#connection.createData().providerId", beforeInvocation = true),
+				 @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+						     keyGenerator = "addConnectionByProviderIdKeyGenerator", beforeInvocation = true)
+		}
+	)
 	@Override
 	@Transactional(rollbackFor = {Exception.class})
 	public void addConnection(Connection<?> connection) {
@@ -204,7 +179,19 @@ class JdbcConnectionRepository implements ConnectionRepository {
 			throw new DuplicateConnectionException(connection.getKey());
 		}
 	}
-	
+
+	@Caching(
+			evict = {@CacheEvict(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME,
+							keyGenerator = "userIdKeyGenerator", beforeInvocation = true),
+					@CacheEvict(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME,
+							key = "#connection.createData().providerId", beforeInvocation = true),
+					@CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+							keyGenerator = "updateConnectionByProviderIdKeyGenerator", beforeInvocation = true),
+					@CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+							keyGenerator = "updateConnectionByProviderIdAndProviderUserIdKeyGenerator",
+							beforeInvocation = true)
+			}
+	)
 	@Override
 	@Transactional(rollbackFor = {Exception.class})
 	public void updateConnection(Connection<?> connection) {
@@ -217,6 +204,18 @@ class JdbcConnectionRepository implements ConnectionRepository {
 				            data.getProviderUserId());
 	}
 
+	@Caching(
+			evict = {@CacheEvict(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME,
+					keyGenerator = "userIdKeyGenerator", beforeInvocation = true),
+					@CacheEvict(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME,
+							key = "#providerId", beforeInvocation = true),
+					@CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+							keyGenerator = "removeConnectionsByProviderIdKeyGenerator", beforeInvocation = true),
+					@CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+							keyGenerator = "removeConnectionsByUserIdAndProviderIdKeyGenerator", beforeInvocation =	true)
+
+			}
+	)
 	@Override
 	@Transactional(rollbackFor = {Exception.class})
 	public void removeConnections(String providerId) {
@@ -224,6 +223,17 @@ class JdbcConnectionRepository implements ConnectionRepository {
 		                    userId, providerId);
 	}
 
+	@Caching(
+			evict = {@CacheEvict(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME,
+					keyGenerator = "userIdKeyGenerator", beforeInvocation = true),
+					@CacheEvict(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME,
+							key = "#connectionKey.providerId", beforeInvocation = true),
+					@CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+							keyGenerator = "removeConnectionsByConnectionKeyKeyGenerator", beforeInvocation = true),
+					@CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+							keyGenerator = "removeConnectionsByConnectionKeyWithProviderUserIdKeyGenerator", beforeInvocation =	true)
+			}
+	)
 	@Override
 	@Transactional(rollbackFor = {Exception.class})
 	public void removeConnection(ConnectionKey connectionKey) {
@@ -232,58 +242,84 @@ class JdbcConnectionRepository implements ConnectionRepository {
 	}
 
 
+	private ConnectionData toConnectionData(ConnectionDataDTO dto) {
+		return new ConnectionData(dto.getProviderId(),
+		                          dto.getProviderUserId(),
+		                          dto.getDisplayName(),
+		                          dto.getProfileUrl(),
+		                          dto.getImageUrl(),
+		                          dto.getAccessToken(),
+		                          dto.getSecret(),
+		                          dto.getRefreshToken(),
+		                          dto.getExpireTime());
+	}
+
 	private Connection<?> findPrimaryConnection(String providerId) {
-		List<Connection<?>> connections = jdbcTemplate.query(String.format("%s where %s = ? and %s = ? order by %s",
-		                                                                   socialProperties.getSelectFromUserConnectionSql(),
-		                                                                   socialProperties.getUserIdColumnName(),
-		                                                                   socialProperties.getProviderIdColumnName(),
-		                                                                   socialProperties.getRankColumnName()),
-		                                                     connectionMapper,
-		                                                     userId, providerId);
-		if (connections.size() > 0) {
-			return connections.get(0);
-		} else {
+		ConnectionData connectionData = toConnectionData(jdbcConnectionDataRepository.findPrimaryConnection(userId, providerId));
+		if (connectionData == null) {
 			return null;
-		}		
+		}
+		return getConnection(connectionData);
 	}
 	
-	private final ServiceProviderConnectionMapper connectionMapper = new ServiceProviderConnectionMapper();
-	
-	private final class ServiceProviderConnectionMapper implements RowMapper<Connection<?>> {
-		
-		@Override
-		public Connection<?> mapRow(ResultSet rs, int rowNum) throws SQLException {
-			ConnectionData connectionData = mapConnectionData(rs);
-			ConnectionFactory<?> connectionFactory = connectionFactoryLocator.getConnectionFactory(connectionData.getProviderId());
-			return connectionFactory.createConnection(connectionData);
+	private Connection<?> getConnection(ConnectionData connectionData) {
+		ConnectionFactory<?> connectionFactory = connectionFactoryLocator.getConnectionFactory(connectionData.getProviderId());
+		return connectionFactory.createConnection(connectionData);
+	}
+
+	private List<Connection<?>> getConnectionList(List<ConnectionDataDTO> dtoList) {
+		return dtoList
+				.stream()
+				.map(this::toConnectionData)
+				.map(this::getConnection)
+				.collect(Collectors.toList());
+	}
+
+	private MultiValueMap<String, Connection<?>> getConnectionMap(List<ConnectionDataDTO> connectionDataList) {
+		List<Connection<?>> connectionList = getConnectionList(connectionDataList);
+		MultiValueMap<String, Connection<?>> connections = new LinkedMultiValueMap<>();
+		Set<String> registeredProviderIds = connectionFactoryLocator.registeredProviderIds();
+		for (String registeredProviderId : registeredProviderIds) {
+			connections.put(registeredProviderId, Collections.emptyList());
 		}
-		
-		private ConnectionData mapConnectionData(ResultSet rs) throws SQLException {
-			return new ConnectionData(rs.getString(socialProperties.getProviderIdColumnName()),
-			                          rs.getString(socialProperties.getProviderUserIdColumnName()),
-			                          rs.getString(socialProperties.getDisplayNameColumnName()),
-			                          rs.getString(socialProperties.getProfileUrlColumnName()),
-			                          rs.getString(socialProperties.getImageUrlColumnName()),
-			                          decrypt(rs.getString(socialProperties.getAccessTokenColumnName())),
-			                          decrypt(rs.getString(socialProperties.getSecretColumnName())),
-			                          decrypt(rs.getString(socialProperties.getRefreshTokenColumnName())),
-			                          expireTime(rs.getLong(socialProperties.getExpireTimeColumnName())));
+		for (Connection<?> connection : connectionList) {
+			String providerId = connection.getKey().getProviderId();
+			if (connections.get(providerId).size() == 0) {
+				connections.put(providerId, new LinkedList<>());
+			}
+			connections.add(providerId, connection);
 		}
-		
-		private String decrypt(String encryptedText) {
-			return encryptedText != null ? textEncryptor.decrypt(encryptedText) : null;
+		return connections;
+
+	}
+
+	private MultiValueMap<String, Connection<?>> getConnectionMap(List<ConnectionDataDTO> connectionDataList,
+	                                                                    MultiValueMap<String, String> providerUsers) {
+		List<Connection<?>> connectionList = getConnectionList(connectionDataList);
+		MultiValueMap<String, Connection<?>> connectionsForUsers = new LinkedMultiValueMap<>();
+		for (Connection<?> connection : connectionList) {
+			String providerId = connection.getKey().getProviderId();
+			List<String> userIds = providerUsers.get(providerId);
+			List<Connection<?>> connections = connectionsForUsers.get(providerId);
+			if (connections == null) {
+				connections = new ArrayList<>(userIds.size());
+				for (int i = 0; i < userIds.size(); i++) {
+					connections.add(null);
+				}
+				connectionsForUsers.put(providerId, connections);
+			}
+			String providerUserId = connection.getKey().getProviderUserId();
+			int connectionIndex = userIds.indexOf(providerUserId);
+			connections.set(connectionIndex, connection);
 		}
-		
-		private Long expireTime(long expireTime) {
-			return expireTime == 0 ? null : expireTime;
-		}
-		
+		return connectionsForUsers;
+
 	}
 
 	private <A> String getProviderId(Class<A> apiType) {
 		return connectionFactoryLocator.getConnectionFactory(apiType).getProviderId();
 	}
-	
+
 	private String encrypt(String text) {
 		return text != null ? textEncryptor.encrypt(text) : null;
 	}

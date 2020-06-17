@@ -1,0 +1,47 @@
+@startuml
+
+client --> client: 登出流程开始
+
+client -> LogoutFilter: 1. /logout
+activate LogoutFilter
+LogoutFilter -> LogoutFilter: 1.1 requiresLogout(request, response)
+activate LogoutFilter
+LogoutFilter -> OrRequestMatcher: 1.1.1 matches(request)
+activate OrRequestMatcher
+alt 不匹配登出 uri
+OrRequestMatcher --> LogoutFilter: 1.1.2 返回不匹配
+LogoutFilter -> OtherFilter: 2 chain.doFilter(request, response),
+OtherFilter --> OtherFilter: 后面流程省略
+else 匹配登出 uri
+OrRequestMatcher --> LogoutFilter: 1.1.2 返回匹配
+deactivate OrRequestMatcher
+deactivate LogoutFilter
+LogoutFilter --> LogoutFilter: 1.2 SecurityContextHolder.getContext().getAuthentication()\n 返回 auth
+LogoutFilter -> CompositeLogoutHandler: 1.3 logout(request, response, auth)
+activate CompositeLogoutHandler
+CompositeLogoutHandler --> CompositeLogoutHandler: 1.3.1 遍历:\n\
+ <font color=blue>CookieClearingLogoutHandler\n\
+ <font color=blue>PersistentTokenBasedRememberMeServices\n\
+ <font color=blue>SecurityContextLogoutHandler\n\
+ <font color=blue>LogoutSuccessEventPublishingLogoutHandler\n\
+ 分别执行 logout(..)
+CompositeLogoutHandler --> LogoutFilter: 1.3.2 返回
+deactivate CompositeLogoutHandler
+participant DefaultLogoutSuccessHandler #ff9800
+LogoutFilter -> DefaultLogoutSuccessHandler: 1.4 onLogoutSuccess(request, response, auth)
+activate DefaultLogoutSuccessHandler
+DefaultLogoutSuccessHandler --> DefaultLogoutSuccessHandler: 1.4 onLogoutSuccess\n(request, response, auth)
+DefaultLogoutSuccessHandler --> DefaultLogoutSuccessHandler: 1.4.1 登出处理
+DefaultLogoutSuccessHandler --> client: 3 返回 logoutSuccessUrl
+DefaultLogoutSuccessHandler --> LogoutFilter: 1.4.2 返回
+deactivate DefaultLogoutSuccessHandler
+deactivate LogoutFilter
+end
+
+
+client --> client: 登出流程结束
+
+== API ==
+note over DefaultLogoutSuccessHandler: api 登出成功处理器, 如要替换此类, \n 继承后注入 IOC 容器即可
+
+@enduml

@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * 客户端 url 认证与授权的路由控制接口, 实现此接口并注册到 IOC 容器，则会替换
+ * 客户端 url 认证与授权的路由控制与 session 失效后处理的控制器接口, 实现此接口并注册到 IOC 容器，则会替换
  * {@link ClientSecurityController} 类
  * @author zyw23
  * @version V1.0
@@ -16,9 +16,9 @@ import javax.servlet.http.HttpServletResponse;
 public interface BaseSecurityController {
 
     /**
-     * 当需要身份认证时，跳转到这里, 根据不同 uri(支持通配符) 跳转到不同的认证入口.<br>
+     * 当需要身份认证时，跳转到这里, 根据不同 uri(支持通配符) 跳转到不同的认证入口.<br><br>
      * 必须添加注解：<pre>
-     *     \@RequestMapping(DEFAULT_UN_AUTHENTICATION_URL)
+     *     \@RequestMapping(loginUnAuthenticationUrl)
      *     public void requireAuthentication(HttpServletRequest request, HttpServletResponse response) {
      *          ...
      *     }
@@ -29,7 +29,14 @@ public interface BaseSecurityController {
     void requireAuthentication(HttpServletRequest request, HttpServletResponse response);
 
     /**
-     * session 失效后的处理
+     * session 失效后的处理<br><br>
+     * 必须添加注解：<pre>
+     *      \@RequestMapping(loginUnAuthenticationUrl)
+     *      \@ResponseStatus(code = HttpStatus.UNAUTHORIZED)
+     *      public void invalidSessionHandler(HttpServletRequest request, HttpServletResponse response) {
+     *           ...
+     *      }
+     * </pre>
      * @param request   request
      * @param response  response
      */

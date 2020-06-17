@@ -1,8 +1,8 @@
 @startuml
 
-browser --> browser: 密码登录图片验证码校验流程开始
+client --> client: 密码登录图片验证码校验流程开始
 
-browser -> ValidateCodeFilter: /authentication/form
+client -> ValidateCodeFilter: /authentication/form
 alt 验证码校验逻辑
 activate ValidateCodeFilter
 ValidateCodeFilter --> ValidateCodeFilter: 1. doFilterInternal(),\n 验证码逻辑
@@ -22,11 +22,11 @@ end
 deactivate AbstractValidateCodeProcessor
 participant ClientAuthenticationFailureHandler #ff9800
 ValidateCodeFilter -> ClientAuthenticationFailureHandler: 1.4 校验失败，抛出\n ValidateCodeException
-ClientAuthenticationFailureHandler --> browser: 1.4.1 onAuthenticationFailure()\n根据设置的 LoginType \n返回 JSON 或者 HTML 格式
+ClientAuthenticationFailureHandler --> client: 1.4.1 onAuthenticationFailure()\n根据设置的 LoginType \n返回 JSON 或者 HTML 格式
 
 ValidateCodeFilter -> UsernamePasswordAuthenticationFilter: 1.4.2 校验成功.\n doFilter()
+activate UsernamePasswordAuthenticationFilter
 end
-alt 用户名与密码验证
 UsernamePasswordAuthenticationFilter --> UsernamePasswordAuthenticationFilter: 1.4.2.1\n attemptAuthentication()
 activate UsernamePasswordAuthenticationFilter
 UsernamePasswordAuthenticationFilter --> UsernamePasswordAuthenticationFilter: 1.4.2.1.1 \n UsernamePasswordAuthenticationToken()
@@ -49,36 +49,142 @@ UsernamePasswordAuthenticationProvider --> UsernamePasswordAuthenticationProvide
 activate UsernamePasswordAuthenticationProvider
 participant UserDetailsPasswordService #ff9800
 UsernamePasswordAuthenticationProvider -> UserDetailsPasswordService: 1.4.2.1.2.2.1.3.1\n 如果有实现UserDetailsPasswordService\n updatePassword(user, newPassword)
+activate UserDetailsPasswordService
 UserDetailsPasswordService --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2.1.3.2\n 返回更新密码后的 user
+deactivate UserDetailsPasswordService
 deactivate UsernamePasswordAuthenticationProvider
 
+alt 1.4.2.1.2.3 用户名与密码验证成功
 UsernamePasswordAuthenticationProvider --> AuthenticationManager: 1.4.2.1.2.3\n 校验成功，返回 Authentication
 
 AuthenticationManager --> UsernamePasswordAuthenticationFilter: 1.4.2.1.3 校验成功，\n返回 Authentication
+deactivate UsernamePasswordAuthenticationFilter
+deactivate UsernamePasswordAuthenticationFilter
+UsernamePasswordAuthenticationFilter -> CompositeSessionAuthenticationStrategy: 1.4.2.2 onAuthentication\n\
+(authResult, request, response)
+activate UsernamePasswordAuthenticationFilter
+activate CompositeSessionAuthenticationStrategy
+CompositeSessionAuthenticationStrategy -> EnhanceConcurrentControlAuthenticationStrategy: 1.4.2.2.1 onAuthentication\n\
+ (authResult, request, response)
+activate EnhanceConcurrentControlAuthenticationStrategy
+EnhanceConcurrentControlAuthenticationStrategy --> EnhanceConcurrentControlAuthenticationStrategy: 1.4.2.2.2 \n\
+具体过程看 session.puml
+EnhanceConcurrentControlAuthenticationStrategy --> CompositeSessionAuthenticationStrategy: 1.4.2.2.3 \n返回
+
+deactivate EnhanceConcurrentControlAuthenticationStrategy
+CompositeSessionAuthenticationStrategy --> UsernamePasswordAuthenticationFilter: 1.4.2.2.4 返回
+deactivate CompositeSessionAuthenticationStrategy
+deactivate UsernamePasswordAuthenticationFilter
+UsernamePasswordAuthenticationFilter --> UsernamePasswordAuthenticationFilter: 1.4.2.3 successfulAuthentication (request, response, chain, authResult)
+activate UsernamePasswordAuthenticationFilter
+UsernamePasswordAuthenticationFilter --> UsernamePasswordAuthenticationFilter: 1.4.2.3.1 SecurityContextHolder\n\
+            .getContext()\n\
+            .setAuthentication(authResult)\n            把认证信息保存到context
+UsernamePasswordAuthenticationFilter -> PersistentTokenBasedRememberMeServices: 1.4.2.3.2 loginSuccess\n\
+             (request, response, authResult)
+activate UsernamePasswordAuthenticationFilter
+activate PersistentTokenBasedRememberMeServices
+PersistentTokenBasedRememberMeServices --> PersistentTokenBasedRememberMeServices: 1.4.2.3.2.1\n\
+!rememberMeRequested(request, parameter)
+alt 1.4.2.3.2.1 不是 rememberMe请求 直接返回
+PersistentTokenBasedRememberMeServices --> UsernamePasswordAuthenticationFilter: 1.4.2.3.2.1.1 返回
+else 1.4.2.3.2.1 是 rememberMe请求 do nothing 继续
+PersistentTokenBasedRememberMeServices --> PersistentTokenBasedRememberMeServices: 1.4.2.3.2.2\n\
+onLoginSuccess\n(request, response, successfulAuthentication)
+activate PersistentTokenBasedRememberMeServices
+PersistentTokenBasedRememberMeServices --> PersistentTokenBasedRememberMeServices: 1.4.2.3.2.2.1\n\
+ new PersistentRememberMeToken(..)
+participant PersistentTokenRepository #ff9800
+PersistentTokenBasedRememberMeServices -> PersistentTokenRepository: 1.4.2.3.2.2.2\n\
+createNewToken(persistentToken)
+activate PersistentTokenBasedRememberMeServices
+activate PersistentTokenRepository
+PersistentTokenRepository --> PersistentTokenRepository: 1.4.2.3.2.2.2.1\n\
+JdbcTemplate.update\n(insertTokenSql, token.getUsername(),\n\
+token.getSeries(), token.getTokenValue(),\n token.getDate());
+PersistentTokenRepository --> PersistentTokenBasedRememberMeServices: 1.4.2.3.2.2.2.2 返回
+deactivate PersistentTokenRepository
+deactivate PersistentTokenBasedRememberMeServices
+PersistentTokenBasedRememberMeServices --> PersistentTokenBasedRememberMeServices: 1.4.2.3.2.2 \n\
+addCookie\n(persistentToken, request, response)
+PersistentTokenBasedRememberMeServices --> UsernamePasswordAuthenticationFilter: 1.4.2.3.2.2 返回
+deactivate PersistentTokenBasedRememberMeServices
+deactivate PersistentTokenBasedRememberMeServices
+end
+
+deactivate UsernamePasswordAuthenticationFilter
+UsernamePasswordAuthenticationFilter --> UsernamePasswordAuthenticationFilter: 1.4.2.3.3 eventPublisher\n\
+               .publishEvent(..)
+participant ClientAuthenticationSuccessHandler #ff9800
+UsernamePasswordAuthenticationFilter -> ClientAuthenticationSuccessHandler: 1.4.2.3.4 \n\
+        onAuthenticationSuccess\n\
+        (request, response, authResult)
+activate ClientAuthenticationSuccessHandler
+ClientAuthenticationSuccessHandler --> ClientAuthenticationSuccessHandler: 1.4.2.3.4.1 \n 根据accept或LoginProcessType返回结果
+ClientAuthenticationSuccessHandler --> client : 1.4.2.3.4.2 \n 返回 Json 数据 或 网页
+ClientAuthenticationSuccessHandler --> UsernamePasswordAuthenticationFilter: 1.4.2.3.4.3 返回
+
+deactivate ClientAuthenticationSuccessHandler
+
+deactivate UsernamePasswordAuthenticationFilter
+
 UsernamePasswordAuthenticationFilter --> ValidateCodeFilter: 1.4.3 校验成功，\n返回 Authentication
 
-ValidateCodeFilter --> browser: 1.4.4.1 返回 RedirectUrl\n 或 DefaultSuccessUrl
-else 校验失败
+ValidateCodeFilter --> client: 1.4.4.1 返回 RedirectUrl\n 或 DefaultSuccessUrl
+else 1.4.2.1.2.3 用户名与密码验证成功校验失败
 AbstractUserDetailsService --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2.1.3\n 校验失败，抛出异常
 deactivate AbstractUserDetailsService
 UsernamePasswordAuthenticationProvider --> AuthenticationManager: 1.4.2.1.2.3\n 校验失败，抛出异常
 deactivate UsernamePasswordAuthenticationProvider
 AuthenticationManager --> UsernamePasswordAuthenticationFilter: 1.4.2.1.3\n 校验失败，抛出异常
-UsernamePasswordAuthenticationFilter --> ValidateCodeFilter: 1.4.3\n 校验失败，抛出异常
+UsernamePasswordAuthenticationFilter --> UsernamePasswordAuthenticationFilter: 1.4.2.2.5\n unsuccessfulAuthentication\n\
+(request, response, failed)
+activate UsernamePasswordAuthenticationFilter
+UsernamePasswordAuthenticationFilter --> UsernamePasswordAuthenticationFilter: 1.4.2.2.5.1 \n\
+SecurityContextHolder.clearContext()
+UsernamePasswordAuthenticationFilter -> PersistentTokenBasedRememberMeServices: 1.4.2.2.5.2 \n\
+rememberMeServices.loginFail(request, response)
+activate UsernamePasswordAuthenticationFilter
+activate PersistentTokenBasedRememberMeServices
+PersistentTokenBasedRememberMeServices --> PersistentTokenBasedRememberMeServices: 1.4.2.2.5.2.1 \n\
+cancelCookie(request, response)
+PersistentTokenBasedRememberMeServices --> PersistentTokenBasedRememberMeServices: 1.4.2.2.5.2.2 \n\
+onLoginFail(request, response)
+PersistentTokenBasedRememberMeServices --> UsernamePasswordAuthenticationFilter: 1.4.2.2.5.2.3 返回
+deactivate PersistentTokenBasedRememberMeServices
 deactivate UsernamePasswordAuthenticationFilter
-end
+UsernamePasswordAuthenticationFilter -> ClientAuthenticationFailureHandler: 1.4.2.2.5.3\n\
+onAuthenticationFailure\n(request, response, failed)
+activate UsernamePasswordAuthenticationFilter
+activate ClientAuthenticationFailureHandler
+ClientAuthenticationFailureHandler --> ClientAuthenticationFailureHandler: 1.4.2.2.5.3.1\n\根据accept返回结果
+ClientAuthenticationFailureHandler --> client: 1.4.2.2.5.3.2\n\ 返回 Json 数据 或 网页
+ClientAuthenticationFailureHandler --> UsernamePasswordAuthenticationFilter: 1.4.2.2.5.3.3 返回
+
+deactivate ClientAuthenticationFailureHandler
+deactivate UsernamePasswordAuthenticationFilter
+
+deactivate UsernamePasswordAuthenticationFilter
+
+UsernamePasswordAuthenticationFilter --> ValidateCodeFilter: 1.4.3\n 校验失败，抛出异常
 deactivate UsernamePasswordAuthenticationFilter
 ValidateCodeFilter -> ClientAuthenticationFailureHandler: 1.4.4 转交\nClientAuthenticationFailureHandler\n处理
 deactivate ValidateCodeFilter
-ClientAuthenticationFailureHandler --> browser: 1.4.4.2 返回 login.html
+ClientAuthenticationFailureHandler --> client: 1.4.4.2 返回 login.html
+end
 
-browser --> browser: 密码登录图片验证码校验流程结束
+client --> client: 密码登录图片验证码校验流程结束
 
 == API ==
 note over AbstractValidateCodeProcessor: 可以根据\n自己的需求自定义
-note over ClientAuthenticationFailureHandler: 可以根据\n自己的需求自定义\n另外还有个成功处理器\nClientAuthenticationSuccessHandler\n可根据需求实现
+note over ClientAuthenticationFailureHandler: 可以根据\n自己的需求自定义\n继承BaseAuthenticationFailureHandler\n向 IOC 容器注册自己来实现自定义功能。
+note over ClientAuthenticationSuccessHandler: 可以根据\n自己的需求自定义\n继承BaseAuthenticationSuccessHandler\n向 IOC 容器注册自己来实现自定义功能。
 note over AbstractUserDetailsService: 可以根据\n自己的需求自定义
 note over AbstractUserDetailsService: 此Service实现了\nRegisterUserDetailsService\n带有注册服务
 note over UserDetailsPasswordService: 如果要对前端传过来的密码进行解密,\n则请实现 UserDetailsPasswordService
-
+note over PersistentTokenRepository: RememberMeToken持久化 Repository,\n\
+             通过实现\n\
+BasedRememberMeTokenRepositoryFactory\n\
+   并注入 IOC 容器即可, 会替换默认的\n\
+        JdbcTokenRepositoryImpl
 @enduml

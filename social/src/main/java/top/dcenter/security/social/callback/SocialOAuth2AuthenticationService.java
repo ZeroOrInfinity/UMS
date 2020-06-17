@@ -15,7 +15,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_S
 import static top.dcenter.security.core.consts.SecurityConstants.URL_SEPARATOR;
 
 /**
- * 对 {@link OAuth2AuthenticationService} 的扩展. <br>
+ * 对 {@link OAuth2AuthenticationService} 的扩展. <br><br>
  * 通过覆写 buildReturnToUrl(request)方法, 使 social 支持通过统一的回调地址路由到多个回调地址。
  * @author zyw
  * @version V1.0  Created by 2020/5/21 15:54
@@ -27,7 +27,7 @@ public class SocialOAuth2AuthenticationService<S> extends OAuth2AuthenticationSe
     }
 
     /**
-     * 使 social 支持通过统一的回调地址路由到多个回调地址。<br>
+     * 使 social 支持通过统一的回调地址路由到多个回调地址。<br><br>
      * 如要自定义此逻辑，请实现 {@link BaseOAuth2ConnectionFactory#buildReturnToUrl(HttpServletRequest, Set)} 即可。
      * @param request
      * @return  返回统一的回调地址

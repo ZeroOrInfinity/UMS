@@ -62,7 +62,7 @@ public class WeixinAdapter implements ApiAdapter<Weixin> {
 	 */
 	@Override
 	public void updateStatus(Weixin api, String message) {
-		//do nothing
+		//dto nothing
 	}
 
 }

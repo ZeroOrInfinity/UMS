@@ -3,6 +3,7 @@ package top.dcenter.security.core.util;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,6 +13,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.net.URLDecoder.decode;
 
 /**
  * 类型转换工具栏
@@ -73,7 +76,7 @@ public class ConvertUtil {
 
         string2JsonMap(kvSeparator, splits, map);
 
-          return map;
+        return map;
     }
 
     private static void string2JsonMap(String kvSeparator, String[] splits, Map<String, Object> map) {
@@ -87,15 +90,15 @@ public class ConvertUtil {
                     map.compute(kvArr[0], (k, v) -> {
                         if (v == null)
                         {
-                            v = kvArr[1];
+                            v = decode(kvArr[1], StandardCharsets.UTF_8);
                         } else if (v instanceof JsonList)
                         {
-                            ((JsonList) v).add(kvArr[1]);
+                            ((JsonList) v).add(decode(kvArr[1], StandardCharsets.UTF_8));
                         } else
                         {
                             List list = new JsonList<>();
                             list.add(v);
-                            list.add(kvArr[1]);
+                            list.add(decode(kvArr[1], StandardCharsets.UTF_8));
                             v = list;
                         }
                         return v;

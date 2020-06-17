@@ -1,11 +1,11 @@
 @startuml
 
-browser --> browser: 进入登录页面及获取验证码开始
+client --> client: 进入登录页面及获取验证码开始
 
-browser -> Server: 1 /login.html
-Server --> browser: 1.1 /login.html
-browser -> ValidateCodeController: 1.2 /code/sms?mobile=10123456789
-browser -> ValidateCodeController: 1.3 /code/image
+client -> Server: 1 /login.html
+Server --> client: 1.1 /login.html
+client -> ValidateCodeController: 1.2 /code/sms?mobile=10123456789
+client -> ValidateCodeController: 1.3 /code/image
 
 ValidateCodeController --> ValidateCodeController: 2. createCode()
 activate ValidateCodeController
@@ -30,7 +30,7 @@ alt 这里通过 AbstractValidateCodeProcessor 子类实现
 opt ImageCodeValidateCodeProcessor
 AbstractValidateCodeProcessor --> AbstractValidateCodeProcessor: 2.2.3 send()
 activate AbstractValidateCodeProcessor
-AbstractValidateCodeProcessor --> browser: 2.3 如果为图片类型
+AbstractValidateCodeProcessor --> client: 2.3 如果为图片类型
 end
 opt SmsCodeValidateCodeProcessor
 participant SmsCodeGenerator #ff9800
@@ -47,7 +47,7 @@ end
 end
 activate SmsCodeSender
 deactivate SmsCodeSender
-browser --> browser: 进入登录页面及获取验证码结束
+client --> client: 进入登录页面及获取验证码结束
 == API ==
 note over AbstractValidateCodeProcessor: api 可以根据\n自己的需求自定义
 note over  ImageCodeGenerator: api 可以根据\n自己的需求自定义\n推荐实现ImageCodeFactory

@@ -5,10 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.social.config.annotation.EnableSocial;
@@ -22,15 +25,18 @@ import org.springframework.social.connect.web.DisconnectInterceptor;
 import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.util.CollectionUtils;
 import top.dcenter.security.core.properties.ClientProperties;
+import top.dcenter.security.social.api.banding.ShowConnectViewService;
+import top.dcenter.security.social.api.banding.ShowConnectionStatusViewService;
 import top.dcenter.security.social.api.callback.RedirectUrlHelper;
-import top.dcenter.security.social.api.callback.ShowConnectViewService;
 import top.dcenter.security.social.api.config.SocialCoreConfig;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
 import top.dcenter.security.social.banding.DefaultShowConnectViewService;
+import top.dcenter.security.social.banding.DefaultShowConnectionStatusViewService;
 import top.dcenter.security.social.controller.BandingConnectController;
 import top.dcenter.security.social.properties.SocialProperties;
-import top.dcenter.security.social.repository.jdbc.OAuthJdbcUsersConnectionRepositoryFactory;
+import top.dcenter.security.social.repository.jdbc.JdbcConnectionDataRepository;
+import top.dcenter.security.social.repository.jdbc.factory.OAuthJdbcUsersConnectionRepositoryFactory;
 import top.dcenter.security.social.signup.DefaultConnectionSignUp;
 import top.dcenter.security.social.view.ConnectionStatusView;
 
@@ -41,6 +47,7 @@ import java.util.List;
 
 import static top.dcenter.security.core.consts.SecurityConstants.QUERY_DATABASE_NAME_SQL;
 import static top.dcenter.security.core.consts.SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX;
+import static top.dcenter.security.social.controller.BandingConnectController.BANDING_STATUS_SUFFIX;
 
 /**
  * social 第三方登录通用配置
@@ -59,11 +66,17 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     private final List<ConnectInterceptor<?>> connectInterceptors;
     private final List<DisconnectInterceptor<?>> disconnectInterceptors;
     private final AbstractSocialUserDetailService userDetailService;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired
+    private GenericApplicationContext applicationContext;
+
+    private UsersConnectionRepositoryFactory usersConnectionRepositoryFactory;
 
     public SocialConfiguration(ObjectProvider<List<ConnectInterceptor<?>>> connectInterceptorsProvider,
                                ObjectProvider<List<DisconnectInterceptor<?>>> disconnectInterceptorsProvider,
                                DataSource dataSource,
-                               SocialProperties socialProperties, AbstractSocialUserDetailService userDetailService) {
+                               SocialProperties socialProperties,
+                               AbstractSocialUserDetailService userDetailService) {
         this.dataSource = dataSource;
         this.socialProperties = socialProperties;
         this.userDetailService = userDetailService;
@@ -73,7 +86,7 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
 
     @Override
     public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
-        return this.usersConnectionRepositoryFactory().getUsersConnectionRepository(dataSource,
+        return this.usersConnectionRepositoryFactory.getUsersConnectionRepository(dataSource,
                                                                                connectionFactoryLocator,
                                                                                socialTextEncryptor(socialProperties),
                                                                                socialProperties,
@@ -108,12 +121,6 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
         return controller;
     }
 
-    @Bean("connect/status")
-    @ConditionalOnMissingBean(type = "top.dcenter.security.social.view.ConnectionStatusView")
-    public ConnectionStatusView connectionStatusView(ObjectMapper objectMapper) {
-        return new ConnectionStatusView(objectMapper);
-    }
-
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.callback.RedirectUrlHelper")
     public RedirectUrlHelper redirectUrlHelper() {
@@ -138,15 +145,23 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.callback.ShowConnectViewService")
+    @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.banding.ShowConnectViewService")
     public ShowConnectViewService showConnectViewService(ClientProperties clientProperties, ObjectMapper objectMapper) {
         return new DefaultShowConnectViewService(clientProperties, objectMapper, this.socialProperties);
     }
 
     @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.banding.ShowConnectionStatusViewService")
+    public ShowConnectionStatusViewService showConnectionStatusViewService(ObjectMapper objectMapper) {
+        return new DefaultShowConnectionStatusViewService(objectMapper);
+    }
+
+    @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory")
-    public UsersConnectionRepositoryFactory usersConnectionRepositoryFactory() {
-        return new OAuthJdbcUsersConnectionRepositoryFactory();
+    public UsersConnectionRepositoryFactory usersConnectionRepositoryFactory(JdbcConnectionDataRepository jdbcConnectionDataRepository) {
+        OAuthJdbcUsersConnectionRepositoryFactory oAuthJdbcUsersConnectionRepositoryFactory = new OAuthJdbcUsersConnectionRepositoryFactory(jdbcConnectionDataRepository);
+        this.usersConnectionRepositoryFactory = oAuthJdbcUsersConnectionRepositoryFactory;
+        return oAuthJdbcUsersConnectionRepositoryFactory;
     }
 
     @Bean
@@ -155,9 +170,23 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
         return new SocialCoreConfig(socialProperties);
     }
 
+
     @Override
     public void afterPropertiesSet() throws Exception {
 
+        // ====== 注册 ConnectionStatusView ======
+
+        ConfigurableListableBeanFactory beanFactory = applicationContext.getBeanFactory();
+
+        // 获取 ShowConnectionStatusViewService bean
+        ShowConnectionStatusViewService showConnectionStatusViewService = applicationContext.getBean(ShowConnectionStatusViewService.class);
+
+        // 注册 ConnectionStatusView 到 IOC 容器
+        beanFactory.registerSingleton(socialProperties.getViewPath() + BANDING_STATUS_SUFFIX,
+                                                          new ConnectionStatusView(showConnectionStatusViewService));
+
+
+        // ====== 是否要初始化数据库 ======
         // 如果 JdbcUsersConnectionRepository 所需的表 UserConnection 未创建则创建它
         try (Connection connection = dataSource.getConnection())
         {
@@ -203,6 +232,5 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
         }
 
     }
-
 
 }

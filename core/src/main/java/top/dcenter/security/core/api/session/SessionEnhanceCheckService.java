@@ -2,15 +2,15 @@ package top.dcenter.security.core.api.session;
 
 import org.springframework.lang.NonNull;
 import top.dcenter.security.core.auth.session.filter.SessionEnhanceCheckFilter;
-import top.dcenter.security.core.auth.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
+import top.dcenter.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**
- * session enhance check service, 比如对 client 端特征码的鉴别. 此接口依赖
+ * session enhance check service, 比如对 client 端特征码的鉴别, , 增强 csrf 防范, 此接口应用在
  * {@link SessionEnhanceCheckFilter} 与
- * {@link EnhanceConcurrentControlAuthenticationStrategy}<br>
+ * {@link EnhanceConcurrentControlAuthenticationStrategy}<br><br>
  *     实现此接口并注入 IOC 容器, 会根据实现的逻辑对 request 进行安全验证.
  * @author zyw23
  * @version V1.0

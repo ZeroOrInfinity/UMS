@@ -8,22 +8,33 @@ import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.security.SocialAuthenticationFilter;
 import org.springframework.social.security.SocialAuthenticationServiceRegistry;
 import org.springframework.social.security.SpringSocialConfigurer;
+import org.springframework.social.security.provider.OAuth2AuthenticationService;
 import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
-import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory;
 import top.dcenter.security.social.callback.SocialOAuth2AuthenticationService;
 import top.dcenter.security.social.config.SocialSecurityConfigurerAware;
+import top.dcenter.security.social.properties.SocialProperties;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * social 第三方登录核心配置, 如果确实需要自定义，请实现此类的子类，并注册进 IOC 容器。会替换此类<br>
- *     推荐通过实现 {@link SocialSecurityConfigurerAware} 接口。<br>
+ * social 第三方登录核心配置,
+ * {@link #postProcess(Object)} 使 OAuth2 支持统一的回调地址, 此方法的作用:  更换 {@link OAuth2AuthenticationService} 为其子类
+ * {@link SocialOAuth2AuthenticationService}, 子类主要覆写了方法
+ * {@link SocialOAuth2AuthenticationService#buildReturnToUrl(HttpServletRequest)} 使其支持统一的回调地址. <br><br>
+ * 如果确实需要自定义，请实现此类的子类，并注册进 IOC 容器。会替换此类.
+ * 注意: 覆写方法 {@link #postProcess(Object)} 时一定要调用
+ * <code>
+ *     super.postProcess(object);
+ * </code><br><br>
+ *     推荐通过实现 {@link SocialSecurityConfigurerAware} 接口。<br><br>
  *     例如：不需要使用 {@link #postProcess(Object)} 方法配置且通过 {@link WebSecurityConfigurerAdapter#configure(HttpSecurity)}
  *     配置，则请实现 {@link WebSecurityConfigurerAware} 接口
+ *
  * @author zhailiang
  * @medifiedBy  zyw
  * @createdDate 2020-05-09 11:37

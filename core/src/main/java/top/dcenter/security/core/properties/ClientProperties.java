@@ -6,12 +6,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.boot.convert.DurationUnit;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import top.dcenter.security.core.enums.CsrfTokenRepositoryType;
 import top.dcenter.security.core.enums.LoginProcessType;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PAGE_URL;
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM;
@@ -35,6 +38,8 @@ public class ClientProperties {
     private final SessionProperties session = new SessionProperties();
     @NestedConfigurationProperty
     private final RememberMeProperties rememberMe = new RememberMeProperties();
+    @NestedConfigurationProperty
+    private final CsrfProperties csrf = new CsrfProperties();
 
     /**
      * 设置登录页，用户没有配置则默认为 /login.html
@@ -66,8 +71,14 @@ public class ClientProperties {
     private String successUrl = "/";
 
     /**
+     * 不需要认证的 uri, 默认为 空 Set.<br>
+     *     支持通配符 规则具体看 AntPathMatcher.match(pattern, path)
+     */
+    private Set<String>  permitUrls = new HashSet<>();
+
+    /**
      * 当请求需要身份认证时，默认跳转的url
-     * 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require. <br>
+     * 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require. <br><br>
      * 注意: 如果修改此 uri, 需要重新实现修改后的 uri
      */
     private String loginUnAuthenticationUrl = DEFAULT_UN_AUTHENTICATION_URL;
@@ -90,6 +101,22 @@ public class ClientProperties {
      * 设置登出后跳转的 url, 默认为 /login.html
      */
     public String logoutSuccessUrl = "/login.html";
+    /**
+     * 设置由客户端决定认证成功要跳转的 url 的 request 参数名称, 默认为 redirectTargetUrl
+     */
+    public String targetUrlParameter = "redirectTargetUrl";
+    /**
+     * 设置登录时用户名的 request 参数名称, 默认为 username
+     */
+    public String usernameParameter = "username";
+    /**
+     * 设置登录时用户密码的 request 参数名称, 默认为 password
+     */
+    public String passwordParameter = "password";
+    /**
+     * 登录后是否利用 Referer 进行跳转, 默认为: false
+     */
+    public Boolean useReferer = Boolean.FALSE;
 
 
     public ClientProperties() {
@@ -136,7 +163,7 @@ public class ClientProperties {
         private SessionCreationPolicy sessionCreationPolicy = SessionCreationPolicy.ALWAYS;
 
         /**
-         * session 失效后跳转地址, loginProcessType=redirect 时有效. 默认: /session/invalid, <br>
+         * session 失效后跳转地址, loginProcessType=redirect 时有效. 默认: /session/invalid, <br><br>
          * 注意: 如果修改此 uri, 需要重新实现修改后的 uri
          */
         private String invalidSessionUrl = DEFAULT_SESSION_INVALID_URL;
@@ -164,12 +191,34 @@ public class ClientProperties {
          * 设置记住我功能的 CookieName，默认 rememberMe
          */
         private String rememberMeCookieName = DEFAULT_REMEMBER_ME_NAME;
+        /**
+         * 设置记住我功能的参数名称，默认 rememberMe
+         */
+        private String rememberMeParameter = DEFAULT_REMEMBER_ME_NAME;
 
         /**
          * Whether the cookie should be flagged as secure or not. Secure cookies can only be sent over an HTTPS connection and thus cannot be accidentally submitted over HTTP where they could be intercepted.
          * By default the cookie will be secure if the request is secure. If you only want to use remember-me over HTTPS (recommended) you should set this property to true. 默认为 false。
          */
         private Boolean useSecureCookie = false;
+
+    }
+
+    @Getter
+    @Setter
+    public static class CsrfProperties {
+        /**
+         * csrf 是否开启, 默认为 false;
+         */
+        private Boolean csrfIsOpen = false;
+        /**
+         * 忽略指定请求的 CSRF 防护, 默认为 空 Set
+         */
+        private Set<String>  ignoringAntMatcherUrls = new HashSet<>();
+        /**
+         * csrf tokenRepository 的存储类型, 默认为 session
+         */
+        private CsrfTokenRepositoryType tokenRepositoryType = CsrfTokenRepositoryType.SESSION;
 
     }
 

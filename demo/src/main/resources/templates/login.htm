@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>登录</title>
@@ -9,11 +9,13 @@
 <h2>登录页面</h2>
 <h3>表单登录</h3>
 <h5>如果短信验证码与图片验证码同时配置时，优先使用短信验证码，图片验证码失效</h5>
-<form id="reg-form" action="/authentication/form" method="post">
+<!-- 通过 th:action 的方式支持 csrf 或者 添加隐藏域<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
+<form id="reg-form" th:action="@{/authentication/form}" method="post">
     <table>
         <tr>
             <td>用户名：</td>
-            <td><input type="text" name="username" value="admin"><p style="color: #ff0000" id="error-name"></p></td>
+            <td><input type="text" name="username" value="admin" ><p style="color: #ff0000"
+                                                                           id="error-name"></p></td>
         </tr>
         <tr>
             <td>密码：</td>
@@ -25,12 +27,6 @@
                 <input type="text" name="imageCode">
                 <img class="img" src="/code/image" style="width: 67px; height: 23px">
             </td>
-        </tr>
-        <tr>
-            <td>temp:</td>
-            <td><input type="checkbox" name="aa" value="tom1" checked/><input type="checkbox" name="aa" value="tom2"
-                                                                              checked/><input type="checkbox"
-                                                                                              name="aa" value="tom3" checked/></td>
         </tr>
         <tr>
             <td>手机号码：</td>
@@ -57,7 +53,7 @@
     </table>
 </form>
 <h3>手机登录</h3>
-<form id="mobile-form" action="/authentication/mobile" method="post">
+<form id="mobile-form" th:action="@{/authentication/mobile}" method="post">
     <table>
         <tr>
             <td>手机号码：</td>
@@ -91,7 +87,7 @@
         </tr>
     </table>
 </form>
-<br>
+<br><br>
 <h3>社交登录</h3>
 <a href="/auth/callback/qq">QQ登录</a>
 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -167,12 +163,14 @@
 
 
     $("#btn-mobile").click(
-        submitFormByAjax("/authentication/mobile", "#mobile-form", "#error-name-mobile", "#error-code-mobile", ".img-mobile")
+        submitFormByAjax($("#mobile-form").attr("action"), "#mobile-form", "#error-name-mobile", "#error-code-mobile", ".img-mobile")
+        // submitFormByAjax("/authentication/mobile", "#mobile-form", "#error-name-mobile", "#error-code-mobile", ".img-mobile")
     )
 
 
     $("#btn-reg").click(
-        submitFormByAjax("/authentication/form", "#reg-form", "#error-name", "#error-code", ".img")
+        submitFormByAjax($("#reg-form").attr("action"), "#reg-form", "#error-name", "#error-code", ".img")
+        // submitFormByAjax("/authentication/form", "#reg-form", "#error-name", "#error-code", ".img")
     )
 </script>
 </html>

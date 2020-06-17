@@ -1,9 +1,8 @@
 package top.dcenter.security.core.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.http.MediaType;
+import top.dcenter.security.core.auth.filter.JsonRequestFilter;
 import top.dcenter.security.core.consts.SecurityConstants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,101 +19,9 @@ import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_S
 public class RequestUtil {
 
     /**
-     * 把 ajax/form/queryString 请求中的数据转换为(Map)存储在 request scope 中的 key,
-     */
-    public static final String REQUEST_PARAMETER_MAP  = "REQUEST_PARAMETER_MAP";
-    /**
-     * 把请求中的数据转换为 String 存储在 Map 中的 key,
-     */
-    public static final String NATIVE_REQUEST_BODY_AS_STRING = "NATIVE_REQUEST_BODY_AS_STRING";
-    /**
      * 验证 request 中参数是否是 json 的字符串的前缀,
      */
-    public static final String VALIDATE_JSON_PREFIX  = "{";
-
-    /**
-     * 提取 request 中指定 paramName 的值. <br>
-     *     支持: application/x-www-form-urlencoded, application/json
-     * @param request   {@link HttpServletRequest}, not Null
-     * @param objectMapper  jackson 实列, not Null
-     * @param paramName 参数名称, not Null
-     * @return Object, 当出现错误或没有元素时返回一个 null
-     */
-    public static Object getParameter(HttpServletRequest request, ObjectMapper objectMapper,
-                                      String paramName) {
-
-        try
-        {
-            Object data = null;
-            // 考虑到 ajax 请求时, 不指定 ContentType, 默认为 application/x-www-form-urlencoded, 为了兼容性, 此格式与 json 作同样处理
-            if (request.getContentType().contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                || request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE))
-            {
-                Map<String, Object> dataMap = extractRequestJsonData2Map(request, objectMapper);
-
-                if (MapUtils.isNotEmpty(dataMap))
-                {
-                    data = dataMap.get(paramName);
-                }
-            } else
-            {
-                data = request.getParameter(paramName);
-            }
-            return data;
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-    }
-
-
-    /**
-     * 提取 request 中的 json 数据. 再转换为 Map
-     * @param request   json类型的输入流, not Null
-     * @param objectMapper  jackson 实列, not Null
-     * @return Map<String, Object>, 当出现错误或没有元素时返回一个 null
-     */
-    public static Map<String, Object> extractRequestJsonData2Map(HttpServletRequest request, ObjectMapper objectMapper) {
-        try
-        {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> map = (Map<String, Object>) request.getAttribute(REQUEST_PARAMETER_MAP);
-
-            if (MapUtils.isNotEmpty(map))
-            {
-                return map;
-            }
-            // 获取 表单 字节数据
-            byte[] bytes = request.getInputStream().readAllBytes();
-            if (bytes.length == 0)
-            {
-                return null;
-            }
-
-            String jsonData = new String(bytes, StandardCharsets.UTF_8);
-            if (StringUtils.isBlank(jsonData))
-            {
-                return null;
-            }
-            // 转换为 map 类型, 并放入 request 域方便下次调用
-            if (StringUtils.startsWith(jsonData, VALIDATE_JSON_PREFIX))
-            {
-                map = objectMapper.readValue(jsonData, Map.class);
-            } else
-            {
-                map = ConvertUtil.string2JsonMap(jsonData, URL_PARAMETER_SEPARATOR,
-                                                 SecurityConstants.KEY_VALUE_SEPARATOR);
-            }
-            map.put(NATIVE_REQUEST_BODY_AS_STRING, jsonData);
-            request.setAttribute(REQUEST_PARAMETER_MAP, map);
-            return map;
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-    }
+    public static final String VALIDATE_JSON_PREFIX  = JsonRequestFilter.VALIDATE_JSON_PREFIX;
 
     /**
      * 提取 request 中的 json 数据. 转换为 T 对象
@@ -127,34 +34,24 @@ public class RequestUtil {
                                                             Class<T> clz) {
         try
         {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> map = (Map<String, Object>) request.getAttribute(REQUEST_PARAMETER_MAP);
-
-            if (MapUtils.isNotEmpty(map))
+            byte[] bodies;
+            if (request instanceof JsonRequestFilter.JsonRequest)
             {
-                String requestBody = (String) map.get(NATIVE_REQUEST_BODY_AS_STRING);
-                if (StringUtils.isBlank(requestBody))
-                {
-                    return null;
-                }
-
-                return json2Object(objectMapper, (Class<T>) clz, requestBody);
-
+                JsonRequestFilter.JsonRequest jsonRequest = (JsonRequestFilter.JsonRequest) request;
+                bodies = jsonRequest.getBody();
             }
-            // 获取 表单 字节数据
-            byte[] bytes = request.getInputStream().readAllBytes();
-            if (bytes.length == 0)
+            else
+            {
+                bodies = request.getInputStream().readAllBytes();
+            }
+
+            String requestBody = new String(bodies, StandardCharsets.UTF_8);
+            if (StringUtils.isBlank(requestBody))
             {
                 return null;
             }
 
-            String jsonData = new String(bytes, StandardCharsets.UTF_8);
-            if (StringUtils.isBlank(jsonData))
-            {
-                return null;
-            }
-            // 转换为 map 类型, 并放入 request 域方便下次调用
-            return json2Object(objectMapper, clz, jsonData);
+            return json2Object(objectMapper, clz, requestBody);
         }
         catch (Exception e)
         {

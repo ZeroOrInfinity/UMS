@@ -16,12 +16,12 @@
     <description>spring-security scaffolding-session 模块</description>
 
     <dependencies>
-
+        <!-- SpringSession -->
         <dependency>
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-core</artifactId>
         </dependency>
-        <!--SpringSessionRedis依赖-->
+        <!-- SpringSession Redis依赖 -->
         <dependency>
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-data-redis</artifactId>

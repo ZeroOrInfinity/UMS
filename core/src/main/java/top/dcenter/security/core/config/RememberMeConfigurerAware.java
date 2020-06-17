@@ -45,7 +45,7 @@ public class RememberMeConfigurerAware implements WebSecurityConfigurerAware, In
 
     @Override
     public void postConfigure(HttpSecurity http) throws Exception {
-        // do nothing
+        // dto nothing
     }
 
     @Override
@@ -53,7 +53,7 @@ public class RememberMeConfigurerAware implements WebSecurityConfigurerAware, In
 
         // 开启 rememberMe 功能
         http.rememberMe()
-                .rememberMeParameter(clientProperties.getRememberMe().getRememberMeCookieName())
+                .rememberMeParameter(clientProperties.getRememberMe().getRememberMeParameter())
                 .rememberMeCookieName(clientProperties.getRememberMe().getRememberMeCookieName())
                 .tokenRepository(persistentTokenRepository)
                 .tokenValiditySeconds(Integer.parseInt(String.valueOf(clientProperties.getRememberMe().getRememberMeTimeout().getSeconds())))
@@ -69,10 +69,10 @@ public class RememberMeConfigurerAware implements WebSecurityConfigurerAware, In
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        if (this.persistentTokenRepository != null)
+        if (persistentTokenRepository != null)
         {
             // 如果 JdbcTokenRepositoryImpl 所需的表 persistent_logins 未创建则创建它
-            JdbcTokenRepositoryImpl jdbcTokenRepository = (JdbcTokenRepositoryImpl) this.persistentTokenRepository;
+            JdbcTokenRepositoryImpl jdbcTokenRepository = (JdbcTokenRepositoryImpl) persistentTokenRepository;
             DataSource dataSource = jdbcTokenRepository.getDataSource();
             if (dataSource == null)
             {

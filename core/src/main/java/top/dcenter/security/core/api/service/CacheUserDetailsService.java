@@ -7,7 +7,7 @@ import org.springframework.social.security.SocialUserDetails;
 
 /**
  * 从缓存中查询用户信息, 把用户信息存入缓存, 移除缓存.
- * 只是对 {@link UserCache} 的 copy, 防止 IOC 容器中的其他 UserCache 注入本框架
+ * 只是对 {@link UserCache} 的 copy, 防止 IOC 容器中的其他 UserCache 注入本应用
  * 用法可以参考 demo 模块的 {@link top.dcenter.security.service.LoginSocialUserDetailService}.
  * @see UserCache
  * @author zyw23

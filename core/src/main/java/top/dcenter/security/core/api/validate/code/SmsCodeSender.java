@@ -4,7 +4,7 @@ import top.dcenter.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.security.core.auth.validate.codes.sms.DefaultSmsCodeSender;
 
 /**
- * 发送短信验证码接口，更改短息验证码实现此接口。<br>
+ * 发送短信验证码接口，更改短息验证码实现此接口。<br><br>
  *      注意：自定义实现类注册 ioc 容器，会自动覆盖 {@link DefaultSmsCodeSender}
  * @author zhailiang
  * @medifiedBy  zyw

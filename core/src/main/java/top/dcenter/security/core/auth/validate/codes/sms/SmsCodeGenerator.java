@@ -10,7 +10,7 @@ import top.dcenter.security.core.enums.ValidateCodeType;
 import javax.servlet.ServletRequest;
 
 /**
- * 短信验证码生成器。如要自定义短信验证码生成器，推荐实现此接口 {@link SmsCodeSender} 。注意：实现类注册 ioc 容器 bean 即可<br>
+ * 短信验证码生成器。如要自定义短信验证码生成器，推荐实现此接口 {@link SmsCodeSender} 。注意：实现类注册 ioc 容器 bean 即可<br><br>
  *     当然也可以继承后，再向 IOC 容器注册自己来实现自定义功能。
  * @author zhailiang
  * @medifiedBy  zyw

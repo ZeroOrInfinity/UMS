@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,11 +24,12 @@ import top.dcenter.security.core.api.service.CacheUserDetailsService;
 @Slf4j
 public class RedisCacheUserDetailsService implements CacheUserDetailsService {
 
-    private final PasswordEncoder passwordEncoder;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     private final ObjectMapper objectMapper;
 
-    public RedisCacheUserDetailsService(PasswordEncoder passwordEncoder, ObjectMapper objectMapper) {
-        this.passwordEncoder = passwordEncoder;
+    public RedisCacheUserDetailsService(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
@@ -75,7 +77,7 @@ public class RedisCacheUserDetailsService implements CacheUserDetailsService {
 
     @Override
     public void removeUserFromCache(String username) {
-        // do removeUserFromCache(String username);
+        // dto removeUserFromCache(String username);
         log.info("Demo ======>: 用户名：{}, 从 cache 中移除用户信息成功", username);
     }
 

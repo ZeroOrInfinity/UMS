@@ -27,7 +27,8 @@ SecurityCoreConfigurer -> SecurityCoreConfigurer: 安全配置流程开始
 note right SecurityCoreConfigurer: 基本配置:\n SecurityCoreConfigurer: \n\
  social模块 SocialConfiguration\n core模块 SecurityConfiguration\n\
                ValidateCodeBeanConfiguration\n               SecurityRememberMeConfiguration\n\
-               PropertiesConfiguration\n\                SecuritySessionConfiguration\n
+               PropertiesConfiguration\n\                SecuritySessionConfiguration\n\
+               SecurityCsrfConfiguration
 alt afterPropertiesSet
 RememberMeConfigurerAware --> RememberMeConfigurerAware: 1 afterPropertiesSet()
 RememberMeConfigurerAware --> RememberMeConfigurerAware: 1.1 检查数据库是否存在\n persistent_logins\n session表\没有创建\n有就什么都不做
@@ -46,7 +47,8 @@ SocialSecurityConfigurerAware\n\
 SocialAuthenticationSignUpConfigurerAware\n\
 RememberMeConfigurerAware\n\
 SessionConfigurerAware\n\
-ClientConfigurerAware
+ClientConfigurerAware\n\
+CsrfConfigurerAware
 WebSecurityConfigurerAware -> HttpSecurity: 2.1.1 preConfigure(http)
 activate HttpSecurity
 HttpSecurity --> HttpSecurity: 2.1.2 http.apply(config)\n这里对所有的\n config进行配置

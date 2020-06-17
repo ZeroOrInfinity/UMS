@@ -46,9 +46,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UrlPathHelper;
+import top.dcenter.security.social.api.banding.IBandingController;
 import top.dcenter.security.social.banding.BandingConnectSupport;
 import top.dcenter.security.social.properties.SocialProperties;
-import top.dcenter.security.social.api.banding.IBandingController;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -61,15 +61,15 @@ import java.util.Map;
 
 /**
  * 相对于 {@link org.springframework.social.connect.web.ConnectController} 修改了回调地址的逻辑, 删除了 OAuth1 逻辑。把默认为
- * /connect/providerId 回调地址改为 security.social.callbackUrl 的地址。<br>
- * 可以通过实现 {@link ConnectInterceptor} 与 {@link DisconnectInterceptor} 来实现绑定与解绑的时添加个性化功能。<br>
- * 注意拦截器调用时机：<br>
+ * /connect/providerId 回调地址改为 security.social.callbackUrl 的地址。<br><br>
+ * 可以通过实现 {@link ConnectInterceptor} 与 {@link DisconnectInterceptor} 来实现绑定与解绑的时添加个性化功能。<br><br>
+ * 注意拦截器调用时机：<br><br>
  *     绑定时：{@link #connect(String, NativeWebRequest)} 中
- *     {@link ConnectInterceptor#preConnect(ConnectionFactory, MultiValueMap, WebRequest)} 调用位置。<br>
+ *     {@link ConnectInterceptor#preConnect(ConnectionFactory, MultiValueMap, WebRequest)} 调用位置。<br><br>
  *     解绑是：{@link #removeConnection(String, String, NativeWebRequest)} 中
- *     {@link DisconnectInterceptor#postDisconnect(ConnectionFactory, WebRequest)} 的调用位置。 <br>
- * 回调地址的更改：{@link #afterPropertiesSet()}。<br>
- * 自定义绑定与解绑 Controller 时，请实现 {@link IBandingController} 接口，并注入 IOC 容器。<br>
+ *     {@link DisconnectInterceptor#postDisconnect(ConnectionFactory, WebRequest)} 的调用位置。 <br><br>
+ * 回调地址的更改：{@link #afterPropertiesSet()}。<br><br>
+ * 自定义绑定与解绑 Controller 时，请实现 {@link IBandingController} 接口，并注入 IOC 容器。<br><br>
  *
  * Generic UI controller for managing the account-to-service-provider connection flow.
  * <ul>
@@ -87,7 +87,20 @@ import java.util.Map;
 public class BandingConnectController implements InitializingBean, IBandingController {
 	
 	private final static Log logger = LogFactory.getLog(BandingConnectController.class);
-	
+
+	/**
+	 * 绑定后的状态视图后缀
+	 */
+	public static final String BANDING_STATUS_SUFFIX = "status";
+	/**
+	 * 解除绑定后的状态视图后缀
+	 */
+	public static final String UNBIND_SUFFIX = "Connect";
+	/**
+	 * 绑定后的状态视图后缀
+	 */
+	public static final String BIND_SUFFIX = "Connected";
+
 	private final ConnectionFactoryLocator connectionFactoryLocator;
 	
 	private final ConnectionRepository connectionRepository;
@@ -114,17 +127,17 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	@Getter
 	@Setter
 	private String callbackUrl = null;
-	
+
 	/**
 	 * Constructs a BandingConnectController.
 	 * @param connectionFactoryLocator the locator for {@link ConnectionFactory} instances needed to establish connections
 	 * @param socialProperties  socialProperties
 	 * @param connectionRepository the current user's {@link ConnectionRepository} needed to persist connections;
-	 *                             must be a proxy to a request-scoped bean<br>
+	 *                             must be a proxy to a request-scoped bean<br><br>
 	 *                             在创建时通过 spring 自动注入一个代理，在调用 connectionRepository的方法之前，通过
 	 *                             {@link org.springframework.aop.framework.CglibAopProxy}中的
 	 *                             {@link CglibAopProxy.DynamicAdvisedInterceptor#intercept(Object, Method, Object[], MethodProxy)} 方法
-	 *                             注入相应的 request-scoped connectionRepository。<br>
+	 *                             注入相应的 request-scoped connectionRepository。<br><br>
 	 *                             典型用法，比如：ConnectionRepository 声明 @bean 时，
 	 *                             再添加一个 @Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.INTERFACES)
 	 */
@@ -135,6 +148,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 		this.connectionFactoryLocator = connectionFactoryLocator;
 		this.connectionRepository = connectionRepository;
 		this.socialProperties = socialProperties;
+		this.viewPath = socialProperties.getViewPath();
 	}
 
 	/**
@@ -181,16 +195,6 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	 */
 	public void setApplicationUrl(String applicationUrl) {
 		this.applicationUrl = applicationUrl;
-	}
-	
-	/**
-	 * Sets the path to connection status views.
-	 * Prepended to provider-specific views (e.g., "connect/facebookConnected") to create the complete view name.
-	 * Defaults to "connect/".
-	 * @param viewPath The path to connection status views.
-	 */
-	public void setViewPath(String viewPath) {
-		this.viewPath = viewPath;
 	}
 	
 	/**
@@ -275,7 +279,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	@RequestMapping(value="/{providerId}", method=RequestMethod.POST)
 	public RedirectView connect(@PathVariable String providerId, NativeWebRequest request) {
 		ConnectionFactory<?> connectionFactory = connectionFactoryLocator.getConnectionFactory(providerId);
-		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		preConnect(connectionFactory, parameters, request);
 		try {
 			return new RedirectView(connectSupport.buildOAuthUrl(connectionFactory, request, parameters, providerId));
@@ -374,7 +378,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	 * @return the view name of the connection status page
 	 */
 	protected String connectView() {
-		return getViewPath() + "status";
+		return getViewPath() + BANDING_STATUS_SUFFIX;
 	}
 	
 	/**
@@ -385,7 +389,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	 * @return the view name of a page to display when the user isn't connected to the provider
 	 */
 	protected String connectView(String providerId) {
-		return getViewPath() + providerId + "Connect";		
+		return getViewPath() + providerId + UNBIND_SUFFIX;
 	}
 
 	/**
@@ -396,7 +400,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
      * @return the view name of a page to display when the user is connected to the provider
 	 */
 	protected String connectedView(String providerId) {
-		return getViewPath() + providerId + "Connected";		
+		return getViewPath() + providerId + BIND_SUFFIX;
 	}
 
 	/**

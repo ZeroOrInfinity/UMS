@@ -3,21 +3,16 @@ package top.dcenter.security.social.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.servlet.view.RedirectView;
 import top.dcenter.security.core.exception.ParameterErrorException;
 import top.dcenter.security.social.api.callback.RedirectUrlHelper;
-import top.dcenter.security.social.properties.SocialProperties;
-import top.dcenter.security.social.vo.SocialUserInfo;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static top.dcenter.security.core.consts.SecurityConstants.KEY_VALUE_SEPARATOR;
 import static top.dcenter.security.core.consts.RegexConstants.RFC_6819_CHECK_REGEX;
+import static top.dcenter.security.core.consts.SecurityConstants.KEY_VALUE_SEPARATOR;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_CODE;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_IDENTIFIER;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
@@ -37,37 +32,12 @@ import static top.dcenter.security.core.enums.ErrorCodeEnum.TAMPER_WITH_REDIRECT
 public class SocialController {
 
 
-    private final ProviderSignInUtils providerSignInUtils;
     private final RedirectUrlHelper redirectUrlHelper;
-    private final SocialProperties socialProperties;
 
-    public SocialController(ProviderSignInUtils providerSignInUtils, SocialProperties socialProperties, RedirectUrlHelper redirectUrlHelper) {
-        this.providerSignInUtils = providerSignInUtils;
-        this.socialProperties = socialProperties;
+    public SocialController(RedirectUrlHelper redirectUrlHelper) {
         this.redirectUrlHelper = redirectUrlHelper;
     }
 
-    /**
-     * 当前用户的信息
-     * @param request {@link HttpServletRequest}
-     * @return  {@link SocialUserInfo}
-     */
-    @GetMapping("/social/user/info")
-    @ConditionalOnProperty(prefix = "security.social", name = "social-user-info", havingValue = "/social/user/info")
-    public SocialUserInfo getSocialUserInfo(HttpServletRequest request) {
-        Connection<?> connection = providerSignInUtils.getConnectionFromSession(new ServletWebRequest(request));
-        if (connection == null)
-        {
-            return null;
-        }
-
-        SocialUserInfo userInfo = new SocialUserInfo();
-        userInfo.setProviderId(connection.getKey().getProviderId());
-        userInfo.setProviderUserId(connection.getKey().getProviderUserId());
-        userInfo.setUserId(connection.getDisplayName());
-        userInfo.setAvatarUrl(connection.getImageUrl());
-        return userInfo;
-    }
 
     /**
      * 统一回调地址路由入口

@@ -1,5 +1,7 @@
 package top.dcenter.security.social.repository.jdbc;
 
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -18,9 +20,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static top.dcenter.security.social.config.RedisCacheConfig.USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME;
+
 /**
  * {@link JdbcUsersConnectionRepository}  的扩展版本, 各个方法的实现逻辑都一样， 只是抽取了 sql 语句，与 用户表的字段名称到 {@link SocialProperties},
- * 更便于用户自定义。
+ * 更便于用户自定义。<br><br>
  * {@link UsersConnectionRepository} that uses the JDBC API to persist connection data to a relational database.
  * The supporting schema is defined in JdbcUsersConnectionRepository.sql.
  * @author Keith Donald
@@ -29,7 +33,9 @@ import java.util.Set;
  * @version V1.0  Created by 2020/5/13 13:41
  */
 @SuppressWarnings("AlibabaClassNamingShouldBeCamel")
+@CacheConfig(cacheManager = "socialRedisHashCacheManager")
 public class OAuthJdbcUsersConnectionRepository implements UsersConnectionRepository {
+
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -41,14 +47,18 @@ public class OAuthJdbcUsersConnectionRepository implements UsersConnectionReposi
 
     private SocialProperties socialProperties;
 
+    private JdbcConnectionDataRepository jdbcConnectionDataRepository;
+
     public OAuthJdbcUsersConnectionRepository(DataSource dataSource,
                                               ConnectionFactoryLocator connectionFactoryLocator,
                                               TextEncryptor textEncryptor,
+                                              JdbcConnectionDataRepository jdbcConnectionDataRepository,
                                               SocialProperties socialProperties) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.connectionFactoryLocator = connectionFactoryLocator;
         this.textEncryptor = textEncryptor;
         this.socialProperties = socialProperties;
+        this.jdbcConnectionDataRepository = jdbcConnectionDataRepository;
     }
 
     /**
@@ -62,6 +72,8 @@ public class OAuthJdbcUsersConnectionRepository implements UsersConnectionReposi
         this.connectionSignUp = connectionSignUp;
     }
 
+    @Cacheable(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME, key = "#connection.key.providerId + '__' + #connection.key" +
+            ".providerUserId")
     @Override
     public List<String> findUserIdsWithConnection(Connection<?> connection) {
         ConnectionKey key = connection.getKey();
@@ -82,6 +94,7 @@ public class OAuthJdbcUsersConnectionRepository implements UsersConnectionReposi
         return localUserIds;
     }
 
+    @Cacheable(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME, key = "#providerId + '__' + #providerUserIds")
     @Override
     public Set<String> findUserIdsConnectedTo(String providerId, Set<String> providerUserIds) {
         MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -99,12 +112,15 @@ public class OAuthJdbcUsersConnectionRepository implements UsersConnectionReposi
                                                                   });
     }
 
+
     @Override
     public ConnectionRepository createConnectionRepository(String userId) {
         if (userId == null) {
             throw new IllegalArgumentException("userId cannot be null");
         }
+
         return new JdbcConnectionRepository(userId, jdbcTemplate, connectionFactoryLocator, textEncryptor,
-                                                                                         socialProperties);
+                                            socialProperties, jdbcConnectionDataRepository);
     }
+
 }

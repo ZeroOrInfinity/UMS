@@ -4,12 +4,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.security.core.properties.ClientProperties;
-import top.dcenter.security.core.util.RequestUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,9 +17,10 @@ import java.io.IOException;
 import static top.dcenter.security.core.consts.SecurityConstants.HEADER_ACCEPT;
 import static top.dcenter.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
 import static top.dcenter.security.core.util.AuthenticationUtil.authenticationFailureProcessing;
+import static top.dcenter.security.core.util.AuthenticationUtil.getAbstractResponseJsonAuthenticationException;
 
 /**
- * 客户端认证失败处理器.<br>
+ * 客户端认证失败处理器.<br><br>
  *     当发生异常 {@link AbstractResponseJsonAuthenticationException} 时返回 JSON 数据
  * @author zhailiang
  * @medifiedBy  zyw
@@ -51,11 +50,7 @@ public class DemoAuthenticationFailureHandler extends BaseAuthenticationFailureH
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
 
-        AbstractResponseJsonAuthenticationException e = null;
-        if (exception instanceof AbstractResponseJsonAuthenticationException)
-        {
-            e = (AbstractResponseJsonAuthenticationException) exception;
-        }
+        AbstractResponseJsonAuthenticationException e = getAbstractResponseJsonAuthenticationException(exception);
 
         log.info("demo ========> 登录失败: user={}, ip={}, ua={}, sid={}",
                  e == null ? null : e.getUid(),
@@ -63,8 +58,7 @@ public class DemoAuthenticationFailureHandler extends BaseAuthenticationFailureH
                  request.getHeader(HEADER_USER_AGENT),
                  request.getSession(true).getId());
 
-        // 进行必要的清理缓存
-        request.removeAttribute(RequestUtil.REQUEST_PARAMETER_MAP);
+        // 进行必要的缓存清理
 
         // 检测是否接收 json 格式
         String acceptHeader = request.getHeader(HEADER_ACCEPT);
@@ -72,7 +66,6 @@ public class DemoAuthenticationFailureHandler extends BaseAuthenticationFailureH
         if (authenticationFailureProcessing(response, exception, e, acceptHeader, objectMapper, clientProperties))
         {
             // 进行必要的清理缓存
-            SecurityContextHolder.clearContext();
             return;
         }
 

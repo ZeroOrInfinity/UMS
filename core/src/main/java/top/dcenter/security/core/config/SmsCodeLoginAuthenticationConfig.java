@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
@@ -16,6 +17,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.security.core.api.service.AbstractUserDetailsService;
+import top.dcenter.security.core.api.session.SessionEnhanceCheckService;
 import top.dcenter.security.core.auth.mobile.SmsCodeLoginAuthenticationFilter;
 import top.dcenter.security.core.auth.mobile.SmsCodeLoginAuthenticationProvider;
 import top.dcenter.security.core.properties.ClientProperties;
@@ -30,9 +32,10 @@ import java.util.UUID;
  * @author  zyw
  * @version V1.0  Created by 2020/5/7 23:32
  */
+@SuppressWarnings("jol")
 @Configuration
 @ConditionalOnProperty(prefix = "security.mobile.login", name = "sms-code-login-is-open", havingValue = "true")
-@AutoConfigureAfter({SecurityConfiguration.class})
+@AutoConfigureAfter({SecurityConfiguration.class, SecuritySessionConfiguration.class, SessionConfigurerAware.class})
 public class SmsCodeLoginAuthenticationConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
     private final ValidateCodeProperties validateCodeProperties;
@@ -41,6 +44,12 @@ public class SmsCodeLoginAuthenticationConfig extends SecurityConfigurerAdapter<
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private AbstractUserDetailsService userDetailsService;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired(required = false)
+    private SessionRegistry sessionRegistry;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired(required = false)
+    private SessionEnhanceCheckService sessionEnhanceCheckService;
     private String key;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)

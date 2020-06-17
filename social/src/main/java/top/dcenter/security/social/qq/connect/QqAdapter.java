@@ -57,6 +57,6 @@ public class QqAdapter implements ApiAdapter<Qq> {
 
     @Override
     public void updateStatus(Qq api, String message) {
-        // do nothing
+        // dto nothing
     }
 }

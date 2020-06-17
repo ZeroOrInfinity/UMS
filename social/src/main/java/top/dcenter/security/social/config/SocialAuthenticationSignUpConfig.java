@@ -8,12 +8,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.social.connect.web.ProviderSignInUtils;
+import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.security.core.properties.ClientProperties;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
 import top.dcenter.security.social.handler.SocialAuthenticationFailureHandler;
@@ -34,7 +35,7 @@ import java.util.UUID;
 public class SocialAuthenticationSignUpConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
     private final ProviderSignInUtils providerSignInUtils;
-    private final AuthenticationSuccessHandler clientAuthenticationSuccessHandler;
+    private final BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private AbstractSocialUserDetailService userDetailsService;
@@ -45,28 +46,35 @@ public class SocialAuthenticationSignUpConfig extends SecurityConfigurerAdapter<
     private final ObjectMapper objectMapper;
     private final ClientProperties clientProperties;
     private final SocialProperties socialProperties;
+    private final PasswordEncoder passwordEncoder;
 
 
     public SocialAuthenticationSignUpConfig(ProviderSignInUtils providerSignInUtils,
-                                            AuthenticationSuccessHandler clientAuthenticationSuccessHandler,
+                                            BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
                                             ObjectMapper objectMapper,
                                             SocialProperties socialProperties,
-                                            ClientProperties clientProperties) {
+                                            ClientProperties clientProperties,
+                                            PasswordEncoder passwordEncoder) {
         this.providerSignInUtils = providerSignInUtils;
-        this.clientAuthenticationSuccessHandler = clientAuthenticationSuccessHandler;
+        this.baseAuthenticationSuccessHandler = baseAuthenticationSuccessHandler;
         this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.clientProperties = clientProperties;
         this.socialProperties = socialProperties;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void configure(HttpSecurity http) {
 
-        SocialAuthenticationSignUpFilter socialAuthenticationSignUpFilter = new SocialAuthenticationSignUpFilter(this.socialProperties, objectMapper);
+        SocialAuthenticationSignUpFilter socialAuthenticationSignUpFilter = new SocialAuthenticationSignUpFilter(socialProperties);
         socialAuthenticationSignUpFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
-        socialAuthenticationSignUpFilter.setAuthenticationSuccessHandler(clientAuthenticationSuccessHandler);
-        SocialAuthenticationFailureHandler socialAuthenticationFailureHandler = new SocialAuthenticationFailureHandler(this.objectMapper,
-                                                                                                                       this.socialProperties, this.clientProperties);
+
+        baseAuthenticationSuccessHandler.getLoginUrls().add(socialProperties.getSignInUrl());
+        baseAuthenticationSuccessHandler.getLoginUrls().add(socialProperties.getSignUpUrl());
+
+        socialAuthenticationSignUpFilter.setAuthenticationSuccessHandler(baseAuthenticationSuccessHandler);
+        SocialAuthenticationFailureHandler socialAuthenticationFailureHandler = new SocialAuthenticationFailureHandler(objectMapper,
+                                                                                                                       socialProperties, clientProperties);
         socialAuthenticationSignUpFilter.setAuthenticationFailureHandler(socialAuthenticationFailureHandler);
 
         if (persistentTokenRepository != null)
@@ -77,7 +85,7 @@ public class SocialAuthenticationSignUpConfig extends SecurityConfigurerAdapter<
         }
 
         SocialAuthenticationSignUpProvider socialAuthenticationSignUpProvider =
-                new SocialAuthenticationSignUpProvider(userDetailsService, providerSignInUtils);
+                new SocialAuthenticationSignUpProvider(userDetailsService, providerSignInUtils, passwordEncoder);
         http.authenticationProvider(socialAuthenticationSignUpProvider)
             .addFilterAfter(socialAuthenticationSignUpFilter, AbstractPreAuthenticatedProcessingFilter.class);
 

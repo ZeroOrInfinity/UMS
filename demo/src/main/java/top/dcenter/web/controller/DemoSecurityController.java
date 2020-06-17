@@ -31,7 +31,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UN_AUTH
 import static top.dcenter.security.core.util.AuthenticationUtil.redirectProcessingByLoginProcessType;
 
 /**
- * 客户端认证 controller.<br> *
+ * 客户端认证 controller.<br><br> *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 17:43
  * @medifiedBy zyw
@@ -109,7 +109,7 @@ public class DemoSecurityController implements BaseSecurityController {
     @Override
     @GetMapping(DEFAULT_SESSION_INVALID_URL)
     @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
-    @ConditionalOnProperty(prefix = "security.browser", name = "invalid-session-url", havingValue = DEFAULT_SESSION_INVALID_URL)
+    @ConditionalOnProperty(prefix = "security.client", name = "invalid-session-url", havingValue = DEFAULT_SESSION_INVALID_URL)
     public void invalidSessionHandler(HttpServletRequest request, HttpServletResponse response) {
 
         try

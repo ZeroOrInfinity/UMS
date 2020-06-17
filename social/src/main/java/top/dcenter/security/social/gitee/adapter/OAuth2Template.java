@@ -114,7 +114,7 @@ public class OAuth2Template implements OAuth2Operations {
 
 	/**
 	 * Set the request factory on the underlying RestTemplate.
-	 * This can be used to plug in a different HttpClient to do things like configure custom SSL settings.
+	 * This can be used to plug in a different HttpClient to dto things like configure custom SSL settings.
 	 * @param requestFactory the request factory used by the underlying RestTemplate
 	 */
 	public void setRequestFactory(ClientHttpRequestFactory requestFactory) {
@@ -250,7 +250,7 @@ public class OAuth2Template implements OAuth2Operations {
 	 * Posts the request for an access grant to the provider.
 	 * The default implementation uses RestTemplate to request the access token and expects a JSON response to be bound to a Map. The information in the Map will be used to create an {@link AccessGrant}.
 	 * Since the OAuth 2 specification indicates that an access token response should be in JSON format, there's often no need to override this method.
-	 * If all you need to do is capture provider-specific data in the response, you should override createAccessGrant() instead.
+	 * If all you need to dto is capture provider-specific data in the response, you should override createAccessGrant() instead.
 	 * However, in the event of a provider whose access token response is non-JSON, you may need to override this method to request that the response be bound to something other than a Map.
 	 * For example, if the access token response is given as form-encoded, this method should be overridden to call RestTemplate.postForObject() asking for the response to be bound to a MultiValueMap (whose contents can then be used to create an AccessGrant).
 	 * @param accessTokenUrl the URL of the provider's access token endpoint.
@@ -280,7 +280,7 @@ public class OAuth2Template implements OAuth2Operations {
 	
 	protected RestTemplate getRestTemplate() {
 		// Lazily create RestTemplate to make sure all parameters have had a chance to be set.
-		// Can't do this InitializingBean.afterPropertiesSet() because it will often be created directly and not as a bean.
+		// Can't dto this InitializingBean.afterPropertiesSet() because it will often be created directly and not as a bean.
 		if (restTemplate == null) {
 			restTemplate = createRestTemplate();
 		}
