@@ -63,10 +63,11 @@ public class AuthenticationUtil {
                                                           AbstractResponseJsonAuthenticationException e, String acceptHeader,
                                                           ObjectMapper objectMapper, ClientProperties clientProperties) throws IOException {
 
-        // 检测是否接收 json 格式
-        if (StringUtils.isNotBlank(acceptHeader)
-                && (acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE)
-                      || acceptHeader.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE)))
+        boolean isJsonProcessType = LoginProcessType.JSON.equals(clientProperties.getLoginProcessType());
+        boolean isAcceptHeader =
+                StringUtils.isNotBlank(acceptHeader) && (acceptHeader.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE) || acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE));
+        // 判断是否返回 json 类型
+        if (isJsonProcessType || isAcceptHeader)
         {
 
             int status = HttpStatus.UNAUTHORIZED.value();
@@ -84,16 +85,6 @@ public class AuthenticationUtil {
             responseWithJson(response, status, objectMapper.writeValueAsString(result));
             return true;
         }
-
-        // 判断是否返回 json 类型
-        if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
-        {
-            int status = HttpStatus.UNAUTHORIZED.value();
-            responseWithJson(response, status, objectMapper.writeValueAsString(ResponseResult.fail(exception.getMessage(),
-                                                                                                   ErrorCodeEnum.UNAUTHORIZED)));
-            return true;
-        }
-
         return false;
     }
 

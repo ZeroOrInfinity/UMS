@@ -28,7 +28,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
 /**
  * 用户控制器测试
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/1 19:39
  */
 @SpringBootTest

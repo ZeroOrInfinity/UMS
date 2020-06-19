@@ -6,7 +6,7 @@ import top.dcenter.security.core.enums.ErrorCodeEnum;
 /**
  * 用户不存在异常
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/2 15:28
  */
 

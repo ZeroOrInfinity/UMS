@@ -17,7 +17,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
 /**
  * wireMock 模拟服务器
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/3 9:23
  */
 public class MockServer {

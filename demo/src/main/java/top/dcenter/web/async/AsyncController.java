@@ -9,7 +9,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 /**
  * 异步控制器
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/2 22:41
  */
 @RestController

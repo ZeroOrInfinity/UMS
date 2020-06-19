@@ -51,7 +51,7 @@ public class RequestUtil {
                 return null;
             }
 
-            return json2Object(objectMapper, clz, requestBody);
+            return requestBody2Object(objectMapper, clz, requestBody);
         }
         catch (Exception e)
         {
@@ -67,7 +67,11 @@ public class RequestUtil {
      * @return T 返回 clz 的实例
      * @throws com.fasterxml.jackson.core.JsonProcessingException   JsonProcessingException
      */
-    private static <T> T json2Object(ObjectMapper objectMapper, Class<T> clz, String requestBody) throws com.fasterxml.jackson.core.JsonProcessingException {
+    public static <T> T requestBody2Object(ObjectMapper objectMapper, Class<T> clz, String requestBody) throws com.fasterxml.jackson.core.JsonProcessingException {
+        if (StringUtils.isBlank(requestBody))
+        {
+            return null;
+        }
 
         if (StringUtils.startsWith(requestBody, VALIDATE_JSON_PREFIX))
         {

@@ -19,7 +19,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.SESSION_ENHANCE
  * {@code SessionManagementFilter}.<br><br>
  *     继承此类并注入 IOC 容器会替换此类
  * @author Luke Taylor
- * @medifiedBy zyw
+ * @author zyw
  */
 public final class DefaultRedirectInvalidSessionStrategy implements InvalidSessionStrategy {
 	private final Log logger = LogFactory.getLog(getClass());

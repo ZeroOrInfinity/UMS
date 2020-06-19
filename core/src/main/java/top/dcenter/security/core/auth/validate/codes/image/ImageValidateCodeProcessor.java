@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * 图片验证码处理器实现。如要自定义图片验证码处理器，请继承此类并重写 sent 方法且注入IOC容器即可
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/6 14:47
  */
 @Slf4j

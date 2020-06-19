@@ -37,7 +37,7 @@ import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
 /**
  * social 第三方授权登录注册 Provider, 基于 {@link DaoAuthenticationProvider} 功能的扩展
  * @see DaoAuthenticationProvider
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/6/12 22:51
  */
 @Slf4j

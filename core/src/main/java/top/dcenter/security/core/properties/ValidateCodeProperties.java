@@ -16,7 +16,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REQUEST
 /**
  * 验证码属性
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/3 19:52
  */
 @ConfigurationProperties("security.codes")
@@ -37,7 +37,7 @@ public class ValidateCodeProperties {
     /**
      * 图片验证码属性
      * @author zhailiang
-     * @medifiedBy  zyw
+     * @author  zyw
      * @version V1.0  Created by 2020/5/4 16:04
      */
     @Getter
@@ -76,7 +76,7 @@ public class ValidateCodeProperties {
     /**
      * 图片验证码属性
      * @author zhailiang
-     * @medifiedBy  zyw
+     * @author  zyw
      * @version V1.0  Created by 2020/5/4 16:04
      */
     @Getter

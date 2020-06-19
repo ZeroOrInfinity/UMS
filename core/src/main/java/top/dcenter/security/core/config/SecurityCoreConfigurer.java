@@ -43,7 +43,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.SERVLET_CONTEXT
  *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 13:14
- * @medifiedBy zyw
+ * @author zyw
  */
 @SuppressWarnings("jol")
 @Configuration

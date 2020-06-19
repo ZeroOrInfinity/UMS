@@ -62,7 +62,7 @@ public class JdbcConnectionDataRepository {
 
 
 	@Cacheable(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
-			key = "#userId + ':' + #connectionKey.providerId + '__' + #connectionKey.providerUserId")
+			key = "#userId + ':' + #connectionKey.providerId + '__' + #connectionKey.providerUserId", unless = "#result == null")
 	public ConnectionDataDTO getConnection(String userId, ConnectionKey connectionKey) throws EmptyResultDataAccessException {
 		return jdbcTemplate.queryForObject(String.format("%s where %s = ? and %s = ? and %s = ?",
 		                                                 socialProperties.getSelectFromUserConnectionSql(),
@@ -73,7 +73,8 @@ public class JdbcConnectionDataRepository {
 		                                   connectionKey.getProviderUserId());
 	}
 
-	@Cacheable(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME, key = "#userId + '__' + #providerId")
+	@Cacheable(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME, key = "#userId + '__' + #providerId",
+			unless = "#result.size() == null || #result.size() == 0")
 	public List<ConnectionDataDTO> findConnections(String userId, String providerId) {
 		return jdbcTemplate.query(String.format("%s where %s = ? and %s = ? order by %s",
 		                                        socialProperties.getSelectFromUserConnectionSql(),
@@ -83,7 +84,8 @@ public class JdbcConnectionDataRepository {
 		                          connectionDataMapper, userId, providerId);
 	}
 
-	@Cacheable(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME, key = "#userId + '__' + #root.methodName")
+	@Cacheable(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME, key = "#userId + '__' + #root.methodName",
+			unless = "#result.size() == null || #result.size() == 0")
 	public List<ConnectionDataDTO> findAllConnections(String userId) {
 		return jdbcTemplate.query(String.format("%s where %s = ? order by %s, %s",
 		                                        socialProperties.getSelectFromUserConnectionSql(),
@@ -93,7 +95,8 @@ public class JdbcConnectionDataRepository {
 		                          connectionDataMapper, userId);
 	}
 
-	@Cacheable(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME, key = "#userId + '__' + #parameters")
+	@Cacheable(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME, key = "#userId + '__' + #parameters",
+			unless = "#result.size() == null || #result.size() == 0")
 	public List<ConnectionDataDTO>
 	findConnectionsToUsers(MapSqlParameterSource parameters, String providerUsersCriteriaSql, String userId) {
 

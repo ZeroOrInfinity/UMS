@@ -19,7 +19,7 @@ import top.dcenter.security.core.vo.ResponseResult;
 /**
  * controller 异常处理器
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/2 15:35
  */
 @ControllerAdvice

@@ -32,7 +32,7 @@ import static top.dcenter.security.core.util.AuthenticationUtil.responseWithJson
  * 客户端认证成功处理器, 默认简单实现，需自己去实现.<br><br>
  * 继承 {@link BaseAuthenticationSuccessHandler } 后，再向 IOC 容器注册自己来实现自定义功能。
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/4 13:46
  */
 @Slf4j

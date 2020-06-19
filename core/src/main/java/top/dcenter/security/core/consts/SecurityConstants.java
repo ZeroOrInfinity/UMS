@@ -3,7 +3,7 @@ package top.dcenter.security.core.consts;
 /**
  * social 常量
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/6 21:29
  */
 public class SecurityConstants {
@@ -203,6 +203,10 @@ public class SecurityConstants {
      * UUID 分隔符
      */
     public static final String UUID_SEPARATOR = "-";
+    /**
+     * 截取 UUID 前 20 字符, 例如: 317F49264AE14053B52175036E560461 截取前 20 为: 317F49264AE14053B521
+     */
+    public static final int UUID_INTERCEPT_NUMBER = 20;
 
 
 

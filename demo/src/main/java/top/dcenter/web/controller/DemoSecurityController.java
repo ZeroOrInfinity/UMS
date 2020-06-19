@@ -34,7 +34,7 @@ import static top.dcenter.security.core.util.AuthenticationUtil.redirectProcessi
  * 客户端认证 controller.<br><br> *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 17:43
- * @medifiedBy zyw
+ * @author zyw
  */
 @Slf4j
 @RestController

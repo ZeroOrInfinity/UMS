@@ -11,7 +11,7 @@ import javax.validation.ConstraintValidatorContext;
 /**
  * 自定义注解验证器
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/2 14:36
  */
 @Slf4j

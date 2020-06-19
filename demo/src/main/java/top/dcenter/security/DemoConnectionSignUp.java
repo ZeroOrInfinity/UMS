@@ -13,7 +13,7 @@ import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
  * 当实现 ConnectionSignUp 接口且 security.social.autoSignIn=true 则第三方授权登录时自动注册
  * @see ConnectionSignUp
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/12 21:41
  */
 @Component

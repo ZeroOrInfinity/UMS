@@ -22,7 +22,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.POST_METHOD;
  *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/7 15:34
- * @medifiedBy zyw
+ * @author zyw
  */
 @Slf4j
 public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProcessingFilter {

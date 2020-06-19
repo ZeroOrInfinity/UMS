@@ -15,6 +15,7 @@ import java.util.UUID;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static top.dcenter.security.core.consts.SecurityConstants.CALLBACK_URL_KEY_IN_STATE;
 import static top.dcenter.security.core.consts.SecurityConstants.KEY_VALUE_SEPARATOR;
+import static top.dcenter.security.core.consts.SecurityConstants.UUID_INTERCEPT_NUMBER;
 import static top.dcenter.security.core.consts.SecurityConstants.UUID_SEPARATOR;
 
 /**
@@ -52,14 +53,13 @@ public abstract class BaseOAuth2ConnectionFactory<T> extends OAuth2ConnectionFac
      */
     public String generateState(String realAuthCallbackPath) {
 
-        String state = UUID.randomUUID().toString();
+        String state = UUID.randomUUID().toString().replaceAll(UUID_SEPARATOR, "").toUpperCase();
         // 对真实回调地址设置成KV键值对形式
         String router = CALLBACK_URL_KEY_IN_STATE + KEY_VALUE_SEPARATOR + realAuthCallbackPath;
         // 加密
         String routerEncoder = Base64.getEncoder().encodeToString(router.getBytes(UTF_8));
         // 把真实的回调地址放入 state
-        state = state.substring(state.lastIndexOf(UUID_SEPARATOR) + 1) + UUID_SEPARATOR + routerEncoder;
-
+        state = state.substring(0, UUID_INTERCEPT_NUMBER) + routerEncoder;
         return state;
     }
 

@@ -10,7 +10,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.SESSION_KEY_TRA
 /**
  * 验证码类型
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/7 9:35
  */
 public enum   ValidateCodeType {

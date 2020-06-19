@@ -24,7 +24,7 @@ import static top.dcenter.security.core.enums.ErrorCodeEnum.TAMPER_WITH_REDIRECT
 /**
  * social 第三方登录控制器
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/12 11:37
  */
 @RestController

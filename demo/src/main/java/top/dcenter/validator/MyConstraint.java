@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 /**
  * 测试自定义注解
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/2 14:34
  */
 @Retention(RetentionPolicy.RUNTIME)

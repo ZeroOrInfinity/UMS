@@ -4,7 +4,7 @@ import top.dcenter.security.core.enums.ErrorCodeEnum;
 
 /**
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/4 9:40
  */
 public class ValidateCodeException extends AbstractResponseJsonAuthenticationException {

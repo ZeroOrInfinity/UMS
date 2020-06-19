@@ -21,7 +21,7 @@ import static top.dcenter.security.core.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_COD
 /**
  * 验证码 控制器
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/3 23:41
  */
 @RestController

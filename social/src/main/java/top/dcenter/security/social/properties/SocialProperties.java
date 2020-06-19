@@ -16,7 +16,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_SIGN_UP
  *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 19:52
- * @medifiedBy zyw
+ * @author zyw
  */
 @SuppressWarnings("jol")
 @Getter
@@ -30,6 +30,8 @@ public class SocialProperties {
     private final GiteeProperties gitee = new GiteeProperties();
     @NestedConfigurationProperty
     private final WeixinProperties weixin = new WeixinProperties();
+    @NestedConfigurationProperty
+    private final WeiboProperties weibo = new WeiboProperties();
 
     // ================= 第三方登录注册相关功能 =================
 
@@ -517,6 +519,24 @@ public class SocialProperties {
          * 第三方id，用来决定发起第三方登录的url，默认是 weixin。
          */
         private String providerId = "weixin";
+        /**
+         * 回调地址(格式必须是：domain/callbackUrl/providerId)，默认
+         */
+        private String redirectUrl = domain + callbackUrl + "/" + providerId;
+
+    }
+
+    /**
+     * @author zyw
+     */
+    @Getter
+    @Setter
+    public class WeiboProperties extends SocialBaseProperties {
+
+        /**
+         * 第三方id，用来决定发起第三方登录的url，默认是 weibo。
+         */
+        private String providerId = "weibo";
         /**
          * 回调地址(格式必须是：domain/callbackUrl/providerId)，默认
          */

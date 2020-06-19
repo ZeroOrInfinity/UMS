@@ -3,7 +3,7 @@ package top.dcenter.security.core.enums;
 /**
  * 登录后的处理方式：跳转或返回 JSON
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/4 15:29
  */
 public enum LoginProcessType {

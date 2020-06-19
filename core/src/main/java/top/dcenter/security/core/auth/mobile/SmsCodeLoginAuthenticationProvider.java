@@ -9,7 +9,7 @@ import top.dcenter.security.core.api.service.AbstractUserDetailsService;
 /**
  * 短信登录 Provider
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/7 22:51
  */
 public class SmsCodeLoginAuthenticationProvider implements AuthenticationProvider {

@@ -24,7 +24,7 @@ import static top.dcenter.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EM
  *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/6 10:14
- * @medifiedBy zyw
+ * @author zyw
  */
 @Slf4j
 public abstract class AbstractValidateCodeProcessor implements ValidateCodeProcessor {

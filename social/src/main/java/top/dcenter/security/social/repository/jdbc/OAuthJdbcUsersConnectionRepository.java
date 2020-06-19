@@ -73,7 +73,7 @@ public class OAuthJdbcUsersConnectionRepository implements UsersConnectionReposi
     }
 
     @Cacheable(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME, key = "#connection.key.providerId + '__' + #connection.key" +
-            ".providerUserId")
+            ".providerUserId", unless = "#result.size() == null || #result.size() == 0")
     @Override
     public List<String> findUserIdsWithConnection(Connection<?> connection) {
         ConnectionKey key = connection.getKey();
@@ -94,7 +94,8 @@ public class OAuthJdbcUsersConnectionRepository implements UsersConnectionReposi
         return localUserIds;
     }
 
-    @Cacheable(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME, key = "#providerId + '__' + #providerUserIds")
+    @Cacheable(cacheNames = USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME, key = "#providerId + '__' + #providerUserIds",
+            unless = "#result.size() == null || #result.size() == 0")
     @Override
     public Set<String> findUserIdsConnectedTo(String providerId, Set<String> providerUserIds) {
         MapSqlParameterSource parameters = new MapSqlParameterSource();

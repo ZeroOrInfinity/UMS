@@ -13,7 +13,7 @@ import java.util.Date;
 /**
  * 用户信息
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/1 19:51
  */
 @Data

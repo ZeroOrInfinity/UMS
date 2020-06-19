@@ -5,7 +5,7 @@ import top.dcenter.security.core.enums.ErrorCodeEnum;
 /**
  * 验证码参数异常
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/7 13:19
  */
 public class ValidateCodeParamErrorException extends AbstractResponseJsonAuthenticationException {

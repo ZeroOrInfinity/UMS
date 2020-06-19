@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 /**
  * 验证码处理器 Holder
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/7 10:32
  */
 public class ValidateCodeProcessorHolder {

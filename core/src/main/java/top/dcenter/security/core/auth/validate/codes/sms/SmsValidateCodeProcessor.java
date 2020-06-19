@@ -24,7 +24,7 @@ import static top.dcenter.security.core.enums.ErrorCodeEnum.MOBILE_PARAMETER_ERR
 /**
  * 短信验证码处理器。如要自定义短信验证码处理器，请继承此类并重写 sent 方法且注入 IOC 容器即可
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/6 15:09
  */
 @Slf4j

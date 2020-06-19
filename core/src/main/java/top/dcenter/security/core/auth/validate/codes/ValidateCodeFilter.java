@@ -32,7 +32,7 @@ import static top.dcenter.security.core.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_COD
 /**
  * 验证码过滤器
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/4 9:29
  */
 @Slf4j

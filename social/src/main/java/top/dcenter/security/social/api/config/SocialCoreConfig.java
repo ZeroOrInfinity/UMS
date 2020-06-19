@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  *     配置，则请实现 {@link WebSecurityConfigurerAware} 接口
  *
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @createdDate 2020-05-09 11:37
  */
 @SuppressWarnings("JavadocReference")

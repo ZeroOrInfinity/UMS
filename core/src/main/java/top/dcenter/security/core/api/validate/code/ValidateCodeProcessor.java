@@ -8,7 +8,7 @@ import top.dcenter.security.core.auth.validate.codes.ValidateCode;
 /**
  * 验证码处理逻辑接口
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0
  * Created by 2020/5/6 10:00
  */

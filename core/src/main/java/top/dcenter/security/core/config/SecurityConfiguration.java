@@ -23,7 +23,7 @@ import top.dcenter.security.core.properties.ClientProperties;
 /**
  * security 配置
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/3 19:59
  */
 @Configuration

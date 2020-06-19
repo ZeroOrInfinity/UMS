@@ -14,6 +14,9 @@
     <form th:action="@{connect/qq}" method="post">
         <button type="submit" value="">QQ 绑 定</button>
     </form>
+    <form th:action="@{connect/weibo}" method="post">
+        <button type="submit" value="">微博绑定</button>
+    </form>
     <form th:action="@{connect/weixin}" method="post">
         <button type="submit" value="">微信绑定</button>
     </form>
@@ -25,6 +28,10 @@
     <form th:action="@{connect/qq}" method="post">
         <input type="hidden" name="method" value="DELETE">
         <button type="submit" value="">QQ 解 绑</button>
+    </form>
+    <form th:action="@{connect/weibo}" method="post">
+        <input type="hidden" name="method" value="DELETE">
+        <button type="submit" value="">微博解绑</button>
     </form>
     <form th:action="@{connect/weixin}" method="post">
         <input type="hidden" name="method" value="DELETE">

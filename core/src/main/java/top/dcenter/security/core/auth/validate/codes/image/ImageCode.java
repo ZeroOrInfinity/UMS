@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 /**
  * 图片验证码封装
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/3 23:38
  */
 @Getter

@@ -9,7 +9,7 @@ import top.dcenter.security.core.auth.validate.codes.ValidateCode;
 /**
  * 默认短信发送器，无任何实现
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/5 21:36
  */
 @Slf4j

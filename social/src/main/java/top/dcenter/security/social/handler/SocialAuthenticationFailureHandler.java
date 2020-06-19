@@ -23,8 +23,7 @@ import static top.dcenter.security.core.util.AuthenticationUtil.getAbstractRespo
 /**
  * 第三方授权登录错误处理器.<br><br>
  * 当用户注册异常 {@link AbstractResponseJsonAuthenticationException} 时返回 JSON 数据
- * @author zhailiang
- * @medifiedBy  zyw
+ * @author zyw
  * @version V1.0  Created by 2020/5/4 13:46
  */
 @Slf4j
@@ -53,7 +52,7 @@ public class SocialAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
         AbstractResponseJsonAuthenticationException e = getAbstractResponseJsonAuthenticationException(exception);
 
-        log.info("登录失败: user={}, ip={}, ua={}, sid={}",
+        log.info("OAuth2登录失败: user={}, ip={}, ua={}, sid={}",
                  e == null ? null : e.getUid(),
                  request.getRemoteAddr(),
                  request.getHeader(HEADER_USER_AGENT),

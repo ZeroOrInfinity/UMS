@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 队列监听器
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/2 23:28
  */
 @Component

@@ -3,7 +3,7 @@ package top.dcenter.security.core.consts;
 /**
  * 正则表达式常量池
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/6 13:41
  */
 public class RegexConstants {

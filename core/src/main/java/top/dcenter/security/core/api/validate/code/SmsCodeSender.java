@@ -7,7 +7,7 @@ import top.dcenter.security.core.auth.validate.codes.sms.DefaultSmsCodeSender;
  * 发送短信验证码接口，更改短息验证码实现此接口。<br><br>
  *      注意：自定义实现类注册 ioc 容器，会自动覆盖 {@link DefaultSmsCodeSender}
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0
  * Created by 2020/5/5 21:30
  */

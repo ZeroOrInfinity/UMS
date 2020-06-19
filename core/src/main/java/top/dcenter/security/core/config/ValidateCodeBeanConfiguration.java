@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * 验证码功能配置
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/5 0:02
  */
 @Configuration

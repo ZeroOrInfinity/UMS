@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 模拟队列, 未实现多线程安全问题
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/2 23:12
  */
 @Slf4j

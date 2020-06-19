@@ -28,7 +28,7 @@ import top.dcenter.security.core.api.service.AbstractUserDetailsService;
  *         2. 这里默认缓存是 {@link NullUserCache}, 如果要自定义缓存, 请通过 {@link #setUserCache(UserCache)}设置.
  * @author Ben Alex
  * @author Rob Winch
- * @medifiedBy zyw
+ * @author zyw
  * @version V1.0  Created by 2020/5/31 0:51
  */
 public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {

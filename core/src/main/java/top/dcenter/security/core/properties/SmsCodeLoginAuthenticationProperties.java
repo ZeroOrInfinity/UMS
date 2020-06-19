@@ -9,7 +9,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_P
 /**
  * 短信验证码登录属性
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/3 19:51
  */
 @Getter

@@ -23,7 +23,7 @@ import static top.dcenter.security.core.util.AuthenticationUtil.getAbstractRespo
  * 客户端认证失败处理器.<br><br>
  *     当发生异常 {@link AbstractResponseJsonAuthenticationException} 时返回 JSON 数据
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/4 13:46
  */
 @Component
@@ -69,7 +69,6 @@ public class DemoAuthenticationFailureHandler extends BaseAuthenticationFailureH
             return;
         }
 
-        setDefaultFailureUrl(clientProperties.getFailureUrl());
         super.onAuthenticationFailure(request, response, exception);
     }
 }

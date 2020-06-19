@@ -19,7 +19,7 @@ import javax.servlet.ServletRequest;
  *  2. 如果要覆盖已有的验证码逻辑，继承他，再向 IOC 容器注册自己。
  *
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0
  * Created by 2020/5/4 23:14
  */

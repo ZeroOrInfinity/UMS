@@ -8,7 +8,7 @@ import lombok.Setter;
 /**
  * social 用户信息
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/11 13:35
  */
 @Getter

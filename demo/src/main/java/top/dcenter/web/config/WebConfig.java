@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * demo 模块配置
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/2 16:15
  */
 @Configuration

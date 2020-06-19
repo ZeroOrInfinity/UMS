@@ -12,7 +12,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static top.dcenter.security.core.consts.SecurityConstants.CALLBACK_URL_KEY_IN_STATE;
 import static top.dcenter.security.core.consts.SecurityConstants.KEY_VALUE_SEPARATOR;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
-import static top.dcenter.security.core.consts.SecurityConstants.UUID_SEPARATOR;
+import static top.dcenter.security.core.consts.SecurityConstants.UUID_INTERCEPT_NUMBER;
 
 /**
  * 解析 state，返回真实的回调地址，支持通过统一的回调地址路由到多个回调地址的解析助手。<br><br>
@@ -31,7 +31,7 @@ public class RedirectUrlHelper {
      */
     public String decodeRedirectUrl(@NonNull String state) {
         // 解密 state
-        byte[] router = Base64.getDecoder().decode(state.substring(state.indexOf(UUID_SEPARATOR) + 1));
+        byte[] router = Base64.getDecoder().decode(state.substring(UUID_INTERCEPT_NUMBER));
         // 提取 redirectUrl
         Map<String, Object> routerMap = ConvertUtil.string2JsonMap(new String(router, UTF_8),
                                                                    URL_PARAMETER_SEPARATOR,

@@ -11,7 +11,7 @@ import java.util.Arrays;
 /**
  * 切面类型：对方法运行时间的统计
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/2 18:26
  */
 @Aspect

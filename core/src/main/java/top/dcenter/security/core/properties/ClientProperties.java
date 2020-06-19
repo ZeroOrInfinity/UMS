@@ -25,7 +25,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UN_AUTH
 /**
  * security 客户端配置属性
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/3 19:51
  */
 @SuppressWarnings("jol")

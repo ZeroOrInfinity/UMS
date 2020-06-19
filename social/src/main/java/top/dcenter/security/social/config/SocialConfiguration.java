@@ -54,7 +54,7 @@ import static top.dcenter.security.social.controller.BandingConnectController.BA
  *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/8 22:21
- * @medifiedBy zyw
+ * @author zyw
  */
 @Configuration
 @EnableSocial

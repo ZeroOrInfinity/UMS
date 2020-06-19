@@ -22,7 +22,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.POST_METHOD;
 /**
  * 短信登录配置过滤器
  * @author zhailiang
- * @medifiedBy  zyw
+ * @author  zyw
  * @version V1.0  Created by 2020/5/7 15:34
  */
 @Slf4j

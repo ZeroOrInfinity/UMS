@@ -9,7 +9,7 @@ import top.dcenter.security.core.enums.ErrorCodeEnum;
  * 简单的 Vo 对象封装, code = 0 表示处理成功信息，其他表示失败。<br><br>
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 19:39
- * @medifiedBy zyw
+ * @author zyw
  */
 @Getter
 @Setter
