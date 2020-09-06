@@ -61,6 +61,7 @@ public class SocialAuthenticationSignUpFilter extends AbstractAuthenticationProc
         Map<String, Object> parameterMap;
 
         username = username.trim();
+        password = password.trim();
 
         SocialAuthenticationSignUpToken authRequest = new SocialAuthenticationSignUpToken(username,
                                                                                           password,

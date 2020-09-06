@@ -13,9 +13,9 @@ import top.dcenter.security.core.api.service.AbstractUserDetailsService;
  * @version V1.0  Created by 2020/5/16 10:19
  */
 @SuppressWarnings("JavadocReference")
-public abstract class AbstractSocialUserDetailService extends AbstractUserDetailsService implements SocialUserDetailsService {
+public abstract class AbstractSocialUserDetailsService extends AbstractUserDetailsService implements SocialUserDetailsService {
 
-    public AbstractSocialUserDetailService(ApplicationContext applicationContext) {
+    public AbstractSocialUserDetailsService(ApplicationContext applicationContext) {
         super(applicationContext);
     }
 

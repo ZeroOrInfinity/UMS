@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
 
     <name>security-scaffolding-core</name>
-    <description>spring-security scaffolding-core 模块: 验证码、手机登录</description>
+    <description>spring-security scaffolding-core 模块: 用户名密码登录, 手机登录, 验证码模块</description>
 
     <dependencies>
         <dependency>

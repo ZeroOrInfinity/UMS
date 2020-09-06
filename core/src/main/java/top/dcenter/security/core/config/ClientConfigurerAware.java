@@ -3,11 +3,10 @@ package top.dcenter.security.core.config;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.HttpSecurityAware;
 import top.dcenter.security.core.properties.ClientProperties;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,12 +17,24 @@ import java.util.Set;
  */
 @Configuration
 @AutoConfigureAfter(value = {SecurityConfiguration.class})
-public class ClientConfigurerAware implements WebSecurityConfigurerAware {
+public class ClientConfigurerAware implements HttpSecurityAware {
 
     /**
      *  网站图标
      */
     public static final String FAVICON = "/favicon.ico";
+    /**
+     *  js
+     */
+    public static final String JS = "/**/*. js";
+    /**
+     *  css
+     */
+    public static final String CSS = "/**/*.css";
+    /**
+     *  html
+     */
+    public static final String  HTML = "/**/*.html";
 
     private final ClientProperties clientProperties;
 
@@ -43,25 +54,28 @@ public class ClientConfigurerAware implements WebSecurityConfigurerAware {
     }
 
     @Override
-    public Map<String, Set<String>> getAuthorizeRequestMap() {
+    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
 
-        Set<String> permitAllSet = new HashSet<>(16);
+        final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
 
-        permitAllSet.add(FAVICON);
-        permitAllSet.add(clientProperties.getLoginUnAuthenticationUrl());
-        permitAllSet.add(clientProperties.getFailureUrl());
-        permitAllSet.add(clientProperties.getLoginPage());
-        permitAllSet.add(clientProperties.getSuccessUrl());
-        permitAllSet.add(clientProperties.getErrorUrl());
-        permitAllSet.add(clientProperties.getError4Url());
-        permitAllSet.add(clientProperties.getError5Url());
+        permitAllMap.put(FAVICON, null);
+        permitAllMap.put(JS, null);
+        permitAllMap.put(CSS, null);
+        permitAllMap.put(HTML, null);
+        permitAllMap.put(clientProperties.getFailureUrl(), null);
+        permitAllMap.put(clientProperties.getLoginPage(), null);
+        permitAllMap.put(clientProperties.getLoginUnAuthenticationUrl(), null);
+        permitAllMap.put(clientProperties.getSuccessUrl(), null);
+        permitAllMap.put(clientProperties.getErrorUrl(), null);
+        permitAllMap.put(clientProperties.getError4Url(), null);
+        permitAllMap.put(clientProperties.getError5Url(), null);
 
-        permitAllSet.addAll(clientProperties.getPermitUrls());
+        clientProperties.getPermitUrls().forEach(uri -> permitAllMap.put(uri, null));
 
-        Map<String, Set<String>> permitAllMap = new HashMap<>(1);
+        Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
 
-        permitAllMap.put(WebSecurityConfigurerAware.permitAll, permitAllSet);
+        resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
 
-        return permitAllMap;
+        return resultMap;
     }
 }

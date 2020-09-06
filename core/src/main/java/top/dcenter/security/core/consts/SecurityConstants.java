@@ -1,5 +1,7 @@
 package top.dcenter.security.core.consts;
 
+import top.dcenter.security.core.auth.session.filter.SessionEnhanceCheckFilter;
+
 /**
  * social 常量
  * @author zhailiang
@@ -45,7 +47,9 @@ public class SecurityConstants {
     public static final String SESSION_ENHANCE_CHECK_KEY = "SESSION_ENHANCE_CHECK_KEY";
 
     /**
-     * authorizeRequestsMap: 把权限作为 key 与之相对应的 uriSet 作为 value, 分类放入 authorizeRequestsMap, 此 map 存储在 servletContext 时所用的 key
+     * authorizeRequestsMap: 把权限作为 key 与之相对应的 uriSet 作为 value, 分类放入 authorizeRequestsMap, 此 map 存储在 servletContext
+     * 时所用的 key. <br>
+     *     主要用于 {@link SessionEnhanceCheckFilter}
      */
     public static final String SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY = "SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY";
 

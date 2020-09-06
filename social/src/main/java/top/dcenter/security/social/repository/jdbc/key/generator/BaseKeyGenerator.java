@@ -1,6 +1,7 @@
-package top.dcenter.security.social.repository.jdbc;
+package top.dcenter.security.social.repository.jdbc.key.generator;
 
 import org.springframework.cache.interceptor.KeyGenerator;
+import top.dcenter.security.social.repository.jdbc.JdbcConnectionRepository;
 
 import java.lang.reflect.Method;
 

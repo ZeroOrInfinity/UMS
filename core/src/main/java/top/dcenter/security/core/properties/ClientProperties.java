@@ -71,6 +71,40 @@ public class ClientProperties {
     private String successUrl = "/";
 
     /**
+     * 不需要认证的静态资源 urls, 通过以下方式配置: <br><br>
+     * Example Usage:
+     *
+     * <pre>
+     * webSecurityBuilder.ignoring()
+     * // ignore all URLs that start with /resources/ or /static/
+     * 		.antMatchers(&quot;/resources/**&quot;, &quot;/static/**&quot;);
+     * </pre>
+     *
+     * Alternatively this will accomplish the same result:
+     *
+     * <pre>
+     * webSecurityBuilder.ignoring()
+     * // ignore all URLs that start with /resources/ or /static/
+     * 		.antMatchers(&quot;/resources/**&quot;).antMatchers(&quot;/static/**&quot;);
+     * </pre>
+     *
+     * Multiple invocations of ignoring() are also additive, so the following is also
+     * equivalent to the previous two examples:
+     *
+     * <pre>
+     * webSecurityBuilder.ignoring()
+     * // ignore all URLs that start with /resources/
+     * 		.antMatchers(&quot;/resources/**&quot;);
+     * webSecurityBuilder.ignoring()
+     * // ignore all URLs that start with /static/
+     * 		.antMatchers(&quot;/static/**&quot;);
+     * // now both URLs that start with /resources/ and /static/ will be ignored
+     * </pre>
+     * 支持通配符 规则具体看 AntPathMatcher.match(pattern, path)
+     */
+    private String[] ignoringUrls;
+
+    /**
      * 不需要认证的 uri, 默认为 空 Set.<br>
      *     支持通配符 规则具体看 AntPathMatcher.match(pattern, path)
      */

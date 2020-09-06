@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>top.dcenter.security</groupId>
-            <artifactId>scaffolding-social</artifactId>
+            <artifactId>scaffolding-oauth</artifactId>
             <version>${top.dcenter.version}</version>
         </dependency>
         <dependency>

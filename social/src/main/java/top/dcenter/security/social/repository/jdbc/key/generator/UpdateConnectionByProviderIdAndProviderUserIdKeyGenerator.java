@@ -1,4 +1,4 @@
-package top.dcenter.security.social.repository.jdbc;
+package top.dcenter.security.social.repository.jdbc.key.generator;
 
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
@@ -14,7 +14,7 @@ import static top.dcenter.security.social.config.RedisCacheConfig.REDIS_CACHE_KE
  * @version V1.0  Created by 2020/6/14 21:07
  */
 @Component("updateConnectionByProviderIdAndProviderUserIdKeyGenerator")
-public class UpdateConnectionByProviderIdAndProviderUserIdKeyGenerator extends BaseKeyGenerator{
+public class UpdateConnectionByProviderIdAndProviderUserIdKeyGenerator extends BaseKeyGenerator {
 
     @Override
     public Object generate(Object target, Method method, Object... params) {

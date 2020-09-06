@@ -4,7 +4,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
-import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.HttpSecurityAware;
 import top.dcenter.security.core.properties.ClientProperties;
 
 import java.util.Map;
@@ -17,7 +17,7 @@ import java.util.Set;
  */
 @Configuration
 @AutoConfigureAfter(value = {SecurityCsrfConfiguration.class, SecurityConfiguration.class})
-public class CsrfConfigurerAware implements WebSecurityConfigurerAware {
+public class CsrfConfigurerAware implements HttpSecurityAware {
 
     private final ClientProperties clientProperties;
 
@@ -52,7 +52,7 @@ public class CsrfConfigurerAware implements WebSecurityConfigurerAware {
     }
 
     @Override
-    public Map<String, Set<String>> getAuthorizeRequestMap() {
+    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
         return null;
     }
 }

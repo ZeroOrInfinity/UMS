@@ -5,12 +5,11 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
-import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
-import top.dcenter.security.core.properties.ValidateCodeProperties;
+import top.dcenter.security.core.api.config.HttpSecurityAware;
 import top.dcenter.security.core.auth.validate.codes.ValidateCodeFilter;
+import top.dcenter.security.core.properties.ValidateCodeProperties;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,7 +23,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDAT
 @Configuration
 @AutoConfigureAfter({SmsCodeLoginAuthenticationConfig.class, ValidateCodeBeanConfiguration.class})
 @Slf4j
-public class ValidateCodeConfigurerAware implements WebSecurityConfigurerAware {
+public class ValidateCodeConfigurerAware implements HttpSecurityAware {
 
     private final ValidateCodeProperties validateCodeProperties;
     private final ValidateCodeFilter validateCodeFilter;
@@ -47,13 +46,15 @@ public class ValidateCodeConfigurerAware implements WebSecurityConfigurerAware {
     }
 
     @Override
-    public Map<String, Set<String>> getAuthorizeRequestMap() {
-        Set<String> permitAllSet = new HashSet<>();
-        permitAllSet.add(DEFAULT_VALIDATE_CODE_URL_PREFIX + "/*");
-        permitAllSet.addAll(validateCodeProperties.getSms().getAuthUrls());
-        permitAllSet.addAll(validateCodeProperties.getImage().getAuthUrls());
-        Map<String, Set<String>> permitAllMap = new HashMap<>(1);
-        permitAllMap.put(permitAll, permitAllSet);
-        return permitAllMap;
+    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
+        final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
+        permitAllMap.put(DEFAULT_VALIDATE_CODE_URL_PREFIX + "/*", null);
+        validateCodeProperties.getSms().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
+        validateCodeProperties.getImage().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
+        Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
+
+        resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
+
+        return resultMap;
     }
 }

@@ -43,7 +43,7 @@ public class RedisCacheUserDetailsService implements CacheUserDetailsService {
                         true,
                         true,
                         true,
-                        AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
+                        AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER"));
     }
 
 

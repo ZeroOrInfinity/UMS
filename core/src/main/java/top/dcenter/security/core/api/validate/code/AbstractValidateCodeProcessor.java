@@ -148,7 +148,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         String requestParamValidateCodeName = getValidateCodeGenerator(validateCodeType).getRequestParamValidateCodeName();
 
         ValidateCode codeInSession = (ValidateCode) this.sessionStrategy.getAttribute(request, sessionKey);
-        String codeInRequest = request.getParameter(requestParamValidateCodeName);
+        String codeInRequest = request.getParameter(requestParamValidateCodeName).trim();
 
         if (!StringUtils.isNotBlank(codeInRequest))
         {

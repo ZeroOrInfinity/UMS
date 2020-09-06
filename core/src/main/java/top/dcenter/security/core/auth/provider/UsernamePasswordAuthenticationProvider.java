@@ -57,7 +57,7 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
      */
     private volatile String userNotFoundEncodedPassword;
 
-    private UserDetailsService userDetailsService;
+    private AbstractUserDetailsService userDetailsService;
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
@@ -101,7 +101,7 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         prepareTimingAttackProtection();
         try {
-            UserDetails loadedUser = this.getUserDetailsService().loadUserByUsername(username);
+            UserDetails loadedUser = this.getAbstractUserDetailsService().loadUserByUsername(username);
             if (loadedUser == null) {
                 throw new InternalAuthenticationServiceException(
                         "UserDetailsService returned null, which is an interface contract violation");
@@ -168,11 +168,11 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
         return passwordEncoder;
     }
 
-    public void setUserDetailsService(UserDetailsService userDetailsService) {
+    public void setAbstractUserDetailsService(AbstractUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
-    protected UserDetailsService getUserDetailsService() {
+    protected AbstractUserDetailsService getAbstractUserDetailsService() {
         return userDetailsService;
     }
 

@@ -45,7 +45,7 @@ public class RequestUtil {
                 bodies = request.getInputStream().readAllBytes();
             }
 
-            String requestBody = new String(bodies, StandardCharsets.UTF_8);
+            String requestBody = new String(bodies, StandardCharsets.UTF_8).trim();
             if (StringUtils.isBlank(requestBody))
             {
                 return null;

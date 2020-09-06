@@ -8,7 +8,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.security.core.api.session.SessionEnhanceCheckService;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
-import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.HttpSecurityAware;
 import top.dcenter.security.core.exception.SessionEnhanceCheckException;
 
 import javax.servlet.FilterChain;
@@ -33,7 +33,7 @@ import static top.dcenter.security.core.enums.ErrorCodeEnum.SESSION_ENHANCE_CHEC
  * 如果要修改检测逻辑, 实现 {@link SessionEnhanceCheckService}, 注入 IOC 容器即可
  * 依赖 {@link EnhanceConcurrentControlAuthenticationStrategy}. <br><br>
  *     属性 authorizeRequestMap 通过 {@link top.dcenter.security.core.config.SecurityCoreConfigurer} 方法
- *     fillingAuthorizeRequestUris() 注入
+ *     groupingAuthorizeRequestUris() 注入
  * @author zyw
  * @version V1.0  Created by 2020/6/2 10:14
  */
@@ -86,7 +86,7 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
     }
 
     private boolean isPermitUri(String requestURI) {
-        // authorizeRequestMap 通过 SecurityCoreConfigurer.fillingAuthorizeRequestUris(..) 注入 ServletContext,
+        // authorizeRequestMap 通过 SecurityCoreConfigurer.groupingAuthorizeRequestUris(..) 注入 ServletContext,
         // 首次访问时从 ServletContext 赋值
         if (MapUtils.isEmpty(this.authorizeRequestMap))
         {
@@ -97,7 +97,7 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
                                                new HashMap<>(0));
         }
         Set<String> permitSet =
-                Objects.requireNonNullElse(this.authorizeRequestMap.get(WebSecurityConfigurerAware.permitAll), new HashSet<>());
+                Objects.requireNonNullElse(this.authorizeRequestMap.get(HttpSecurityAware.permitAll), new HashSet<>());
         for (String permitUri : permitSet)
         {
             if (this.pathMatcher.match(permitUri, requestURI))

@@ -9,7 +9,7 @@ import org.springframework.social.security.SocialAuthenticationFilter;
 import org.springframework.social.security.SocialAuthenticationServiceRegistry;
 import org.springframework.social.security.SpringSocialConfigurer;
 import org.springframework.social.security.provider.OAuth2AuthenticationService;
-import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.HttpSecurityAware;
 import top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory;
 import top.dcenter.security.social.callback.SocialOAuth2AuthenticationService;
 import top.dcenter.security.social.config.SocialSecurityConfigurerAware;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * </code><br><br>
  *     推荐通过实现 {@link SocialSecurityConfigurerAware} 接口。<br><br>
  *     例如：不需要使用 {@link #postProcess(Object)} 方法配置且通过 {@link WebSecurityConfigurerAdapter#configure(HttpSecurity)}
- *     配置，则请实现 {@link WebSecurityConfigurerAware} 接口
+ *     配置，则请实现 {@link HttpSecurityAware} 接口
  *
  * @author zhailiang
  * @author  zyw

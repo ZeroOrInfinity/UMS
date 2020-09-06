@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.session.SessionManagementFilter;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
-import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.HttpSecurityAware;
 import top.dcenter.security.core.api.session.strategy.DefaultRedirectInvalidSessionStrategy;
 import top.dcenter.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.security.core.auth.session.filter.SessionEnhanceCheckFilter;
@@ -16,7 +16,6 @@ import top.dcenter.security.core.auth.session.strategy.ClientExpiredSessionStrat
 import top.dcenter.security.core.properties.ClientProperties;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,7 +27,7 @@ import java.util.Set;
 @Configuration
 @AutoConfigureAfter(value = {SecuritySessionConfiguration.class, SecurityConfiguration.class})
 @Slf4j
-public class SessionConfigurerAware implements WebSecurityConfigurerAware {
+public class SessionConfigurerAware implements HttpSecurityAware {
 
     private final ClientProperties clientProperties;
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
@@ -89,15 +88,18 @@ public class SessionConfigurerAware implements WebSecurityConfigurerAware {
     }
 
     @Override
-    public Map<String, Set<String>> getAuthorizeRequestMap() {
-        Set<String> permitSet = new HashSet<>();
-        permitSet.add(clientProperties.getSession().getInvalidSessionUrl());
-        permitSet.add(clientProperties.getSession().getInvalidSessionOfConcurrentUrl());
+    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
 
-        Map<String, Set<String>> permitMap = new HashMap<>(16);
-        permitMap.put(permitAll, permitSet);
+        final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
 
-        return permitMap;
+        permitAllMap.put(clientProperties.getSession().getInvalidSessionUrl(), null);
+        permitAllMap.put(clientProperties.getSession().getInvalidSessionOfConcurrentUrl(), null);
+
+        Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
+
+        resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
+
+        return resultMap;
     }
 
 }

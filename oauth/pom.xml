@@ -13,28 +13,27 @@
     <packaging>jar</packaging>
 
     <name>security-scaffolding-oauth</name>
-    <description>spring-security scaffolding-JustAuth 实现的 OAuth 模块：qq、weixin、等十几种第三方授权登录，登录后自动注册或通过自定义注册页面注册，绑定第三方账号功能功能</description>
+    <description>spring-security-oauth 实现通过 OAuth2 认证, token 通过 JWT 方式存储</description>
 
     <dependencies>
         <dependency>
             <groupId>top.dcenter.security</groupId>
-            <artifactId>scaffolding-core</artifactId>
+            <artifactId>scaffolding-social</artifactId>
             <version>${top.dcenter.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.session</groupId>
-            <artifactId>spring-session-core</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-oauth2</artifactId>
         </dependency>
-        <!--SpringSessionRedis依赖-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.security.oauth</groupId>-->
+<!--            <artifactId>spring-security-oauth2</artifactId>-->
+<!--        </dependency>-->
         <dependency>
-            <groupId>org.springframework.session</groupId>
-            <artifactId>spring-session-data-redis</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
         </dependency>
-        <dependency>
-            <groupId>me.zhyd.oauth</groupId>
-            <artifactId>JustAuth</artifactId>
-            <version>${just-auth.version}</version>
-        </dependency>
+
     </dependencies>
 
 </project>

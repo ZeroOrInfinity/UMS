@@ -2,11 +2,23 @@
 <html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
+    <!--    其他非 tyemleaf 模板可以使用预置 csrf 到 meta 中, 方便前端调用-->
+    <!-- csrf -->
+    <!--    <meta name="_csrf" th:content="${_csrf.token}"/>-->
+    <!-- default header name is X-CSRF-TOKEN -->
+    <!--    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>-->
+
+    <!--
+       js获取 CSRF Token
+       var csrfToken = $("meta[name='_csrf']").attr("content");
+       var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+    -->
+
     <title>signUp</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@1.11.1/dist/jquery.min.js"></script>
 </head>
-<body>
-<h2>Demo注册页, 请替换本页，/authentication/social 用户不需要自己处理，只需要实现 AbstractSocialUserDetailService 就行，可参考
+<body>s
+<h2>Demo注册页, 请替换本页，/authentication/social 用户不需要自己处理，只需要实现 AbstractSocialUserDetailsService 就行，可参考
     security-demo 的 LoginSocialUserDetailService</h2>
 <h3>替换本页，请配置 security.social.signUpUrl 属性来设置自己的注册页面</h3>
 <h2>通过 ajax 请求 /social/user 可以获取第三方登录的用户信息：用户昵称，用户头像，第三方的 ProviderId，ProviderUserId</h2>
@@ -15,7 +27,7 @@
 <form id="social-form" th:action="@{/authentication/social}" method="post">
     <table>
         <tr>
-            <td>信    息：</td>
+            <td>信 息：</td>
             <td><input id="providerId" type="text" name="providerId" th:value="${userInfo?.providerId}"
                        readonly/></td>
         </tr>
@@ -28,13 +40,15 @@
             <td>用户头像:</td>
             <td><img id="avatarUrl" th:src="${userInfo?.avatarUrl}" name="avatarUrl"
                      style="width: 100px; height: 100px"><input id="avatar-input" type="hidden"
-                                                                name="avatarUrl" th:value="${userInfo?.avatarUrl}"/></td>
+                                                                name="avatarUrl" th:value="${userInfo?.avatarUrl}"/>
+            </td>
 
         </tr>
         <tr>
             <td>用 户 名：</td>
-            <td><input id="username" type="text" name="username" th:value="${userInfo?.userId}"/><p style="color: #ff0000"
-                                                                                   id="error-name" >
+            <td><input id="username" type="text" name="username" th:value="${userInfo?.userId}"/>
+                <p style="color: #ff0000"
+                   id="error-name">
                 </p></td>
         </tr>
         <tr>
@@ -67,11 +81,10 @@
 </body>
 <script>
 
-    $.fn.serializeObject = function()
-    {
+    $.fn.serializeObject = function () {
         let o = {};
         let a = this.serializeArray();
-        $.each(a, function() {
+        $.each(a, function () {
             if (o[this.name]) {
                 if (!o[this.name].push) {
                     o[this.name] = [o[this.name]];
@@ -84,10 +97,9 @@
         return o;
     }
 
-    $("#img").click(function(){
-        this.setAttribute('src','/code/image?'+Math.random());
+    $("#img").click(function () {
+        this.setAttribute('src', '/code/image?' + Math.random());
     });
-
 
 
     $("#btn-register").click(function () {
@@ -99,10 +111,10 @@
             data: JSON.stringify($('#social-form').serializeObject()),
             type: "POST",
             dataType: "json",
-            beforeSend: function(request) {
+            beforeSend: function (request) {
                 request.setRequestHeader("JSON", "json");
             },
-            success: function(data) {
+            success: function (data) {
                 $("#error-name").text("")
                 $("#error-code").text("")
                 console.log("==========注册成功============")

@@ -1,4 +1,4 @@
-package top.dcenter.security.social.repository.jdbc;
+package top.dcenter.security.social.repository.jdbc.key.generator;
 
 import org.springframework.stereotype.Component;
 

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +23,7 @@ import top.dcenter.security.core.enums.ErrorCodeEnum;
 import top.dcenter.security.core.exception.RegisterUserFailureException;
 import top.dcenter.security.core.exception.UserNotExistException;
 import top.dcenter.security.core.util.RequestUtil;
-import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
+import top.dcenter.security.social.api.service.AbstractSocialUserDetailsService;
 import top.dcenter.security.social.properties.SocialProperties;
 
 import java.util.List;
@@ -39,8 +40,9 @@ import java.util.List;
  */
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 @Slf4j
-@Component()
-public class LoginSocialUserDetailService extends AbstractSocialUserDetailService {
+@Component
+@EnableWebSecurity
+public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsService {
 
     /**
      * 用户名
@@ -60,7 +62,7 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
 
     private SocialProperties socialProperties;
 
-    public LoginSocialUserDetailService(ApplicationContext applicationContext, JdbcTemplate jdbcTemplate, SocialProperties socialProperties) {
+    public LoginSocialUserDetailsService(ApplicationContext applicationContext, JdbcTemplate jdbcTemplate, SocialProperties socialProperties) {
         super(applicationContext);
         this.jdbcTemplate = jdbcTemplate;
         this.socialProperties = socialProperties;
@@ -84,7 +86,6 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
                 }
             }
 
-
             // 根据用户名获取用户信息
 
             // 获取用户信息逻辑。。。
@@ -105,12 +106,12 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
                                         true,
                                         true,
                                         true,
-                                        AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
+                                        AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER"));
 
                     }
                 }
             }
-            log.info("Demo ======>: 登录用户名：{}, 登录失败", username);
+            log.warn("Demo ======>: 登录用户名：{}, 登录失败", username);
             return null;
         }
         catch (Exception e)
@@ -268,7 +269,6 @@ public class LoginSocialUserDetailService extends AbstractSocialUserDetailServic
             throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_FAILURE, e, userInfo.getUserId());
         }
     }
-
 
     private String getValueOfRequest(ServletWebRequest request, String paramName, ErrorCodeEnum usernameNotEmpty) throws RegisterUserFailureException {
         String result = request.getParameter(paramName);

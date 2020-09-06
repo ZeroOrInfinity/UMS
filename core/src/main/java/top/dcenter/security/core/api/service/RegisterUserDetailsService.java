@@ -30,7 +30,7 @@ public interface RegisterUserDetailsService {
     UserDetails registerUser(ServletWebRequest request) throws RegisterUserFailureException;
 
     /**
-     * OAuth 登录的用户注册
+     * 第三方登录的用户注册
      * @param request   request
      * @return  注册后的 UserDetails 信息
      * @exception RegisterUserFailureException

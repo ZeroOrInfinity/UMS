@@ -14,7 +14,7 @@ import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionSignUp;
 import top.dcenter.security.social.api.banding.ShowConnectViewService;
-import top.dcenter.security.social.api.config.OAuth2ConfigurerAdapter;
+import top.dcenter.security.social.api.config.BaseSocialConfigurerAdapter;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.provider.weibo.connect.WeiboConnectionFactory;
@@ -34,7 +34,7 @@ import static top.dcenter.security.social.controller.BandingConnectController.UN
  */
 @Configuration
 @ConditionalOnProperty(prefix = "security.social.weibo", name = "app-id")
-public class WeiboAutoConfiguration extends OAuth2ConfigurerAdapter implements InitializingBean {
+public class WeiboAutoConfiguration extends BaseSocialConfigurerAdapter implements InitializingBean {
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired

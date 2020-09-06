@@ -21,8 +21,7 @@ import javax.sql.DataSource;
  * @author zyw
  * @version V1.0  Created by 2020/5/19 18:33
  */
-@SuppressWarnings("AlibabaClassNamingShouldBeCamel")
-public class OAuth2ConfigurerAdapter extends SocialConfigurerAdapter {
+public class BaseSocialConfigurerAdapter extends SocialConfigurerAdapter {
 
     private final DataSource dataSource;
     private final ConnectionSignUp connectionSignUp;
@@ -34,11 +33,11 @@ public class OAuth2ConfigurerAdapter extends SocialConfigurerAdapter {
     protected final ObjectMapper objectMapper;
 
 
-    public OAuth2ConfigurerAdapter(SocialProperties socialProperties,
-                               ConnectionSignUp connectionSignUp,
-                               DataSource dataSource,
-                               UsersConnectionRepositoryFactory usersConnectionRepositoryFactory,
-                               TextEncryptor socialTextEncryptor) {
+    public BaseSocialConfigurerAdapter(SocialProperties socialProperties,
+                                       ConnectionSignUp connectionSignUp,
+                                       DataSource dataSource,
+                                       UsersConnectionRepositoryFactory usersConnectionRepositoryFactory,
+                                       TextEncryptor socialTextEncryptor) {
         this.socialProperties = socialProperties;
         this.connectionSignUp = connectionSignUp;
         this.dataSource = dataSource;

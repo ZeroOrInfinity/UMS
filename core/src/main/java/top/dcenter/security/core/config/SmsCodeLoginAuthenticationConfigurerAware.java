@@ -6,11 +6,10 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.HttpSecurityAware;
 import top.dcenter.security.core.properties.SmsCodeLoginAuthenticationProperties;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,7 +22,7 @@ import java.util.Set;
 @ConditionalOnProperty(prefix = "security..mobile.login", name = "sms-code-login-is-open", havingValue = "true")
 @AutoConfigureAfter({SmsCodeLoginAuthenticationConfig.class, ValidateCodeBeanConfiguration.class})
 @Slf4j
-public class SmsCodeLoginAuthenticationConfigurerAware implements WebSecurityConfigurerAware {
+public class SmsCodeLoginAuthenticationConfigurerAware implements HttpSecurityAware {
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
@@ -49,13 +48,16 @@ public class SmsCodeLoginAuthenticationConfigurerAware implements WebSecurityCon
     }
 
     @Override
-    public Map<String, Set<String>> getAuthorizeRequestMap() {
-        Set<String> permitAllSet = new HashSet<>();
-        permitAllSet.add(smsCodeLoginAuthenticationProperties.getLoginProcessingUrlMobile());
+    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
+        final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
 
-        Map<String, Set<String>> permitAllMap = new HashMap<>(1);
-        permitAllMap.put(permitAll, permitAllSet);
-        return permitAllMap;
+        permitAllMap.put(smsCodeLoginAuthenticationProperties.getLoginProcessingUrlMobile(), null);
+
+        Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
+
+        resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
+
+        return resultMap;
     }
 }
 

@@ -14,7 +14,7 @@ import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionSignUp;
 import top.dcenter.security.social.api.banding.ShowConnectViewService;
-import top.dcenter.security.social.api.config.OAuth2ConfigurerAdapter;
+import top.dcenter.security.social.api.config.BaseSocialConfigurerAdapter;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.provider.qq.connect.QqConnectionFactory;
@@ -35,7 +35,7 @@ import static top.dcenter.security.social.controller.BandingConnectController.UN
  */
 @Configuration
 @ConditionalOnProperty(prefix = "security.social.qq", name = "app-id")
-public class QqAutoConfiguration extends OAuth2ConfigurerAdapter implements InitializingBean {
+public class QqAutoConfiguration extends BaseSocialConfigurerAdapter implements InitializingBean {
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired

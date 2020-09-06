@@ -87,7 +87,7 @@ public class JsonRequestFilter extends OncePerRequestFilter {
                     bytes = request.getInputStream().readAllBytes();
                     if (bytes.length != 0)
                     {
-                        String jsonData = new String(bytes, StandardCharsets.UTF_8);
+                        String jsonData = new String(bytes, StandardCharsets.UTF_8).trim();
                         // 转换为 map 类型, 并放入 request 域方便下次调用
                         if (StringUtils.startsWith(jsonData, VALIDATE_JSON_PREFIX))
                         {

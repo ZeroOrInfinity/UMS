@@ -4,25 +4,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.HttpSecurityAware;
 import top.dcenter.security.social.api.config.SocialCoreConfig;
 import top.dcenter.security.social.properties.SocialProperties;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * 把 social 第三方授权登录相关配置添加到 HttpSecurity 中。
- * @see WebSecurityConfigurerAware
+ * @see HttpSecurityAware
  * @author zyw
  * @version V1.0  Created by 2020/5/12 12:02
  */
 @Configuration
 @AutoConfigureAfter({SocialConfiguration.class})
 @Slf4j
-public class SocialSecurityConfigurerAware implements WebSecurityConfigurerAware {
+public class SocialSecurityConfigurerAware implements HttpSecurityAware {
 
     private final SocialProperties socialProperties;
 
@@ -47,13 +46,17 @@ public class SocialSecurityConfigurerAware implements WebSecurityConfigurerAware
     }
 
     @Override
-    public Map<String, Set<String>> getAuthorizeRequestMap() {
-        Set<String> uriSet = new HashSet<>();
-        uriSet.add(socialProperties.getCallbackUrl());
-        uriSet.add(socialProperties.getCallbackUrl() + "/*");
-        uriSet.add(socialProperties.getSocialUserRegisterUrl());
-        Map<String, Set<String>> authorizeRequestMap = new HashMap<>(1);
-        authorizeRequestMap.put(permitAll, uriSet);
-        return authorizeRequestMap;
+    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
+        final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
+
+        permitAllMap.put(socialProperties.getCallbackUrl(), null);
+        permitAllMap.put(socialProperties.getCallbackUrl() + "/*", null);
+        permitAllMap.put(socialProperties.getSocialUserRegisterUrl(), null);
+
+        Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
+
+        resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
+
+        return resultMap;
     }
 }

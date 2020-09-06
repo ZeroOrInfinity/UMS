@@ -32,7 +32,7 @@ import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.util.Assert;
 import top.dcenter.security.core.enums.ErrorCodeEnum;
 import top.dcenter.security.core.exception.RegisterUserFailureException;
-import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
+import top.dcenter.security.social.api.service.AbstractSocialUserDetailsService;
 
 /**
  * social 第三方授权登录注册 Provider, 基于 {@link DaoAuthenticationProvider} 功能的扩展
@@ -60,7 +60,7 @@ public class SocialAuthenticationSignUpProvider implements AuthenticationProvide
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
     private final ProviderSignInUtils providerSignInUtils;
-    private AbstractSocialUserDetailService userDetailsService;
+    private AbstractSocialUserDetailsService userDetailsService;
 
     private PasswordEncoder passwordEncoder;
 
@@ -78,7 +78,7 @@ public class SocialAuthenticationSignUpProvider implements AuthenticationProvide
     private UserDetailsPasswordService userDetailsPasswordService;
 
 
-    public SocialAuthenticationSignUpProvider(AbstractSocialUserDetailService userDetailsService, ProviderSignInUtils providerSignInUtils, PasswordEncoder passwordEncoder) {
+    public SocialAuthenticationSignUpProvider(AbstractSocialUserDetailsService userDetailsService, ProviderSignInUtils providerSignInUtils, PasswordEncoder passwordEncoder) {
         this.userDetailsService = userDetailsService;
         this.providerSignInUtils = providerSignInUtils;
         this.passwordEncoder = passwordEncoder;
@@ -330,7 +330,7 @@ public class SocialAuthenticationSignUpProvider implements AuthenticationProvide
         return passwordEncoder;
     }
 
-    public void setUserDetailsService(AbstractSocialUserDetailService userDetailsService) {
+    public void setUserDetailsService(AbstractSocialUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 

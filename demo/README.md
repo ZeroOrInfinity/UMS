@@ -125,3 +125,20 @@
 ## SSO
 - 
 ## RBAC
+
+# session 存储模式设置
+- session 存储模式设置
+- ```properties
+  # 要导入相应的 spring-session 类的依赖, 默认为 InMemory, 分布式服务器应用把 session 放入 redis 等中间件
+  spring.session.store-type=redis
+  
+- ```xml
+  <!-- SpringSession Redis依赖 -->
+  <dependency>
+      <groupId>org.springframework.session</groupId>
+      <artifactId>spring-session-data-redis</artifactId>
+  </dependency>
+  <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+  </dependency>

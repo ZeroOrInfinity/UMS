@@ -40,10 +40,12 @@ import static top.dcenter.security.social.config.RedisCacheConfig.USER_CONNECTIO
  * {@link org.springframework.social.connect.jdbc.JdbcConnectionRepository}  的扩展版本, 各个方法的实现逻辑都一样， 只是抽取了 sql 语句，与 用户表的字段名称到 {@link SocialProperties},
  *  更便于用户自定义; 增加了 redis 缓存功能.
  * @see org.springframework.social.connect.jdbc.JdbcConnectionRepository
+ * @author Keith Donald
+ * @author zyw
  */
 @SuppressWarnings({"JavadocReference"})
 @CacheConfig(cacheManager = "socialRedisHashCacheManager")
-class JdbcConnectionRepository implements ConnectionRepository {
+public class JdbcConnectionRepository implements ConnectionRepository {
 
 	@Getter
 	private final String userId;

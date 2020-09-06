@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.HttpSecurityAware;
 import top.dcenter.security.core.api.service.AbstractUserDetailsService;
 import top.dcenter.security.core.properties.ClientProperties;
 
@@ -29,7 +29,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.QUERY_TABLE_EXI
 @Configuration
 @AutoConfigureAfter({SecurityRememberMeConfiguration.class})
 @Slf4j
-public class RememberMeConfigurerAware implements WebSecurityConfigurerAware, InitializingBean {
+public class RememberMeConfigurerAware implements HttpSecurityAware, InitializingBean {
 
     private final ClientProperties clientProperties;
     private final PersistentTokenRepository persistentTokenRepository;
@@ -62,7 +62,7 @@ public class RememberMeConfigurerAware implements WebSecurityConfigurerAware, In
     }
 
     @Override
-    public Map<String, Set<String>> getAuthorizeRequestMap() {
+    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
         return null;
     }
 

@@ -17,7 +17,7 @@ import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionSignUp;
 import top.dcenter.security.social.api.banding.ShowConnectViewService;
-import top.dcenter.security.social.api.config.OAuth2ConfigurerAdapter;
+import top.dcenter.security.social.api.config.BaseSocialConfigurerAdapter;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.view.ConnectView;
@@ -38,7 +38,7 @@ import static top.dcenter.security.social.controller.BandingConnectController.UN
  */
 @Configuration
 @ConditionalOnProperty(prefix = "security.social.weixin", name = "app-id")
-public class WeixinAutoConfiguration extends OAuth2ConfigurerAdapter implements InitializingBean {
+public class WeixinAutoConfiguration extends BaseSocialConfigurerAdapter implements InitializingBean {
 
 	@SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
 	@Autowired

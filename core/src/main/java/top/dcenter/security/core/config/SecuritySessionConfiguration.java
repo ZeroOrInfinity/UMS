@@ -90,7 +90,7 @@ public class SecuritySessionConfiguration {
             return sessionRegistryImpl;
         } else
         {
-            // 根据注入的不同 sessionRepository 创建的分布式 session 策略
+            // 根据注入的不同 sessionRepository 创建的 session 集群策略
             return new SpringSessionBackedSessionRegistry<>(sessionRepository);
         }
     }

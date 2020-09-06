@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 简单的实现 Redis cache, 自定义配置 {@link CacheManager}, 向 IOC 容器中注入 beanName=socialRedisHashCacheManager 的实例. <br><br>
+ * 简单的实现 Redis cache 自定义配置 {@link CacheManager}, 向 IOC 容器中注入 beanName=socialRedisHashCacheManager 的实例. <br><br>
  *     此 redis Cache 对 {@link org.springframework.data.redis.cache.RedisCache} 进行了修改, 把缓存的 KV 格式该成了 Hash 格式.
  * @author zyw
  * @createrDate 2020-06-11 22:57

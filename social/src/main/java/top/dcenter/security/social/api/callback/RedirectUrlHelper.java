@@ -31,6 +31,10 @@ public class RedirectUrlHelper {
      */
     public String decodeRedirectUrl(@NonNull String state) {
         // 解密 state
+        if (state.length() <= UUID_INTERCEPT_NUMBER)
+        {
+            return null;
+        }
         byte[] router = Base64.getDecoder().decode(state.substring(UUID_INTERCEPT_NUMBER));
         // 提取 redirectUrl
         Map<String, Object> routerMap = ConvertUtil.string2JsonMap(new String(router, UTF_8),

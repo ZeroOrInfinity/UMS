@@ -8,16 +8,16 @@ import top.dcenter.security.core.exception.AbstractResponseJsonAuthenticationExc
  * @author zyw
  * @version V1.0  Created by 2020/5/21 23:06
  */
-@SuppressWarnings({"unused", "AlibabaClassNamingShouldBeCamel"})
-public class OAuth2SignUpException extends AbstractResponseJsonAuthenticationException {
+@SuppressWarnings("unused")
+public class SocialSignUpException extends AbstractResponseJsonAuthenticationException {
 
     private static final long serialVersionUID = 1078063791016707032L;
 
-    public OAuth2SignUpException(ErrorCodeEnum errorCodeEnum, Throwable t, String userId) {
+    public SocialSignUpException(ErrorCodeEnum errorCodeEnum, Throwable t, String userId) {
         super(errorCodeEnum, t, null, userId);
     }
 
-    public OAuth2SignUpException(ErrorCodeEnum errorCodeEnum, String userId) {
+    public SocialSignUpException(ErrorCodeEnum errorCodeEnum, String userId) {
         super(errorCodeEnum, null, userId);
     }
 }

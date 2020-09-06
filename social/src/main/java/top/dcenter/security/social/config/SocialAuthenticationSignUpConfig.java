@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.social.connect.web.ProviderSignInUtils;
 import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.security.core.properties.ClientProperties;
-import top.dcenter.security.social.api.service.AbstractSocialUserDetailService;
+import top.dcenter.security.social.api.service.AbstractSocialUserDetailsService;
 import top.dcenter.security.social.handler.SocialAuthenticationFailureHandler;
 import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.signup.SocialAuthenticationSignUpFilter;
@@ -38,7 +38,7 @@ public class SocialAuthenticationSignUpConfig extends SecurityConfigurerAdapter<
     private final BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
-    private AbstractSocialUserDetailService userDetailsService;
+    private AbstractSocialUserDetailsService userDetailsService;
     private String key;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)

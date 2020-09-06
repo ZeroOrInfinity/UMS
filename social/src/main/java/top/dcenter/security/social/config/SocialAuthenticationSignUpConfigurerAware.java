@@ -5,11 +5,10 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import top.dcenter.security.core.api.config.WebSecurityConfigurerAware;
+import top.dcenter.security.core.api.config.HttpSecurityAware;
 import top.dcenter.security.social.properties.SocialProperties;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,7 +21,7 @@ import java.util.Set;
 @ConditionalOnProperty(prefix = "security.social", name = "social-sign-in-is-open", havingValue = "true")
 @AutoConfigureAfter({SocialAuthenticationSignUpConfig.class})
 @Slf4j
-public class SocialAuthenticationSignUpConfigurerAware implements WebSecurityConfigurerAware {
+public class SocialAuthenticationSignUpConfigurerAware implements HttpSecurityAware {
 
     private final SocialAuthenticationSignUpConfig socialAuthenticationSignUpConfig;
     private final SocialProperties socialProperties;
@@ -47,15 +46,19 @@ public class SocialAuthenticationSignUpConfigurerAware implements WebSecurityCon
     }
 
     @Override
-    public Map<String, Set<String>> getAuthorizeRequestMap() {
-        Set<String> uriSet = new HashSet<>();
-        uriSet.add(this.socialProperties.getSignUpUrl());
-        uriSet.add(this.socialProperties.getFailureUrl());
-        uriSet.add(this.socialProperties.getSignInUrl());
+    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
+        final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
 
-        Map<String, Set<String>> authorizeRequestMap = new HashMap<>(1);
-        authorizeRequestMap.put(permitAll, uriSet);
-        return authorizeRequestMap;
+        permitAllMap.put(this.socialProperties.getSignUpUrl(), null);
+        permitAllMap.put(this.socialProperties.getFailureUrl(), null);
+        permitAllMap.put(this.socialProperties.getSignInUrl(), null);
+
+        Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
+
+        resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
+
+        return resultMap;
+
     }
 }
 

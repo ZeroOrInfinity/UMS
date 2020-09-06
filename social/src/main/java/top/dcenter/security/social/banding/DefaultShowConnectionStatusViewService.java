@@ -27,9 +27,11 @@ public class DefaultShowConnectionStatusViewService implements ShowConnectionSta
         this.objectMapper = objectMapper;
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+        //noinspection unchecked
         Map<String, List<Connection<?>>> connections = (Map<String, List<Connection<?>>>) model.get("connectionMap");
 
         Map<String, Boolean> result = new HashMap<>(16);
