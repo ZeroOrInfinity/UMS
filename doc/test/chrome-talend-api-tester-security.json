@@ -1,0 +1,196 @@
+{
+  "version": 6,
+  "entities": [
+    {
+      "entity": {
+        "type": "Project",
+        "id": "74dbcd9c-79b0-4558-9ac0-583348423d66",
+        "name": "security"
+      },
+      "children": [
+        {
+          "entity": {
+            "type": "Scenario",
+            "description": "sso",
+            "id": "8e67f413-5325-4c36-9aff-2d4283801458",
+            "name": "授权码模式"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "type": "Text",
+                        "name": "grant_type",
+                        "value": "authorization_code"
+                      },
+                      {
+                        "enabled": true,
+                        "type": "Text",
+                        "name": "code",
+                        "value": "Toow56"
+                      },
+                      {
+                        "enabled": true,
+                        "type": "Text",
+                        "name": "redirect_uri",
+                        "value": "http://www.dcenter.top/auth/callback"
+                      },
+                      {
+                        "enabled": true,
+                        "type": "Text",
+                        "name": "scope",
+                        "value": "all"
+                      }
+                    ]
+                  },
+                  "bodyType": "Form"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "www.dcenter.top",
+                  "path": "/oauth/token"
+                },
+                "description": "",
+                "id": "03a11db7-fc92-46f8-a8d5-4a0f2e401f73",
+                "name": "获取token",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Content-Type",
+                    "value": "application/x-www-form-urlencoded"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "Authorization",
+                    "value": "Basic enl3Onp5d1NlY3JldA=="
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "response_type",
+                        "value": "code"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "client_id",
+                        "value": "zyw"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "client_secret",
+                        "value": "zywSecret"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "state",
+                        "value": "xyz"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "redirect_uri",
+                        "value": "http://www.dcenter.top/auth/callback"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "scope",
+                        "value": "all"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "www.dcenter.top",
+                  "path": "/oauth/authorize"
+                },
+                "id": "6d5c47cb-299e-4844-9fc9-94ed463835f2",
+                "name": "获取 code",
+                "headers": []
+              }
+            }
+          ]
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": []
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "www.dcenter.top",
+              "path": "/user/me"
+            },
+            "description": "",
+            "id": "c7424ec8-41d7-4e6a-8b3e-e6a1c978d3c4",
+            "name": "获取用户信息",
+            "headers": [
+              {
+                "enabled": true,
+                "name": "Authorization",
+                "value": "bearer 95bf52bd-2a7f-46d9-8727-093149d76a4d"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
