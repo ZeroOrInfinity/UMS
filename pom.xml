@@ -5,17 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.dcenter.security</groupId>
-    <artifactId>scaffolding</artifactId>
+    <artifactId>ums</artifactId>
     <version>1.0.0</version>
     <modules>
         <module>core</module>
         <module>social</module>
-        <module>oauth</module>
         <module>demo</module>
     </modules>
     <packaging>pom</packaging>
-    <name>security-scaffolding</name>
-    <description>spring-security scaffolding, 集成: 验证码、手机登录、第三方登录、session、JWT、SSO</description>
+    <name>ums</name>
+    <description>用户管理脚手架(UMS), 集成: 验证码、手机登录、第三方登录（自动注册，绑定与解绑）、基于 RBAC 的 uri
+        访问权限控制功能、通过统一的回调地址入口实现多回调地址的路由功能、签到等功能</description>
 
     <properties>
         <classifier>top.dcenter.DemoApplication</classifier>
@@ -32,7 +32,7 @@
         <spring-cloud.version>Hoxton.SR5</spring-cloud.version>
         <swagger.fox.version>2.9.2</swagger.fox.version>
         <swagger.core.version>1.5.24</swagger.core.version>
-        <security.oauth.version>2.3.8.RELEASE</security.oauth.version>
+        <security.oauth.version>2.5.0.RELEASE</security.oauth.version>
         <wiremock.version>2.26.3</wiremock.version>
         <commons-lang.version>2.6</commons-lang.version>
         <commons-io.version>2.6</commons-io.version>

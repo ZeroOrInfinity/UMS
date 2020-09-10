@@ -7,7 +7,7 @@ import top.dcenter.security.core.util.ValidateCodeUtil;
 import top.dcenter.security.core.auth.validate.codes.ValidateCode;
 
 /**
- * 默认短信发送器，无任何实现
+ * 默认短信发送器，无任何实现, 建议自己自定义 {@link SmsCodeSender} , 并注入 IOC 容器, 会替代此类
  * @author zhailiang
  * @author  zyw
  * @version V1.0  Created by 2020/5/5 21:36

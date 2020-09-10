@@ -15,7 +15,7 @@ import java.util.Map;
 import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
 
 /**
- * 默认的绑定与解绑信息回显,这里是简单实现，返回 Json格式
+ * 默认的绑定状态信息回显,这里是简单实现，返回 Json格式
  * @author zyw
  * @version V1.0  Created by 2020/5/26 13:52
  */

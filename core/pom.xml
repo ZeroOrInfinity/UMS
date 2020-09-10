@@ -3,17 +3,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>scaffolding</artifactId>
+        <artifactId>ums</artifactId>
         <groupId>top.dcenter.security</groupId>
         <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>scaffolding-core</artifactId>
+    <artifactId>ums-core</artifactId>
     <packaging>jar</packaging>
 
-    <name>security-scaffolding-core</name>
-    <description>spring-security scaffolding-core 模块: 用户名密码登录, 手机登录, 验证码模块</description>
+    <name>ums-core</name>
+    <description>UMS-core 模块: 用户名密码登录, 手机登录, 验证码模块,基于 RBAC 的 uri 访问权限控制功能等</description>
 
     <dependencies>
         <dependency>
