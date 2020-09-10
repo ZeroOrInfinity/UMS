@@ -17,7 +17,7 @@ import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.entity.UserInfo;
+import top.dcenter.test.entity.UserInfo;
 import top.dcenter.security.core.api.service.CacheUserDetailsService;
 import top.dcenter.security.core.enums.ErrorCodeEnum;
 import top.dcenter.security.core.exception.RegisterUserFailureException;
@@ -79,7 +79,7 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
             // 从缓存中查询用户信息
             if (this.cacheUserDetailsService != null)
             {
-                SocialUserDetails userDetails = this.cacheUserDetailsService.getSocialUserFromCache(username);
+                UserDetails userDetails = this.cacheUserDetailsService.getUserFromCache(username);
                 if (userDetails != null)
                 {
                     return userDetails;
@@ -157,7 +157,7 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
                                               true,
                                               true,
                                               true,
-                                              AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
+                                              AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER"));
 
                     }
 
@@ -192,7 +192,7 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
                              true,
                              true,
                              true,
-                             AuthorityUtils.commaSeparatedStringToAuthorityList("admin")
+                             AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER")
         );
 
         // 把用户信息存入缓存
@@ -222,7 +222,7 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
                               true,
                               true,
                               true,
-                              AuthorityUtils.commaSeparatedStringToAuthorityList("admin")
+                              AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER")
         );
 
         // 把用户信息存入缓存
@@ -255,7 +255,7 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
                                   true,
                                   true,
                                   true,
-                                  AuthorityUtils.commaSeparatedStringToAuthorityList("admin")
+                                  AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER")
             );
 
             // 把用户信息存入缓存

@@ -3,22 +3,22 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>scaffolding</artifactId>
+        <artifactId>ums</artifactId>
         <groupId>top.dcenter.security</groupId>
         <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>scaffolding-demo</artifactId>
+    <artifactId>ums-demo</artifactId>
     <packaging>jar</packaging>
 
-    <name>security-scaffolding-demo</name>
-    <description>spring-security scaffolding-demo</description>
+    <name>ums-demo</name>
+    <description>ums-demo</description>
 
     <dependencies>
         <dependency>
             <groupId>top.dcenter.security</groupId>
-            <artifactId>scaffolding-oauth</artifactId>
+            <artifactId>ums-social</artifactId>
             <version>${top.dcenter.version}</version>
         </dependency>
         <dependency>

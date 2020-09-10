@@ -2,7 +2,6 @@ package top.dcenter.security.core.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,7 +25,6 @@ import java.util.Set;
  */
 @Configuration
 @AutoConfigureAfter(value = {SecuritySessionConfiguration.class, SecurityConfiguration.class})
-@Slf4j
 public class SessionConfigurerAware implements HttpSecurityAware {
 
     private final ClientProperties clientProperties;

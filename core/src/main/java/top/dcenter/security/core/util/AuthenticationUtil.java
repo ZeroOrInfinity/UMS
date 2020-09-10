@@ -15,6 +15,7 @@ import top.dcenter.security.core.vo.ResponseResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Objects;
 
 import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
@@ -100,7 +101,9 @@ public class AuthenticationUtil {
         response.setStatus(status);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(CHARSET_UTF8);
-        response.getWriter().write(result);
+        PrintWriter writer = response.getWriter();
+        writer.write(result);
+        writer.flush();
     }
 
     /**

@@ -13,8 +13,8 @@
         <moduleSet>
             <useAllReactorProjects>true</useAllReactorProjects>
             <includes>
-                <include>top.dcenter.security:security-core</include>
-                <include>top.dcenter.security:security-social</include>
+                <include>top.dcenter.security:ums-core</include>
+                <include>top.dcenter.security:ums-social</include>
             </includes>
             <binaries>
                 <outputDirectory>lib</outputDirectory>
