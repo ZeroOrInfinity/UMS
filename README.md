@@ -8,8 +8,10 @@
 ![SpringSecurity](https://img.shields.io/badge/SpringSecurity-5.3.5-green.svg)
 ![SpringSocial](https://img.shields.io/badge/SpringSocial-1.1.6-green.svg)
 ![license](https://img.shields.io/badge/license-MIT-yellow.svg)
-## UMS 介绍：
-> 集成: 
+
+用户管理脚手架集成：验证码、手机登录、支持qq,微博,微信,gitee,github第三方登录（自动注册，绑定与解绑）、基于 RBAC 的 uri 访问权限控制功能、通过统一的回调地址入口实现多回调地址的路由功能、签到等功能。通过实现几个 API 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑。
+
+## UMS 特性：
   - 验证码（图片，短信）校验功能。
   - 手机登录功能，登录后自动注册。
   - 第三方登录功能(qq,微博,微信,gitee,github)，登录后自动注册，与用户账号绑定与解绑。
