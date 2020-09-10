@@ -52,11 +52,16 @@ public interface HttpSecurityAware {
 
     /**
      * 因为 authorizeRequests 配置时候要 authorizeRequests().anyRequest().authenticate 放到最后，所以这里临时把 权限与 uri 放入 map
-     * 给主配置器处理<br><br>
+     * 给主配置器处理.<br><br>
+     * return 可以为 null 值
      * @return authorizeRequestMap key 为权限类型({@link #permitAll},{@link #denyAll},
      * {@link #anonymous},{@link #authenticated},{@link #fullyAuthenticated},{@link #rememberMe},{@link #hasRole},{@link #hasAnyRole},
      *      {@link #hasAuthority},{@link #hasAnyAuthority},{@link #hasIpAddress}), value 为
-     *      {@link Map}; Map<String, Set<String>>的 key 为 uri, value 为 role/authority/ip 的 Set 且不为 null.
+     *      {@link Map}(Map<String, Set<String>>的 key 为 uri, value 为 role/authority/ip 的 Set, 当 authorizeRequestMap
+     *      的 key 为 {@link #hasRole},{@link #hasAnyRole}/{@link #hasAuthority}/{@link #hasAnyAuthority}/
+     *      {@link #hasIpAddress}时, set 不为 null, 当 authorizeRequestMap 的 key 为 {@link #permitAll}/{@link #denyAll}/
+     *      {@link #anonymous}/{@link #authenticated}/{@link #fullyAuthenticated}/@link #rememberMe}时, set 可以为
+     *      null).
      */
     Map<String, Map<String, Set<String>>> getAuthorizeRequestMap();
 

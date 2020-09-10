@@ -35,10 +35,12 @@ public class SocialOAuth2AuthenticationService<S> extends OAuth2AuthenticationSe
     @Override
     protected String buildReturnToUrl(HttpServletRequest request) {
         OAuth2ConnectionFactory<S> connectionFactory = getConnectionFactory();
+        Set<String> returnToUrlParameters = getReturnToUrlParameters();
+
         if (connectionFactory instanceof BaseOAuth2ConnectionFactory)
         {
             // 获取自定义逻辑的回调地址
-            String returnToUrl = ((BaseOAuth2ConnectionFactory) connectionFactory).buildReturnToUrl(request, getReturnToUrlParameters());
+            String returnToUrl = ((BaseOAuth2ConnectionFactory) connectionFactory).buildReturnToUrl(request, returnToUrlParameters);
             if (!StringUtils.isEmpty(returnToUrl))
             {
                 // 返回用户自定义实现
@@ -51,7 +53,7 @@ public class SocialOAuth2AuthenticationService<S> extends OAuth2AuthenticationSe
         sb.setLength(sb.lastIndexOf(URL_SEPARATOR));
         // url 添加参数
         sb.append(URL_PARAMETER_IDENTIFIER);
-        for (String name : getReturnToUrlParameters()) {
+        for (String name : returnToUrlParameters) {
             // Assume for simplicity that there is only one value
             String value = request.getParameter(name);
 

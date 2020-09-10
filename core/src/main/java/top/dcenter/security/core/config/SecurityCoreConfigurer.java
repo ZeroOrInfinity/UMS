@@ -12,7 +12,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -56,7 +55,6 @@ import static top.dcenter.security.core.consts.SecurityConstants.SERVLET_CONTEXT
         RememberMeConfigurerAware.class,
         SessionConfigurerAware.class,
         ValidateCodeConfigurerAware.class})
-@EnableGlobalMethodSecurity
 @Slf4j
 public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
 
@@ -90,6 +88,7 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
         this.defaultLogoutSuccessHandler = defaultLogoutSuccessHandler;
         this.passwordEncoder = passwordEncoder;
     }
+
 
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -178,7 +177,6 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
 
         expressionInterceptUrlRegistry
             .anyRequest()
-                // TODO 添加自定义 access(expr); 如:添加一个 RBACService 接口
             .authenticated();
 
         // logout
