@@ -443,28 +443,28 @@ CREATE TABLE `sys_user_role` (
 
 # 时序图
 ## crsf
-![crsf](../doc/SequenceDiagram/crsf.png)
+![crsf](doc/SequenceDiagram/crsf.png)
 ## getValidateCode
-![getValidateCode](../doc/SequenceDiagram/getValidateCode.png)
+![getValidateCode](doc/SequenceDiagram/getValidateCode.png)
 ## ImageValidateCodeLogin
-![ImageValidateCodeLogin](../doc/SequenceDiagram/ImageValidateCodeLogin.png)
+![ImageValidateCodeLogin](doc/SequenceDiagram/ImageValidateCodeLogin.png)
 ## logout
-![logout](../doc/SequenceDiagram/logout.png)
+![logout](doc/SequenceDiagram/logout.png)
 ## OAuth2Banding
-![OAuth2Banding](../doc/SequenceDiagram/OAuth2Banding.png)
+![OAuth2Banding](doc/SequenceDiagram/OAuth2Banding.png)
 ## OAuth2Login
-![OAuth2Login](../doc/SequenceDiagram/OAuth2Login.png)
+![OAuth2Login](doc/SequenceDiagram/OAuth2Login.png)
 ## OAuth2SignUp
-![OAuth2SignUp](../doc/SequenceDiagram/OAuth2SignUp.png)
+![OAuth2SignUp](doc/SequenceDiagram/OAuth2SignUp.png)
 ## rememberMe
-![rememberMe](../doc/SequenceDiagram/rememberMe.png)
+![rememberMe](doc/SequenceDiagram/rememberMe.png)
 ## scurityConfigurer
-![scurityConfigurer](../doc/SequenceDiagram/scurityConfigurer.png)
+![scurityConfigurer](doc/SequenceDiagram/scurityConfigurer.png)
 ## securityRouter
-![securityRouter](../doc/SequenceDiagram/securityRouter.png)
+![securityRouter](doc/SequenceDiagram/securityRouter.png)
 ## session
-![session](../doc/SequenceDiagram/session.png)
+![session](doc/SequenceDiagram/session.png)
 ## SmsCodeLogin
-![SmsCodeLogin](../doc/SequenceDiagram/SmsCodeLogin.png)
+![SmsCodeLogin](doc/SequenceDiagram/SmsCodeLogin.png)
 ## uriAuthorize
-![uriAuthorize](../doc/SequenceDiagram/uriAuthorize.png)
+![uriAuthorize](doc/SequenceDiagram/uriAuthorize.png)
