@@ -99,7 +99,7 @@ public class SocialProperties {
      */
     private String providerUserIdParamName = "providerUserId";
     /**
-     * 第三方登录用户注册时: 用户头像 avatarUrl 字段名称， 默认为 providerUserId
+     * 第三方登录用户注册时: 用户头像 avatarUrl 字段名称， 默认为 avatarUrl
      */
     private String avatarUrlParamName = "avatarUrl";
 
@@ -118,7 +118,7 @@ public class SocialProperties {
     }
     /**
      * 第三方登录回调的域名, 例如：https://localhost 默认为 "http://127.0.0.1"，
-     * redirectUrl 直接由 domain/callbackUrl/(security.social.providerId 中的 providerId 组成：如 qq、wechat)组成
+     * redirectUrl 直接由 domain/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
      */
     private String domain = "http://127.0.0.1";
 

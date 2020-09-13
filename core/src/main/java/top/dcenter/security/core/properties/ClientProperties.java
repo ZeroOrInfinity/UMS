@@ -132,9 +132,9 @@ public class ClientProperties {
      */
     public String logoutUrl = "/logout";
     /**
-     * 设置登出后跳转的 url, 默认为 /login.html
+     * 设置登出后跳转的 url, 默认为 /login
      */
-    public String logoutSuccessUrl = "/login.html";
+    public String logoutSuccessUrl = "/login";
     /**
      * 设置由客户端决定认证成功要跳转的 url 的 request 参数名称, 默认为 redirectTargetUrl
      */
