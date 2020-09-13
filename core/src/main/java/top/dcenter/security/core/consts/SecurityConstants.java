@@ -31,7 +31,7 @@ public class SecurityConstants {
     /**
      * 默认登录页面
      */
-    public static final String DEFAULT_LOGIN_PAGE_URL = "/login.html";
+    public static final String DEFAULT_LOGIN_PAGE_URL = "/login";
     /**
      * session失效默认的跳转地址
      */

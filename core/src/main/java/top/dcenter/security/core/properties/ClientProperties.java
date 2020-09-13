@@ -42,7 +42,7 @@ public class ClientProperties {
     private final CsrfProperties csrf = new CsrfProperties();
 
     /**
-     * 设置登录页，用户没有配置则默认为 /login.html
+     * 设置登录页，用户没有配置则默认为 /login
      */
     private String loginPage = DEFAULT_LOGIN_PAGE_URL;
     /**

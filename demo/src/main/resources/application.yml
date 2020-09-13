@@ -229,6 +229,18 @@ security:
 
     # 从第三方服务商获取的信息
     # 用户设置 appId 时，{providerId}第三方登录自动开启，不同 providerId（如qq） 中的 appId 只有在设置值时才开启，默认都关闭
+    qq:
+      app-id:
+      app-secret:
+    gitee:
+      app-id:
+      app-secret:
+    weixin:
+      app-id:
+      app-secret:
+    weibo:
+      app-id:
+      app-secret:
 
 
 
