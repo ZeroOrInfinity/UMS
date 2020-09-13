@@ -44,7 +44,8 @@ spring:
 
 # social_UserConnection 缓存为 Redis
 redis:
-  is-open: true
+  # 是否开启缓存, 默认 false
+  open: true
   host: 192.168.88.88
   port: 6379
   password:

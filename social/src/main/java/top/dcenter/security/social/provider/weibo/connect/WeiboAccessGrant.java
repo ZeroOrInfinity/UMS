@@ -1,5 +1,6 @@
 package top.dcenter.security.social.provider.weibo.connect;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import org.springframework.social.oauth2.AccessGrant;
 
@@ -27,7 +28,8 @@ public class WeiboAccessGrant extends AccessGrant {
     /**
      * 是否实名认证
      */
-    private Boolean isRealName;
+    @JsonProperty("isRealName")
+    private Boolean realName;
 
     public WeiboAccessGrant() {
         super("");
@@ -38,11 +40,11 @@ public class WeiboAccessGrant extends AccessGrant {
     }
 
     public WeiboAccessGrant(String accessToken, String scope, String refreshToken,
-                            Long expiresIn, Long remindIn, String uid, Boolean isRealName) {
+                            Long expiresIn, Long remindIn, String uid, Boolean realName) {
         super(accessToken, scope, refreshToken, expiresIn);
         this.uid = uid;
         this.remindIn = remindIn;
         this.expiresIn = expiresIn;
-        this.isRealName = isRealName;
+        this.realName = realName;
     }
 }

@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * 客户端 url 认证与授权的路由控制与 session 失效后处理的控制器接口, 实现此接口并注册到 IOC 容器，则会替换
+ * 客户端 url 认证与授权的路由控制实现此接口并注册到 IOC 容器，则会替换
  * {@link ClientSecurityController} 类
  * @author zyw23
  * @version V1.0
@@ -27,19 +27,5 @@ public interface BaseSecurityController {
      * @param response  response
      */
     void requireAuthentication(HttpServletRequest request, HttpServletResponse response);
-
-    /**
-     * session 失效后的处理<br><br>
-     * 必须添加注解：<pre>
-     *      \@RequestMapping(loginUnAuthenticationUrl)
-     *      \@ResponseStatus(code = HttpStatus.UNAUTHORIZED)
-     *      public void invalidSessionHandler(HttpServletRequest request, HttpServletResponse response) {
-     *           ...
-     *      }
-     * </pre>
-     * @param request   request
-     * @param response  response
-     */
-    void invalidSessionHandler(HttpServletRequest request, HttpServletResponse response);
 
 }

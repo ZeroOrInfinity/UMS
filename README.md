@@ -15,7 +15,8 @@
   - 验证码（图片，短信）校验功能。
   - 手机登录功能，登录后自动注册。
   - 第三方登录功能(qq,微博,微信,gitee)，登录后自动注册，与用户账号绑定与解绑。
-  - 统一回调地址路由功能。
+  - 登录路由功能
+  - 统一回调地址路由功能(OAuth2)。
   - 基于 RBAC 的 uri 访问权限控制功能。
   - 简化 session、rememberme 配置。
   - 根据配置的登录模式（JSON 与 REDIRECT）返回 json 或 html 数据。
@@ -197,8 +198,6 @@
         failure-url: /login
         # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
         login-process-type: redirect
-        # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require, 注意: 如果修改此 uri, 需要重新实现修改后的 uri
-        login-un-authentication-url: /authentication/require
         # 设置处理登录表单的 uri，不需要用户实现此 uri，由 Spring security 自动实现， 默认为 /authentication/form
         login-processing-url: /authentication/form
         success-url: /
@@ -214,20 +213,49 @@
         useReferer: true
         # 设置由客户端决定认证成功要跳转的 url 的 request 参数名称, 默认为 redirectTargetUrl
         targetUrlParameter: redirectTargetUrl
-        # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/security/login.html。 默认为空
+        # 是否开启登录路由功能, 根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationUrl 和 authRedirectSuffixCondition
+        open-authentication-redirect: true
+        # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require,
+        # 当 openAuthenticationRedirect = true 时生效. 注意: 如果修改此 uri, 需要重新实现修改后的 uri
+        login-un-authentication-url: /authentication/require
+        # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空. 
+        # 当 openAuthenticationRedirect = true 时生效.
         # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
         # 规则具体看 AntPathMatcher.match(pattern, path)
-        auth-redirect-suffix-condition: {/hello: /login,
-                                         /user/**: /login,
-                                         /order/**: /login,
-                                         /file/**: /login,
-                                         /social/**: /signIn.html}
+        auth-redirect-suffix-condition: 
+          - '/hello=/login'
+          - '/user/**=/login'
+          - '/order/**=/login'
+          - '/file/**=/login'
+          - '/social/**=/signIn.html'
         # 不需要认证的静态资源 urls, 例如: /resources/**, /static/**
         ignoring-urls:
           - /static/**
         # 不需要认证的 uri, 默认为 空 Set.
         permit-urls:
           - /**/*.html
+    ```
+### 登录路由功能 配置
+- 在 core 包中；
+  - 详细配置:
+    ```yaml
+    security:
+      client:
+        # 是否开启登录路由功能, 根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationUrl 和 authRedirectSuffixCondition
+        open-authentication-redirect: true
+        # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require,
+        # 当 openAuthenticationRedirect = true 时生效. 注意: 如果修改此 uri, 需要重新实现修改后的 uri
+        login-un-authentication-url: /authentication/require
+        # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空. 
+        # 当 openAuthenticationRedirect = true 时生效.
+        # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
+        # 规则具体看 AntPathMatcher.match(pattern, path)
+        auth-redirect-suffix-condition: 
+          - '/hello=/login'
+          - '/user/**=/login'
+          - '/order/**=/login'
+          - '/file/**=/login'
+          - '/social/**=/signIn.html'
     ```
 ### session 配置
 - 在 core 包中；
@@ -527,6 +555,38 @@
           app-secret: 
     ```
 
+### 给第三方登录时用的数据库表 social_UserConnection 添加 redis 缓存配置
+- 在 social 模块
+    ```yaml
+    redis:
+      # 是否开启缓存, 默认 false
+      open: true
+      host: 192.168.88.88
+      port: 6379
+      password:
+      # 连接超时的时间
+      timeout: 100000
+      cache:
+        database-index: 1
+        default-expire-time: PT200S
+        entry-ttl: PT180S
+        cache-names:
+          - cacheName
+      lettuce:
+        shutdown-timeout: PT500S
+        pool:
+          max-active: 8
+          max-wait: 100000
+          max-idle: 4
+          min-idle: 1
+    ```
+    ```xml
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+    
+    ```
 
 
 
@@ -615,40 +675,6 @@ CREATE TABLE `sys_user_role` (
 ```
 - 当然以上数据库模型只是参考, 只要能够获取到 Map<role, Map<uri, permission>> 即可.
 
-### 给第三方登录时用的数据库表 social_UserConnection 添加 redis 缓存配置
-
--
-    ```yaml
-    redis:
-      # 默认 redis 缓存是 false，
-      is-open: true
-      host: 192.168.88.88
-      port: 6379
-      password:
-      # 连接超时的时间
-      timeout: 100000
-      cache:
-        database-index: 1
-        default-expire-time: PT200S
-        entry-ttl: PT180S
-        cache-names:
-          - cacheName
-      lettuce:
-        shutdown-timeout: PT500S
-        pool:
-          max-active: 8
-          max-wait: 100000
-          max-idle: 4
-          min-idle: 1
-    ```
--
-    ```xml
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-redis</artifactId>
-    </dependency>
-    
-    ```
 
 ### HttpSecurity 配置问题：UMS 中的 HttpSecurity 配置与应用中的 HttpSecurity 配置冲突问题：
 
