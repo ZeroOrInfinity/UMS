@@ -56,3 +56,4 @@ session/target/
 /temp/application-test.properties
 /temp/application.yml
 
+/demo/src/main/resources/application-dev.yml

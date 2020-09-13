@@ -1,0 +1,72 @@
+security:
+  # 第三方登录配置: social
+  social:
+    # 从第三方服务商获取的信息
+    # 用户设置 appId 时，{providerId}第三方登录自动开启，不同 providerId（如qq） 中的 appId 只有在设置值时才开启，默认都关闭
+    qq:
+      app-id:
+      app-secret:
+    gitee:
+      app-id:
+      app-secret:
+    weixin:
+      app-id:
+      app-secret:
+    weibo:
+      app-id:
+      app-secret:
+
+
+spring:
+  # mysql
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/sso-demo?useSSL=false&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+
+  # redis
+  redis:
+    host: 192.168.88.88
+    port: 6379
+    password:
+    database: 0
+    # redis-pool
+    jedis:
+      pool:
+        max-active: 8
+        max-idle: 8
+        max-wait: PT-1S
+        min-idle: 0
+  # 设置缓存为 Redis
+  cache:
+    type: redis
+
+# social_UserConnection 缓存为 Redis
+redis:
+  is-open: true
+  host: 192.168.88.88
+  port: 6379
+  password:
+  # 连接超时的时间
+  timeout: 10000
+  cache:
+    database-index: 1
+    default-expire-time: PT200S
+    entry-ttl: PT180S
+    cache-names:
+      - cacheName
+  lettuce:
+    shutdown-timeout: PT5S
+    pool:
+      max-active: 8
+      max-wait: 10000
+      max-idle: 4
+      min-idle: 1
+
+
+server:
+  port: 80
+
+swagger:
+  show: false

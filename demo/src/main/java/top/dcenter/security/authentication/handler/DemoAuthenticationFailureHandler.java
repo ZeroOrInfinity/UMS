@@ -52,7 +52,8 @@ public class DemoAuthenticationFailureHandler extends BaseAuthenticationFailureH
 
         AbstractResponseJsonAuthenticationException e = getAbstractResponseJsonAuthenticationException(exception);
 
-        log.info("demo ========> 登录失败: user={}, ip={}, ua={}, sid={}",
+        log.info("demo ========> 登录失败: {}, user={}, ip={}, ua={}, sid={}",
+                 exception.getMessage(),
                  e == null ? null : e.getUid(),
                  request.getRemoteAddr(),
                  request.getHeader(HEADER_USER_AGENT),
