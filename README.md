@@ -591,7 +591,7 @@
 
 
 ## 六、其他注意事项: 
-### 基于 RBAC 的 uri 访问权限控制
+### 1. 基于 RBAC 的 uri 访问权限控制
 - 必须实现 top.dcenter.security.core.api.permission.service.AbstractUriAuthorizeService 类中的方法getRolesAuthorities(),即可实现权限控制.
 - 相比于 RBAC 更加细粒度的权限控制, 如: 对菜单与按钮的权限控制, 权限控制的数据库模型:
 ```sql
@@ -676,7 +676,7 @@ CREATE TABLE `sys_user_role` (
 - 当然以上数据库模型只是参考, 只要能够获取到 Map<role, Map<uri, permission>> 即可.
 
 
-### HttpSecurity 配置问题：UMS 中的 HttpSecurity 配置与应用中的 HttpSecurity 配置冲突问题：
+### 2. HttpSecurity 配置问题：UMS 中的 HttpSecurity 配置与应用中的 HttpSecurity 配置冲突问题：
 
 1. 如果是新建应用添加 HttpSecurity 配置, 通过下面的接口即可:
     - `top.dcenter.security.core.api.config.HttpSecurityAware`
@@ -684,6 +684,7 @@ CREATE TABLE `sys_user_role` (
     - 添加 HttpSecurity 配置, 通过下面的接口即可: `top.dcenter.security.core.api.config.HttpSecurityAware`
     - 已有的 HttpSecurity 配置, 让原有的 HttpSecurity 配置实现此接口进行配置: `top.dcenter.security.core.api.config
     .HttpSecurityAware`
+
 
 
 ## 七、时序图
