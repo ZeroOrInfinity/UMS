@@ -1,13 +1,11 @@
 package top.dcenter.security.core.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.security.core.api.rememberme.repository.BasedRememberMeTokenRepositoryFactory;
-import top.dcenter.security.core.auth.controller.ClientSecurityController;
 import top.dcenter.security.core.auth.rememberme.repository.JdbcTokenRepositoryFactory;
 import top.dcenter.security.core.properties.ClientProperties;
 
@@ -30,11 +28,6 @@ public class SecurityRememberMeConfiguration {
         this.dataSource = dataSource;
     }
 
-    @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.security.core.api.controller.BaseSecurityController")
-    public ClientSecurityController clientSecurityController(ObjectMapper objectMapper) {
-        return new ClientSecurityController(this.clientProperties, objectMapper);
-    }
 
     /**
      * 与 spring Security RememberMe 功能相关,

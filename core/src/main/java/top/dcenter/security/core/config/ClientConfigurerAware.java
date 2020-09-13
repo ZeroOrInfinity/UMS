@@ -26,7 +26,7 @@ public class ClientConfigurerAware implements HttpSecurityAware {
     /**
      *  js
      */
-    public static final String JS = "/**/*. js";
+    public static final String JS = "/**/*.js";
     /**
      *  css
      */

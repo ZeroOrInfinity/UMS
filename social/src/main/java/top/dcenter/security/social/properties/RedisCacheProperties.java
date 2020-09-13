@@ -32,7 +32,7 @@ public class RedisCacheProperties {
     /**
      * Redis cache is open, 默认 false
      */
-    private Boolean isOpen = false;
+    private Boolean open = false;
     /**
      * Redis port, 默认 6379
      */

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,6 +16,7 @@ import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSu
 import top.dcenter.security.core.api.logout.DefaultLogoutSuccessHandler;
 import top.dcenter.security.core.api.service.AbstractUserDetailsService;
 import top.dcenter.security.core.api.service.CacheUserDetailsService;
+import top.dcenter.security.core.auth.controller.ClientSecurityController;
 import top.dcenter.security.core.auth.handler.ClientAuthenticationFailureHandler;
 import top.dcenter.security.core.auth.handler.ClientAuthenticationSuccessHandler;
 import top.dcenter.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
@@ -81,6 +83,14 @@ public class SecurityConfiguration {
     public DefaultLogoutSuccessHandler defaultLogoutSuccessHandler() {
         DefaultLogoutSuccessHandler defaultLogoutSuccessHandler = new DefaultLogoutSuccessHandler(clientProperties, objectMapper, cacheUserDetailsService);
         return defaultLogoutSuccessHandler;
+    }
+
+
+    @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.security.core.api.controller.BaseSecurityController")
+    @ConditionalOnProperty(prefix = "security.client", name = "open-authentication-redirect", havingValue = "true")
+    public ClientSecurityController clientSecurityController() {
+        return new ClientSecurityController(this.clientProperties);
     }
 
 }

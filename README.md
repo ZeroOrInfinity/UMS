@@ -11,25 +11,26 @@
 
 用户管理脚手架集成：验证码、手机登录、支持qq,微博,微信,gitee第三方登录（自动注册，绑定与解绑）、基于 RBAC 的 uri 访问权限控制功能、通过统一的回调地址入口实现多回调地址的路由功能、签到等功能。通过实现几个 API 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑。
 
-## UMS 特性：
+## 一、UMS 特性：
   - 验证码（图片，短信）校验功能。
   - 手机登录功能，登录后自动注册。
   - 第三方登录功能(qq,微博,微信,gitee)，登录后自动注册，与用户账号绑定与解绑。
-  - 统一回调地址路由功能。
+  - 登录路由功能
+  - 统一回调地址路由功能(OAuth2)。
   - 基于 RBAC 的 uri 访问权限控制功能。
   - 简化 session、rememberme 配置。
   - 根据配置的登录模式（JSON 与 REDIRECT）返回 json 或 html 数据。
   - 签到功能（TODO）。
   
-## 打包项目：
+## 二、打包项目：
 -  mvn clean package -Dmaven.test.skip=true -Pdev
 -  mvn clean package -Dmaven.test.skip=true -Pprod
 
-## TODO List:
+## 三、TODO List:
 - 签到功能
 - demo 待完善
 
-## 使用方式：
+## 四、使用方式：
 1. 引入模块依赖：
 2. 通过 application.yml 或 application.properties 配置: 查看下方的 application.properties 或 application.yml 配置
 3. 实现对应功能时需要实现的接口：    
@@ -172,8 +173,8 @@
 
 
 
-## application.properties 或 application.yml 配置:
-### 基本功能
+## 五、application.properties 或 application.yml 配置:
+### 1. 基本功能
 - 在 core 包中；
   - 简单配置:
     ```yaml
@@ -197,8 +198,6 @@
         failure-url: /login
         # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
         login-process-type: redirect
-        # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require, 注意: 如果修改此 uri, 需要重新实现修改后的 uri
-        login-un-authentication-url: /authentication/require
         # 设置处理登录表单的 uri，不需要用户实现此 uri，由 Spring security 自动实现， 默认为 /authentication/form
         login-processing-url: /authentication/form
         success-url: /
@@ -214,14 +213,21 @@
         useReferer: true
         # 设置由客户端决定认证成功要跳转的 url 的 request 参数名称, 默认为 redirectTargetUrl
         targetUrlParameter: redirectTargetUrl
-        # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/security/login.html。 默认为空
+        # 是否开启登录路由功能, 根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationUrl 和 authRedirectSuffixCondition
+        open-authentication-redirect: true
+        # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require,
+        # 当 openAuthenticationRedirect = true 时生效. 注意: 如果修改此 uri, 需要重新实现修改后的 uri
+        login-un-authentication-url: /authentication/require
+        # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空. 
+        # 当 openAuthenticationRedirect = true 时生效.
         # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
         # 规则具体看 AntPathMatcher.match(pattern, path)
-        auth-redirect-suffix-condition: {/hello: /login,
-                                         /user/**: /login,
-                                         /order/**: /login,
-                                         /file/**: /login,
-                                         /social/**: /signIn.html}
+        auth-redirect-suffix-condition: 
+          - '/hello=/login'
+          - '/user/**=/login'
+          - '/order/**=/login'
+          - '/file/**=/login'
+          - '/social/**=/signIn.html'
         # 不需要认证的静态资源 urls, 例如: /resources/**, /static/**
         ignoring-urls:
           - /static/**
@@ -229,7 +235,29 @@
         permit-urls:
           - /**/*.html
     ```
-### session 配置
+### 2. 登录路由功能 配置
+- 在 core 包中；
+  - 详细配置:
+    ```yaml
+    security:
+      client:
+        # 是否开启登录路由功能, 根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationUrl 和 authRedirectSuffixCondition
+        open-authentication-redirect: true
+        # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require,
+        # 当 openAuthenticationRedirect = true 时生效. 注意: 如果修改此 uri, 需要重新实现修改后的 uri
+        login-un-authentication-url: /authentication/require
+        # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空. 
+        # 当 openAuthenticationRedirect = true 时生效.
+        # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
+        # 规则具体看 AntPathMatcher.match(pattern, path)
+        auth-redirect-suffix-condition: 
+          - '/hello=/login'
+          - '/user/**=/login'
+          - '/order/**=/login'
+          - '/file/**=/login'
+          - '/social/**=/signIn.html'
+    ```
+### 3. session 配置
 - 在 core 包中；
   - 简单配置:
     ```yaml
@@ -295,7 +323,7 @@
           <artifactId>spring-boot-starter-data-redis</artifactId>
       </dependency>
     ```
-### remember-me 配置
+### 4. remember-me 配置
 - 在 core 包中；
   - 简单配置: 不对 remember-me 进行任何配置, 会使用默认值.
   - 详细配置:
@@ -310,7 +338,7 @@
           # 当为 true 时 rememberMe 只能用于 https, 默认为 false
           use-secure-cookie: false
     ```
-### csrf 配置
+### 5. csrf 配置
 - 在 core 包中；
   - 简单配置: 不对 csrf 进行任何配置, 默认关闭 csrf 功能.
   - 详细配置:
@@ -332,7 +360,7 @@
           token-repository-type: redis
     ```
 
-### 验证码功能
+### 6. 验证码功能
 - 在 core 包中；
   - 简单配置:
     ```yaml
@@ -381,7 +409,7 @@
           request-param-sms-code-name: smsCode
     ```
   
-### 手机登录
+### 7. 手机登录
 - 在 core 模块
     ```yaml
     security:
@@ -395,7 +423,7 @@
           login-processing-url-mobile: /authentication/mobile
     ```
 
-### 第三方登录 OAuth2
+### 8. 第三方登录 OAuth2
 - 在 social 模块
   - 简单配置:
     ```yaml
@@ -527,10 +555,42 @@
           app-secret: 
     ```
 
+### 9. 给第三方登录时用的数据库表 social_UserConnection 添加 redis 缓存配置
+- 在 social 模块
+    ```yaml
+    redis:
+      # 是否开启缓存, 默认 false
+      open: true
+      host: 192.168.88.88
+      port: 6379
+      password:
+      # 连接超时的时间
+      timeout: 100000
+      cache:
+        database-index: 1
+        default-expire-time: PT200S
+        entry-ttl: PT180S
+        cache-names:
+          - cacheName
+      lettuce:
+        shutdown-timeout: PT500S
+        pool:
+          max-active: 8
+          max-wait: 100000
+          max-idle: 4
+          min-idle: 1
+    ```
+    ```xml
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+    
+    ```
 
 
 
-## 其他注意事项: 
+## 六、其他注意事项: 
 ### 基于 RBAC 的 uri 访问权限控制
 - 必须实现 top.dcenter.security.core.api.permission.service.AbstractUriAuthorizeService 类中的方法getRolesAuthorities(),即可实现权限控制.
 - 相比于 RBAC 更加细粒度的权限控制, 如: 对菜单与按钮的权限控制, 权限控制的数据库模型:
@@ -615,40 +675,6 @@ CREATE TABLE `sys_user_role` (
 ```
 - 当然以上数据库模型只是参考, 只要能够获取到 Map<role, Map<uri, permission>> 即可.
 
-### 给第三方登录时用的数据库表 social_UserConnection 添加 redis 缓存配置
-
--
-    ```yaml
-    redis:
-      # 默认 redis 缓存是 false，
-      is-open: true
-      host: 192.168.88.88
-      port: 6379
-      password:
-      # 连接超时的时间
-      timeout: 100000
-      cache:
-        database-index: 1
-        default-expire-time: PT200S
-        entry-ttl: PT180S
-        cache-names:
-          - cacheName
-      lettuce:
-        shutdown-timeout: PT500S
-        pool:
-          max-active: 8
-          max-wait: 100000
-          max-idle: 4
-          min-idle: 1
-    ```
--
-    ```xml
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-redis</artifactId>
-    </dependency>
-    
-    ```
 
 ### HttpSecurity 配置问题：UMS 中的 HttpSecurity 配置与应用中的 HttpSecurity 配置冲突问题：
 
@@ -660,30 +686,30 @@ CREATE TABLE `sys_user_role` (
     .HttpSecurityAware`
 
 
-## 时序图
-## crsf
+## 七、时序图
+### 1. crsf
 ![crsf](doc/SequenceDiagram/crsf.png)
-## getValidateCode
+### 2. getValidateCode
 ![getValidateCode](doc/SequenceDiagram/getValidateCode.png)
-## ImageValidateCodeLogin
+### 3. ImageValidateCodeLogin
 ![ImageValidateCodeLogin](doc/SequenceDiagram/ImageValidateCodeLogin.png)
-## logout
+### 4. logout
 ![logout](doc/SequenceDiagram/logout.png)
-## OAuth2Banding
+### 5. OAuth2Banding
 ![OAuth2Banding](doc/SequenceDiagram/OAuth2Banding.png)
-## OAuth2Login
+### 6. OAuth2Login
 ![OAuth2Login](doc/SequenceDiagram/OAuth2Login.png)
-## OAuth2SignUp
+### 7. OAuth2SignUp
 ![OAuth2SignUp](doc/SequenceDiagram/OAuth2SignUp.png)
-## rememberMe
+### 8. rememberMe
 ![rememberMe](doc/SequenceDiagram/rememberMe.png)
-## scurityConfigurer
-![scurityConfigurer](doc/SequenceDiagram/scurityConfigurer.png)
-## securityRouter
+### 9. securityConfigurer
+![securityConfigurer](doc/SequenceDiagram/scurityConfigurer.png)
+### 10. securityRouter
 ![securityRouter](doc/SequenceDiagram/securityRouter.png)
-## session
+### 11. session
 ![session](doc/SequenceDiagram/session.png)
-## SmsCodeLogin
+### 12. SmsCodeLogin
 ![SmsCodeLogin](doc/SequenceDiagram/SmsCodeLogin.png)
-## uriAuthorize
+### 13. uriAuthorize
 ![uriAuthorize](doc/SequenceDiagram/uriAuthorize.png)

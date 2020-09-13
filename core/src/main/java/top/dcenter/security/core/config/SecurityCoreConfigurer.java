@@ -138,6 +138,13 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(new JsonRequestFilter(objectMapper), CsrfFilter.class);
 
 
+        // 判断是否开启根据不同的uri跳转到相对应的登录页, 假设开启
+        String loginUnAuthenticationUrl = clientProperties.getLoginUnAuthenticationUrl();
+        if (!clientProperties.getOpenAuthenticationRedirect())
+        {
+            // 没有开启根据不同的uri跳转到相对应的登录页, 直接跳转到登录页
+            loginUnAuthenticationUrl = clientProperties.getLogoutUrl();
+        }
         /* 用户密码登录的 Provider, 只是对 org.springframework.security.auth.dao.DaoAuthenticationProvider 的 copy.
          * 替换 org.springframework.security.auth.dao.DaoAuthenticationProvider 的一个原因是:
          * 当有 IOC 容器中有多个 UserDetailsService 时, org.springframework.security.auth.dao
@@ -148,7 +155,7 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .usernameParameter(clientProperties.usernameParameter)
                 .passwordParameter(clientProperties.passwordParameter)
-                .loginPage(clientProperties.getLoginUnAuthenticationUrl())
+                .loginPage(loginUnAuthenticationUrl)
                 // uri 需要自己实现
                 .failureUrl(clientProperties.getFailureUrl())
                 .defaultSuccessUrl(clientProperties.getSuccessUrl())

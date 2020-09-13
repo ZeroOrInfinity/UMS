@@ -11,9 +11,9 @@ import top.dcenter.security.core.enums.LoginProcessType;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PAGE_URL;
@@ -111,16 +111,21 @@ public class ClientProperties {
     private Set<String>  permitUrls = new HashSet<>();
 
     /**
-     * 当请求需要身份认证时，默认跳转的url
+     * 是否开启登录路由功能, 根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationUrl 和 authRedirectSuffixCondition
+     */
+    private Boolean openAuthenticationRedirect = false;
+    /**
+     * 当请求需要身份认证时，默认跳转的url, 当 openAuthenticationRedirect = true 时生效.
      * 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require. <br><br>
      * 注意: 如果修改此 uri, 需要重新实现修改后的 uri
      */
     private String loginUnAuthenticationUrl = DEFAULT_UN_AUTHENTICATION_URL;
     /**
-     * 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html。 默认为空
+     * 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空.
+     * 当 openAuthenticationRedirect = true 时生效.
      * 支持通配符 规则具体看 AntPathMatcher.match(pattern, path)
      */
-    private Map<String, String> authRedirectSuffixCondition;
+    private List<String> authRedirectSuffixCondition;
 
     /**
      * 设置默认登录后为 返回 JSON
@@ -154,7 +159,7 @@ public class ClientProperties {
 
 
     public ClientProperties() {
-        this.authRedirectSuffixCondition = new HashMap<>();
+        this.authRedirectSuffixCondition = new ArrayList<>();
     }
 
     public String getQueryRememberMeTableExistSql(String databaseName){
