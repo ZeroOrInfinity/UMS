@@ -84,6 +84,9 @@ security:
     # 不需要认证的 uri, 默认为 空 Set.
     permit-urls:
       - /**/*.html
+      - /testSign
+      - /testSignOfLastSevenDays/**
+
     # 设置记住我功能的 session 的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
     remember-me:
       remember-me-timeout: P14D
@@ -124,6 +127,11 @@ security:
       # csrf tokenRepository 的存储类型, 默认为 session. 集群选择 redis, 也可以自己自定义
       token-repository-type: redis
 
+  # 签到功能 设置
+  sign:
+    last-few-days: 10
+    sign-key-prefix: 'u:sign:'
+    charset: UTF-8
   # 验证码配置
   codes:
     # 图片验证码
@@ -251,13 +259,17 @@ spring:
     port: 6379
     password:
     database: 0
-    # redis-pool
-    jedis:
+    # 连接超时的时间
+    timeout: 10000
+    # redis-lettuce-pool
+    lettuce:
+      shutdown-timeout: PT10S
       pool:
         max-active: 8
+        max-wait: PT10S
         max-idle: 8
-        max-wait: PT-1S
-        min-idle: 0
+        min-idle: 1
+
 
 server:
   port: 9090
@@ -284,24 +296,15 @@ security:
 redis:
   # 是否开启缓存, 默认 false
   open: true
-  host: 192.168.88.88
-  port: 6379
-  password:
-  # 连接超时的时间
-  timeout: 10000
+  # 是否使用 spring IOC 容器中的 RedisConnectionFactory， 默认： false
+  # 如果使用 spring IOC 容器中的 RedisConnectionFactory，则要注意 cache.database-index 要与 spring.redis.database 一样。
+  use-ioc-redis-connection-factory: true
   cache:
     database-index: 1
     default-expire-time: PT200S
     entry-ttl: PT180S
     cache-names:
       - cacheName
-  lettuce:
-    shutdown-timeout: PT5S
-    pool:
-      max-active: 8
-      max-wait: 10000
-      max-idle: 4
-      min-idle: 1
 
 swagger:
   show: true

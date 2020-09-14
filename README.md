@@ -20,14 +20,13 @@
   - 基于 RBAC 的 uri 访问权限控制功能。
   - 简化 session、rememberme 配置。
   - 根据配置的登录模式（JSON 与 REDIRECT）返回 json 或 html 数据。
-  - 签到功能（TODO）。
+  - 签到功能。
   
 ## 二、打包项目：
 -  mvn clean package -Dmaven.test.skip=true -Pdev
 -  mvn clean package -Dmaven.test.skip=true -Pprod
 
 ## 三、TODO List:
-- 签到功能
 - demo 待完善
 
 ## 四、使用方式：
@@ -281,6 +280,22 @@
           namespace: spring:session
           # Cron expression for expired session cleanup job
           cleanup-cron: 5 * * * * *
+      # redis
+      redis:
+        host: 192.168.88.88
+        port: 6379
+        password:
+        database: 0
+        # 连接超时的时间
+        timeout: 10000
+        # redis-lettuce-pool
+        lettuce:
+          shutdown-timeout: PT500S
+          pool:
+            max-active: 8
+            max-wait: PT10S
+            max-idle: 8
+            min-idle: 1
     server:
       servlet:
         # tomcat session 设置
@@ -561,24 +576,15 @@
     redis:
       # 是否开启缓存, 默认 false
       open: true
-      host: 192.168.88.88
-      port: 6379
-      password:
-      # 连接超时的时间
-      timeout: 100000
+      # 是否使用 spring IOC 容器中的 RedisConnectionFactory， 默认： false
+      # 如果使用 spring IOC 容器中的 RedisConnectionFactory，则要注意 cache.database-index 要与 spring.redis.database 一样。
+      use-ioc-redis-connection-factory: true
       cache:
         database-index: 1
         default-expire-time: PT200S
         entry-ttl: PT180S
         cache-names:
           - cacheName
-      lettuce:
-        shutdown-timeout: PT500S
-        pool:
-          max-active: 8
-          max-wait: 100000
-          max-idle: 4
-          min-idle: 1
     ```
     ```xml
     <dependency>
@@ -587,6 +593,25 @@
     </dependency>
     
     ```
+### 10. 签到功能
+- 在 core 模块
+  - 详细配置:
+    ```yaml
+    security:
+      # 签到功能 设置
+      sign:
+        last-few-days: 10
+        sign-key-prefix: 'u:sign:'
+        charset: UTF-8
+    ```
+  - 使用说明:
+    ```java
+        // 通过 Autowired 注入 SignService 即可
+        // 详细使用方式可以查看 demo 模块: top.dcenter.security.sign.DemoSignController
+        @Autowired
+        private SignService signService;
+    ```
+    
 
 
 

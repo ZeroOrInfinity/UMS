@@ -21,31 +21,19 @@ import java.util.Set;
 public class RedisCacheProperties {
 
     @NestedConfigurationProperty
-    private Lettuce lettuce = new Lettuce();
-    @NestedConfigurationProperty
     private Cache cache = new Cache();
 
-    /**
-     * Redis host, 默认 127.0.0.1
-     */
-    private String host = "127.0.0.1";
     /**
      * Redis cache is open, 默认 false
      */
     private Boolean open = false;
-    /**
-     * Redis port, 默认 6379
-     */
-    private Integer port = 6379;
-    /**
-     * Redis password, 默认 null
-     */
-    private String password;
 
     /**
-     * 连接超时的时间, 默认: 10000
+     * 是否使用 spring IOC 容器中的 RedisConnectionFactory， 默认： false. <br>
+     * 如果使用 spring IOC 容器中的 RedisConnectionFactory，则要注意 cache.database-index 要与 spring.redis.database 一样。
      */
-    private Long timeOut = 10000L;
+    private Boolean useIocRedisConnectionFactory = false;
+
 
 
     @Getter
@@ -72,43 +60,4 @@ public class RedisCacheProperties {
 
     }
 
-    @Getter
-    @Setter
-    public static class Lettuce {
-
-        private Pool pool = new Pool();
-
-        /**
-         * shutdown timeout. 默认为 5s
-         */
-        private Duration shutdownTimeout = Duration.ofMillis(5000L);
-    }
-
-    @Getter
-    @Setter
-    public static class Pool {
-
-        /**
-         * Maximum number of "idle" connections in the pool. Use a negative value to
-         * indicate an unlimited number of idle connections. 默认为 4
-         */
-        private Integer maxIdle = 4;
-        /**
-         * Target for the minimum number of idle connections to maintain in the pool. This
-         * setting only has an effect if both it and time between eviction runs are
-         * positive. 默认为 0
-         */
-        private Integer minIdle = 0;
-        /**
-         * Maximum number of connections that can be allocated by the pool at a given
-         * time. Use a negative value for no limit. 默认为 8
-         */
-        private Integer maxActive = 8;
-        /**
-         * Maximum amount of time a connection allocation should block before throwing an
-         * exception when the pool is exhausted. Use a negative value to block
-         * indefinitely. 默认为 -1
-         */
-        private Long maxWait = -1L;
-    }
 }

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -33,7 +34,7 @@ import java.util.Set;
 
 /**
  * 简单的实现 Redis cache 自定义配置 {@link CacheManager}, 向 IOC 容器中注入 beanName=socialRedisHashCacheManager 的实例. <br><br>
- *     此 redis Cache 对 {@link org.springframework.data.redis.cache.RedisCache} 进行了修改, 把缓存的 KV 格式该成了 Hash 格式.
+ * 此 redis Cache 对 {@link org.springframework.data.redis.cache.RedisCache} 进行了修改, 把缓存的 KV 格式该成了 Hash 格式.
  * @author zyw
  * @createrDate 2020-06-11 22:57
  */
@@ -54,14 +55,17 @@ public class RedisCacheConfig {
     public static final String USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME = "UCHACC";
 
     private final RedisCacheProperties redisCacheProperties;
+    private final RedisConnectionFactory redisConnectionFactory;
+    private final RedisProperties redisProperties;
 
-
-    public RedisCacheConfig(RedisCacheProperties redisCacheProperties) {
+    public RedisCacheConfig(RedisCacheProperties redisCacheProperties, RedisConnectionFactory redisConnectionFactory, RedisProperties redisProperties) {
         this.redisCacheProperties = redisCacheProperties;
         Set<String> cacheNames = redisCacheProperties.getCache().getCacheNames();
         cacheNames.add(USER_CONNECTION_CACHE_NAME);
         cacheNames.add(USER_CONNECTION_HASH_CACHE_NAME);
         cacheNames.add(USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME);
+        this.redisConnectionFactory = redisConnectionFactory;
+        this.redisProperties = redisProperties;
     }
 
     /**
@@ -107,7 +111,6 @@ public class RedisCacheConfig {
         genericObjectPoolConfig.setMinIdle(minIdle);
         genericObjectPoolConfig.setMaxTotal(maxActive);
         genericObjectPoolConfig.setMaxWaitMillis(maxWait);
-
         //redis客户端配置
         LettucePoolingClientConfiguration.LettucePoolingClientConfigurationBuilder
                 builder =  LettucePoolingClientConfiguration.builder().
@@ -116,12 +119,11 @@ public class RedisCacheConfig {
         builder.shutdownTimeout(shutdownTimeOut);
         builder.poolConfig(genericObjectPoolConfig);
         LettuceClientConfiguration lettuceClientConfiguration = builder.build();
-
         //根据配置和客户端配置创建连接
         LettuceConnectionFactory lettuceConnectionFactory = new
                 LettuceConnectionFactory(redisConfiguration,lettuceClientConfiguration);
-        lettuceConnectionFactory .afterPropertiesSet();
 
+        lettuceConnectionFactory.afterPropertiesSet();
         return lettuceConnectionFactory;
     }
 
@@ -134,19 +136,30 @@ public class RedisCacheConfig {
     @ConditionalOnMissingBean(name = "socialRedisHashCacheManager")
     public CacheManager redisCacheManager() {
         RedisCacheProperties.Cache cache = redisCacheProperties.getCache();
-        RedisCacheProperties.Lettuce lettuce = redisCacheProperties.getLettuce();
-        RedisCacheProperties.Pool lettucePool = lettuce.getPool();
-        RedisConnectionFactory lettuceConnectionFactory = createLettuceConnectionFactory
-                (cache.getDatabaseIndex(),
-                 redisCacheProperties.getHost(),
-                 redisCacheProperties.getPort(),
-                 redisCacheProperties.getPassword(),
-                 lettucePool.getMaxIdle(),
-                 lettucePool.getMinIdle(),
-                 lettucePool.getMaxActive(),
-                 lettucePool.getMaxWait(),
-                 redisCacheProperties.getTimeOut(),
-                 lettuce.getShutdownTimeout());
+
+        // 判断是否使用 spring IOC 容器中的 LettuceConnectionFactory
+        // 如果使用 spring IOC 容器中的 LettuceConnectionFactory，则要注意 cache.database-index 要与 spring.redis.database 一样。
+        RedisConnectionFactory redisConnectionFactory;
+        if (redisCacheProperties.getUseIocRedisConnectionFactory() && this.redisConnectionFactory != null)
+        {
+            redisConnectionFactory = this.redisConnectionFactory;
+        } else
+        {
+            RedisProperties.Lettuce lettuce = redisProperties.getLettuce();
+            RedisProperties.Pool lettucePool = lettuce.getPool();
+            redisConnectionFactory = createLettuceConnectionFactory
+                    (cache.getDatabaseIndex(),
+                     redisProperties.getHost(),
+                     redisProperties.getPort(),
+                     redisProperties.getPassword(),
+                     lettucePool.getMaxIdle(),
+                     lettucePool.getMinIdle(),
+                     lettucePool.getMaxActive(),
+                     lettucePool.getMaxWait().getSeconds(),
+                     redisProperties.getTimeout().toMillis(),
+                     lettuce.getShutdownTimeout());
+        }
+
 
         RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig();
         // 设置缓存管理器管理的缓存的默认过期时间
@@ -170,7 +183,7 @@ public class RedisCacheConfig {
         }
 
         //noinspection UnnecessaryLocalVariable
-        RedisHashCacheManager cacheManager = RedisHashCacheManager.builder(lettuceConnectionFactory)
+        RedisHashCacheManager cacheManager = RedisHashCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(defaultCacheConfig)
                 .initialCacheNames(cacheNames)
                 .withInitialCacheConfigurations(configMap)

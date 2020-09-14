@@ -31,13 +31,16 @@ spring:
     port: 6379
     password:
     database: 0
-    # redis-pool
-    jedis:
+    # 连接超时的时间
+    timeout: 10000
+    # redis-lettuce-pool
+    lettuce:
+      shutdown-timeout: PT500S
       pool:
         max-active: 8
+        max-wait: PT10S
         max-idle: 8
-        max-wait: PT-1S
-        min-idle: 0
+        min-idle: 1
   # 设置缓存为 Redis
   cache:
     type: redis
@@ -46,25 +49,15 @@ spring:
 redis:
   # 是否开启缓存, 默认 false
   open: true
-  host: 192.168.88.88
-  port: 6379
-  password:
-  # 连接超时的时间
-  timeout: 10000
+  # 是否使用 spring IOC 容器中的 RedisConnectionFactory， 默认： false
+  # 如果使用 spring IOC 容器中的 RedisConnectionFactory，则要注意 cache.database-index 要与 spring.redis.database 一样。
+  use-ioc-redis-connection-factory: true
   cache:
     database-index: 1
     default-expire-time: PT200S
     entry-ttl: PT180S
     cache-names:
       - cacheName
-  lettuce:
-    shutdown-timeout: PT5S
-    pool:
-      max-active: 8
-      max-wait: 10000
-      max-idle: 4
-      min-idle: 1
-
 
 server:
   port: 80
