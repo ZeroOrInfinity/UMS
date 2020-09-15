@@ -1,4 +1,4 @@
-# UMS (user manage scaffold) 用户管理脚手架
+# UMS (user manage scaffold) 用户管理脚手架: [github](https://github.com/ZeroOrInfinity/UMS) [gitee](https://gitee.com/pcore/UMS)
 ![JDK](https://img.shields.io/badge/JDK-11-green.svg)
 ![Maven](https://img.shields.io/badge/Maven-3.6.3-green.svg)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7.27-green.svg)
