@@ -28,12 +28,13 @@ import static top.dcenter.security.core.consts.SecurityConstants.PUT_METHOD;
 import static top.dcenter.security.core.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
 
 /**
- * 增加对 Ajax 格式与 form 格式的解析, 解析数据时默认使用 UTF-8 格式, 覆写了 {@link JsonRequest#getParameter(String)},
- * {@link JsonRequest#getInputStream()}, 添加了 {@link JsonRequest#getFormMap()}, {@link JsonRequest#getBody()}
+ * 增加对 Ajax 格式与 form 格式的解析, 解析数据时默认使用 UTF-8 格式, 覆写了 {@link AjaxOrFormRequest#getParameter(String)},
+ * {@link AjaxOrFormRequest#getInputStream()}, 添加了 {@link AjaxOrFormRequest#getFormMap()}, {@link AjaxOrFormRequest#getBody()}<br><br>
+ * 解决  Ajax 格式与 form 格式的请求被读取一次后, 不能在次读取的问题.
  * @author zyw
  * @version V1.0  Created by 2020/6/9 14:01
  */
-public class JsonRequestFilter extends OncePerRequestFilter {
+public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
 
     /**
      * 验证 request 中参数是否是 json 的字符串的前缀,
@@ -47,7 +48,7 @@ public class JsonRequestFilter extends OncePerRequestFilter {
      *
      * @param objectMapper
      */
-    public JsonRequestFilter(ObjectMapper objectMapper) {
+    public AjaxOrFormRequestFilter(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
@@ -55,11 +56,11 @@ public class JsonRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        filterChain.doFilter(new JsonRequest(request, objectMapper), response);
+        filterChain.doFilter(new AjaxOrFormRequest(request, objectMapper), response);
     }
 
     @Slf4j
-    public static class JsonRequest extends HttpServletRequestWrapper {
+    public static class AjaxOrFormRequest extends HttpServletRequestWrapper {
 
         private ObjectMapper objectMapper;
 
@@ -69,7 +70,7 @@ public class JsonRequestFilter extends OncePerRequestFilter {
         @Getter
         private final Map<String, Object> formMap;
 
-        JsonRequest(HttpServletRequest request, ObjectMapper objectMapper) {
+        AjaxOrFormRequest(HttpServletRequest request, ObjectMapper objectMapper) {
             super(request);
             this.objectMapper = objectMapper;
             String contentType = request.getContentType();

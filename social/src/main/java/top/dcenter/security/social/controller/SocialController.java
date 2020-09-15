@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 import top.dcenter.security.core.exception.ParameterErrorException;
-import top.dcenter.security.social.api.callback.RedirectUrlHelper;
+import top.dcenter.security.social.callback.RedirectUrlHelper;
 
 import javax.servlet.http.HttpServletRequest;
 

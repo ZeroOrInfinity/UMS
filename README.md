@@ -11,6 +11,8 @@
 
 用户管理脚手架集成：验证码、手机登录、支持qq,微博,微信,gitee第三方登录（自动注册，绑定与解绑）、基于 RBAC 的 uri 访问权限控制功能、通过统一的回调地址入口实现多回调地址的路由功能、签到等功能。通过实现几个 API 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑。
 
+![ums-arch](doc/ums-arch.png)
+
 ## 一、`UMS 特性`：
   - 验证码（图片，短信）校验功能。
   - 手机登录功能，登录后自动注册。
@@ -19,7 +21,7 @@
   - 统一回调地址路由功能(OAuth2)。
   - 基于 RBAC 的 uri 访问权限控制功能。
   - 简化 session、rememberme 配置。
-  - 根据配置的登录模式（JSON 与 REDIRECT）返回 json 或 html 数据。
+  - 根据设置的返回方式（JSON 与 REDIRECT）返回 json 或 html 数据。
   - 签到功能。
   
 ## 二、`打包项目`：
@@ -159,17 +161,19 @@
         
         }
         ```
-    6. 绑定与解绑视图:
+    6. 绑定与解绑视图(`必须实现`): 用户绑定与解绑成功后会自动跳转到对应回显页面, 默认返回 json 信息
         - 绑定状态信息回显: `top.dcenter.security.social.api.banding.ShowConnectionStatusViewService`
         - 绑定与解绑信息回显: `top.dcenter.security.social.api.banding.ShowConnectViewService`
         
-    7. 统一的回调地址的路由功能，方便对于多个回调地址进行路由管理:
+    7. 统一的回调地址的路由功能，方便对于多个回调地址进行路由管理: 
+       - 需要调用`top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory#generateState(realAuthCallbackPath)`
+         方法去设置真实的回调地址: realAuthCallbackPath(格式为：`path=myAuthCallbackPath`).
         1. 统一回调地址与真实回调地址的转换逻辑：
             - 构建统一的回调地址: `top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory#buildReturnToUrl(..)`
             - 跳转到真实的回调地址: `top.dcenter.security.social.controller.SocialController#authCallbackRouter(..)`
         2. 对 `state` 的加解密逻辑：
             - 构建真实回调地址到`state`并进行加密: `top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory#generateState(..)`
-            - 解密`state`并返回真实的回调地址: `top.dcenter.security.social.api.callback.RedirectUrlHelper#decodeRedirectUrl(..)`
+            - 解密`state`并返回真实的回调地址: `top.dcenter.security.social.api.callback.RedirectUrlHelperService#decodeRedirectUrl(..)`
 
 
 

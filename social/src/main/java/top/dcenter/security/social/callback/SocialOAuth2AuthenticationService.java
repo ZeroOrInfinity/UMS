@@ -22,6 +22,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.URL_SEPARATOR;
  */
 @SuppressWarnings("AlibabaClassNamingShouldBeCamel")
 public class SocialOAuth2AuthenticationService<S> extends OAuth2AuthenticationService<S> {
+
     public SocialOAuth2AuthenticationService(OAuth2ConnectionFactory<S> connectionFactory) {
         super(connectionFactory);
     }

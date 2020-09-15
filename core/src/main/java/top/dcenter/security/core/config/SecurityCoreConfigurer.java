@@ -23,7 +23,7 @@ import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationSu
 import top.dcenter.security.core.api.config.HttpSecurityAware;
 import top.dcenter.security.core.api.logout.DefaultLogoutSuccessHandler;
 import top.dcenter.security.core.api.service.AbstractUserDetailsService;
-import top.dcenter.security.core.auth.filter.JsonRequestFilter;
+import top.dcenter.security.core.auth.filter.AjaxOrFormRequestFilter;
 import top.dcenter.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
 import top.dcenter.security.core.properties.ClientProperties;
 
@@ -134,8 +134,8 @@ public class SecurityCoreConfigurer extends WebSecurityConfigurerAdapter {
 
 
 
-        // 添加 JsonRequestFilter 增加对 Ajax 格式与 form 格式的解析,
-        http.addFilterBefore(new JsonRequestFilter(objectMapper), CsrfFilter.class);
+        // 添加 AjaxOrFormRequestFilter 增加对 Ajax 格式与 form 格式的解析,
+        http.addFilterBefore(new AjaxOrFormRequestFilter(objectMapper), CsrfFilter.class);
 
 
         // 判断是否开启根据不同的uri跳转到相对应的登录页, 假设开启

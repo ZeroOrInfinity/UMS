@@ -2,7 +2,7 @@ package top.dcenter.security.core.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
-import top.dcenter.security.core.auth.filter.JsonRequestFilter;
+import top.dcenter.security.core.auth.filter.AjaxOrFormRequestFilter;
 import top.dcenter.security.core.consts.SecurityConstants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ public class RequestUtil {
     /**
      * 验证 request 中参数是否是 json 的字符串的前缀,
      */
-    public static final String VALIDATE_JSON_PREFIX  = JsonRequestFilter.VALIDATE_JSON_PREFIX;
+    public static final String VALIDATE_JSON_PREFIX  = AjaxOrFormRequestFilter.VALIDATE_JSON_PREFIX;
 
     /**
      * 提取 request 中的 json 数据. 转换为 T 对象
@@ -35,10 +35,10 @@ public class RequestUtil {
         try
         {
             byte[] bodies;
-            if (request instanceof JsonRequestFilter.JsonRequest)
+            if (request instanceof AjaxOrFormRequestFilter.AjaxOrFormRequest)
             {
-                JsonRequestFilter.JsonRequest jsonRequest = (JsonRequestFilter.JsonRequest) request;
-                bodies = jsonRequest.getBody();
+                AjaxOrFormRequestFilter.AjaxOrFormRequest ajaxOrFormRequest = (AjaxOrFormRequestFilter.AjaxOrFormRequest) request;
+                bodies = ajaxOrFormRequest.getBody();
             }
             else
             {

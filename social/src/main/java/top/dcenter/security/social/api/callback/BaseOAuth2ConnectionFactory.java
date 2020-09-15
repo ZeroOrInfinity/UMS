@@ -4,6 +4,7 @@ import org.springframework.social.connect.ApiAdapter;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 import org.springframework.social.oauth2.OAuth2ServiceProvider;
+import top.dcenter.security.social.callback.RedirectUrlHelper;
 import top.dcenter.security.social.controller.SocialController;
 import top.dcenter.security.social.properties.SocialProperties;
 

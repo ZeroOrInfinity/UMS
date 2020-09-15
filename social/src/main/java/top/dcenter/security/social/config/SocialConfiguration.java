@@ -27,7 +27,7 @@ import org.springframework.util.CollectionUtils;
 import top.dcenter.security.core.properties.ClientProperties;
 import top.dcenter.security.social.api.banding.ShowConnectViewService;
 import top.dcenter.security.social.api.banding.ShowConnectionStatusViewService;
-import top.dcenter.security.social.api.callback.RedirectUrlHelper;
+import top.dcenter.security.social.callback.RedirectUrlHelper;
 import top.dcenter.security.social.api.config.SocialCoreConfig;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.security.social.api.service.AbstractSocialUserDetailsService;
@@ -122,7 +122,7 @@ public class SocialConfiguration extends SocialConfigurerAdapter implements Init
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.callback.RedirectUrlHelper")
+    @ConditionalOnMissingBean(type = "top.dcenter.security.social.api.callback.RedirectUrlHelperService")
     public RedirectUrlHelper redirectUrlHelper() {
         return new RedirectUrlHelper();
     }
