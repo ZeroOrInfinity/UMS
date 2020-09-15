@@ -23,13 +23,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.test.dto.User;
 import top.dcenter.security.core.enums.ErrorCodeEnum;
 import top.dcenter.security.core.vo.ResponseResult;
 import top.dcenter.security.social.vo.SocialUserInfo;
+import top.dcenter.test.dto.User;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +54,7 @@ public class SocialUserController {
     }
 
     @PostMapping("/register")
-    public ResponseResult register(User user, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseResult register(User user, HttpServletRequest request) {
         // 注册用户逻辑
         // ...
         log.info("Demo ========>: SocialUserController.register");
@@ -132,7 +131,9 @@ public class SocialUserController {
         {
             log.debug("getInfo: " + id);
         }
-        return new User("tom", "1111");
+        User user = new User("tom", "1111");
+        user.setId(id);
+        return user;
     }
 
     @PostMapping("")

@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.dcenter.security.core.properties.SignProperties;
-import top.dcenter.security.core.sign.SignService;
+import top.dcenter.security.core.api.sign.service.SignService;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
@@ -164,12 +164,12 @@ public class DemoSignController {
      * 2020-09-03: -
      * 2020-09-04: √
      * 2020-09-05: √
-     * @param day
+     * @param forwardDays
      * @return
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping("/testSignOfLastSevenDays/{day}")
-    public String testSignOfRange(@PathVariable Integer day) throws UnsupportedEncodingException {
+    @RequestMapping("/testSignOfLastSevenDays/{forwardDays}")
+    public String testSignOfRange(@PathVariable Integer forwardDays) throws UnsupportedEncodingException {
 
         LocalDate today = LocalDate.now();
 
@@ -185,8 +185,8 @@ public class DemoSignController {
         }
 
         // 往前推 day 天后, 最近七天签到情况:
-        sb.append("往前推 ").append(day).append(" 天后, 最近").append(signProperties.getLastFewDays()).append("天签到情况: ").append("<br>");
-        today = today.minusDays(day);
+        sb.append("往前推 ").append(forwardDays).append(" 天后, 最近").append(signProperties.getLastFewDays()).append("天签到情况: ").append("<br>");
+        today = today.minusDays(forwardDays);
 
         { // 获取最近几天的签到情况, 默认为 7 天
             sb.append("最近七天签到情况：").append("<br>");

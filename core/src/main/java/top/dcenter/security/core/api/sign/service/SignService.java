@@ -1,6 +1,7 @@
-package top.dcenter.security.core.sign;
+package top.dcenter.security.core.api.sign.service;
 
 import top.dcenter.security.core.properties.SignProperties;
+import top.dcenter.security.core.sign.UserSignServiceImpl;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
@@ -8,12 +9,15 @@ import java.util.Map;
 
 /**
  * 基于Redis位图的用户签到功能实现类<br><br>
+ * 要自定义签到功能, 实现此接口, 注入 IOC 即可替换 {@link UserSignServiceImpl}<br><br>
  * 实现功能：<br>
  * 1. 用户签到<br>
  * 2. 检查用户是否签到<br>
- * 3. 获取用户签到次数<br>
- * 4. 获取用户连续签到次数<br>
- * 5. 获取用户每天的签到情况<br>
+ * 3. 获取用户当月签到次数<br>
+ * 4. 获取用户当月最近连续签到次数<br>
+ * 5. 获取用户当月首次签到日期<br>
+ * 6. 获取用户当月每天的签到详情<br>
+ * 7. 获取用户最近几天的签到情况<br>
  * @author zyw
  * @version V1.0
  * Created by 2020/9/13 21:21

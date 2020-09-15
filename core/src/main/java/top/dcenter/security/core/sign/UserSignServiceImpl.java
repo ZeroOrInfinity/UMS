@@ -3,7 +3,7 @@ package top.dcenter.security.core.sign;
 import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.stereotype.Service;
+import top.dcenter.security.core.api.sign.service.SignService;
 import top.dcenter.security.core.properties.SignProperties;
 import top.dcenter.security.core.util.SignUtil;
 
@@ -18,16 +18,18 @@ import static top.dcenter.security.core.util.SignUtil.formatDate;
 
 /**
  * 基于Redis位图的用户签到功能实现类<br><br>
+ * 要自定义签到功能, 实现 {@link SignService}, 注入 IOC 即可<br><br>
  * 实现功能：<br>
  * 1. 用户签到<br>
  * 2. 检查用户是否签到<br>
- * 3. 获取用户签到次数<br>
- * 4. 获取用户连续签到次数<br>
- * 5. 获取用户每天的签到情况<br>
+ * 3. 获取用户当月签到次数<br>
+ * 4. 获取用户当月最近连续签到次数<br>
+ * 5. 获取用户当月首次签到日期<br>
+ * 6. 获取用户当月每天的签到详情<br>
+ * 7. 获取用户最近几天的签到情况<br>
  * @author flex_song zyw
  * @version V1.0  Created by 2020-09-14 10:00
  */
-@Service("userSignService")
 public class UserSignServiceImpl implements SignService {
 
     private final RedisConnectionFactory redisConnectionFactory;
@@ -179,24 +181,16 @@ public class UserSignServiceImpl implements SignService {
                                        .valueAt(0L);
             list = connection.bitField(buildSignKey(uid, date), subCommands);
         }
-        if (list != null && list.size() > 0) {
-            // 由低位到高位，为0表示未签到，为1表示已签到
-            long v = list.get(0) == null ? 0 : list.get(0);
-            for (int i = date.lengthOfMonth(); i > 0; i--) {
-                LocalDate d = date.withDayOfMonth(i);
-                signMap.put(formatDate(d, "yyyy-MM-dd"), v >> 1 << 1 != v);
-                v >>= 1;
-            }
-        }
+        fillingSignMap(date, signMap, date.lengthOfMonth(), 0, list);
         return signMap;
     }
 
     /**
      * 获取最近几天的签到情况, 多少天由 {@link SignProperties#getLastFewDays()} 决定
      *
-     * @param uid  用户ID
-     * @param date 日期
-     * @return Key 为签到日期，Value 为签到状态的 Map<"yyyy-MM-dd", boolean>
+     * @param uid   用户ID
+     * @param date  日期
+     * @return      Key 为签到日期，Value 为签到状态的 Map<"yyyy-MM-dd", boolean>
      * @throws UnsupportedEncodingException
      */
     @Override
@@ -213,40 +207,110 @@ public class UserSignServiceImpl implements SignService {
         if (dayOfMonth >= lastFewDays)
         {
 
-            getSignDetailOfRange(lastFewDays, dayOfMonth - lastFewDays, uid, date, dayOfMonth,
-                                 dayOfMonth - lastFewDays, signMap);
+            fillingSignDetail2SignMap(lastFewDays, dayOfMonth - lastFewDays, uid, date, dayOfMonth,
+                                      dayOfMonth - lastFewDays, signMap);
         }
         // 当天在本月中的天数 < 要获取最近 lastFewDays 天的签到情况, 需要从上个月获取
         else
         {
-            // 获取当月中 dayOfMonth 天签到情况
-            getSignDetailOfRange(dayOfMonth, 0, uid, date, dayOfMonth, 0, signMap);
-
-            // 获取上月中月底的 remainingDays 天签到情况
-            date = date.minusMonths(1);
-            int lengthOfMonth = date.lengthOfMonth();
-            int remainingDays = lastFewDays - dayOfMonth;
-            getSignDetailOfRange(remainingDays, lengthOfMonth- (remainingDays), uid, date, lengthOfMonth,
-                                 lengthOfMonth - remainingDays, signMap);
-
+            fillingSignDetail2SignMapOfCrossMonth(uid, date, dayOfMonth, lastFewDays, signMap);
         }
 
         return signMap;
     }
 
     /**
-     * 获取指定天数的签到情况
-     * @param type  无符号的位数
-     * @param offset    偏移量
-     * @param uid       用户id
-     * @param date      日期
-     * @param lowDay   低位数(DayOfMonth)
-     * @param beforeOfHighDay 高位数(DayOfMonth)
-     * @param signMap
+     * 把 list 数据注入到 signMap 中
+     * @param date              date 与 lowDay 和 beforeOfHighDay 有对应关系
+     * @param signMap           Key 为签到日期，Value 为签到状态的 Map<"yyyy-MM-dd", boolean>
+     * @param lowDay            低位数(DayOfMonth)
+     * @param beforeOfHighDay   高位数(DayOfMonth)
+     * @param list              签到的 bit 数据
+     */
+    private void fillingSignMap(LocalDate date, Map<String, Boolean> signMap, int lowDay, int beforeOfHighDay, List<Long> list) {
+        if (list != null && list.size() > 0)
+        {
+            // 由低位到高位，为0表示未签到，为1表示已签到
+            long v = list.get(0) == null ? 0 : list.get(0);
+            for (int i = lowDay; i > beforeOfHighDay; i--)
+            {
+                LocalDate d = date.withDayOfMonth(i);
+                signMap.put(formatDate(d, "yyyy-MM-dd"), v >> 1 << 1 != v);
+                v >>= 1;
+            }
+        }
+    }
+
+
+    /**
+     * 获取指定天数的签到情况, 指定天数都在不在同一个月内
+     * @param uid           用户id
+     * @param date          日期
+     * @param dayOfMonth    当月的第几天
+     * @param lastFewDays   获取最近几天的签到情况, 默认为 7 天
+     * @param signMap       Key 为签到日期，Value 为签到状态的 Map<"yyyy-MM-dd", boolean>
      * @throws UnsupportedEncodingException
      */
-    private void getSignDetailOfRange(int type, int offset, String uid, LocalDate date,
-                                      int lowDay, int beforeOfHighDay, Map<String, Boolean> signMap) throws UnsupportedEncodingException {
+    private void fillingSignDetail2SignMapOfCrossMonth(String uid, LocalDate date, int dayOfMonth,
+                                                       int lastFewDays, Map<String, Boolean> signMap) throws UnsupportedEncodingException {
+
+
+        LocalDate preMonthsDate = date.minusMonths(1);
+        int lengthOfPreMonth = preMonthsDate.lengthOfMonth();
+        int remainingDays = lastFewDays - dayOfMonth;
+
+        // 当月
+        int currentMonthType = dayOfMonth;
+        int currentMonthOffset = 0;
+        int currentMonthLowDay = dayOfMonth;
+        int currentMonthBeforeOfHighDay = 0;
+
+        // 上月
+        int preMonthType = remainingDays;
+        int preMonthOffset = lengthOfPreMonth- remainingDays;
+        int preMonthLowDay = lengthOfPreMonth;
+        int preMonthBeforeOfHighDay = lengthOfPreMonth - remainingDays;
+
+
+        List<Long> currentMonthList, preMonthList;
+        try (RedisConnection connection = getConnection())
+        {
+            // 获取当月中 dayOfMonth 天签到情况
+            final BitFieldSubCommands subCommands =
+                            BitFieldSubCommands.create()
+                                               .get(BitFieldSubCommands.BitFieldType.unsigned(currentMonthType))
+                                               .valueAt(currentMonthOffset);
+            currentMonthList = connection.bitField(buildSignKey(uid, date), subCommands);
+
+            // 获取上月中月底的 remainingDays 天签到情况
+            final BitFieldSubCommands preMonthSubCommands =
+                            BitFieldSubCommands.create()
+                                               .get(BitFieldSubCommands.BitFieldType.unsigned(preMonthType))
+                                               .valueAt(preMonthOffset);
+            preMonthList = connection.bitField(buildSignKey(uid, preMonthsDate), preMonthSubCommands);
+        }
+
+        // 当月
+        fillingSignMap(date, signMap, currentMonthLowDay, currentMonthBeforeOfHighDay, currentMonthList);
+        // 上月
+        fillingSignMap(preMonthsDate, signMap, preMonthLowDay, preMonthBeforeOfHighDay, preMonthList);
+    }
+
+
+
+    /**
+     * 获取指定天数的签到情况, 指定天数都在同一个月内
+     * @param type              无符号的位数
+     * @param offset            偏移量
+     * @param uid               用户id
+     * @param date              日期
+     * @param lowDay            低位数(DayOfMonth)
+     * @param beforeOfHighDay   高位数(DayOfMonth)
+     * @param signMap           Key 为签到日期，Value 为签到状态的 Map<"yyyy-MM-dd", boolean>
+     * @throws UnsupportedEncodingException
+     */
+    private void fillingSignDetail2SignMap(int type, int offset, String uid, LocalDate date,
+                                           int lowDay, int beforeOfHighDay, Map<String, Boolean> signMap) throws UnsupportedEncodingException {
 
         List<Long> list;
         try (RedisConnection connection = getConnection())
@@ -257,15 +321,7 @@ public class UserSignServiceImpl implements SignService {
                                                .valueAt(offset);
             list = connection.bitField(buildSignKey(uid, date), subCommands);
         }
-        if (list != null && list.size() > 0) {
-            // 由低位到高位，为0表示未签到，为1表示已签到
-            long v = list.get(0) == null ? 0 : list.get(0);
-            for (int i = lowDay; i > beforeOfHighDay ; i--) {
-                LocalDate d = date.withDayOfMonth(i);
-                signMap.put(formatDate(d, "yyyy-MM-dd"), v >> 1 << 1 != v);
-                v >>= 1;
-            }
-        }
+        fillingSignMap(date, signMap, lowDay, beforeOfHighDay, list);
     }
 
 }

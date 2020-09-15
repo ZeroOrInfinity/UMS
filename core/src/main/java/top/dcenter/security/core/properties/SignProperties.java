@@ -20,12 +20,20 @@ public class SignProperties {
     private String signKeyPrefix = "u:sign:";
 
     /**
-     * String 与 byte[] 互相转换时所用的 charset
+     * redis key(String) 转 byte[] 转换时所用的 charset
      */
     private String charset = "UTF-8";
     /**
-     * 获取最近几天的签到情况, 默认为 7 天
+     * 获取最近几天的签到情况, 不能大于 28 天, 默认为 7 天
      */
     private Integer lastFewDays = 7;
 
+    public void setLastFewDays(Integer lastFewDays) {
+        //noinspection AlibabaUndefineMagicConstant
+        if (lastFewDays > 28)
+        {
+            throw new RuntimeException("获取最近几天的签到天数不能大于 28 天");
+        }
+        this.lastFewDays = lastFewDays;
+    }
 }

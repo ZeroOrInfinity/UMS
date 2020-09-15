@@ -11,7 +11,7 @@
 
 用户管理脚手架集成：验证码、手机登录、支持qq,微博,微信,gitee第三方登录（自动注册，绑定与解绑）、基于 RBAC 的 uri 访问权限控制功能、通过统一的回调地址入口实现多回调地址的路由功能、签到等功能。通过实现几个 API 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑。
 
-## 一、UMS 特性：
+## 一、`UMS 特性`：
   - 验证码（图片，短信）校验功能。
   - 手机登录功能，登录后自动注册。
   - 第三方登录功能(qq,微博,微信,gitee)，登录后自动注册，与用户账号绑定与解绑。
@@ -22,14 +22,14 @@
   - 根据配置的登录模式（JSON 与 REDIRECT）返回 json 或 html 数据。
   - 签到功能。
   
-## 二、打包项目：
+## 二、`打包项目`：
 -  mvn clean package -Dmaven.test.skip=true -Pdev
 -  mvn clean package -Dmaven.test.skip=true -Pprod
 
-## 三、TODO List:
+## 三、`TODO List`:
 - demo 待完善
 
-## 四、使用方式：
+## 四、`使用方式`：
 Ⅰ. 引入模块依赖：
 Ⅱ. 通过 application.yml 或 application.properties 配置: 查看下方的 application.properties 或 application.yml 配置
 Ⅲ. 实现对应功能时需要实现的接口：    
@@ -172,7 +172,7 @@
 
 
 
-## 五、application.properties 或 application.yml 配置:
+## 五、`application.properties 或 application.yml 配置`:
 ### 1. 基本功能
 - 在 core 包中；
   - 简单配置:
@@ -600,14 +600,20 @@
     security:
       # 签到功能 设置
       sign:
-        last-few-days: 10
+        # 获取最近几天的签到情况, 不能大于 28 天, 默认为 7 天
+        last-few-days: 7
+        # 用于 redis 签到 key 前缀，默认为： u:sign:
         sign-key-prefix: 'u:sign:'
+        # redis key(String) 转 byte[] 转换时所用的 charset
         charset: UTF-8
     ```
   - 使用说明:
     ```java
-        // 通过 Autowired 注入 SignService 即可
-        // 详细使用方式可以查看 demo 模块: top.dcenter.security.sign.DemoSignController
+        /**
+         * 通过 Autowired 注入 SignService 即可
+         * 详细使用方式可以查看 demo 模块: top.dcenter.security.sign.DemoSignController
+         * 要自定义签到功能, 实现 {@link SignService}, 注入 IOC 即可替换 {@link UserSignServiceImpl} 默认实现
+         */
         @Autowired
         private SignService signService;
     ```
@@ -615,7 +621,7 @@
 
 
 
-## 六、其他注意事项: 
+## 六、`其他注意事项`: 
 ### 1. 基于 RBAC 的 uri 访问权限控制
 - 必须实现 top.dcenter.security.core.api.permission.service.AbstractUriAuthorizeService 类中的方法getRolesAuthorities(),即可实现权限控制.
 - 相比于 RBAC 更加细粒度的权限控制, 如: 对菜单与按钮的权限控制, 权限控制的数据库模型:
@@ -712,7 +718,7 @@ CREATE TABLE `sys_user_role` (
 
 
 
-## 七、时序图
+## 七、`时序图`
 ### 1. crsf
 ![crsf](doc/SequenceDiagram/crsf.png)
 ### 2. getValidateCode

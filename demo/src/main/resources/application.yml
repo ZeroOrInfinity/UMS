@@ -129,8 +129,11 @@ security:
 
   # 签到功能 设置
   sign:
+    # 获取最近几天的签到情况, 不能大于 28 天, 默认为 7 天
     last-few-days: 10
+    # 用于 redis 签到 key 前缀，默认为： u:sign:
     sign-key-prefix: 'u:sign:'
+    # redis key(String) 转 byte[] 转换时所用的 charset
     charset: UTF-8
   # 验证码配置
   codes:
@@ -263,7 +266,8 @@ spring:
     timeout: 10000
     # redis-lettuce-pool
     lettuce:
-      shutdown-timeout: PT10S
+      # 会影响应用关闭是时间, dev 模式设置为 0
+      shutdown-timeout: PT0S
       pool:
         max-active: 8
         max-wait: PT10S
