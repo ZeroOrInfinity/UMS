@@ -30,9 +30,10 @@
 - demo 待完善
 
 ## 四、`使用方式`：
-Ⅰ. 引入模块依赖：
-Ⅱ. 通过 application.yml 或 application.properties 配置: 查看下方的 application.properties 或 application.yml 配置
-Ⅲ. 实现对应功能时需要实现的接口：    
+
+- 引入模块依赖：
+- 通过 application.yml 或 application.properties 配置: 查看下方的 application.properties 或 application.yml 配置.
+- 实现对应功能时需要实现的接口：    
     1. 用户服务(`必须实现`): 
         - 有 social 模块时: `top.dcenter.security.social.api.service.AbstractSocialUserDetailsService`
         - 无 social 模块时: `top.dcenter.security.core.api.service.AbstractUserDetailsService`    
