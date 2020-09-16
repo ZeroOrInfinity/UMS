@@ -32,7 +32,6 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseResult handleUserNotException(UserNotExistException ex) {
         String message = ex.getMessage();
-        log.error(message, ex);
         return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
     }
 
@@ -42,7 +41,6 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseResult parameterErrorException(ParameterErrorException ex) {
         String message = ex.getMessage();
-        log.error(message, ex);
         return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
 
@@ -52,7 +50,6 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult validateCodeException(ValidateCodeException ex) {
         String message = ex.getMessage();
-        log.error(message, ex);
         return ResponseResult.fail(message, ex.getErrorCodeEnum());
     }
 
@@ -62,7 +59,6 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseResult validateCodeParamErrorException(ValidateCodeParamErrorException ex) {
         String message = ex.getMessage();
-        log.error(message, ex);
         return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
 
@@ -72,7 +68,6 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseResult validateCodeProcessException(ValidateCodeProcessException ex) {
         String message = ex.getMessage();
-        log.error(message, ex);
         return ResponseResult.fail(message, ex.getErrorCodeEnum());
     }
     @Override
@@ -81,7 +76,6 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseResult illegalAccessUrlException(IllegalAccessUrlException ex) {
         String errorMsg = ex.getMessage();
-        log.error(errorMsg, ex);
         return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum());
     }
 
@@ -91,7 +85,6 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult expiredSessionDetectedException(ExpiredSessionDetectedException ex) {
         String errorMsg = ex.getMessage();
-        log.error(errorMsg, ex);
         return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum());
     }
 

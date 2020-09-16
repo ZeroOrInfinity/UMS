@@ -12,11 +12,11 @@ public class ValidateCodeProcessException extends AbstractResponseJsonAuthentica
 
     private static final long serialVersionUID = -1186543966394757028L;
 
-    public ValidateCodeProcessException(ErrorCodeEnum errorCodeEnum, String ip) {
-        super(errorCodeEnum, null, ip);
+    public ValidateCodeProcessException(ErrorCodeEnum errorCodeEnum, String ip, String data) {
+        super(errorCodeEnum, data, ip);
     }
 
-    public ValidateCodeProcessException(ErrorCodeEnum errorCodeEnum, Throwable cause, String ip) {
-        super(errorCodeEnum, cause, null, ip);
+    public ValidateCodeProcessException(ErrorCodeEnum errorCodeEnum, Throwable cause, String ip, String data) {
+        super(errorCodeEnum, cause, data, ip);
     }
 }

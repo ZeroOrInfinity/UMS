@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import top.dcenter.security.core.auth.filter.AjaxOrFormRequestFilter;
 import top.dcenter.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.security.core.properties.ClientProperties;
 import top.dcenter.security.social.properties.SocialProperties;
@@ -14,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static top.dcenter.security.core.consts.SecurityConstants.HEADER_ACCEPT;
 import static top.dcenter.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
@@ -52,12 +54,23 @@ public class SocialAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
         AbstractResponseJsonAuthenticationException e = getAbstractResponseJsonAuthenticationException(exception);
 
-        log.info("OAuth2登录失败: user={}, ip={}, ua={}, sid={}",
+        String reqData;
+        if (request instanceof AjaxOrFormRequestFilter.AjaxOrFormRequest)
+        {
+            AjaxOrFormRequestFilter.AjaxOrFormRequest ajaxOrFormRequest =
+                    ((AjaxOrFormRequestFilter.AjaxOrFormRequest) request);
+            reqData = new String(ajaxOrFormRequest.getBody(), StandardCharsets.UTF_8);
+        }
+        else
+        {
+            reqData = request.getParameterMap().toString();
+        }
+        log.info("OAuth2登录失败: user={}, ip={}, ua={}, sid={}, reqData={}",
                  e == null ? null : e.getUid(),
                  request.getRemoteAddr(),
                  request.getHeader(HEADER_USER_AGENT),
-                 request.getSession(true).getId());
-
+                 request.getSession(true).getId(),
+                 reqData);
         // 进行必要的缓存清理
 
         // 检测是否接收 json 格式

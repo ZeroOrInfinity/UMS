@@ -1,6 +1,5 @@
 package top.dcenter.security.core.api.advice;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -20,7 +19,6 @@ import top.dcenter.security.core.vo.ResponseResult;
  * @author  zyw
  * @version V1.0  Created by 2020/5/2 15:35
  */
-@Slf4j
 public class SecurityControllerExceptionHandler {
 
     @ExceptionHandler(UserNotExistException.class)
@@ -28,7 +26,6 @@ public class SecurityControllerExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseResult handleUserNotException(UserNotExistException ex) {
         String message = ex.getMessage();
-        log.error(message, ex);
         return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
     }
 
@@ -37,7 +34,6 @@ public class SecurityControllerExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseResult parameterErrorException(ParameterErrorException ex) {
         String message = ex.getMessage();
-        log.error(message, ex);
         return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
     
@@ -46,7 +42,6 @@ public class SecurityControllerExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult validateCodeException(ValidateCodeException ex) {
         String message = ex.getMessage();
-        log.error(message, ex);
         return ResponseResult.fail(message, ex.getErrorCodeEnum());
     }
 
@@ -55,7 +50,6 @@ public class SecurityControllerExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseResult validateCodeParamErrorException(ValidateCodeParamErrorException ex) {
         String message = ex.getMessage();
-        log.error(message, ex);
         return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
 
@@ -64,7 +58,6 @@ public class SecurityControllerExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseResult validateCodeProcessException(ValidateCodeProcessException ex) {
         String message = ex.getMessage();
-        log.error(message, ex);
         return ResponseResult.fail(message, ex.getErrorCodeEnum());
     }
     @ExceptionHandler(IllegalAccessUrlException.class)
@@ -72,8 +65,7 @@ public class SecurityControllerExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseResult illegalAccessUrlException(IllegalAccessUrlException ex) {
         String errorMsg = ex.getMessage();
-        log.error(errorMsg, ex);
-        return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum());
+        return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum(), ex.getData());
     }
 
     @ExceptionHandler(ExpiredSessionDetectedException.class)
@@ -81,7 +73,6 @@ public class SecurityControllerExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult expiredSessionDetectedException(ExpiredSessionDetectedException ex) {
         String errorMsg = ex.getMessage();
-        log.error(errorMsg, ex);
         return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum());
     }
 

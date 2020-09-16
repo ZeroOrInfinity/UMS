@@ -8,6 +8,7 @@ import top.dcenter.security.core.api.validate.code.ValidateCodeGenerator;
 import top.dcenter.security.core.enums.ValidateCodeType;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
@@ -45,7 +46,13 @@ public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
         }
         catch (Exception e)
         {
-            log.error(e.getMessage(), e);
+            HttpServletRequest req = request.getRequest();
+            log.error(String.format("发送验证码失败: error={}, ip={}, sid={}, uri={}, validateCode={}",
+                                    e.getMessage(),
+                                    req.getRemoteAddr(),
+                                    request.getSessionId(),
+                                    req.getRequestURI(),
+                                    validateCode.toString()), e);
         }
         return false;
     }

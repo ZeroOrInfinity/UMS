@@ -78,6 +78,10 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
         // 验证码逻辑，当短信验证码与图片验证码 url 相同时，优先使用短信验证码逻辑。
         ValidateCodeType validateCodeType = getValidateCodeType(request);
 
+        String ip = request.getRemoteAddr();
+        String typeName = validateCodeType.name();
+        String sid = request.getSession(true).getId();
+
         try {
             if (validateCodeType != null)
             {
@@ -85,18 +89,25 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
                 if (validateCodeProcessor != null)
                 {
                     validateCodeProcessor.validate(new ServletWebRequest(request, response));
-                    if (log.isDebugEnabled())
-                    {
-                        log.debug("验证码: 校验请求({})验证码校验通过", requestURI);
-                    }
+
                 } else
                 {
-                    throw new ValidateCodeException(ILLEGAL_VALIDATE_CODE_TYPE, request.getRemoteAddr());
+                    log.warn("违法的校验码类型: error={}, ip={}, sid={}, type={}",
+                                 ILLEGAL_VALIDATE_CODE_TYPE.getMsg(),
+                             ip,
+                             sid,
+                             typeName);
+                    throw new ValidateCodeException(ILLEGAL_VALIDATE_CODE_TYPE, ip,
+                                                    typeName);
                 }
             }
 
         } catch (Exception e) {
-            log.warn("验证码: 校验请求({}), IP={}, 错误信息={}", requestURI, request.getRemoteAddr(), e.getMessage());
+            log.warn("验证码错误: error={}, ip={}, sid={}, uri={}",
+                     e.getMessage(),
+                     ip,
+                     sid,
+                     requestURI);
 
             AbstractResponseJsonAuthenticationException ex;
             if (e instanceof AbstractResponseJsonAuthenticationException)
@@ -105,7 +116,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
             }
             else
             {
-                ex = new ValidateCodeException(ErrorCodeEnum.VALIDATE_CODE_ERROR, e, request.getRemoteAddr());
+                ex = new ValidateCodeException(ErrorCodeEnum.VALIDATE_CODE_ERROR, e, ip, typeName);
             }
             baseAuthenticationFailureHandler.onAuthenticationFailure(request, response, ex);
             return;

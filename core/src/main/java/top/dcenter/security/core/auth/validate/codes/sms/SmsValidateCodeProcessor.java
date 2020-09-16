@@ -14,6 +14,7 @@ import top.dcenter.security.core.properties.ValidateCodeProperties;
 import top.dcenter.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.security.core.enums.ValidateCodeType;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.regex.PatternSyntaxException;
 
@@ -50,10 +51,14 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
     @Override
     public boolean sent(ServletWebRequest request, ValidateCode validateCode) {
         String mobile = null;
+        HttpServletRequest req = request.getRequest();
+        String ip = req.getRemoteAddr();
+        String sid = request.getSessionId();
+        String uri = req.getRequestURI();
         try
         {
-            mobile = ServletRequestUtils.getRequiredStringParameter(request.getRequest(),
-                                                            validateCodeProperties.getSms().getRequestParamMobileName());
+            mobile = ServletRequestUtils.getRequiredStringParameter(req,
+                                                                    validateCodeProperties.getSms().getRequestParamMobileName());
             if (StringUtils.isNotBlank(mobile) && mobile.matches(RegexConstants.MOBILE_PATTERN))
             {
                 return smsCodeSender.sendSms(mobile, validateCode.getCode());
@@ -61,13 +66,18 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
         }
         catch (ServletRequestBindingException e)
         {
+            log.error(String.format("发送验证码失败-手机号参数错误: error={}, ip={}, sid={}, uri={}, validateCode={}",
+                                    e.getMessage(), ip, sid, uri, validateCode.toString()), e);
             throw new ValidateCodeParamErrorException(MOBILE_PARAMETER_ERROR,
                                                       validateCodeProperties.getSms().getRequestParamMobileName(),
-                                                      request.getRequest().getRemoteAddr());
+                                                      ip);
         }
-        catch (PatternSyntaxException e) { }
+        catch (PatternSyntaxException e) {
+            log.error(String.format("发送验证码失败-手机号格式不正确: error={}, ip={}, sid={}, uri={}, validateCode={}",
+                                    e.getMessage(), ip, sid, uri, validateCode.toString()), e);
+        }
 
-        throw new ValidateCodeParamErrorException(MOBILE_FORMAT_ERROR, mobile, request.getRequest().getRemoteAddr());
+        throw new ValidateCodeParamErrorException(MOBILE_FORMAT_ERROR, mobile, ip);
     }
 
     @Override

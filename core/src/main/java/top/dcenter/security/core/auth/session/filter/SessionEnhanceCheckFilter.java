@@ -71,10 +71,11 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
             // 如果不符合特征值, 则为非法 session, 直接返回登录页面
             if (checkValue != null && !this.sessionEnhanceCheckService.sessionEnhanceCheck(checkValue, request))
             {
-                log.info("session被劫持: ip={}, ua={}, sid={}, checkValue={}",
+                log.warn("session被劫持: ip={}, ua={}, sid={}, uri={}, checkValue={}",
                          request.getRemoteAddr(),
                          request.getHeader(HEADER_USER_AGENT),
-                         request.getSession(true).getId(),
+                         session.getId(),
+                         request.getRequestURI(),
                          checkValue);
                 this.baseAuthenticationFailureHandler.onAuthenticationFailure(request, response,
                                                                               new SessionEnhanceCheckException(SESSION_ENHANCE_CHECK, session.getId()));

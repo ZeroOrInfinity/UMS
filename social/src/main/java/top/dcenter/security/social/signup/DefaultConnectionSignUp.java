@@ -28,17 +28,18 @@ public class DefaultConnectionSignUp implements BaseConnectionSignUp {
     @Override
     public String execute(Connection<?> connection) {
         // 这里为第三方登录自动注册时调用，所以这里不需要实现对用户信息的注册，可以在用户登录完成后提示用户修改用户信息。
+        String displayName = connection.getDisplayName();
         try {
             // 重名检查
-            SocialUserDetails socialUserDetails = userDetailsService.loadUserByUserId(connection.getDisplayName());
+            SocialUserDetails socialUserDetails = userDetailsService.loadUserByUserId(displayName);
             if (socialUserDetails == null)
             {
-                return connection.getDisplayName();
+                return displayName;
             }
             return null;
         }
         catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error(String.format("OAuth2自动注册处理器重名检查失败: error={}, username={}", e.getMessage(), displayName), e);
             return null;
         }
     }

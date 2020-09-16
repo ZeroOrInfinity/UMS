@@ -11,11 +11,11 @@ public class ValidateCodeException extends AbstractResponseJsonAuthenticationExc
 
     private static final long serialVersionUID = -7608813150135647861L;
 
-    public ValidateCodeException(ErrorCodeEnum errorCodeEnum, Throwable t, String ip) {
-        super(errorCodeEnum, t, null, ip);
+    public ValidateCodeException(ErrorCodeEnum errorCodeEnum, Throwable t, String ip, String data) {
+        super(errorCodeEnum, t, data, ip);
     }
 
-    public ValidateCodeException(ErrorCodeEnum errorCodeEnum, String ip) {
-        super(errorCodeEnum, null, ip);
+    public ValidateCodeException(ErrorCodeEnum errorCodeEnum, String ip, String data) {
+        super(errorCodeEnum, data, ip);
     }
 }

@@ -13,6 +13,7 @@ import top.dcenter.security.core.properties.ClientProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 import static top.dcenter.security.core.consts.SecurityConstants.SESSION_ENHANCE_CHECK_KEY;
@@ -47,13 +48,12 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
 
         HttpServletRequest request = event.getRequest();
         HttpServletResponse response = event.getResponse();
-
-
+        HttpSession session = request.getSession(true);
 
         try
         {
             // 清楚缓存
-            request.getSession(true).removeAttribute(SESSION_ENHANCE_CHECK_KEY);
+            session.removeAttribute(SESSION_ENHANCE_CHECK_KEY);
 
             redirectProcessingByLoginProcessType(request, response, clientProperties, objectMapper,
                                                  redirectStrategy, ErrorCodeEnum.CONCURRENT_SESSION,
@@ -61,8 +61,9 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
         }
         catch (Exception e)
         {
-            log.error(e.getMessage(), e);
-            throw new ExpiredSessionDetectedException(ErrorCodeEnum.SERVER_ERROR, request.getSession(true).getId());
+            log.error(String.format("SESSION过期处理失败: error={}, ip={}, sid={}, uri={}",
+                                    e.getMessage(), request.getRemoteAddr(), session.getId(), request.getRequestURI()), e);
+            throw new ExpiredSessionDetectedException(ErrorCodeEnum.SERVER_ERROR, session.getId());
         }
     }
 }

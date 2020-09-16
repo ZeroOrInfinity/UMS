@@ -9,12 +9,14 @@ import top.dcenter.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.security.core.enums.ValidateCodeType;
 import top.dcenter.security.core.exception.ValidateCodeException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static top.dcenter.security.core.enums.ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE;
+import static top.dcenter.security.core.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_CODE_TYPE;
 import static top.dcenter.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_ERROR;
 import static top.dcenter.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_EXPIRED;
 import static top.dcenter.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EMPTY;
@@ -58,6 +60,10 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     public final boolean produce(ServletWebRequest request) throws ValidateCodeException {
 
         ValidateCode validateCode;
+        HttpServletRequest req = request.getRequest();
+        String ip = req.getRemoteAddr();
+        String sid = request.getSessionId();
+        String uri = req.getRequestURI();
         try
         {
             validateCode = generate(request);
@@ -66,20 +72,26 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             if (!validateStatus)
             {
                 this.sessionStrategy.removeAttribute(request, getValidateCodeType().getSessionKey());
+                log.warn("发送验证码失败: ip={}, sid={}, uri={}, validateCode={}",
+                         ip, sid, uri, validateCode.toString());
                 return false;
             }
         }
         catch (Exception e)
         {
-            log.error(e.getMessage(), e);
             this.sessionStrategy.removeAttribute(request, getValidateCodeType().getSessionKey());
             if (e instanceof ValidateCodeException)
             {
-                throw e;
+                ValidateCodeException exception = (ValidateCodeException) e;
+                log.warn(String.format("生成验证码失败: error={}, ip={}, uid={}, sid={}, uri={}, data={}",
+                                       exception.getMessage(), ip, exception.getUid(), sid, uri, exception.getData()), exception);
+                throw exception;
             }
             else
             {
-                throw new ValidateCodeException(GET_VALIDATE_CODE_FAILURE, e, request.getRequest().getRemoteAddr());
+                log.warn(String.format("生成验证码失败: error={}, ip={}, sid={}, uri={}",
+                                       e.getMessage(), ip, sid, uri), e);
+                throw new ValidateCodeException(GET_VALIDATE_CODE_FAILURE, e, ip, uri);
             }
         }
         return true;
@@ -98,12 +110,13 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         }
         catch (Exception e)
         {
-            throw new ValidateCodeException(GET_VALIDATE_CODE_FAILURE, e, request.getRequest().getRemoteAddr());
+            throw new ValidateCodeException(GET_VALIDATE_CODE_FAILURE, e, request.getRequest().getRemoteAddr(), request.getRequest().getRequestURI());
         }
     }
 
     @Override
     public boolean saveSession(ServletWebRequest request, ValidateCode validateCode) {
+
         try
         {
             ValidateCodeType validateCodeType = getValidateCodeType();
@@ -115,7 +128,10 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         }
         catch (Exception e)
         {
-            log.error(e.getMessage(), e);
+            log.error(String.format("验证码保存到Session失败: error={}, ip={}, code={}",
+                                    e.getMessage(),
+                                    request.getRequest().getRemoteAddr(),
+                                    validateCode), e);
             return false;
         }
         return true;
@@ -150,25 +166,27 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         ValidateCode codeInSession = (ValidateCode) this.sessionStrategy.getAttribute(request, sessionKey);
         String codeInRequest = request.getParameter(requestParamValidateCodeName).trim();
 
+        HttpServletRequest req = request.getRequest();
+
         if (!StringUtils.isNotBlank(codeInRequest))
         {
-            throw new ValidateCodeException(VALIDATE_CODE_NOT_EMPTY, request.getRequest().getRemoteAddr());
+            throw new ValidateCodeException(VALIDATE_CODE_NOT_EMPTY, req.getRemoteAddr(), validateCodeType.name());
         }
 
         if (codeInSession == null)
         {
-            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, request.getRequest().getRemoteAddr());
+            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, req.getRemoteAddr(), codeInRequest);
         }
 
         if (codeInSession.isExpired())
         {
             sessionStrategy.removeAttribute(request, sessionKey);
-            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, request.getRequest().getRemoteAddr());
+            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, req.getRemoteAddr(), codeInRequest);
         }
 
         if (!StringUtils.equalsIgnoreCase(codeInSession.getCode(), codeInRequest))
         {
-            throw new ValidateCodeException(VALIDATE_CODE_ERROR, request.getRequest().getRemoteAddr());
+            throw new ValidateCodeException(VALIDATE_CODE_ERROR, req.getRemoteAddr(), codeInRequest);
         }
         sessionStrategy.removeAttribute(request, sessionKey);
 
@@ -199,11 +217,12 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
                     return validateCodeGenerator;
                 }
             }
+            throw new ValidateCodeException(ILLEGAL_VALIDATE_CODE_TYPE, null, type.name());
         }
         catch (Exception e)
         {
+            throw new ValidateCodeException(ILLEGAL_VALIDATE_CODE_TYPE, e, null, type.name());
         }
-        throw new ValidateCodeException(GET_VALIDATE_CODE_FAILURE, null);
     }
 
 }

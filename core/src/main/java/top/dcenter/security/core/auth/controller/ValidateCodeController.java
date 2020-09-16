@@ -51,16 +51,21 @@ public class ValidateCodeController {
         } else {
             validateCodeProcessor = null;
         }
+
+        String ip = request.getRemoteAddr();
+        String errorMsg = ILLEGAL_VALIDATE_CODE_TYPE.getMsg();
         if (validateCodeProcessor == null)
         {
-            throw new ValidateCodeException(ILLEGAL_VALIDATE_CODE_TYPE, request.getRemoteAddr());
+            log.warn("创建验证码错误: error={}, ip={}, type={}", errorMsg, ip, type);
+            throw new ValidateCodeException(ILLEGAL_VALIDATE_CODE_TYPE, ip, type);
         }
 
         boolean validateStatus = validateCodeProcessor.produce(new ServletWebRequest(request, response));
 
         if (!validateStatus)
         {
-            throw new ValidateCodeProcessException(GET_VALIDATE_CODE_FAILURE, request.getRemoteAddr());
+            log.warn("发送验证码失败: error={}, ip={}, type={}", errorMsg, ip, type);
+            throw new ValidateCodeProcessException(GET_VALIDATE_CODE_FAILURE, ip, type);
         }
 
     }

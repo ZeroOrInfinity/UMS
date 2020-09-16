@@ -30,7 +30,7 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UN_AUTH
  *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 17:43
- * @author zyw
+ * @author
  */
 @Slf4j
 @ResponseBody
@@ -94,8 +94,14 @@ public class ClientSecurityController implements BaseSecurityController {
         }
         catch (Exception e)
         {
-            log.error(e.getMessage(), e);
-            throw new IllegalAccessUrlException(ErrorCodeEnum.SERVER_ERROR, request.getRemoteAddr());
+            String requestURI = request.getRequestURI();
+            String ip = request.getRemoteAddr();
+            log.error(String.format("IllegalAccessUrlException: ip={}, uri={}, sid={}, error={}",
+                                    ip,
+                                    requestURI,
+                                    request.getSession(true).getId(),
+                                    e.getMessage()), e);
+            throw new IllegalAccessUrlException(ErrorCodeEnum.SERVER_ERROR, requestURI, ip);
         }
     }
 

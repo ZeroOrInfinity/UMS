@@ -59,11 +59,13 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
         // 客户端成功处理器,
+        String username = authentication.getName();
+        String ip = request.getRemoteAddr();
+        String userAgent = request.getHeader(HEADER_USER_AGENT);
+        String sid = request.getSession(true).getId();
+
         log.info("登录成功: user={}, ip={}, ua={}, sid={}",
-                 authentication.getName(),
-                 request.getRemoteAddr(),
-                 request.getHeader(HEADER_USER_AGENT),
-                 request.getSession(true).getId());
+                 username, ip, userAgent, sid);
 
         UserInfoJsonVo userInfoJsonVo = null;
         AbstractAuthenticationToken token = (AbstractAuthenticationToken) authentication;
@@ -71,7 +73,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         try
         {
             userInfoJsonVo = new UserInfoJsonVo(null,
-                                                authentication.getName(),
+                                                username,
                                                 null,
                                                 token.getAuthorities());
 
@@ -106,7 +108,8 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         }
         catch (Exception e)
         {
-            log.error(e.getMessage(), e);
+            log.error(String.format("设置登录成功后跳转的URL失败: error={}, user={}, ip={}, ua={}, sid={}",
+                                    e.getMessage(), username, ip, userAgent, sid), e);
         }
 
         super.onAuthenticationSuccess(request, response, authentication);
@@ -133,8 +136,6 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
             targetUrl = request.getParameter(targetUrlParameter);
 
             if (org.springframework.util.StringUtils.hasText(targetUrl)) {
-                log.debug("Found targetUrlParameter in request: " + targetUrl);
-
                 return targetUrl;
             }
         }
@@ -147,12 +148,10 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
             {
                 targetUrl = defaultTargetUrl;
             }
-            log.debug("Using Referer header: " + targetUrl);
         }
 
         if (!org.springframework.util.StringUtils.hasText(targetUrl)) {
             targetUrl = defaultTargetUrl;
-            log.debug("Using default Url: " + targetUrl);
         }
 
         return targetUrl;

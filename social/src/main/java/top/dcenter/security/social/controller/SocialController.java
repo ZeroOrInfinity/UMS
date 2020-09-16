@@ -49,6 +49,14 @@ public class SocialController {
     public RedirectView authCallbackRouter(HttpServletRequest request) {
 
         String state = request.getParameter(URL_PARAMETER_STATE);
+        String queryString = request.getQueryString();
+        String ip = request.getRemoteAddr();
+        String sid = request.getSession(true).getId();
+        String uri = request.getRequestURI();
+
+        log.info("统一回调地址路由: ip={}, sid={}, uri={}, state={}, queryString={}",
+                 ip, sid, uri, state, queryString);
+
         if (StringUtils.isNotBlank(state))
         {
             // 解密 state 获取真实的回调地址
@@ -59,9 +67,10 @@ public class SocialController {
                 // RFC 6819 安全检查：https://oauth.net/advisories/2014-1-covert-redirect/
                 if (redirectUrl.matches(RFC_6819_CHECK_REGEX))
                 {
-                    log.error("state被篡改: 非法的回调地址: {}", redirectUrl);
+                    log.error("统一回调地址路由-state被篡改: ip={}, sid={}, uri={}, state={}, queryString={}, redirectUrl={}",
+                              ip, sid, uri, state, queryString, redirectUrl);
                     throw new ParameterErrorException(REDIRECT_URL_PARAMETER_ILLEGAL, redirectUrl,
-                                                      request.getSession(true).getId());
+                                                      sid);
                 }
                 if (StringUtils.isNotBlank(redirectUrl))
                 {
@@ -79,15 +88,17 @@ public class SocialController {
                                                 state);
                     return new RedirectView(redirectUrl, true);
                 }
-                log.warn("state被篡改: 回调地址不正确: {}", redirectUrl);
+                log.error("统一回调地址路由-state被篡改: ip={}, sid={}, uri={}, state={}, queryString={}, redirectUrl={}",
+                          ip, sid, uri, state, queryString, redirectUrl);
                 throw new ParameterErrorException(REDIRECT_URL_PARAMETER_ERROR, redirectUrl,
-                                                  request.getSession(true).getId());
+                                                  sid);
             }
 
         }
-        log.warn("state被篡改: 回调参数 {} 被篡改", state);
+        log.warn("统一回调地址路由-state为空: ip={}, sid={}, uri={}, state={}, queryString={}",
+                  ip, sid, uri, state, queryString);
         throw new ParameterErrorException(TAMPER_WITH_REDIRECT_URL_PARAMETER, state,
-                                          request.getSession(true).getId());
+                                          sid);
 
     }
 
