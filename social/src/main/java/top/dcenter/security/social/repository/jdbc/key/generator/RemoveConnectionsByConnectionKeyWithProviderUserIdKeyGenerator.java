@@ -2,12 +2,11 @@ package top.dcenter.security.social.repository.jdbc.key.generator;
 
 import org.springframework.social.connect.ConnectionKey;
 import org.springframework.stereotype.Component;
-import top.dcenter.security.social.repository.jdbc.key.generator.BaseKeyGenerator;
 
 import java.lang.reflect.Method;
 
-import static top.dcenter.security.social.config.RedisCacheConfig.REDIS_CACHE_HASH_KEY_SEPARATE;
-import static top.dcenter.security.social.config.RedisCacheConfig.REDIS_CACHE_KEY_SEPARATE;
+import static top.dcenter.security.social.config.RedisCacheAutoConfig.REDIS_CACHE_HASH_KEY_SEPARATE;
+import static top.dcenter.security.social.config.RedisCacheAutoConfig.REDIS_CACHE_KEY_SEPARATE;
 
 /**
  * @author zyw

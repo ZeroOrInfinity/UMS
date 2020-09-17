@@ -7,6 +7,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,9 +20,10 @@ import org.springframework.social.connect.ConnectionSignUp;
 import top.dcenter.security.social.api.banding.ShowConnectViewService;
 import top.dcenter.security.social.api.config.BaseSocialConfigurerAdapter;
 import top.dcenter.security.social.api.repository.UsersConnectionRepositoryFactory;
+import top.dcenter.security.social.config.SocialAutoConfiguration;
 import top.dcenter.security.social.properties.SocialProperties;
-import top.dcenter.security.social.view.ConnectView;
 import top.dcenter.security.social.provider.weixin.connect.WeixinConnectionFactory;
+import top.dcenter.security.social.view.ConnectView;
 
 import javax.sql.DataSource;
 
@@ -37,6 +39,7 @@ import static top.dcenter.security.social.controller.BandingConnectController.UN
  * @version V1.0  Created by 2020/5/8 23:36
  */
 @Configuration
+@AutoConfigureAfter({SocialAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "security.social.weixin", name = "app-id")
 public class WeixinAutoConfiguration extends BaseSocialConfigurerAdapter implements InitializingBean {
 

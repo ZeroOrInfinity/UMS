@@ -3,7 +3,7 @@ package top.dcenter.security.core.permission.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
 import top.dcenter.security.core.api.permission.service.AbstractUriAuthorizeService;
-import top.dcenter.security.core.permission.UriResources;
+import top.dcenter.security.core.permission.dto.UriResourcesDTO;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class DefaultUriAuthorizeService extends AbstractUriAuthorizeService {
     private AntPathMatcher matcher = new AntPathMatcher();
 
     @Override
-    public Optional<Map<String, Map<String, UriResources>>> getRolesAuthorities() {
+    public Optional<Map<String, Map<String, UriResourcesDTO>>> getRolesAuthorities() {
         // do nothing
         return Optional.empty();
     }

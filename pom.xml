@@ -18,7 +18,7 @@
         访问权限控制功能、通过统一的回调地址入口实现多回调地址的路由功能、签到等功能</description>
 
     <properties>
-        <classifier>top.dcenter.DemoApplication</classifier>
+        <classifier>demo.security.DemoApplication</classifier>
         <top.dcenter.version>1.0.0</top.dcenter.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

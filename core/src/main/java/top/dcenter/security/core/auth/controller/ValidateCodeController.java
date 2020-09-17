@@ -3,17 +3,16 @@ package top.dcenter.security.core.auth.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.security.core.api.validate.code.ValidateCodeProcessor;
+import top.dcenter.security.core.auth.validate.codes.ValidateCodeProcessorHolder;
 import top.dcenter.security.core.exception.ValidateCodeException;
 import top.dcenter.security.core.exception.ValidateCodeProcessException;
-import top.dcenter.security.core.auth.validate.codes.ValidateCodeProcessorHolder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX;
 import static top.dcenter.security.core.enums.ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE;
 import static top.dcenter.security.core.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_CODE_TYPE;
 
@@ -24,8 +23,8 @@ import static top.dcenter.security.core.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_COD
  * @author  zyw
  * @version V1.0  Created by 2020/5/3 23:41
  */
-@RestController
 @Slf4j
+@ResponseBody
 public class ValidateCodeController {
 
     private final ValidateCodeProcessorHolder validateCodeProcessorHolder;
@@ -40,7 +39,7 @@ public class ValidateCodeController {
      * @param request request 中的 width 的值如果小于 height * 45 / 10, 则 width = height * 45 / 10
      * @param response  {@link HttpServletResponse}
      */
-    @GetMapping(DEFAULT_VALIDATE_CODE_URL_PREFIX + "/{type}")
+    @GetMapping("/code/{type}")
     public void createCode(@PathVariable("type") String type,
                                      HttpServletRequest request, HttpServletResponse response) {
 

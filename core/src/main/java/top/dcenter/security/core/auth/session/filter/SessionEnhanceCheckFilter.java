@@ -32,7 +32,7 @@ import static top.dcenter.security.core.enums.ErrorCodeEnum.SESSION_ENHANCE_CHEC
  * session 增强检测, 如对客户端特征码检测, 增强对 session 攻击的防御. <br>
  * 如果要修改检测逻辑, 实现 {@link SessionEnhanceCheckService}, 注入 IOC 容器即可
  * 依赖 {@link EnhanceConcurrentControlAuthenticationStrategy}. <br><br>
- *     属性 authorizeRequestMap 通过 {@link top.dcenter.security.core.config.SecurityCoreConfigurer} 方法
+ *     属性 authorizeRequestMap 通过 {@link top.dcenter.security.core.config.SecurityCoreAutoConfigurer} 方法
  *     groupingAuthorizeRequestUris() 注入
  * @author zyw
  * @version V1.0  Created by 2020/6/2 10:14
@@ -44,7 +44,7 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
     private SessionEnhanceCheckService sessionEnhanceCheckService;
     private final ServletWebServerApplicationContext servletWebServerApplicationContext;
     /**
-     * 通过 {@link top.dcenter.security.core.config.SecurityCoreConfigurer} 注入.
+     * 通过 {@link top.dcenter.security.core.config.SecurityCoreAutoConfigurer} 注入.
      */
     private Map<String, Set<String>> authorizeRequestMap;
     private final AntPathMatcher pathMatcher;
@@ -87,7 +87,7 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
     }
 
     private boolean isPermitUri(String requestURI) {
-        // authorizeRequestMap 通过 SecurityCoreConfigurer.groupingAuthorizeRequestUris(..) 注入 ServletContext,
+        // authorizeRequestMap 通过 SecurityCoreAutoConfigurer.groupingAuthorizeRequestUris(..) 注入 ServletContext,
         // 首次访问时从 ServletContext 赋值
         if (MapUtils.isEmpty(this.authorizeRequestMap))
         {

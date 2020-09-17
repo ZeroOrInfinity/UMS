@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface UriAuthorize {
     /**
-     * @return permission for uri
+     * permission for uri
      */
     String value() default "";
 }

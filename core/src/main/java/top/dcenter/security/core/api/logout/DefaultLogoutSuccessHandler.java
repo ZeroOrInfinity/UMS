@@ -44,7 +44,7 @@ public class DefaultLogoutSuccessHandler implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(true);
 
         log.info("登出成功: user={}, ip={}, ua={}, sid={}",
                  authentication != null ? authentication.getPrincipal() : "",

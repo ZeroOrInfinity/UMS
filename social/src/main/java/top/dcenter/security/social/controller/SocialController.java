@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.view.RedirectView;
 import top.dcenter.security.core.exception.ParameterErrorException;
 import top.dcenter.security.social.callback.RedirectUrlHelper;
@@ -27,8 +27,8 @@ import static top.dcenter.security.core.enums.ErrorCodeEnum.TAMPER_WITH_REDIRECT
  * @author  zyw
  * @version V1.0  Created by 2020/5/12 11:37
  */
-@RestController
 @Slf4j
+@ResponseBody
 public class SocialController {
 
 
@@ -90,15 +90,13 @@ public class SocialController {
                 }
                 log.error("统一回调地址路由-state被篡改: ip={}, sid={}, uri={}, state={}, queryString={}, redirectUrl={}",
                           ip, sid, uri, state, queryString, redirectUrl);
-                throw new ParameterErrorException(REDIRECT_URL_PARAMETER_ERROR, redirectUrl,
-                                                  sid);
+                throw new ParameterErrorException(REDIRECT_URL_PARAMETER_ERROR, redirectUrl, sid);
             }
 
         }
         log.warn("统一回调地址路由-state为空: ip={}, sid={}, uri={}, state={}, queryString={}",
                   ip, sid, uri, state, queryString);
-        throw new ParameterErrorException(TAMPER_WITH_REDIRECT_URL_PARAMETER, state,
-                                          sid);
+        throw new ParameterErrorException(TAMPER_WITH_REDIRECT_URL_PARAMETER, state, sid);
 
     }
 

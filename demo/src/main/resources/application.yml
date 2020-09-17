@@ -59,7 +59,7 @@ security:
     usernameParameter: username
     # 设置登录时用户密码的 request 参数名称, 默认为 password
     passwordParameter: password
-    # 登录后是否利用 Referer 进行跳转, 默认为: false
+    # 登录后是否利用 Referer 进行跳转, 默认为: true
     useReferer: true
     # 设置由客户端决定认证成功要跳转的 url 的 request 参数名称, 默认为 redirectTargetUrl
     targetUrlParameter: redirectTargetUrl
@@ -126,6 +126,17 @@ security:
         - /file/**
       # csrf tokenRepository 的存储类型, 默认为 session. 集群选择 redis, 也可以自己自定义
       token-repository-type: redis
+    anonymous:
+      # anonymous 是否开启, 默认为 false;
+      anonymous-is-open: true
+      # 匿名用户名称, 默认为 anonymous
+      principal: anonymous
+      # 匿名用户权限 list, 默认为 ROLE_ANONYMOUS
+      authorities:
+        - ROLE_ANONYMOUS
+        - /test/permission:add
+        - /test/permission:list
+        - /test/pass/:list
 
   # 签到功能 设置
   sign:
@@ -135,6 +146,8 @@ security:
     sign-key-prefix: 'u:sign:'
     # redis key(String) 转 byte[] 转换时所用的 charset
     charset: UTF-8
+
+
   # 验证码配置
   codes:
     # 图片验证码

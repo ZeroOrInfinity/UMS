@@ -11,7 +11,6 @@ import top.dcenter.security.core.permission.annotation.UriAuthorize;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.time.Instant;
 
 /**
@@ -47,25 +46,26 @@ public class UriAuthorizationAnnotationInterceptor implements HandlerInterceptor
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean hasPermission = uriAuthorizeService.hasPermission(request, authentication, methodAnnotation.value());
 
-        HttpSession sid = request.getSession();
+        String sid = request.getSession(true).getId();
         Object principal = authentication.getPrincipal();
         String ip = request.getRemoteAddr();
         String uri = request.getRequestURI();
         long now = Instant.now().toEpochMilli();
         String referer = request.getHeader("referer");
         String userAgent = request.getHeader("User-Agent");
+        String method = request.getMethod();
 
         // 有访问权限
         if (hasPermission)
         {
-            log.info("URI权限控制-放行: sid={}, user={}, ip={}, uri={}, time={}, referer={}, agent={}",
-                     sid, principal, ip, uri, now, referer, userAgent);
+            log.info("URI权限控制-放行: sid={}, user={}, ip={}, uri={}, method={}, time={}, referer={}, agent={}",
+                     sid, principal, ip, uri, method, now, referer, userAgent);
             return true;
         }
 
         // 没有访问权限
-        log.warn("URI权限控制-禁止: sid={}, user={}, ip={}, uri={}, time={}, referer={}, agent={}",
-                 sid, principal, ip, uri, now, referer, userAgent);
+        log.warn("URI权限控制-禁止: sid={}, user={}, ip={}, uri={}, method={}, time={}, referer={}, agent={}",
+                 sid, principal, ip, uri, method, now, referer, userAgent);
         uriAuthorizeService.handlerError(HttpStatus.FORBIDDEN.value(), response);
 
         return false;

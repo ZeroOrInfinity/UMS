@@ -19,7 +19,7 @@
   - 第三方登录功能(qq,微博,微信,gitee)，登录后自动注册，与用户账号绑定与解绑。
   - 登录路由功能
   - 统一回调地址路由功能(OAuth2)。
-  - 基于 RBAC 的 uri 访问权限控制功能。
+  - 访问权限控制功能。
   - 简化 session、rememberme 配置。
   - 根据设置的返回方式（JSON 与 REDIRECT）返回 json 或 html 数据。
   - 签到功能。
@@ -30,6 +30,8 @@
 
 ## 三、`TODO List`:
 - demo 待完善
+- 第三方登录功能添加 JustAuth 工具, 支持更多的第三方登录. 
+- 上传 maven 版本库
 
 ## 四、`使用方式`：
 
@@ -41,137 +43,293 @@
         - 无 social 模块时: `top.dcenter.security.core.api.service.AbstractUserDetailsService`    
     2. 发送自定义图片验证码, 如果不实现就会使用默认图片验证码, 实时生产验证码图片, 没有缓存功能:
         - `top.dcenter.security.core.api.validate.code.ImageCodeFactory`
-    3. 发送短信验证码(`必须实现`):
+    3. 发送短信验证码: `默认空实现`.
         - `top.dcenter.security.core.api.validate.code.SmsCodeSender`
     4. 使用自定义验证码:
         - `top.dcenter.security.core.api.validate.code.AbstractValidateCodeProcessor`
         - `top.dcenter.security.core.api.validate.code.ValidateCodeGenerator`
-    5. 基于 RBAC 的 uri 访问权限控制(`必须实现`): 相比于 RBAC 更加细粒度的权限控制, 如: 对菜单与按钮的权限控制.
+    5. 基于 RBAC 的访问权限控制: 增加了更加细粒度的权限控制, 如: 对菜单与按钮的权限控制. 默认空实现
         - `top.dcenter.security.core.api.permission.service.AbstractUriAuthorizeService` 类中的方法`getRolesAuthorities()`;
-          `getRolesAuthorities()`返回值: Map<`role`, Map<`uri`, `UriResources`>>, `UriResources` 中字段 `uri` 与 `permission
-          ` 必须有值. 
-        - 在方法上添加注释 `@UriAuthorize("/test/permission:add")`即可实现权限控制. 示例:
-        ```java
-        @Component
-        @Slf4j
-        public class DemoUriAuthorizeService extends AbstractUriAuthorizeService {
-        
-            private AntPathMatcher matcher = new AntPathMatcher();
-        
-            @Override
-            public Optional<Map<String, Map<String, UriResources>>> getRolesAuthorities() {
-        
-                // 生产环境: 从数据源获取 RolesAuthorities
-        
-                // 示例代码
-                Map<String, Map<String, UriResources>> rolesAuthorities = new HashMap<>(10);
-                Map<String, UriResources> uriAuthority = new HashMap<>();
-                UriResources uriResources = new UriResources();
-                uriResources.setUrl("/test/permission/**");
-                uriResources.setPermission("/test/permission:add");        
-        
-                uriAuthority.put("/test/permission/**", uriResources);
-        
-                rolesAuthorities.put("ROLE_USER", uriAuthority);
-                rolesAuthorities.put("ROLE_ANONYMOUS", uriAuthority);
-                return Optional.of(rolesAuthorities);
-            }
-        
-            @Override
-            public void handlerError(int status, HttpServletResponse response) {
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.setCharacterEncoding("UTF-8");
-                response.setStatus(status);
-                try (PrintWriter writer = response.getWriter())
-                {
-                    writer.write("{\"msg\":\"您没有访问权限或未登录\"}");
-                    writer.flush();
-                }
-                catch (IOException e)
-                {
-                    log.error(e.getMessage(), e);
+          `getRolesAuthorities()`返回值: Map<`role`, Map<`uri`, `UriResourcesDTO`>>, `UriResources` 中字段 `uri` 
+          与 `permission` 必须有值. 
+        - 使用方法
+            - 类上添加: @EnableUriAuthorize(filterOrInterceptor = false, restfulAPI = false, repeat = false),
+              filterOrInterceptor=false 时为拦截器(注解方式)模式; filterOrInterceptor=true 时为过滤器模式, 算法上根据 restfulAPI 与 repeat 不同有区别.
+            - filterOrInterceptor=true 时, 启用过滤器模式, 无需在方法上配置; 另外如果是 restful 风格 API, 那么 restfulAPI=true, 设置 uri
+              权限时必须根据 requestMethod 类型添加指定的后缀, 示例:  
+            ```java
+            
+            // 例如: 给 uri=/test/permission/** 设置 edit,list 权限
+            public class AddUriPermission {
+                public static void main(String[] args) {
+                    UriResources uriResources= new UriResources();
+                    // ...
+                    uriResources.setUrl("/test/permission/**");
+                    // 添加 uri 的 requestMethod=PUT 的权限和 uri 的 requestMethod=GET 的权限
+                    uriResources.setPermission(String.format("/test/permission/{}{}/test/{}",
+                                                             PermissionSuffixType.EDIT.getPermissionSuffix(),
+                                                             AbstractUriAuthorizeService.PERMISSION_DELIMITER,
+                                                             PermissionSuffixType.LIST.getPermissionSuffix()));
+                    // ... 把数据存入数据库
                 }
             }
-        
-        }
-        ```
-        ```java
-        @Configuration
-        public class UriAuthorizeConfigurerAware implements HttpSecurityAware {
-        
-            @Override
-            public void postConfigure(HttpSecurity http) throws Exception {
-                // dto nothing
-            }
-        
-            @Override
-            public void preConfigure(HttpSecurity http) throws Exception {
-                // dto nothing
-            }
-        
-            @Override
-            public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
-        
-                final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
-        
-                // 放行要测试 permission 的链接, 以免干扰 permission 测试.
-                permitAllMap.put("/test/permission/**", null);
-                permitAllMap.put("/test/deny/**", null);
-                permitAllMap.put("/test/pass/**", null);
-        
-                Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
-        
-                resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
-        
-                return resultMap;
-            }
-        
-        }
-        ```
-        ```java
-        @RestController
-        @Slf4j
-        public class PermissionController {
+            // =======================================================================
+            
             /**
-             * 测试有 /test/permission:add 权限, 放行
+             * 权限后缀类型
+             * @author zyw
+             * @version V1.0  Created by 2020/9/17 9:33
              */
-            @UriAuthorize("/test/permission:add")
-            @GetMapping("/test/permission/{id}")
-            public String testPermission(@PathVariable("id") String id) {
-                return "test permission: " + id;
+            public enum PermissionSuffixType {
+                /**
+                 * 查询
+                 */
+                LIST("GET")
+                        {
+                            @Override
+                            public String getPermissionSuffix() {
+                                return ":list";
+                            }
+                        },
+                /**
+                 * 添加
+                 */
+                ADD("POST")
+                        {
+                            @Override
+                            public String getPermissionSuffix() {
+                                return ":add";
+                            }
+                        },
+                /**
+                 * 更新
+                 */
+                EDIT("PUT")
+                        {
+                            @Override
+                            public String getPermissionSuffix() {
+                                return ":edit";
+                            }
+                        },
+                /**
+                 * 删除
+                 */
+                DELETE("DELETE")
+                        {
+                            @Override
+                            public String getPermissionSuffix() {
+                                return ":del";
+                            }
+                        };
+            
+                /**
+                 * request method
+                 */
+                @Getter
+                private String method;
+            
+                PermissionSuffixType(String method) {
+                    this.method = method;
+                }
+            
+                /**
+                 * 获取权限后缀
+                 * @return 返回权限后缀
+                 */
+                public abstract String getPermissionSuffix();
+            
+                /**
+                 * 根据 requestMethod 获取权限后缀
+                 * @param method    requestMethod
+                 * @return  权限后缀, 如果 method 不匹配, 返回 null
+                 */
+                public static String getPermissionSuffix(String method) {
+                    Objects.requireNonNull(method, "method require non null");
+                    PermissionSuffixType[] types = values();
+                    for (int i = 0, length = types.length; i < length; i++)
+                    {
+                        if (types[i].method.equals(method.toUpperCase()))
+                        {
+                            return types[i].getPermissionSuffix();
+                        }
+                    }
+                    return null;
+                }
+            
             }
-        
-        
+            ```
+            - filterOrInterceptor=false 时, 在方法上添加注释 `@UriAuthorize("/test/permission:add")`即可实现权限控制. 示例:
+            ```java
+            @Component
+            @Slf4j
+            public class DemoUriAuthorizeService extends AbstractUriAuthorizeService {
+            
+                @Override
+                public Optional<Map<String, Map<String, UriResourcesDTO>>> getRolesAuthorities() {
+            
+                    // 生产环境: 从数据源获取 RolesAuthorities
+            
+                    // 示例代码
+                    Map<String, Map<String, UriResourcesDTO>> rolesAuthorities = new HashMap<>(2);
+                    Map<String, UriResourcesDTO> uriAuthority = new HashMap<>(1);
+                    UriResourcesDTO uriResourcesDTO = new UriResourcesDTO();
+                    uriResourcesDTO.setUrl("/test/permission/**");
+                    uriResourcesDTO.setPermission("/test/permission:add");
+            
+                    uriAuthority.put("/test/permission/**", uriResourcesDTO);
+                    uriAuthority.put("/test/pass/**", uriResourcesDTO);
+            
+                    rolesAuthorities.put("ROLE_USER", uriAuthority);
+                    rolesAuthorities.put("ROLE_ANONYMOUS", uriAuthority);
+                    return Optional.of(rolesAuthorities);
+                }
+            
+                @Override
+                public void handlerError(int status, HttpServletResponse response) {
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    response.setCharacterEncoding("UTF-8");
+                    response.setStatus(status);
+                    try (PrintWriter writer = response.getWriter())
+                    {
+                        writer.write("{\"msg\":\"demo: 您没有访问权限或未登录\"}");
+                        writer.flush();
+                    }
+                    catch (IOException e)
+                    {
+                        log.error(e.getMessage(), e);
+                    }
+                }
+            
+            }
+            ```
+            ```java
+            @Configuration
+            public class UriAuthorizeConfigurerAware implements HttpSecurityAware {
+            
+                @Override
+                public void postConfigure(HttpSecurity http) throws Exception {
+                    // dto nothing
+                }
+            
+                @Override
+                public void preConfigure(HttpSecurity http) throws Exception {
+                    // dto nothing
+                }
+            
+                @Override
+                public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
+            
+                     // 也可以在 application.yml 中配置, 不用硬编码
+                     // security:
+                     //   client:
+                     //     # 不需要认证的 uri, 默认为 空 Set.
+                     //     permit-urls:
+                     //       - /**/*.html
+                     //       - /testSign
+                     //       - /testSignOfLastSevenDays/**
+                    
+                    final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
+                    // 放行要测试 permission 的链接, 以免干扰 permission 测试.
+                    permitAllMap.put("/test/permission/**", null);
+                    permitAllMap.put("/test/deny/**", null);
+                    permitAllMap.put("/test/pass/**", null);
+            
+                    Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
+            
+                    resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
+            
+                    return resultMap;
+                }
+            
+            }
+            ```
+            ```java
             /**
-             * 测试不匹配 /test/deny:add 权限, 禁止访问
+             * @PreAuthorize 注解需要 @EnableGlobalMethodSecurity(prePostEnabled = true) 支持, 在 @EnableUriAuthorize 中
+             * {@link top.dcenter.security.core.permission.config.UriAuthorizeInterceptorAutoConfiguration}已配置, 不需要再次配置. <br>
+             * @UriAuthorize 注解需要 @EnableUriAuthorize 支持
+             * @author zyw
+             * @version V1.0  Created by 2020/9/9 22:49
              */
-            @UriAuthorize("/test/deny:add")
-            @GetMapping("/test/deny/{id}")
-            public String testDeny(@PathVariable("id") String id) {
-                return "test deny: " + id;
+            @RestController
+            @Slf4j
+            // filterOrInterceptor=false 时为拦截器(注解方式)模式; filterOrInterceptor=true 时为过滤器模式, 算法上根据 restfulAPI 与 repeat 不同有区别.
+            @EnableUriAuthorize(filterOrInterceptor = false, restfulAPI = false, repeat = false)
+            public class PermissionController {
+                /**
+                 * 此 uri 已经设置 permitAll, 不用登录验证
+                 * 测试有 /test/permission:add 权限, 放行
+                 */
+                @UriAuthorize("/test/permission:add")
+                @GetMapping("/test/permission/{id}")
+                public String testPermission(@PathVariable("id") String id) {
+                    return "test permission: " + id;
+                }
+            
+            
+                /**
+                 * 此 uri 已经设置 permitAll, 不用登录验证
+                 * 测试不匹配 /test/deny:add 权限, 禁止访问
+                 */
+                @UriAuthorize("/test/deny:add")
+                @GetMapping("/test/deny/{id}")
+                public String testDeny(@PathVariable("id") String id) {
+                    return "test deny: " + id;
+                }
+            
+                /**
+                 * 此 uri 已经设置 permitAll, 不用登录验证
+                 * 没有注释 @UriAuthorize 直接放行
+                 */
+                @GetMapping("/test/pass/{id}")
+                public String testPass(@PathVariable("id") String id) {
+                    return "test pass: " + id;
+                }
+            
+                /**
+                 * 需要登录验证, 用户的 AuthorityList("admin, ROLE_USER")
+                 * 有注释 @PreAuthorize("hasRole('admin')") 没有 admin role, 禁止访问
+                 */
+                @PreAuthorize("hasRole('admin')")
+                @GetMapping("/test/role/{id}")
+                public String testRole(@PathVariable("id") String id) {
+                    return "test role: " + id;
+                }
+            
+                /**
+                 * 需要登录验证, 用户的 AuthorityList("admin, ROLE_USER")
+                 * 有注释 @PreAuthorize("hasRole('USER')"), 有 USER role, 直接放行
+                 */
+                @PreAuthorize("hasRole('USER')")
+                @GetMapping("/test/role2/{id}")
+                public String testRole2(@PathVariable("id") String id) {
+                    return "test role2: " + id;
+                }
+            
+                /**
+                 * 需要登录验证, 用户的 AuthorityList("admin, ROLE_USER")
+                 * 有注释 @PreAuthorize("hasAuthority('admin')"), 有 admin authority, 直接放行
+                 */
+                @PreAuthorize("hasAuthority('admin')")
+                @GetMapping("/test/role3/{id}")
+                public String testRole3(@PathVariable("id") String id) {
+                    return "test role3: " + id;
+                }
+            
             }
-        
-            /**
-             * 没有注释 @UriAuthorize 直接放行
-             */
-            @GetMapping("/test/pass/{id}")
-            public String testPass(@PathVariable("id") String id) {
-                return "test pass: " + id;
-            }
-        
-        }
-        ```
-    6. 绑定与解绑视图(`必须实现`): 用户绑定与解绑成功后会自动跳转到对应回显页面, 默认返回 json 信息
+            ```
+    6. 绑定与解绑视图: 用户绑定与解绑成功后会自动跳转到对应回显页面, 默认返回 json 信息
         - 绑定状态信息回显: `top.dcenter.security.social.api.banding.ShowConnectionStatusViewService`
         - 绑定与解绑信息回显: `top.dcenter.security.social.api.banding.ShowConnectViewService`
         
     7. 统一的回调地址的路由功能，方便对于多个回调地址进行路由管理: 
        - 需要调用`top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory#generateState(realAuthCallbackPath)`
          方法去设置真实的回调地址: realAuthCallbackPath(格式为：`path=myAuthCallbackPath`).
-        1. 统一回调地址与真实回调地址的转换逻辑：
-            - 构建统一的回调地址: `top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory#buildReturnToUrl(..)`
-            - 跳转到真实的回调地址: `top.dcenter.security.social.controller.SocialController#authCallbackRouter(..)`
-        2. 对 `state` 的加解密逻辑：
+       - 自定义路由算法: 
+         1. 统一回调地址与真实回调地址的转换逻辑：
+             - 构建统一的回调地址: 实现`top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory#buildReturnToUrl(..)`方法
+             - 跳转到真实的回调地址: `top.dcenter.security.social.controller.SocialController#authCallbackRouter(..)`
+         2. 对 `state` 的加解密逻辑：
             - 构建真实回调地址到`state`并进行加密: `top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory#generateState(..)`
             - 解密`state`并返回真实的回调地址: `top.dcenter.security.social.api.callback.RedirectUrlHelperService#decodeRedirectUrl(..)`
 
@@ -379,8 +537,27 @@
           # csrf tokenRepository 的存储类型, 默认为 session. 集群选择 redis, 也可以自己自定义
           token-repository-type: redis
     ```
+### 6. anonymous 配置
+- 在 core 包中；
+  - 简单配置: 不对 anonymous 进行任何配置, 默认开启 anonymous 功能.
+  - 详细配置:
+    ```yaml
+    security:
+      client:
+        anonymous:
+          # anonymous 是否开启, 默认为 false;
+          anonymous-is-open: true
+          # 匿名用户名称, 默认为 anonymous
+          principal: anonymous
+          # 匿名用户权限 list, 默认为 ROLE_ANONYMOUS
+          authorities:
+            - ROLE_ANONYMOUS
+            - /test/permission:add
+            - /test/permission:list
+            - /test/pass/:list
+    ```
 
-### 6. 验证码功能
+### 7. 验证码功能
 - 在 core 包中；
   - 简单配置:
     ```yaml
@@ -429,7 +606,7 @@
           request-param-sms-code-name: smsCode
     ```
   
-### 7. 手机登录
+### 8. 手机登录
 - 在 core 模块
     ```yaml
     security:
@@ -443,7 +620,7 @@
           login-processing-url-mobile: /authentication/mobile
     ```
 
-### 8. 第三方登录 OAuth2
+### 9. 第三方登录 OAuth2
 - 在 social 模块
   - 简单配置:
     ```yaml
@@ -575,7 +752,7 @@
           app-secret: 
     ```
 
-### 9. 给第三方登录时用的数据库表 social_UserConnection 添加 redis 缓存配置
+### 10. 给第三方登录时用的数据库表 social_UserConnection 添加 redis 缓存配置
 - 在 social 模块
     ```yaml
     redis:
@@ -598,7 +775,7 @@
     </dependency>
     
     ```
-### 10. 签到功能
+### 11. 签到功能
 - 在 core 模块
   - 详细配置:
     ```yaml
@@ -614,13 +791,22 @@
     ```
   - 使用说明:
     ```java
+    // 添加 @EnabledSign
+    @EnabledSign
+    @RestController
+    public class SignController {
+    
         /**
          * 通过 Autowired 注入 SignService 即可
-         * 详细使用方式可以查看 demo 模块: top.dcenter.security.sign.DemoSignController
-         * 要自定义签到功能, 实现 {@link SignService}, 注入 IOC 即可替换 {@link UserSignServiceImpl} 默认实现
+         * 详细使用方式可以查看 demo 模块: demo.security.sign.DemoSignController
+         * 要自定义签到功能, 实现 {@link top.dcenter.security.core.api.sign.service.SignService}, 
+         * 注入 IOC 即可替换 {@link top.dcenter.security.core.sign.UserSignServiceImpl} 默认实现
          */
         @Autowired
         private SignService signService;
+        
+        // ...
+    }
     ```
     
 
@@ -741,7 +927,7 @@ CREATE TABLE `sys_user_role` (
 ### 8. rememberMe
 ![rememberMe](doc/SequenceDiagram/rememberMe.png)
 ### 9. securityConfigurer
-![securityConfigurer](doc/SequenceDiagram/scurityConfigurer.png)
+![securityConfigurer](doc/SequenceDiagram/securityConfigurer.png)
 ### 10. securityRouter
 ![securityRouter](doc/SequenceDiagram/securityRouter.png)
 ### 11. session

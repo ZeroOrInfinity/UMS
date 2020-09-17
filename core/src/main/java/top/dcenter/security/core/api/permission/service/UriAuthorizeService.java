@@ -1,12 +1,14 @@
 package top.dcenter.security.core.api.permission.service;
 
 import org.springframework.security.core.Authentication;
-import top.dcenter.security.core.permission.UriResources;
+import org.springframework.util.AntPathMatcher;
+import top.dcenter.security.core.permission.dto.UriResourcesDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * request 的 uri 访问权限控制服务.<br>
@@ -25,11 +27,17 @@ public interface UriAuthorizeService {
     boolean hasPermission(HttpServletRequest request, Authentication authentication, String uriAuthorize);
 
     /**
-     * 获取用户的权限 Map
-     * @param authentication
-     * @return 用户 uri 权限 Map
+     * 获取用户角色的 uri 权限 Map
+     * @param authentication    authentication 基于
+     * @return 用户角色的 uri 权限 Map(uri, Set(authority))
      */
-    Optional<Map<String, UriResources>> getUriAuthorities(Authentication authentication);
+    Optional<Map<String, Set<String>>> getUriAuthoritiesOfUserRole(Authentication authentication);
+
+    /**
+     * 获取所有角色的 uri 权限 Map
+     * @return 所有角色的 uri 权限 Map(uri, Set(authority))
+     */
+    Optional<Map<String, Set<String>>> getUriAuthoritiesOfAllRole();
 
 
     /**
@@ -38,5 +46,32 @@ public interface UriAuthorizeService {
      * @param response  response
      */
     void handlerError(int status, HttpServletResponse response);
+
+    /**
+     * 获取角色的 uri 的权限 map.<br>
+     *     返回值为: Map(role, Map(uri, UriResourcesDTO))
+     * @return Map(String, Map(String, String)) 的 key 为必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), value 为 UriResourcesDTO map
+     * (key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为 UriResourcesDTO).
+     */
+    Optional<Map<String, Map<String, UriResourcesDTO>>> getRolesAuthorities();
+
+    /**
+     * 更新角色的 uri 的权限 map
+     */
+    void updateRolesAuthorities();
+
+    /**
+     * 获取 AntPathMatcher
+     * @return AntPathMatcher
+     */
+    AntPathMatcher getAntPathMatcher();
+
+    /**
+     * 遍历 uriSet, 测试是否有匹配 requestUri 的 uri.
+     * @param uriSet        uriSet(可以是Ant通配符的 uri)
+     * @param requestUri    requestUri
+     * @return Boolean
+     */
+    Boolean isUriContainsInUriSet(Set<String> uriSet, String requestUri);
 
 }

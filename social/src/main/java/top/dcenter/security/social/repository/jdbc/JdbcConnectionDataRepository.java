@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.social.connect.ConnectionKey;
-import org.springframework.stereotype.Repository;
 import top.dcenter.security.social.properties.SocialProperties;
 import top.dcenter.security.social.repository.jdbc.dto.ConnectionDataDTO;
 
@@ -17,15 +16,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import static top.dcenter.security.social.config.RedisCacheConfig.USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME;
-import static top.dcenter.security.social.config.RedisCacheConfig.USER_CONNECTION_HASH_CACHE_NAME;
+import static top.dcenter.security.social.config.RedisCacheAutoConfig.USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME;
+import static top.dcenter.security.social.config.RedisCacheAutoConfig.USER_CONNECTION_HASH_CACHE_NAME;
 
 /**
- *
+ * JdbcConnectionDataRepository
  * @author zyw
  * @version V1.0  Created by 2020/6/13 14:15
  */
-@Repository
 @CacheConfig(cacheManager = "socialRedisHashCacheManager")
 public class JdbcConnectionDataRepository {
 

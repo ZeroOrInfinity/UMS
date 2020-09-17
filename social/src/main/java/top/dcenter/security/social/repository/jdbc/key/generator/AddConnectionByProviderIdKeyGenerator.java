@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 
-import static top.dcenter.security.social.config.RedisCacheConfig.REDIS_CACHE_HASH_KEY_SEPARATE;
+import static top.dcenter.security.social.config.RedisCacheAutoConfig.REDIS_CACHE_HASH_KEY_SEPARATE;
 
 /**
  * @author zyw

@@ -70,10 +70,6 @@ public class SecurityConstants {
      * 需要验证码校验的 authUrls 之间的分隔符
      */
     public static final String AUTH_URI_SEPARATOR = ",";
-    /**
-     * 默认的处理验证码的url前缀
-     */
-    public static final String DEFAULT_VALIDATE_CODE_URL_PREFIX = "/code";
 
     /**
      * 图片验证码的 SESSION KEY

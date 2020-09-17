@@ -165,7 +165,7 @@ public class UserSignServiceImpl implements SignService {
      *
      * @param uid  用户ID
      * @param date 日期
-     * @return Key 为签到日期，Value 为签到状态的 Map<"yyyy-MM-dd", boolean>
+     * @return Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
      * @throws UnsupportedEncodingException
      */
     @Override
@@ -190,7 +190,7 @@ public class UserSignServiceImpl implements SignService {
      *
      * @param uid   用户ID
      * @param date  日期
-     * @return      Key 为签到日期，Value 为签到状态的 Map<"yyyy-MM-dd", boolean>
+     * @return      Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
      * @throws UnsupportedEncodingException
      */
     @Override
@@ -222,7 +222,7 @@ public class UserSignServiceImpl implements SignService {
     /**
      * 把 list 数据注入到 signMap 中
      * @param date              date 与 lowDay 和 beforeOfHighDay 有对应关系
-     * @param signMap           Key 为签到日期，Value 为签到状态的 Map<"yyyy-MM-dd", boolean>
+     * @param signMap           Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
      * @param lowDay            低位数(DayOfMonth)
      * @param beforeOfHighDay   高位数(DayOfMonth)
      * @param list              签到的 bit 数据
@@ -248,7 +248,7 @@ public class UserSignServiceImpl implements SignService {
      * @param date          日期
      * @param dayOfMonth    当月的第几天
      * @param lastFewDays   获取最近几天的签到情况, 默认为 7 天
-     * @param signMap       Key 为签到日期，Value 为签到状态的 Map<"yyyy-MM-dd", boolean>
+     * @param signMap       Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
      * @throws UnsupportedEncodingException
      */
     private void fillingSignDetail2SignMapOfCrossMonth(String uid, LocalDate date, int dayOfMonth,
@@ -306,7 +306,7 @@ public class UserSignServiceImpl implements SignService {
      * @param date              日期
      * @param lowDay            低位数(DayOfMonth)
      * @param beforeOfHighDay   高位数(DayOfMonth)
-     * @param signMap           Key 为签到日期，Value 为签到状态的 Map<"yyyy-MM-dd", boolean>
+     * @param signMap           Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
      * @throws UnsupportedEncodingException
      */
     private void fillingSignDetail2SignMap(int type, int offset, String uid, LocalDate date,

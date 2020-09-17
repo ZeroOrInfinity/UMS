@@ -79,12 +79,12 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
         ValidateCodeType validateCodeType = getValidateCodeType(request);
 
         String ip = request.getRemoteAddr();
-        String typeName = validateCodeType.name();
         String sid = request.getSession(true).getId();
 
         try {
             if (validateCodeType != null)
             {
+                String typeName = validateCodeType.name();
                 ValidateCodeProcessor validateCodeProcessor = validateCodeProcessorHolder.findValidateCodeProcessor(validateCodeType);
                 if (validateCodeProcessor != null)
                 {
@@ -116,7 +116,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
             }
             else
             {
-                ex = new ValidateCodeException(ErrorCodeEnum.VALIDATE_CODE_ERROR, e, ip, typeName);
+                ex = new ValidateCodeException(ErrorCodeEnum.VALIDATE_CODE_ERROR, e, ip, e.getMessage());
             }
             baseAuthenticationFailureHandler.onAuthenticationFailure(request, response, ex);
             return;

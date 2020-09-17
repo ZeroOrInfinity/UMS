@@ -40,6 +40,8 @@ public class ClientProperties {
     private final RememberMeProperties rememberMe = new RememberMeProperties();
     @NestedConfigurationProperty
     private final CsrfProperties csrf = new CsrfProperties();
+    @NestedConfigurationProperty
+    private final AnonymousProperties anonymous = new AnonymousProperties();
 
     /**
      * 设置登录页，用户没有配置则默认为 /login
@@ -153,9 +155,9 @@ public class ClientProperties {
      */
     public String passwordParameter = "password";
     /**
-     * 登录后是否利用 Referer 进行跳转, 默认为: false
+     * 登录后是否利用 Referer 进行跳转, 默认为: true
      */
-    public Boolean useReferer = Boolean.FALSE;
+    public Boolean useReferer = Boolean.TRUE;
 
 
     public ClientProperties() {
@@ -258,6 +260,24 @@ public class ClientProperties {
          * csrf tokenRepository 的存储类型, 默认为 session
          */
         private CsrfTokenRepositoryType tokenRepositoryType = CsrfTokenRepositoryType.SESSION;
+
+    }
+
+    @Getter
+    @Setter
+    public static class AnonymousProperties {
+        /**
+         * anonymous 是否开启, 默认为 false;
+         */
+        private Boolean anonymousIsOpen = true;
+        /**
+         * 匿名用户名称, 默认为 anonymous
+         */
+        private String  principal = "anonymous";
+        /**
+         * 匿名用户权限 list, 默认为 ROLE_ANONYMOUS
+         */
+        private List<String>  authorities = new ArrayList<>(List.of("ROLE_ANONYMOUS"));
 
     }
 

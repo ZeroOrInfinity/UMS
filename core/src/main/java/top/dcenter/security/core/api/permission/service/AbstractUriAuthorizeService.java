@@ -1,18 +1,24 @@
 package top.dcenter.security.core.api.permission.service;
 
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.AntPathMatcher;
-import top.dcenter.security.core.permission.UriResources;
+import top.dcenter.security.core.permission.dto.UriResourcesDTO;
+import top.dcenter.security.core.util.ConvertUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -20,45 +26,62 @@ import java.util.stream.Collectors;
  * 实现 {@link AbstractUriAuthorizeService} 抽象类并注入 IOC 容器即可替换
  * {@link top.dcenter.security.core.permission.service.DefaultUriAuthorizeService}.<br><br>
  *
- * 注意: 实现对 requestUri 的权限控制时, 不光要考虑 URI 是否匹配, 还要考虑纯正的 resetFul 风格的 api, 通过 GET/POST/PUT/DELETE 等来区别 curd 操作的情况;
- * 那么还需要判断 request method 与 {@link UriResources} 中的 permission 相对应.
  * @author zyw
  * @version V1.0  Created by 2020/9/8 15:09
  */
-public abstract class AbstractUriAuthorizeService implements UriAuthorizeService {
+public abstract class AbstractUriAuthorizeService implements UriAuthorizeService, InitializingBean {
 
 
+    /**
+     * 权限前缀
+     */
     protected final String defaultRolePrefix = "ROLE_";
     /**
      * 权限分隔符
      */
-    protected static final String PERMISSION_DELIMITER = ",";
+    public static final String PERMISSION_DELIMITER = ",";
 
-    protected AntPathMatcher matcher = new AntPathMatcher();;
+    /**
+     * 角色 uri 权限 Map(role, map(uri, uriResourcesDTO))
+     */
+    protected Map<String, Map<String, UriResourcesDTO>> rolesAuthorities;
+
+    @Getter
+    protected AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+    private Object lock = new Object();
+
 
     @Override
     public boolean hasPermission(HttpServletRequest request, Authentication authentication, String uriAuthorize) {
 
-        Map<String, UriResources> uriResourcesMap = getUriAuthorities(authentication).orElse(new HashMap<>(0));
-        return uriResourcesMap.entrySet().stream()
-                // uri 是否匹配
-                .filter(entry -> matcher.match(entry.getKey(), request.getRequestURI()))
-                // 权限是否匹配
-                .anyMatch(entry -> {
-                    String[] permissions = StringUtils.split(entry.getValue().getPermission(), PERMISSION_DELIMITER);
-                    return Arrays.stream(permissions).anyMatch(permission -> StringUtils.equals(permission, uriAuthorize));
-                });
+        // Map(uri, Set(authority))
+        Map<String, Set<String>> uriAuthorityMap = getUriAuthoritiesOfUserRole(authentication).orElse(new HashMap<>(0));
+
+        final String requestURI = request.getRequestURI();
+        Set<String> uriSet = uriAuthorityMap.keySet();
+
+        // uri 是否匹配
+        if (isUriContainsInUriSet(uriSet, requestURI))
+        {
+            return uriAuthorityMap.entrySet().stream()
+                                  .map(entry -> entry.getValue())
+                                  // 权限是否匹配
+                                  .anyMatch(authoritySet -> authoritySet.contains(uriAuthorize));
+        }
+
+        return false;
     }
 
     /**
-     * 获取用户的权限 Map. <br><br>
-     *     注意: 返回值是根据 authentication 中 Authorities 的 roles 从 {@link #getRolesAuthorities()} 获取返回值.<br>
-     *         当有多个 role 时且不同的 role 中拥有相同的 uri 时, 随机获取其中一个 uri 所对应的 uriResources.
+     * 根据 authentication 中 Authorities 的 roles 从 {@link #getRolesAuthorities()} 获取 uri 权限 map.<br><br>
+     * 实现对 uri 的权限控制时, 要考虑纯正的 resetFul 风格的 api 是通过 GET/POST/PUT/DELETE 等来区别 curd 操作的情况;
+     * 这里我们用 map(uri, Set(authority)) 来处理.
      * @param authentication
-     * @return 用户 uri 权限 Map
+     * @return 用户角色的 uri 权限 Map(uri, Set(authority))
      */
     @Override
-    public Optional<Map<String, UriResources>> getUriAuthorities(Authentication authentication) {
+    public Optional<Map<String, Set<String>>> getUriAuthoritiesOfUserRole(Authentication authentication) {
 
         if (authentication == null)
         {
@@ -68,30 +91,87 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         Set<String> authoritySet = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
 
         final Set<String> roleSet =
-                authoritySet.stream().filter(authority -> authority.startsWith(this.defaultRolePrefix)).collect(Collectors.toSet());
+                authoritySet.stream()
+                            .map(authorities -> StringUtils.splitByWholeSeparator(authorities, PERMISSION_DELIMITER))
+                            .flatMap(arr -> Arrays.stream(arr))
+                            .filter(authority -> authority.startsWith(this.defaultRolePrefix))
+                            .collect(Collectors.toSet());
 
-        // 获取角色的 uri 权限 map
-        Optional<Map<String, Map<String, UriResources>>> rolesAuthorities = getRolesAuthorities();
-        Map<String, UriResources> uriAuthoritiesMap = rolesAuthorities
-                .orElse(Collections.emptyMap())
-                .entrySet()
-                .stream()
-                .filter(map -> roleSet.contains(map.getKey()))
-                .flatMap(map -> map.getValue().entrySet().stream())
-                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+        /*
+         * 实现对 requestUri 的权限控制时, 要考虑纯正的 resetFul 风格的 api 是通过 GET/POST/PUT/DELETE 等来区别 curd 操作的情况;
+         * 这里我们用 map(uri, Set(authority)) 来处理
+         */
+        Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthorities.size());
 
+        rolesAuthorities.entrySet()
+                        .stream()
+                        .filter(map -> roleSet.contains(map.getKey()))
+                        .map(map -> map.getValue())
+                        .forEach(map2mapConsumer(uriAuthoritiesMap));
+
+        return Optional.of(uriAuthoritiesMap);
+    }
+
+    /**
+     * 从 {@link #getRolesAuthorities()} 中获取获取所有 roles 的 uri 权限 map.<br><br>
+     * 实现对 uri 的权限控制时, 要考虑纯正的 resetFul 风格的 api 是通过 GET/POST/PUT/DELETE 等来区别 curd 操作的情况;
+     * 这里我们用 map(uri, Set(authority)) 来处理.
+     * @return 所有角色 uri 权限 Map(uri, Set(authority))
+     */
+    @Override
+    public Optional<Map<String, Set<String>>> getUriAuthoritiesOfAllRole() {
+
+        /*
+         * 实现对 requestUri 的权限控制时, 要考虑纯正的 resetFul 风格的 api 是通过 GET/POST/PUT/DELETE 等来区别 curd 操作的情况;
+         * 这里我们用 map(uri, Set(authority)) 来处理
+         */
+        Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthorities.size());
+
+        rolesAuthorities.entrySet()
+                        .stream()
+                        .map(map -> map.getValue())
+                        .forEach(map2mapConsumer(uriAuthoritiesMap));
 
         return Optional.of(uriAuthoritiesMap);
     }
 
 
-    /**
-     * 获取角色的 uri 的权限 map.<br>
-     *     返回值为: Map<role, Map<uri, UriResources>>
-     * @return Map<String, Map<String, String>> 的 key 为必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), value 为 UriResources map
-     * (key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为 UriResources).
-     */
-    protected abstract Optional<Map<String, Map<String, UriResources>>> getRolesAuthorities();
+    @Override
+    public void updateRolesAuthorities() {
 
+        synchronized (lock) {
+            rolesAuthorities = getRolesAuthorities().orElse(new HashMap<>(0));
+        }
+
+    }
+
+    @Override
+    public Boolean isUriContainsInUriSet(Set<String> uriSet, final String requestUri) {
+        return uriSet.contains(requestUri) || uriSet.stream().anyMatch(uri -> antPathMatcher.match(uri, requestUri));
+
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        // 角色 uri 权限 Map(role, map(uri, uriResourcesDTO))
+        updateRolesAuthorities();
+    }
+
+    @NotNull
+    private Consumer<Map<String, UriResourcesDTO>> map2mapConsumer(final Map<String, Set<String>> uriAuthoritiesMap) {
+        return map -> map.forEach(
+                (key, value) ->
+                {
+                    uriAuthoritiesMap.compute(key, (k, v) ->
+                    {
+                        if (v == null)
+                        {
+                            v = new HashSet<>();
+                        }
+                        v.addAll(ConvertUtil.string2Set(value.getPermission(), PERMISSION_DELIMITER));
+                        return v;
+                    });
+                });
+    }
 
 }

@@ -33,8 +33,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static top.dcenter.security.social.config.RedisCacheConfig.USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME;
-import static top.dcenter.security.social.config.RedisCacheConfig.USER_CONNECTION_HASH_CACHE_NAME;
+import static top.dcenter.security.social.config.RedisCacheAutoConfig.USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME;
+import static top.dcenter.security.social.config.RedisCacheAutoConfig.USER_CONNECTION_HASH_CACHE_NAME;
 
 /**
  * {@link org.springframework.social.connect.jdbc.JdbcConnectionRepository}  的扩展版本, 各个方法的实现逻辑都一样， 只是抽取了 sql 语句，与 用户表的字段名称到 {@link SocialProperties},

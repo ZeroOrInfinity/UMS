@@ -19,6 +19,8 @@ import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_REQUEST
  * @author  zyw
  * @version V1.0  Created by 2020/5/3 19:52
  */
+@Getter
+@Setter
 @ConfigurationProperties("security.codes")
 public class ValidateCodeProperties {
 
@@ -51,11 +53,11 @@ public class ValidateCodeProperties {
         /**
          * 验证码的验证码长度，默认 6 位
          */
-        private int length = 6;
+        private Integer length = 6;
         /**
          * 验证码的有效时间，默认 120秒
          */
-        private int expire = 120;
+        private Integer expire = 120;
         /**
          * 提交短信验证码请求时，请求中带的短信验证码变量名，默认 smsCode
          */
@@ -91,19 +93,19 @@ public class ValidateCodeProperties {
         /**
          * 图片验证码的宽度，默认 270； 宽度如果小于 height * 45 / 10, 则 width = height * 45 / 10
          */
-        private int width = 270;
+        private Integer width = 270;
         /**
          * 图片验证码的高度，默认 60
          */
-        private int height = 60;
+        private Integer height = 60;
         /**
          * 验证码的验证码长度，默认 4位
          */
-        private int length = 4;
+        private Integer length = 4;
         /**
          * 验证码的有效时间，默认 300秒
          */
-        private int expire = 300;
+        private Integer expire = 300;
 
 
         /**

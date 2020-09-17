@@ -78,7 +78,7 @@ public interface SignService {
      *
      * @param uid  用户ID
      * @param date 日期
-     * @return Key 为签到日期，Value 为签到状态的 Map<"yyyy-MM-dd", boolean>
+     * @return Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
      * @throws UnsupportedEncodingException
      */
     Map<String, Boolean> getSignInfo(String uid, LocalDate date) throws UnsupportedEncodingException;
@@ -88,7 +88,7 @@ public interface SignService {
      *
      * @param uid  用户ID
      * @param date 日期
-     * @return Key 为签到日期，Value 为签到状态的 Map<"yyyy-MM-dd", boolean>
+     * @return Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
      * @throws UnsupportedEncodingException
      */
     Map<String, Boolean> getSignInfoForTheLastFewDays(String uid, LocalDate date) throws UnsupportedEncodingException;

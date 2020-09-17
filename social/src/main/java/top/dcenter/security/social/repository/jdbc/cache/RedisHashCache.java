@@ -26,7 +26,7 @@ import java.util.Map.Entry;
 import java.util.StringJoiner;
 import java.util.concurrent.Callable;
 
-import static top.dcenter.security.social.config.RedisCacheConfig.REDIS_CACHE_HASH_KEY_SEPARATE;
+import static top.dcenter.security.social.config.RedisCacheAutoConfig.REDIS_CACHE_HASH_KEY_SEPARATE;
 
 /**
  * 对 {@link org.springframework.data.redis.cache.RedisCache} 进行了扩展, 添加了对 Hash类型的缓存的支持
