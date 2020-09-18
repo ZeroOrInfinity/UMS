@@ -3,8 +3,8 @@ package demo.security.permission.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import top.dcenter.security.core.api.permission.service.AbstractUriAuthorizeService;
-import top.dcenter.security.core.permission.dto.UriResourcesDTO;
+import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
+import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

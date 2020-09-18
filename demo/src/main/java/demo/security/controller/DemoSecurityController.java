@@ -10,10 +10,10 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import top.dcenter.security.core.api.controller.BaseSecurityController;
-import top.dcenter.security.core.enums.ErrorCodeEnum;
-import top.dcenter.security.core.exception.IllegalAccessUrlException;
-import top.dcenter.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.core.api.controller.BaseSecurityController;
+import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
+import top.dcenter.ums.security.core.properties.ClientProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
-import static top.dcenter.security.core.consts.SecurityConstants.DEFAULT_UN_AUTHENTICATION_URL;
+import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_UN_AUTHENTICATION_URL;
 
 /**
  * 客户端认证 controller.<br><br> *

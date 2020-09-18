@@ -6,21 +6,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.security.core.api.validate.code.AbstractValidateCodeProcessor;
-import top.dcenter.security.core.api.validate.code.SmsCodeSender;
-import top.dcenter.security.core.api.validate.code.ValidateCodeGenerator;
-import top.dcenter.security.core.consts.RegexConstants;
-import top.dcenter.security.core.enums.ValidateCodeType;
-import top.dcenter.security.core.exception.ValidateCodeParamErrorException;
-import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.auth.validate.codes.ValidateCode;
-import top.dcenter.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor;
+import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
+import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor;
+import top.dcenter.ums.security.core.consts.RegexConstants;
+import top.dcenter.ums.security.core.enums.ValidateCodeType;
+import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
 
 import java.util.Map;
 import java.util.regex.PatternSyntaxException;
 
-import static top.dcenter.security.core.enums.ErrorCodeEnum.MOBILE_FORMAT_ERROR;
-import static top.dcenter.security.core.enums.ErrorCodeEnum.MOBILE_PARAMETER_ERROR;
+import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.MOBILE_FORMAT_ERROR;
+import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.MOBILE_PARAMETER_ERROR;
 
 /**
  * 自定义短信验证码处理器
@@ -31,15 +29,8 @@ import static top.dcenter.security.core.enums.ErrorCodeEnum.MOBILE_PARAMETER_ERR
 @Slf4j
 public class DemoSmsValidateCodeProcessor extends SmsValidateCodeProcessor {
 
-    protected final SmsCodeSender smsCodeSender;
-    protected final ValidateCodeProperties validateCodeProperties;
-
-    public DemoSmsValidateCodeProcessor(SmsCodeSender smsCodeSender,
-                                        ValidateCodeProperties validateCodeProperties,
-                                        Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
-        super(smsCodeSender, validateCodeProperties,validateCodeGenerators);
-        this.smsCodeSender = smsCodeSender;
-        this.validateCodeProperties = validateCodeProperties;
+    public DemoSmsValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
+        super(validateCodeGenerators);
     }
 
     /**

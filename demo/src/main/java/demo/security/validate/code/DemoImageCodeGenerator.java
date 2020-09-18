@@ -1,10 +1,11 @@
 package demo.security.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
-import top.dcenter.security.core.api.validate.code.ImageCodeFactory;
-import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.auth.validate.codes.image.ImageCode;
-import top.dcenter.security.core.auth.validate.codes.image.ImageCodeGenerator;
+import org.springframework.stereotype.Component;
+import top.dcenter.ums.security.core.api.validate.code.ImageCodeFactory;
+import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;
+import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator;
+import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 
 import javax.servlet.ServletRequest;
 
@@ -13,7 +14,7 @@ import javax.servlet.ServletRequest;
  * @author zyw
  * @version V1.0  Created by  2020-05-14 22:24
  */
-//@Component()
+@Component()
 @Slf4j
 public class DemoImageCodeGenerator extends ImageCodeGenerator {
 

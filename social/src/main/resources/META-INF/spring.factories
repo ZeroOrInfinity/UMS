@@ -1,11 +1,11 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  top.dcenter.security.social.config.SocialAutoConfiguration,\
-  top.dcenter.security.social.config.RedisCacheAutoConfig,\
-  top.dcenter.security.social.config.SocialAuthenticationSignUpAutoConfig,\
-  top.dcenter.security.social.config.SocialAuthenticationSignUpAutoConfigurerAware,\
-  top.dcenter.security.social.config.SocialSecurityAutoConfigurerAware,\
-  top.dcenter.security.social.provider.gitee.config.GiteeAutoConfiguration,\
-  top.dcenter.security.social.provider.qq.config.QqAutoConfiguration,\
-  top.dcenter.security.social.provider.weibo.config.WeiboAutoConfiguration,\
-  top.dcenter.security.social.provider.weixin.config.WeixinAutoConfiguration
+  top.dcenter.ums.security.social.config.SocialAutoConfiguration,\
+  top.dcenter.ums.security.social.config.RedisCacheAutoConfig,\
+  top.dcenter.ums.security.social.config.SocialAuthenticationSignUpAutoConfig,\
+  top.dcenter.ums.security.social.config.SocialAuthenticationSignUpAutoConfigurerAware,\
+  top.dcenter.ums.security.social.config.SocialSecurityAutoConfigurerAware,\
+  top.dcenter.ums.security.social.provider.gitee.config.GiteeAutoConfiguration,\
+  top.dcenter.ums.security.social.provider.qq.config.QqAutoConfiguration,\
+  top.dcenter.ums.security.social.provider.weibo.config.WeiboAutoConfiguration,\
+  top.dcenter.ums.security.social.provider.weixin.config.WeixinAutoConfiguration

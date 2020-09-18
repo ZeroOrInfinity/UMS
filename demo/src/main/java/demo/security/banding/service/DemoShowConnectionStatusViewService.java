@@ -5,7 +5,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.http.MediaType;
 import org.springframework.social.connect.Connection;
 import org.springframework.stereotype.Component;
-import top.dcenter.security.social.api.banding.ShowConnectionStatusViewService;
+import top.dcenter.ums.security.social.api.banding.ShowConnectionStatusViewService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static top.dcenter.security.core.consts.SecurityConstants.CHARSET_UTF8;
+import static top.dcenter.ums.security.core.consts.SecurityConstants.CHARSET_UTF8;
 
 /**
  * 默认的绑定与解绑信息回显,这里是简单实现，返回 Json格式

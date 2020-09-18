@@ -5,19 +5,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
-import top.dcenter.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
-import top.dcenter.security.core.exception.AbstractResponseJsonAuthenticationException;
-import top.dcenter.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
+import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
+import top.dcenter.ums.security.core.properties.ClientProperties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static top.dcenter.security.core.consts.SecurityConstants.HEADER_ACCEPT;
-import static top.dcenter.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
-import static top.dcenter.security.core.util.AuthenticationUtil.authenticationFailureProcessing;
-import static top.dcenter.security.core.util.AuthenticationUtil.getAbstractResponseJsonAuthenticationException;
+import static top.dcenter.ums.security.core.consts.SecurityConstants.HEADER_ACCEPT;
+import static top.dcenter.ums.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
+import static top.dcenter.ums.security.core.util.AuthenticationUtil.authenticationFailureProcessing;
+import static top.dcenter.ums.security.core.util.AuthenticationUtil.getAbstractResponseJsonAuthenticationException;
 
 /**
  * 客户端认证失败处理器.<br><br>

@@ -3,16 +3,16 @@ package demo.security.sign;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import top.dcenter.security.core.properties.SignProperties;
-import top.dcenter.security.core.api.sign.service.SignService;
-import top.dcenter.security.core.sign.config.EnableSign;
+import top.dcenter.ums.security.core.properties.SignProperties;
+import top.dcenter.ums.security.core.api.sign.service.SignService;
+import top.dcenter.ums.security.core.sign.config.EnableSign;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static top.dcenter.security.core.util.SignUtil.formatDate;
+import static top.dcenter.ums.security.core.util.SignUtil.formatDate;
 
 /**
  * 测试签到功能

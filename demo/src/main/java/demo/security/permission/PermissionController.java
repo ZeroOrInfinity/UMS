@@ -5,9 +5,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import top.dcenter.security.core.permission.annotation.UriAuthorize;
-import top.dcenter.security.core.permission.config.EnableUriAuthorize;
-import top.dcenter.security.core.permission.config.UriAuthorizeInterceptorAutoConfiguration;
+import top.dcenter.ums.security.core.permission.annotation.UriAuthorize;
+import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
+import top.dcenter.ums.security.core.permission.config.UriAuthorizeInterceptorAutoConfiguration;
 
 /**
  * @PreAuthorize 注解需要 @EnableGlobalMethodSecurity(prePostEnabled = true) 支持, 在 @EnableUriAuthorize 中
@@ -44,7 +44,7 @@ public class PermissionController {
 
     /**
      * 此 uri 已经设置 permitAll, 不用登录验证
-     * 没有注释 @UriAuthorize 直接放行
+     * 没有注解 @UriAuthorize 直接放行
      */
     @GetMapping("/test/pass/{id}")
     public String testPass(@PathVariable("id") String id) {
@@ -53,7 +53,7 @@ public class PermissionController {
 
     /**
      * 需要登录验证, 用户的 AuthorityList("admin, ROLE_USER")
-     * 有注释 @PreAuthorize("hasRole('admin')") 没有 admin role, 禁止访问
+     * 有注解 @PreAuthorize("hasRole('admin')") 没有 admin role, 禁止访问
      */
     @PreAuthorize("hasRole('admin')")
     @GetMapping("/test/role/{id}")
@@ -63,7 +63,7 @@ public class PermissionController {
 
     /**
      * 需要登录验证, 用户的 AuthorityList("admin, ROLE_USER")
-     * 有注释 @PreAuthorize("hasRole('USER')"), 有 USER role, 直接放行
+     * 有注解 @PreAuthorize("hasRole('USER')"), 有 USER role, 直接放行
      */
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/test/role2/{id}")
@@ -73,7 +73,7 @@ public class PermissionController {
 
     /**
      * 需要登录验证, 用户的 AuthorityList("admin, ROLE_USER")
-     * 有注释 @PreAuthorize("hasAuthority('admin')"), 有 admin authority, 直接放行
+     * 有注解 @PreAuthorize("hasAuthority('admin')"), 有 admin authority, 直接放行
      */
     @PreAuthorize("hasAuthority('admin')")
     @GetMapping("/test/role3/{id}")

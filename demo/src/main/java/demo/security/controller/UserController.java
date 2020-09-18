@@ -7,7 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.security.social.vo.SocialUserInfo;
+import top.dcenter.ums.security.social.vo.SocialUserInfo;
 
 import javax.servlet.http.HttpServletRequest;
 

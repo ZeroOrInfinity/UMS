@@ -57,3 +57,6 @@ session/target/
 /temp/application.yml
 
 /demo/src/main/resources/application-dev.yml
+
+dependency-reduced-pom.xml
+/social/dependency-reduced-pom.xml

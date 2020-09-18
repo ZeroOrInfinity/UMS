@@ -1,30 +1,33 @@
-# UMS (user manage scaffold) 用户管理脚手架: [github](https://github.com/ZeroOrInfinity/UMS) [gitee](https://gitee.com/pcore/UMS)
+# UMS (user manage scaffolding) 用户管理脚手架: [github](https://github.com/ZeroOrInfinity/UMS) [gitee](https://gitee.com/pcore/UMS)
 ![JDK](https://img.shields.io/badge/JDK-11-green.svg)
 ![Maven](https://img.shields.io/badge/Maven-3.6.3-green.svg)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7.27-green.svg)
 ![Redis](https://img.shields.io/badge/Redis-5.0.3-green.svg)
 ![SpringBoot](https://img.shields.io/badge/SpringBoot-2.3.1-green.svg)
 ![SpringSecurity](https://img.shields.io/badge/SpringSecurity-5.3.5-green.svg)
-![SpringSecurity](https://img.shields.io/badge/SpringSecurity-5.3.5-green.svg)
 ![SpringSocial](https://img.shields.io/badge/SpringSocial-1.1.6-green.svg)
 ![license](https://img.shields.io/badge/license-MIT-yellow.svg)
 
-用户管理脚手架集成：验证码、手机登录、支持qq,微博,微信,gitee第三方登录（自动注册，绑定与解绑）、基于 RBAC 的 uri 访问权限控制功能、通过统一的回调地址入口实现多回调地址的路由功能、签到等功能。通过实现几个 API 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑。
+用户管理脚手架集成：验证码、手机登录、支持qq,weibo,weixin,gitee第三方登录（自动注册，绑定与解绑）、基于 RBAC 的 uri
+ 访问权限控制功能、通过统一的回调地址入口实现多回调地址的路由功能、签到等功能。通过实现几个 API
+ 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑。
+
+User management scaffolding, integration: validate code, mobile login, OAuth2(automatic registration, binding and unbinding), RBAC-based uri access control function, routing function of multiple callback addresses through a unified callback address entry, and sign etc... 
 
 ![ums-arch](doc/ums-arch.png)
 
-## 一、`UMS 特性`：
-  - 验证码（图片，短信）校验功能。
-  - 手机登录功能，登录后自动注册。
-  - 第三方登录功能(qq,微博,微信,gitee)，登录后自动注册，与用户账号绑定与解绑。
-  - 登录路由功能
-  - 统一回调地址路由功能(OAuth2)。
-  - 访问权限控制功能。
-  - 简化 session、rememberme 配置。
+## 一、`UMS 功能列表(UMS feature list)`：
+  - 验证码（图片，短信）校验功能(validate code (image, SMS) verification function)。
+  - 手机登录功能，登录后自动注册(Mobile login function, automatic registration after login)。
+  - 第三方登录功能(qq,weibo,weixin,gitee)，登录后自动注册，与用户账号绑定与解绑(OAuth2, binding and unbinding)。
+  - 登录路由功能 (login routing)
+  - 统一回调地址路由功能(Unified callback address routing function)。
+  - 访问权限控制功能(Access control function)。
+  - 简化 session、remember me、crsf 等配置(Simplify session、remember me、srsf etc configuration)。
   - 根据设置的返回方式（JSON 与 REDIRECT）返回 json 或 html 数据。
-  - 签到功能。
+  - 签到功能(sign)。
   
-## 二、`打包项目`：
+## 二、`打包项目(Package)`：
 -  mvn clean package -Dmaven.test.skip=true -Pdev
 -  mvn clean package -Dmaven.test.skip=true -Pprod
 
@@ -33,44 +36,98 @@
 - 第三方登录功能添加 JustAuth 工具, 支持更多的第三方登录. 
 - 上传 maven 版本库
 
-## 四、`使用方式`：
+## 四、`使用方式(Quick Start)`：
 
-- 引入模块依赖：
-- 通过 application.yml 或 application.properties 配置: 查看下方的 application.properties 或 application.yml 配置.
-- 实现对应功能时需要实现的接口：    
-    1. 用户服务(`必须实现`): 
-        - 有 social 模块时: `top.dcenter.security.social.api.service.AbstractSocialUserDetailsService`
-        - 无 social 模块时: `top.dcenter.security.core.api.service.AbstractUserDetailsService`    
-    2. 发送自定义图片验证码, 如果不实现就会使用默认图片验证码, 实时生产验证码图片, 没有缓存功能:
-        - `top.dcenter.security.core.api.validate.code.ImageCodeFactory`
-    3. 发送短信验证码: `默认空实现`.
-        - `top.dcenter.security.core.api.validate.code.SmsCodeSender`
-    4. 使用自定义验证码:
-        - `top.dcenter.security.core.api.validate.code.AbstractValidateCodeProcessor`
-        - `top.dcenter.security.core.api.validate.code.ValidateCodeGenerator`
-    5. 基于 RBAC 的访问权限控制: 增加了更加细粒度的权限控制, 如: 对菜单与按钮的权限控制. 默认空实现
-        - `top.dcenter.security.core.api.permission.service.AbstractUriAuthorizeService` 类中的方法`getRolesAuthorities()`;
-          `getRolesAuthorities()`返回值: Map<`role`, Map<`uri`, `UriResourcesDTO`>>, `UriResources` 中字段 `uri` 
+- 添加依赖(Add Dependency)：
+- 通过 application.yml 或 application.properties 配置(See below `五`): 查看下方`五`的 application.properties 或 application.yml 配置.
+- 实现对应功能时需要实现的接口(The interface that needs to be implemented when the corresponding function is present)：    
+    1. 用户服务(user service): `必须实现(Must implemented)`
+        - 有 social 模块时: `AbstractSocialUserDetailsService`
+        - 无 social 模块时: `AbstractUserDetailsService`    
+    2. 图片验证码(image validate code): 如果不实现就会使用默认图片验证码, 实时生产验证码图片, 没有缓存功能
+        - `ImageCodeFactory`
+    3. 短信验证码(SMS validate code): `默认空实现`
+        - `SmsCodeSender`
+    4. 自定义验证码(customize validate code):
+        - `AbstractValidateCodeProcessor`
+        - `ValidateCodeGenerator`
+    5. 访问权限控制功能(Access control function): 基于 RBAC 的访问权限控制, 增加了更加细粒度的权限控制, 如: 对菜单与按钮的权限控制
+        - `AbstractUriAuthorizeService` 类中的方法`getRolesAuthorities()`;
+          `getRolesAuthorities()`返回值: Map<`role`, Map<`uri`, `UriResourcesDTO`>>, `UriResourcesDTO` 中字段 `uri` 
           与 `permission` 必须有值. 
-        - 使用方法
+        - 使用方法(Usage):
             - 类上添加: @EnableUriAuthorize(filterOrInterceptor = false, restfulAPI = false, repeat = false),
               filterOrInterceptor=false 时为拦截器(注解方式)模式; filterOrInterceptor=true 时为过滤器模式, 算法上根据 restfulAPI 与 repeat 不同有区别.
-            - filterOrInterceptor=true 时, 启用过滤器模式, 无需在方法上配置; 另外如果是 restful 风格 API, 那么 restfulAPI=true, 设置 uri
-              权限时必须根据 requestMethod 类型添加指定的后缀, 示例:  
+            - filterOrInterceptor=true 时, 启用过滤器模式, 无需在方法上配置; 另外还要设置 restfulAPI 与 repeat, 根据不同设置 UriAuthorizeFilter 算法上有区别: 
+              1. 是否需要验证权限的多个不同的 uri 对同一个 uri 都匹配的情况下: repeat=true 时表示有, 否则无. 例如: uri=/test/permission/** 与 uri=/test/** 对 /test/permission/xx/xx 都匹配, 应该设置 repeat=true.
+              2. 如果是 restful 风格 API, 那么 restfulAPI=true, 设置 uri 权限时必须根据 requestMethod 类型添加指定的后缀.
             ```java
             
-            // 例如: 给 uri=/test/permission/** 设置 edit,list 权限
-            public class AddUriPermission {
-                public static void main(String[] args) {
-                    UriResources uriResources= new UriResources();
+            import java.util.Set;// 例如: 给角色 ROLE_USER 的 uri=/test/permission/** 添加编辑(edit)/查询(list)权限,
+            public class UriPermissionService {
+          
+                @Autowired
+                private UserService userService;
+                @Autowired
+                private RoleResourcesService roleResourcesService;
+                @Autowired
+                private UriResourcesService uriResourcesService;
+                @Autowired
+                private UserRoleService userRoleService;
+                @Autowired
+                private RoleService roleService;
+          
+                public boolean addUriPermission(String role, String uri, List<PermissionSuffixType> permissionSuffixTypeList) {
+          
+                    // 1. 创建 UriResources          
+                    UriResources uriResources = new UriResources();
                     // ...
-                    uriResources.setUrl("/test/permission/**");
-                    // 添加 uri 的 requestMethod=PUT 的权限和 uri 的 requestMethod=GET 的权限
-                    uriResources.setPermission(String.format("/test/permission/{}{}/test/{}",
+                    uriResources.setUrl(uri);
+          
+                    // 添加 uri 的编辑(edit)/查询(list)权限.
+                    // 这里用了 PermissionSuffixType 枚举来规范添加 uri 权限后缀, 在 restfulAPI=true 时要判断此后缀是否与 requestMethod 相匹配,
+                    // 因为编辑/查询对应的就是 requestMethod=PUT 的权限和 requestMethod =GET 的权限, 详细信息查看 PermissionSuffixType 枚举. 
+                    uriResources.setPermission(String.format("{}}{}{}{}{}",
+                                                             uri,
                                                              PermissionSuffixType.EDIT.getPermissionSuffix(),
                                                              AbstractUriAuthorizeService.PERMISSION_DELIMITER,
+                                                             uri,
                                                              PermissionSuffixType.LIST.getPermissionSuffix()));
-                    // ... 把数据存入数据库
+                    // 存入数据库
+                    uriResourcesService.save(uriResources);
+          
+                    // 2. 给角色 ROLE_USER 添加 uri 权限
+                    Long roleId = roleService.getIdByRole(role);
+                    RoleResource roleResource = new RoleResource();
+                    // ...
+                    roleResource.setRoleId(roleId);
+                    roleResource.setUriResources(uriResources.getId());
+                    
+                    // 存入数据库
+                    roleResourcesService.save(roleResource);
+                    
+                    /* 
+                     * 3. 当 filterOrInterceptor=true 时, 也就是 Filter 模式, 需要把 uri 权限添加到用户的 authorities;
+                     * 注意: 当 filterOrInterceptor=false 时, 拦截器方式, 也就是使用注解方式, 只需要添加角色权限即可, 不把 uri 权限添加到用户的 authorities. 
+                     */
+           
+                    // == 添加用户权限 start == 
+                    
+                    List<User> userList = userRoleService.getUsersByRole(role);
+                    // 添加用户 uri 权限
+                    userList.forEach(
+                        user -> {
+                            Set<GrantedAuthority> grantedAuthoritySet = user.getAuthorities();
+                            List<GrantedAuthority> newGrantedAuthorityList = 
+                                              AuthorityUtils.commaSeparatedStringToAuthorityList(uriResources.getPermission);
+                            grantedAuthoritySet.addAll(newGrantedAuthorityList);
+                        }
+                    );
+                    // 更新
+                    userService.update(userList);
+                    
+                    // == 添加用户权限 end ==
+                      
                 }
             }
             // =======================================================================
@@ -158,7 +215,7 @@
             
             }
             ```
-            - filterOrInterceptor=false 时, 在方法上添加注释 `@UriAuthorize("/test/permission:add")`即可实现权限控制. 示例:
+            - filterOrInterceptor=false 时, 拦截器方式, 在方法上添加注解 `@UriAuthorize("/test/permission:add")`即可实现权限控制. 示例:
             ```java
             @Component
             @Slf4j
@@ -246,7 +303,7 @@
             ```java
             /**
              * @PreAuthorize 注解需要 @EnableGlobalMethodSecurity(prePostEnabled = true) 支持, 在 @EnableUriAuthorize 中
-             * {@link top.dcenter.security.core.permission.config.UriAuthorizeInterceptorAutoConfiguration}已配置, 不需要再次配置. <br>
+             * {@link UriAuthorizeInterceptorAutoConfiguration}已配置, 不需要再次配置. <br>
              * @UriAuthorize 注解需要 @EnableUriAuthorize 支持
              * @author zyw
              * @version V1.0  Created by 2020/9/9 22:49
@@ -279,7 +336,7 @@
             
                 /**
                  * 此 uri 已经设置 permitAll, 不用登录验证
-                 * 没有注释 @UriAuthorize 直接放行
+                 * 没有注解 @UriAuthorize 直接放行
                  */
                 @GetMapping("/test/pass/{id}")
                 public String testPass(@PathVariable("id") String id) {
@@ -288,7 +345,7 @@
             
                 /**
                  * 需要登录验证, 用户的 AuthorityList("admin, ROLE_USER")
-                 * 有注释 @PreAuthorize("hasRole('admin')") 没有 admin role, 禁止访问
+                 * 有注解 @PreAuthorize("hasRole('admin')") 没有 admin role, 禁止访问
                  */
                 @PreAuthorize("hasRole('admin')")
                 @GetMapping("/test/role/{id}")
@@ -298,7 +355,7 @@
             
                 /**
                  * 需要登录验证, 用户的 AuthorityList("admin, ROLE_USER")
-                 * 有注释 @PreAuthorize("hasRole('USER')"), 有 USER role, 直接放行
+                 * 有注解 @PreAuthorize("hasRole('USER')"), 有 USER role, 直接放行
                  */
                 @PreAuthorize("hasRole('USER')")
                 @GetMapping("/test/role2/{id}")
@@ -308,7 +365,7 @@
             
                 /**
                  * 需要登录验证, 用户的 AuthorityList("admin, ROLE_USER")
-                 * 有注释 @PreAuthorize("hasAuthority('admin')"), 有 admin authority, 直接放行
+                 * 有注解 @PreAuthorize("hasAuthority('admin')"), 有 admin authority, 直接放行
                  */
                 @PreAuthorize("hasAuthority('admin')")
                 @GetMapping("/test/role3/{id}")
@@ -318,27 +375,27 @@
             
             }
             ```
-    6. 绑定与解绑视图: 用户绑定与解绑成功后会自动跳转到对应回显页面, 默认返回 json 信息
-        - 绑定状态信息回显: `top.dcenter.security.social.api.banding.ShowConnectionStatusViewService`
-        - 绑定与解绑信息回显: `top.dcenter.security.social.api.banding.ShowConnectViewService`
+    6. 绑定与解绑视图(Bind and unbind views): 用户绑定与解绑成功后会自动跳转到对应回显页面, 默认返回 json 信息
+        - 绑定状态信息回显: `ShowConnectionStatusViewService`
+        - 绑定与解绑信息回显: `ShowConnectViewService`
         
-    7. 统一的回调地址的路由功能，方便对于多个回调地址进行路由管理: 
-       - 需要调用`top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory#generateState(realAuthCallbackPath)`
+    7. 统一的回调地址的路由(Unified callback address routing): 方便对于多个回调地址进行路由管理(Convenient for routing management of multiple callback addresses)
+       - 需要调用`BaseOAuth2ConnectionFactory#generateState(realAuthCallbackPath)`
          方法去设置真实的回调地址: realAuthCallbackPath(格式为：`path=myAuthCallbackPath`).
-       - 自定义路由算法: 
+       - 自定义路由算法(Custom routing algorithm): 
          1. 统一回调地址与真实回调地址的转换逻辑：
-             - 构建统一的回调地址: 实现`top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory#buildReturnToUrl(..)`方法
-             - 跳转到真实的回调地址: `top.dcenter.security.social.controller.SocialController#authCallbackRouter(..)`
+             - 构建统一的回调地址: 实现`BaseOAuth2ConnectionFactory#buildReturnToUrl(..)`方法
+             - 跳转到真实的回调地址: `SocialController#authCallbackRouter(..)`
          2. 对 `state` 的加解密逻辑：
-            - 构建真实回调地址到`state`并进行加密: `top.dcenter.security.social.api.callback.BaseOAuth2ConnectionFactory#generateState(..)`
-            - 解密`state`并返回真实的回调地址: `top.dcenter.security.social.api.callback.RedirectUrlHelperService#decodeRedirectUrl(..)`
+            - 构建真实回调地址到`state`并进行加密: `BaseOAuth2ConnectionFactory#generateState(..)`
+            - 解密`state`并返回真实的回调地址: `RedirectUrlHelperService#decodeRedirectUrl(..)`
 
 
 
 ## 五、`application.properties 或 application.yml 配置`:
-### 1. 基本功能
+### 1. 基本功能(basic function)
 - 在 core 包中；
-  - 简单配置:
+  - 简单配置(simple configuration):
     ```yaml
     security:
       client:
@@ -352,7 +409,7 @@
         ignoring-urls:
           - /static/**
     ```
-  - 详细配置:
+  - 详细配置(Detailed configuration):
     ```yaml
     security:
       client:
@@ -397,9 +454,9 @@
         permit-urls:
           - /**/*.html
     ```
-### 2. 登录路由功能 配置
+### 2. 登录路由功能(login routing)
 - 在 core 包中；
-  - 详细配置:
+  - 详细配置(Detailed configuration):
     ```yaml
     security:
       client:
@@ -419,9 +476,9 @@
           - '/file/**=/login'
           - '/social/**=/signIn.html'
     ```
-### 3. session 配置
+### 3. session
 - 在 core 包中；
-  - 简单配置:
+  - 简单配置(simple configuration):
     ```yaml
     spring:
       session:
@@ -429,7 +486,7 @@
         store-type: InMemory
     ```
       
-  - 详细配置:
+  - 详细配置(Detailed configuration):
     ```yaml
     spring:
       session:
@@ -501,10 +558,10 @@
           <artifactId>spring-boot-starter-data-redis</artifactId>
       </dependency>
     ```
-### 4. remember-me 配置
+### 4. remember-me
 - 在 core 包中；
-  - 简单配置: 不对 remember-me 进行任何配置, 会使用默认值.
-  - 详细配置:
+  - 简单配置(simple configuration): 不对 remember-me 进行任何配置, 会使用默认值.
+  - 详细配置(Detailed configuration):
     ```yaml
     security:
       client:
@@ -516,10 +573,10 @@
           # 当为 true 时 rememberMe 只能用于 https, 默认为 false
           use-secure-cookie: false
     ```
-### 5. csrf 配置
+### 5. csrf
 - 在 core 包中；
-  - 简单配置: 不对 csrf 进行任何配置, 默认关闭 csrf 功能.
-  - 详细配置:
+  - 简单配置(simple configuration): 不对 csrf 进行任何配置, 默认关闭 csrf 功能.
+  - 详细配置(Detailed configuration):
     ```yaml
     security:
       client:
@@ -537,10 +594,10 @@
           # csrf tokenRepository 的存储类型, 默认为 session. 集群选择 redis, 也可以自己自定义
           token-repository-type: redis
     ```
-### 6. anonymous 配置
+### 6. anonymous
 - 在 core 包中；
-  - 简单配置: 不对 anonymous 进行任何配置, 默认开启 anonymous 功能.
-  - 详细配置:
+  - 简单配置(simple configuration): 不对 anonymous 进行任何配置, 默认开启 anonymous 功能.
+  - 详细配置(Detailed configuration):
     ```yaml
     security:
       client:
@@ -557,9 +614,9 @@
             - /test/pass/:list
     ```
 
-### 7. 验证码功能
+### 7. 验证码(validate code)
 - 在 core 包中；
-  - 简单配置:
+  - 简单配置(simple configuration):
     ```yaml
     security:
       # 验证码配置
@@ -576,7 +633,7 @@
           auth-urls:
             - /authentication/mobile
     ```
-  - 详细配置:
+  - 详细配置(Detailed configuration):
     ```yaml
     security:
       # 验证码配置
@@ -606,7 +663,7 @@
           request-param-sms-code-name: smsCode
     ```
   
-### 8. 手机登录
+### 8. 手机登录(mobile login)
 - 在 core 模块
     ```yaml
     security:
@@ -620,9 +677,9 @@
           login-processing-url-mobile: /authentication/mobile
     ```
 
-### 9. 第三方登录 OAuth2
+### 9. 第三方登录(OAuth2)
 - 在 social 模块
-  - 简单配置:
+  - 简单配置(simple configuration):
     ```yaml
     security:
       # 第三方登录配置: social
@@ -657,7 +714,7 @@
           app-id: 
           app-secret: 
     ```
-  - 详细配置:
+  - 详细配置(Detailed configuration):
     ```yaml
     security:
       # 第三方登录配置: social
@@ -752,9 +809,26 @@
           app-secret: 
     ```
 
-### 10. 给第三方登录时用的数据库表 social_UserConnection 添加 redis 缓存配置
+### 10. 给第三方登录时用的数据库表 social_UserConnection 添加 redis cache
 - 在 social 模块
     ```yaml
+    spring: 
+      # redis
+      redis:
+        host: 192.168.88.88
+        port: 6379
+        password:
+        database: 0
+        # 连接超时的时间
+        timeout: 10000
+        # redis-lettuce-pool
+        lettuce:
+          shutdown-timeout: PT500S
+          pool:
+            max-active: 8
+            max-wait: PT10S
+            max-idle: 8
+            min-idle: 1
     redis:
       # 是否开启缓存, 默认 false
       open: true
@@ -775,9 +849,9 @@
     </dependency>
     
     ```
-### 11. 签到功能
+### 11. 签到(sign)
 - 在 core 模块
-  - 详细配置:
+  - 详细配置(Detailed configuration):
     ```yaml
     security:
       # 签到功能 设置
@@ -789,7 +863,7 @@
         # redis key(String) 转 byte[] 转换时所用的 charset
         charset: UTF-8
     ```
-  - 使用说明:
+  - 使用说明(Usage):
     ```java
     // 添加 @EnabledSign
     @EnabledSign
@@ -799,8 +873,8 @@
         /**
          * 通过 Autowired 注入 SignService 即可
          * 详细使用方式可以查看 demo 模块: demo.security.sign.DemoSignController
-         * 要自定义签到功能, 实现 {@link top.dcenter.security.core.api.sign.service.SignService}, 
-         * 注入 IOC 即可替换 {@link top.dcenter.security.core.sign.UserSignServiceImpl} 默认实现
+         * 要自定义签到功能, 实现 {@link SignService}, 
+         * 注入 IOC 即可替换 {@link UserSignServiceImpl} 默认实现
          */
         @Autowired
         private SignService signService;
@@ -812,9 +886,9 @@
 
 
 
-## 六、`其他注意事项`: 
+## 六、`注意事项(NOTE)`: 
 ### 1. 基于 RBAC 的 uri 访问权限控制
-- 必须实现 top.dcenter.security.core.api.permission.service.AbstractUriAuthorizeService 类中的方法getRolesAuthorities(),即可实现权限控制.
+- 必须实现 AbstractUriAuthorizeService 类中的方法getRolesAuthorities(),即可实现权限控制.
 - 相比于 RBAC 更加细粒度的权限控制, 如: 对菜单与按钮的权限控制, 权限控制的数据库模型:
 ```sql
 CREATE TABLE `sys_resources` (
@@ -901,15 +975,15 @@ CREATE TABLE `sys_user_role` (
 ### 2. HttpSecurity 配置问题：UMS 中的 HttpSecurity 配置与应用中的 HttpSecurity 配置冲突问题：
 
 1. 如果是新建应用添加 HttpSecurity 配置, 通过下面的接口即可:
-    - `top.dcenter.security.core.api.config.HttpSecurityAware`
+    - `HttpSecurityAware`
 2. 如果是已存在的应用：
-    - 添加 HttpSecurity 配置, 通过下面的接口即可: `top.dcenter.security.core.api.config.HttpSecurityAware`
+    - 添加 HttpSecurity 配置, 通过下面的接口即可: `HttpSecurityAware`
     - 已有的 HttpSecurity 配置, 让原有的 HttpSecurity 配置实现此接口进行配置: `top.dcenter.security.core.api.config
     .HttpSecurityAware`
 
 
 
-## 七、`时序图`
+## 七、`时序图(Sequence Diagram)`
 ### 1. crsf
 ![crsf](doc/SequenceDiagram/crsf.png)
 ### 2. getValidateCode

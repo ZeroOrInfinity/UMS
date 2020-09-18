@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.security.core.enums.ErrorCodeEnum;
-import top.dcenter.security.core.vo.ResponseResult;
-import top.dcenter.security.social.vo.SocialUserInfo;
+import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.core.vo.ResponseResult;
+import top.dcenter.ums.security.social.vo.SocialUserInfo;
 import demo.test.dto.User;
 
 import javax.servlet.http.HttpServletRequest;

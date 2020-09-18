@@ -6,7 +6,7 @@ import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Component;
-import top.dcenter.security.social.api.service.AbstractSocialUserDetailsService;
+import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
 
 /**
  * social 第三方登录：从第三方的 connection 中获取用户唯一标识。<br><br>

@@ -2,7 +2,7 @@ package demo.security.permission;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import top.dcenter.security.core.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
 
 import java.util.HashMap;
 import java.util.Map;

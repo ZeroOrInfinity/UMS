@@ -2,6 +2,7 @@ package demo.security.service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import demo.test.entity.UserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -17,14 +18,13 @@ import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
-import demo.test.entity.UserInfo;
-import top.dcenter.security.core.api.service.CacheUserDetailsService;
-import top.dcenter.security.core.enums.ErrorCodeEnum;
-import top.dcenter.security.core.exception.RegisterUserFailureException;
-import top.dcenter.security.core.exception.UserNotExistException;
-import top.dcenter.security.core.util.RequestUtil;
-import top.dcenter.security.social.api.service.AbstractSocialUserDetailsService;
-import top.dcenter.security.social.properties.SocialProperties;
+import top.dcenter.ums.security.core.api.service.CacheUserDetailsService;
+import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
+import top.dcenter.ums.security.core.exception.UserNotExistException;
+import top.dcenter.ums.security.core.util.RequestUtil;
+import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
+import top.dcenter.ums.security.social.properties.SocialProperties;
 
 import java.util.List;
 
@@ -85,7 +85,6 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
                     return userDetails;
                 }
             }
-
             // 根据用户名获取用户信息
 
             // 获取用户信息逻辑。。。
@@ -186,6 +185,7 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
         // ...
 
         log.info("Demo ======>: 手机短信登录用户 {}：注册成功", mobile);
+
         User user = new User(mobile,
                              passwordEncoder.encode("admin"),
                              true,

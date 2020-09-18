@@ -4,22 +4,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>ums</artifactId>
-        <groupId>top.dcenter.security</groupId>
+        <groupId>top.dcenter</groupId>
         <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ums-social</artifactId>
+    <artifactId>ums-social-spring-boot-starter</artifactId>
     <packaging>jar</packaging>
 
     <name>ums-social</name>
-    <description>ums-social 实现的 OAuth 模块：qq、weixin、gitee
-        第三方授权登录，登录后自动注册或通过自定义注册页面注册，绑定第三方账号功能功能</description>
+    <description>ums-social feature: OAuth2(qq,weixin,weibo,gitee), binding and unbinding, routing function of
+        multiple callback addresses through a unified callback address entry.</description>
 
     <dependencies>
         <dependency>
-            <groupId>top.dcenter.security</groupId>
-            <artifactId>ums-core</artifactId>
+            <groupId>top.dcenter</groupId>
+            <artifactId>ums-core-spring-boot-starter</artifactId>
             <version>${top.dcenter.version}</version>
         </dependency>
 
@@ -53,4 +53,81 @@
 
     </dependencies>
 
+    <profiles>
+
+        <!--默认开启dev-->
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <profileActive>dev</profileActive>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks>
+                                        <move file="${project.build.directory}/original-${project.artifactId}-${top.dcenter.version}.jar"
+                                              tofile="${project.build.directory}/${project.artifactId}-${top.dcenter.version}.jar" />
+                                    </tasks>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>test</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <profileActive>test</profileActive>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks>
+                                        <move file="${project.build.directory}/original-${project.artifactId}-${top.dcenter.version}.jar"
+                                              tofile="${project.build.directory}/${project.artifactId}-${top.dcenter.version}.jar" />
+                                    </tasks>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <profileActive>prod</profileActive>
+            </properties>
+        </profile>
+    </profiles>
 </project>

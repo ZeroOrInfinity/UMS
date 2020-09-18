@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.social.security.SocialAuthenticationFilter;
-import top.dcenter.security.social.config.SocialCoreConfig;
-import top.dcenter.security.social.properties.SocialProperties;
+import top.dcenter.ums.security.social.config.SocialCoreConfig;
+import top.dcenter.ums.security.social.properties.SocialProperties;
 
 /**
  * 自定义第三方授权登录核心配置 SocialCoreConfig，注意: 覆写方法 {@link #postProcess(Object)} 时一定要调用

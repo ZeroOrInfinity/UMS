@@ -1,16 +1,16 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  top.dcenter.security.core.config.PropertiesAutoConfiguration,\
-  top.dcenter.security.core.config.ClientAutoConfigurerAware,\
-  top.dcenter.security.core.config.SecurityAutoConfiguration,\
-  top.dcenter.security.core.config.ValidateCodeBeanAutoConfiguration,\
-  top.dcenter.security.core.config.ValidateCodeAutoConfigurerAware,\
-  top.dcenter.security.core.config.SmsCodeLoginAutoAuthenticationConfigurer,\
-  top.dcenter.security.core.config.SmsCodeLoginAuthenticationAutoConfigurerAware,\
-  top.dcenter.security.core.config.SecuritySessionAutoConfiguration,\
-  top.dcenter.security.core.config.SessionAutoConfigurerAware,\
-  top.dcenter.security.core.config.SecurityRememberMeAutoConfiguration,\
-  top.dcenter.security.core.config.RememberMeAutoConfigurerAware,\
-  top.dcenter.security.core.config.SecurityCsrfAutoConfiguration,\
-  top.dcenter.security.core.config.CsrfAutoConfigurerAware,\
-  top.dcenter.security.core.config.SecurityCoreAutoConfigurer
+  top.dcenter.ums.security.core.config.PropertiesAutoConfiguration,\
+  top.dcenter.ums.security.core.config.ClientAutoConfigurerAware,\
+  top.dcenter.ums.security.core.config.SecurityAutoConfiguration,\
+  top.dcenter.ums.security.core.config.ValidateCodeBeanAutoConfiguration,\
+  top.dcenter.ums.security.core.config.ValidateCodeAutoConfigurerAware,\
+  top.dcenter.ums.security.core.config.SmsCodeLoginAutoAuthenticationConfigurer,\
+  top.dcenter.ums.security.core.config.SmsCodeLoginAuthenticationAutoConfigurerAware,\
+  top.dcenter.ums.security.core.config.SecuritySessionAutoConfiguration,\
+  top.dcenter.ums.security.core.config.SessionAutoConfigurerAware,\
+  top.dcenter.ums.security.core.config.SecurityRememberMeAutoConfiguration,\
+  top.dcenter.ums.security.core.config.RememberMeAutoConfigurerAware,\
+  top.dcenter.ums.security.core.config.SecurityCsrfAutoConfiguration,\
+  top.dcenter.ums.security.core.config.CsrfAutoConfigurerAware,\
+  top.dcenter.ums.security.core.config.SecurityCoreAutoConfigurer

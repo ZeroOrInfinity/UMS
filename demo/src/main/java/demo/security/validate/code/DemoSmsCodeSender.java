@@ -2,10 +2,10 @@ package demo.security.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import top.dcenter.security.core.properties.ValidateCodeProperties;
-import top.dcenter.security.core.util.ValidateCodeUtil;
-import top.dcenter.security.core.auth.validate.codes.ValidateCode;
-import top.dcenter.security.core.api.validate.code.SmsCodeSender;
+import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
+import top.dcenter.ums.security.core.util.ValidateCodeUtil;
+import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.ums.security.core.api.validate.code.SmsCodeSender;
 
 /**
  * 自定义发送短信验证码

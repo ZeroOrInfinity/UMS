@@ -3,9 +3,9 @@ package demo.security.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import top.dcenter.security.core.api.config.HttpSecurityAware;
-import top.dcenter.security.social.config.SocialCoreConfig;
-import top.dcenter.security.social.properties.SocialProperties;
+import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.social.config.SocialCoreConfig;
+import top.dcenter.ums.security.social.properties.SocialProperties;
 
 import java.util.HashMap;
 import java.util.Map;
