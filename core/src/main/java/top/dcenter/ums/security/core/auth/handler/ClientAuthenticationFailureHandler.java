@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.auth.filter.AjaxOrFormRequestFilter;
+import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.ums.security.core.properties.ClientProperties;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

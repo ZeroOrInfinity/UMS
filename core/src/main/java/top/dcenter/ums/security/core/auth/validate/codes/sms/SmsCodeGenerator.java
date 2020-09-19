@@ -3,9 +3,9 @@ package top.dcenter.ums.security.core.auth.validate.codes.sms;
 import lombok.extern.slf4j.Slf4j;
 import top.dcenter.ums.security.core.api.validate.code.SmsCodeSender;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
-import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.ums.security.core.enums.ValidateCodeType;
+import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 
 import javax.servlet.ServletRequest;
 

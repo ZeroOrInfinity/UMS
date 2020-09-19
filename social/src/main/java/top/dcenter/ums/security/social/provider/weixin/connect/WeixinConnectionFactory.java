@@ -10,8 +10,8 @@ import org.springframework.social.connect.ConnectionData;
 import org.springframework.social.connect.support.OAuth2Connection;
 import org.springframework.social.oauth2.AccessGrant;
 import org.springframework.social.oauth2.OAuth2ServiceProvider;
-import top.dcenter.ums.security.social.properties.SocialProperties;
 import top.dcenter.ums.security.social.api.callback.BaseOAuth2ConnectionFactory;
+import top.dcenter.ums.security.social.properties.SocialProperties;
 import top.dcenter.ums.security.social.provider.weixin.api.Weixin;
 
 import static top.dcenter.ums.security.core.consts.SecurityConstants.URL_SEPARATOR;

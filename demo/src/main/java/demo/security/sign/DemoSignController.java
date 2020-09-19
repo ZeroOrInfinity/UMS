@@ -3,8 +3,8 @@ package demo.security.sign;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import top.dcenter.ums.security.core.properties.SignProperties;
 import top.dcenter.ums.security.core.api.sign.service.SignService;
+import top.dcenter.ums.security.core.properties.SignProperties;
 import top.dcenter.ums.security.core.sign.config.EnableSign;
 
 import java.io.UnsupportedEncodingException;

@@ -6,12 +6,8 @@
 
     <groupId>top.dcenter</groupId>
     <artifactId>ums</artifactId>
-    <version>1.0.0</version>
-    <modules>
-        <module>core</module>
-        <module>social</module>
-        <module>demo</module>
-    </modules>
+    <version>1.0.3</version>
+
     <packaging>pom</packaging>
     <name>ums</name>
     <description>User management scaffolding integration: validate code, mobile login, OAuth2(automatic registration, binding and unbinding), RBAC-based uri access control function, routing function of multiple callback addresses through a unified callback address entry, and sign etc...
@@ -26,7 +22,7 @@
 
     <developers>
         <developer>
-            <name>yongwu zhong</name>
+            <name>YongWu Zheng</name>
             <!-- 邮件 -->
             <email>zyw23zyw23@163.com</email>
             <!-- 开源地址 -->
@@ -34,10 +30,7 @@
         </developer>
     </developers>
 
-    <contributors>
-        <contributor>
-        </contributor>
-    </contributors>
+    <contributors></contributors>
 
     <scm>
         <connection>scm:git:https://github.com/ZeroOrInfinity/UMS.git</connection>
@@ -66,7 +59,7 @@
 
     <properties>
         <classifier>demo.security.DemoApplication</classifier>
-        <top.dcenter.version>1.0.0</top.dcenter.version>
+        <top.dcenter.version>1.0.3</top.dcenter.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>

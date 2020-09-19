@@ -26,6 +26,14 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import top.dcenter.ums.security.social.properties.RedisCacheProperties;
 import top.dcenter.ums.security.social.repository.jdbc.cache.RedisHashCacheManager;
+import top.dcenter.ums.security.social.repository.jdbc.key.generator.AddConnectionByProviderIdKeyGenerator;
+import top.dcenter.ums.security.social.repository.jdbc.key.generator.RemoveConnectionsByConnectionKeyKeyGenerator;
+import top.dcenter.ums.security.social.repository.jdbc.key.generator.RemoveConnectionsByConnectionKeyWithProviderUserIdKeyGenerator;
+import top.dcenter.ums.security.social.repository.jdbc.key.generator.RemoveConnectionsByProviderIdKeyGenerator;
+import top.dcenter.ums.security.social.repository.jdbc.key.generator.RemoveConnectionsByUserIdAndProviderIdKeyGenerator;
+import top.dcenter.ums.security.social.repository.jdbc.key.generator.UpdateConnectionByProviderIdAndProviderUserIdKeyGenerator;
+import top.dcenter.ums.security.social.repository.jdbc.key.generator.UpdateConnectionByProviderIdKeyGenerator;
+import top.dcenter.ums.security.social.repository.jdbc.key.generator.UserIdKeyGenerator;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -189,6 +197,39 @@ public class RedisCacheAutoConfig {
                 .withInitialCacheConfigurations(configMap)
                 .build();
         return cacheManager;
+    }
+
+    @Bean("addConnectionByProviderIdKeyGenerator")
+    public AddConnectionByProviderIdKeyGenerator addConnectionByProviderIdKeyGenerator() {
+        return new AddConnectionByProviderIdKeyGenerator();
+    }
+    @Bean("removeConnectionsByConnectionKeyKeyGenerator")
+    public RemoveConnectionsByConnectionKeyKeyGenerator removeConnectionsByConnectionKeyKeyGenerator() {
+        return new RemoveConnectionsByConnectionKeyKeyGenerator();
+    }
+    @Bean("removeConnectionsByConnectionKeyWithProviderUserIdKeyGenerator")
+    public RemoveConnectionsByConnectionKeyWithProviderUserIdKeyGenerator removeConnectionsByConnectionKeyWithProviderUserIdKeyGenerator() {
+        return new RemoveConnectionsByConnectionKeyWithProviderUserIdKeyGenerator();
+    }
+    @Bean("removeConnectionsByProviderIdKeyGenerator")
+    public RemoveConnectionsByProviderIdKeyGenerator removeConnectionsByProviderIdKeyGenerator() {
+        return new RemoveConnectionsByProviderIdKeyGenerator();
+    }
+    @Bean("removeConnectionsByUserIdAndProviderIdKeyGenerator")
+    public RemoveConnectionsByUserIdAndProviderIdKeyGenerator removeConnectionsByUserIdAndProviderIdKeyGenerator() {
+        return new RemoveConnectionsByUserIdAndProviderIdKeyGenerator();
+    }
+    @Bean("updateConnectionByProviderIdAndProviderUserIdKeyGenerator")
+    public UpdateConnectionByProviderIdAndProviderUserIdKeyGenerator updateConnectionByProviderIdAndProviderUserIdKeyGenerator() {
+        return new UpdateConnectionByProviderIdAndProviderUserIdKeyGenerator();
+    }
+    @Bean("updateConnectionByProviderIdKeyGenerator")
+    public UpdateConnectionByProviderIdKeyGenerator updateConnectionByProviderIdKeyGenerator() {
+        return new UpdateConnectionByProviderIdKeyGenerator();
+    }
+    @Bean("userIdKeyGenerator")
+    public UserIdKeyGenerator userIdKeyGenerator() {
+        return new UserIdKeyGenerator();
     }
 
 }

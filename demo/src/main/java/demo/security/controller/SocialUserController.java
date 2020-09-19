@@ -1,6 +1,7 @@
 package demo.security.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import demo.test.dto.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -26,7 +27,6 @@ import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 import top.dcenter.ums.security.social.vo.SocialUserInfo;
-import demo.test.dto.User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;

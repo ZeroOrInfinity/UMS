@@ -1,12 +1,12 @@
 package demo.test.web.config;
 
+import demo.test.filter.TimeFilter;
 import demo.test.interceptor.TimeInterceptor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import demo.test.filter.TimeFilter;
 
 import java.util.ArrayList;
 import java.util.List;

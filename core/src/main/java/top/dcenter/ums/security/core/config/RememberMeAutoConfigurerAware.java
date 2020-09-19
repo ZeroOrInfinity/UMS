@@ -10,8 +10,8 @@ import org.springframework.security.web.authentication.rememberme.JdbcTokenRepos
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
-import top.dcenter.ums.security.core.properties.ClientProperties;
 import top.dcenter.ums.security.core.consts.SecurityConstants;
+import top.dcenter.ums.security.core.properties.ClientProperties;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

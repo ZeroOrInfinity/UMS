@@ -12,11 +12,11 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
+import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.enums.LoginProcessType;
 import top.dcenter.ums.security.core.properties.ClientProperties;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 import top.dcenter.ums.security.core.vo.UserInfoJsonVo;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -66,7 +66,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         log.info("登录成功: user={}, ip={}, ua={}, sid={}",
                  username, ip, userAgent, sid);
 
-        UserInfoJsonVo userInfoJsonVo = null;
+        UserInfoJsonVo userInfoJsonVo;
         AbstractAuthenticationToken token = (AbstractAuthenticationToken) authentication;
 
         try
@@ -168,6 +168,6 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
      * @return boolean
      */
     private boolean isLoginUrl(final String targetUrl) {
-        return loginUrls.stream().anyMatch(url -> targetUrl.contains(url));
+        return loginUrls.stream().anyMatch(targetUrl::contains);
     }
 }

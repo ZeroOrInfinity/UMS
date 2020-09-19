@@ -2,8 +2,8 @@ package top.dcenter.ums.security.social.provider.gitee.connect;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import top.dcenter.ums.security.social.api.callback.BaseOAuth2ConnectionFactory;
-import top.dcenter.ums.security.social.provider.gitee.api.Gitee;
 import top.dcenter.ums.security.social.properties.SocialProperties;
+import top.dcenter.ums.security.social.provider.gitee.api.Gitee;
 
 import static top.dcenter.ums.security.core.consts.SecurityConstants.URL_SEPARATOR;
 

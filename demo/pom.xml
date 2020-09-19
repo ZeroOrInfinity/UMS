@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>1.0.0</version>
+        <version>1.0.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,10 +14,6 @@
 
     <name>ums-demo</name>
     <description>ums-demo</description>
-
-    <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -267,9 +263,6 @@
         </profile>
         <profile>
             <id>prod</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
             <properties>
                 <profileActive>prod</profileActive>
             </properties>

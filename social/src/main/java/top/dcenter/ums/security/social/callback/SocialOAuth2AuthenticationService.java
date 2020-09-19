@@ -6,7 +6,6 @@ import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.social.api.callback.BaseOAuth2ConnectionFactory;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.util.Set;
 
 import static top.dcenter.ums.security.core.consts.SecurityConstants.KEY_VALUE_SEPARATOR;
@@ -30,7 +29,7 @@ public class SocialOAuth2AuthenticationService<S> extends OAuth2AuthenticationSe
     /**
      * 使 social 支持通过统一的回调地址路由到多个回调地址。<br><br>
      * 如要自定义此逻辑，请实现 {@link BaseOAuth2ConnectionFactory#buildReturnToUrl(HttpServletRequest, Set)} 即可。
-     * @param request
+     * @param request   request
      * @return  返回统一的回调地址
      */
     @Override
@@ -41,6 +40,7 @@ public class SocialOAuth2AuthenticationService<S> extends OAuth2AuthenticationSe
         if (connectionFactory instanceof BaseOAuth2ConnectionFactory)
         {
             // 获取自定义逻辑的回调地址
+            //noinspection rawtypes
             String returnToUrl = ((BaseOAuth2ConnectionFactory) connectionFactory).buildReturnToUrl(request, returnToUrlParameters);
             if (!StringUtils.isEmpty(returnToUrl))
             {

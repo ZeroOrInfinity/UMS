@@ -1,8 +1,8 @@
 package top.dcenter.ums.security.core.api.validate.code;
 
-import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.auth.validate.codes.image.DefaultImageCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;
+import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 
 import javax.servlet.ServletRequest;
 

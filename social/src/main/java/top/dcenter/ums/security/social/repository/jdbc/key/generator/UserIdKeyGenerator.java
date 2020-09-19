@@ -1,14 +1,11 @@
 package top.dcenter.ums.security.social.repository.jdbc.key.generator;
 
-import org.springframework.stereotype.Component;
-
 import java.lang.reflect.Method;
 
 /**
  * @author zyw
  * @version V1.0  Created by 2020/6/14 21:07
  */
-@Component("userIdKeyGenerator")
 public class UserIdKeyGenerator extends BaseKeyGenerator {
 
     @Override

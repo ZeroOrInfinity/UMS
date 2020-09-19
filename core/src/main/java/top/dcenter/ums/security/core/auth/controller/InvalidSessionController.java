@@ -10,10 +10,10 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
 import top.dcenter.ums.security.core.properties.ClientProperties;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

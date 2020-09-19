@@ -13,8 +13,8 @@ import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
-import top.dcenter.ums.security.social.properties.SocialProperties;
 import top.dcenter.ums.security.social.config.RedisCacheAutoConfig;
+import top.dcenter.ums.security.social.properties.SocialProperties;
 
 import javax.sql.DataSource;
 import java.util.HashSet;
@@ -100,7 +100,7 @@ public class OAuthJdbcUsersConnectionRepository implements UsersConnectionReposi
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue(socialProperties.getProviderIdColumnName(), providerId);
         parameters.addValue(socialProperties.getProviderUserIdColumnName(), providerUserIds);
-        final Set<String> localUserIds = new HashSet<String>();
+        final Set<String> localUserIds = new HashSet<>();
         return new NamedParameterJdbcTemplate(jdbcTemplate).query(socialProperties.getFindUserIdsConnectedToSql(),
                                                                   parameters,
                                                                   rs ->

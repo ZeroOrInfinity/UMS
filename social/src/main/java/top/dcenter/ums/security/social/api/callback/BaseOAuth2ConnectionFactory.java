@@ -5,9 +5,9 @@ import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 import org.springframework.social.oauth2.OAuth2ServiceProvider;
 import top.dcenter.ums.security.social.callback.RedirectUrlHelper;
+import top.dcenter.ums.security.social.callback.SocialOAuth2AuthenticationService;
 import top.dcenter.ums.security.social.controller.SocialController;
 import top.dcenter.ums.security.social.properties.SocialProperties;
-import top.dcenter.ums.security.social.callback.SocialOAuth2AuthenticationService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
@@ -53,7 +53,7 @@ public abstract class BaseOAuth2ConnectionFactory<T> extends OAuth2ConnectionFac
      * {@link SocialController#authCallbackRouter(HttpServletRequest)} 中进行解密。<br><br>
      * 修改此方法逻辑时，同时要修改 {@link RedirectUrlHelper#decodeRedirectUrl(String)}} 的解密逻辑。
      * @param realAuthCallbackPath 用于 {@link SocialController#authCallbackRouter(HttpServletRequest)} 路由的 realAuthCallbackPath.
-     * @return
+     * @return  加密后的 state
      */
     public String generateState(String realAuthCallbackPath) {
 
@@ -72,7 +72,7 @@ public abstract class BaseOAuth2ConnectionFactory<T> extends OAuth2ConnectionFac
      * {@link SocialOAuth2AuthenticationService#buildReturnToUrl(HttpServletRequest)} 方法的默认算法。<br><br>
      * 修改此逻辑时，同时要修改 {@link SocialController#authCallbackRouter(HttpServletRequest)} 的解密逻辑。<br><br>
      * 返回 null 时，使用默认算法，否则使用此方法的实现。
-     * @param request
+     * @param request   request
      * @param returnToUrlParameters url参数
      * @return  返回 null 时，使用默认算法，否则使用此方法的实现
      */

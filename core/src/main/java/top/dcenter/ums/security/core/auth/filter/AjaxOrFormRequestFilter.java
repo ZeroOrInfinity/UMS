@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
-import top.dcenter.ums.security.core.util.ConvertUtil;
 import top.dcenter.ums.security.core.consts.SecurityConstants;
+import top.dcenter.ums.security.core.util.ConvertUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ReadListener;
@@ -42,7 +42,7 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
     /**
      * Creates a new instance.
      *
-     * @param objectMapper
+     * @param objectMapper  objectMapper
      */
     public AjaxOrFormRequestFilter(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -88,6 +88,7 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
                         // 转换为 map 类型, 并放入 request 域方便下次调用
                         if (StringUtils.startsWith(jsonData, VALIDATE_JSON_PREFIX))
                         {
+                            //noinspection unchecked
                             map = this.objectMapper.readValue(jsonData, Map.class);
                         } else
                         {

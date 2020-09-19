@@ -12,10 +12,10 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import top.dcenter.ums.security.core.api.controller.BaseSecurityController;
+import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
 import top.dcenter.ums.security.core.properties.ClientProperties;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,8 +29,8 @@ import static java.util.stream.Collectors.toMap;
  * 如果要自定义客户端 url 认证与授权的路由控制，请实现 {@link BaseSecurityController} 接口，并注入 IOC 容器即可
  *
  * @author zhailiang
+ * @author zyw
  * @version V1.0  Created by 2020/5/3 17:43
- * @author
  */
 @Slf4j
 @ResponseBody

@@ -113,6 +113,7 @@ public class SocialUserControllerTest {
 //                .andExpect(status().isOk())
 //                .andReturn().getResponse().getContentAsString();
 //        log.info("result = {}", result);
+
     }
 
     @Test

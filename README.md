@@ -28,8 +28,11 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
   - 签到功能(sign)。
   
 ## 二、`打包项目(Package)`：
--  mvn clean package -Dmaven.test.skip=true -Pdev
--  mvn clean package -Dmaven.test.skip=true -Pprod
+-  `mvn clean package -Dmaven.test.skip=true -Pdev`
+-  `mvn clean package -Dmaven.test.skip=true -Pprod`
+
+- 发布到远程仓库
+> `mvn clean deploy -Pprod --settings ~/settings.xml`
 
 ## 三、`TODO List`:
 - demo 待完善
@@ -63,7 +66,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
               2. 如果是 restful 风格 API, 那么 restfulAPI=true, 设置 uri 权限时必须根据 requestMethod 类型添加指定的后缀.
             ```java
             
-            import java.util.Set;// 例如: 给角色 ROLE_USER 的 uri=/test/permission/** 添加编辑(edit)/查询(list)权限,
+            // 例如: 给角色 ROLE_USER 的 uri=/test/permission/** 添加编辑(edit)/查询(list)权限,
             public class UriPermissionService {
           
                 @Autowired

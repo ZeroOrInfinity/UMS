@@ -1,6 +1,3 @@
-/**
- * 
- */
 package top.dcenter.ums.security.social.provider.weixin.config;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -21,10 +18,10 @@ import top.dcenter.ums.security.social.api.banding.ShowConnectViewService;
 import top.dcenter.ums.security.social.api.config.BaseSocialConfigurerAdapter;
 import top.dcenter.ums.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.ums.security.social.config.SocialAutoConfiguration;
+import top.dcenter.ums.security.social.controller.BandingConnectController;
 import top.dcenter.ums.security.social.properties.SocialProperties;
 import top.dcenter.ums.security.social.provider.weixin.connect.WeixinConnectionFactory;
 import top.dcenter.ums.security.social.view.ConnectView;
-import top.dcenter.ums.security.social.controller.BandingConnectController;
 
 import javax.sql.DataSource;
 

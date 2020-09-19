@@ -2,7 +2,6 @@ package top.dcenter.ums.security.social.repository.jdbc.key.generator;
 
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
-import org.springframework.stereotype.Component;
 import top.dcenter.ums.security.social.config.RedisCacheAutoConfig;
 
 import java.lang.reflect.Method;
@@ -11,7 +10,6 @@ import java.lang.reflect.Method;
  * @author zyw
  * @version V1.0  Created by 2020/6/14 21:07
  */
-@Component("updateConnectionByProviderIdKeyGenerator")
 public class UpdateConnectionByProviderIdKeyGenerator extends BaseKeyGenerator {
 
     @Override

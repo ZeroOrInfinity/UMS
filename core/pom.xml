@@ -5,14 +5,14 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>1.0.0</version>
+        <version>1.0.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ums-core-spring-boot-starter</artifactId>
     <packaging>jar</packaging>
 
-    <name>ums-core</name>
+    <name>ums-core-spring-boot-starter</name>
     <description>ums-core feature: mobile login, validate code(image,sms), RBAC-based uri access control, sign etc.</description>
 
     <dependencies>

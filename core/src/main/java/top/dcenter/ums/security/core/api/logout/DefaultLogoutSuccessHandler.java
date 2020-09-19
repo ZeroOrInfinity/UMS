@@ -8,9 +8,9 @@ import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import top.dcenter.ums.security.core.api.service.CacheUserDetailsService;
+import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.properties.ClientProperties;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +45,7 @@ public class DefaultLogoutSuccessHandler implements LogoutSuccessHandler {
 
         HttpSession session = request.getSession(true);
 
-        log.info("登出成功: user={}, ip={}, ua={}, sid={}",
+        log.info("登出成功: user={}, ip={}, ua={}, sid={}, sck={}",
                  authentication != null ? authentication.getPrincipal() : "",
                  request.getRemoteAddr(),
                  request.getHeader(SecurityConstants.HEADER_USER_AGENT),

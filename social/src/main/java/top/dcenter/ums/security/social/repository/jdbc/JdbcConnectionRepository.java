@@ -21,9 +21,9 @@ import org.springframework.social.connect.NotConnectedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import top.dcenter.ums.security.social.config.RedisCacheAutoConfig;
 import top.dcenter.ums.security.social.properties.SocialProperties;
 import top.dcenter.ums.security.social.repository.jdbc.dto.ConnectionDataDTO;
-import top.dcenter.ums.security.social.config.RedisCacheAutoConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;

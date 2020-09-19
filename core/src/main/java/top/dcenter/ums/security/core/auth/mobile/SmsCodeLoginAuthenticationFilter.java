@@ -9,11 +9,11 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.LoginFailureException;
 import top.dcenter.ums.security.core.properties.SmsCodeLoginAuthenticationProperties;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

@@ -8,8 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
-import top.dcenter.ums.security.core.util.ConvertUtil;
 import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeService;
+import top.dcenter.ums.security.core.util.ConvertUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -50,7 +50,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     @Getter
     protected AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
 
     @Override
@@ -66,7 +66,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         if (isUriContainsInUriSet(uriSet, requestURI))
         {
             return uriAuthorityMap.entrySet().stream()
-                                  .map(entry -> entry.getValue())
+                                  .map(Map.Entry::getValue)
                                   // 权限是否匹配
                                   .anyMatch(authoritySet -> authoritySet.contains(uriAuthorize));
         }
@@ -78,7 +78,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
      * 根据 authentication 中 Authorities 的 roles 从 {@link #getRolesAuthorities()} 获取 uri 权限 map.<br><br>
      * 实现对 uri 的权限控制时, 要考虑纯正的 resetFul 风格的 api 是通过 GET/POST/PUT/DELETE 等来区别 curd 操作的情况;
      * 这里我们用 map(uri, Set(authority)) 来处理.
-     * @param authentication
+     * @param authentication    authentication
      * @return 用户角色的 uri 权限 Map(uri, Set(authority))
      */
     @Override
@@ -94,7 +94,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         final Set<String> roleSet =
                 authoritySet.stream()
                             .map(authorities -> StringUtils.splitByWholeSeparator(authorities, PERMISSION_DELIMITER))
-                            .flatMap(arr -> Arrays.stream(arr))
+                            .flatMap(Arrays::stream)
                             .filter(authority -> authority.startsWith(this.defaultRolePrefix))
                             .collect(Collectors.toSet());
 
@@ -107,7 +107,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         rolesAuthorities.entrySet()
                         .stream()
                         .filter(map -> roleSet.contains(map.getKey()))
-                        .map(map -> map.getValue())
+                        .map(Map.Entry::getValue)
                         .forEach(map2mapConsumer(uriAuthoritiesMap));
 
         return Optional.of(uriAuthoritiesMap);
@@ -130,7 +130,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
         rolesAuthorities.entrySet()
                         .stream()
-                        .map(map -> map.getValue())
+                        .map(Map.Entry::getValue)
                         .forEach(map2mapConsumer(uriAuthoritiesMap));
 
         return Optional.of(uriAuthoritiesMap);

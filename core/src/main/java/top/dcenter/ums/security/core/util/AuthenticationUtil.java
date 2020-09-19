@@ -6,12 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.RedirectStrategy;
+import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.enums.LoginProcessType;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.ums.security.core.properties.ClientProperties;
 import top.dcenter.ums.security.core.vo.ResponseResult;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
