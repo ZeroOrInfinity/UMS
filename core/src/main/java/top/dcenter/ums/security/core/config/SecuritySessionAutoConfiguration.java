@@ -40,7 +40,7 @@ public class SecuritySessionAutoConfiguration implements InitializingBean {
     @Autowired(required = false)
     private SessionEnhanceCheckService sessionEnhanceCheckService;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired
+    @Autowired(required = false)
     private FindByIndexNameSessionRepository<?> sessionRepository;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
