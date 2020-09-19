@@ -24,16 +24,10 @@ public abstract class AbstractUserDetailsService implements UserDetailsService, 
     }
 
 
-
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         // 解决 Autowired 循环引用的问题。
-        PasswordEncoder passwordEncoder = (PasswordEncoder) this.applicationContext.getBean(PasswordEncoder.class);
-        if (passwordEncoder == null)
-        {
-            throw new Exception("不能从 applicationContext 中找不到 PasswordEncode 实例");
-        }
-        this.passwordEncoder = passwordEncoder;
+        passwordEncoder = applicationContext.getBean(PasswordEncoder.class);
 
     }
 }

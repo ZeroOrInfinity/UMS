@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static top.dcenter.ums.security.core.util.SignUtil.formatDate;
@@ -45,6 +46,7 @@ public class UserSignServiceImpl implements SignService {
     }
 
     private byte[] buildSignKey(String uid, LocalDate date) throws UnsupportedEncodingException {
+
         return (signProperties.getSignKeyPrefix()
                 + SignUtil.buildSignKey(uid, date)).getBytes(signProperties.getCharset());
     }
@@ -59,6 +61,9 @@ public class UserSignServiceImpl implements SignService {
      */
     @Override
     public boolean doSign(String uid, LocalDate date) throws UnsupportedEncodingException {
+        Objects.requireNonNull(uid, "uib 不能为 null");
+        Objects.requireNonNull(date, "date 不能为 null");
+
         int offset = date.getDayOfMonth() - 1;
         try (RedisConnection connection = getConnection())
         {
@@ -77,6 +82,9 @@ public class UserSignServiceImpl implements SignService {
      */
     @Override
     public boolean checkSign(String uid, LocalDate date) throws UnsupportedEncodingException {
+        Objects.requireNonNull(uid, "uib 不能为 null");
+        Objects.requireNonNull(date, "date 不能为 null");
+
         int offset = date.getDayOfMonth() - 1;
         try (RedisConnection connection = getConnection())
         {
@@ -95,6 +103,9 @@ public class UserSignServiceImpl implements SignService {
      */
     @Override
     public long getSignCount(String uid, LocalDate date) throws UnsupportedEncodingException {
+        Objects.requireNonNull(uid, "uib 不能为 null");
+        Objects.requireNonNull(date, "date 不能为 null");
+
         try (RedisConnection connection = getConnection())
         {
             Long success = connection.bitCount(buildSignKey(uid, date));
@@ -112,6 +123,9 @@ public class UserSignServiceImpl implements SignService {
      */
     @Override
     public long getContinuousSignCount(String uid, LocalDate date) throws UnsupportedEncodingException {
+        Objects.requireNonNull(uid, "uib 不能为 null");
+        Objects.requireNonNull(date, "date 不能为 null");
+
         int signCount = 0;
         List<Long> list = null;
         try (RedisConnection connection = getConnection())
@@ -146,12 +160,15 @@ public class UserSignServiceImpl implements SignService {
      * 获取当月首次签到日期
      *
      * @param uid  用户ID
-     * @param date 日期
+     * @param date 日期, 不能为 null
      * @return 首次签到日期, 如果没有任何签到日期，返回 null
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
     public LocalDate getFirstSignDate(String uid, LocalDate date) throws UnsupportedEncodingException {
+        Objects.requireNonNull(uid, "uib 不能为 null");
+        Objects.requireNonNull(date, "date 不能为 null");
+
         Long pos = -1L;
         try (RedisConnection connection = getConnection())
         {
@@ -170,6 +187,9 @@ public class UserSignServiceImpl implements SignService {
      */
     @Override
     public Map<String, Boolean> getSignInfo(String uid, LocalDate date) throws UnsupportedEncodingException {
+        Objects.requireNonNull(uid, "uib 不能为 null");
+        Objects.requireNonNull(date, "date 不能为 null");
+
         Map<String, Boolean> signMap = new HashMap<>(date.getDayOfMonth());
         List<Long> list;
         try (RedisConnection connection = getConnection())
@@ -195,6 +215,9 @@ public class UserSignServiceImpl implements SignService {
      */
     @Override
     public Map<String, Boolean> getSignInfoForTheLastFewDays(String uid, LocalDate date) throws UnsupportedEncodingException {
+
+        Objects.requireNonNull(uid, "uib 不能为 null");
+        Objects.requireNonNull(date, "date 不能为 null");
 
         // 今天是当月的第几天
         int dayOfMonth = date.getDayOfMonth();

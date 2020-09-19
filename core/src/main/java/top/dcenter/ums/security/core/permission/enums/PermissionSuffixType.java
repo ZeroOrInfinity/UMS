@@ -1,8 +1,6 @@
 package top.dcenter.ums.security.core.permission.enums;
 
 import lombok.Getter;
-import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
-import top.dcenter.ums.security.core.permission.entity.UriResources;
 
 import java.util.Objects;
 
@@ -85,16 +83,6 @@ public enum PermissionSuffixType {
             }
         }
         return null;
-    }
-
-    public static void main(String[] args) {
-        UriResources uriResources= new UriResources();
-        uriResources.setUrl("/test/permission/**");
-        // 添加 uri 的 requestMethod=PUT 的权限和 uri 的 requestMethod=GET 的权限
-        uriResources.setPermission(String.format("/test/permission/{}{}/test/{}",
-                                                 PermissionSuffixType.EDIT.getPermissionSuffix(),
-                                                 AbstractUriAuthorizeService.PERMISSION_DELIMITER,
-                                                 PermissionSuffixType.LIST.getPermissionSuffix()));
     }
 
 }

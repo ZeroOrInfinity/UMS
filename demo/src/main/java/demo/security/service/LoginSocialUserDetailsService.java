@@ -18,12 +18,12 @@ import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.ums.security.core.api.service.CacheUserDetailsService;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
 import top.dcenter.ums.security.core.util.RequestUtil;
 import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
+import top.dcenter.ums.security.social.api.service.CacheUserDetailsService;
 import top.dcenter.ums.security.social.properties.SocialProperties;
 
 import java.util.List;
@@ -236,6 +236,13 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
     public UserDetails registerUser(ServletWebRequest request, ProviderSignInUtils providerSignInUtils) throws RegisterUserFailureException {
 
         UserInfo userInfo = RequestUtil.extractRequest2Object(request.getRequest(), objectMapper, UserInfo.class);
+        String userId = null;
+        String password = "";
+        if (userInfo != null)
+        {
+            userId = userInfo.getUserId();
+            password = userInfo.getPassword();
+        }
 
         try
         {
@@ -244,12 +251,12 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
 
             // 用户信息持久化逻辑。。。
             // ...
-
-            String encodedPassword = passwordEncoder.encode(userInfo.getPassword());
+            String encodedPassword = passwordEncoder.encode(password);
             // OAuth 信息存储
-            providerSignInUtils.doPostSignUp(userInfo.getUserId(), request);
-            log.info("Demo ======>: 第三方登录用户：{}, 注册成功", userInfo.getUserId());
-            User user = new User(userInfo.getUserId(),
+            providerSignInUtils.doPostSignUp(userId, request);
+            log.info("Demo ======>: 第三方登录用户：{}, 注册成功", userId);
+            //noinspection all
+            User user = new User(userId,
                                   encodedPassword,
                                   true,
                                   true,
@@ -266,7 +273,8 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
         catch (Exception e)
         {
             log.error(e.getMessage(), e);
-            throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_FAILURE, e, userInfo.getUserId());
+
+            throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_FAILURE, e, userId);
         }
     }
 

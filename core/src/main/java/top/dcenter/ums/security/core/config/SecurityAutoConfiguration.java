@@ -18,7 +18,6 @@ import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticati
 import top.dcenter.ums.security.core.api.controller.BaseSecurityController;
 import top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler;
 import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
-import top.dcenter.ums.security.core.api.service.CacheUserDetailsService;
 import top.dcenter.ums.security.core.auth.controller.ClientSecurityController;
 import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationSuccessHandler;
@@ -42,9 +41,6 @@ public class SecurityAutoConfiguration implements InitializingBean {
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired
     private AbstractUserDetailsService abstractUserDetailsService;
-    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
-    @Autowired(required = false)
-    private CacheUserDetailsService cacheUserDetailsService;
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
@@ -89,8 +85,7 @@ public class SecurityAutoConfiguration implements InitializingBean {
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler")
     public DefaultLogoutSuccessHandler defaultLogoutSuccessHandler() {
-        DefaultLogoutSuccessHandler defaultLogoutSuccessHandler = new DefaultLogoutSuccessHandler(clientProperties, objectMapper, cacheUserDetailsService);
-        return defaultLogoutSuccessHandler;
+        return new DefaultLogoutSuccessHandler(clientProperties, objectMapper);
     }
 
 

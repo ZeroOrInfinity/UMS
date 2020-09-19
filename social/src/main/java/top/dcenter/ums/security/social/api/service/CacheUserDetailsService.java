@@ -1,4 +1,4 @@
-package top.dcenter.ums.security.core.api.service;
+package top.dcenter.ums.security.social.api.service;
 
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserCache;

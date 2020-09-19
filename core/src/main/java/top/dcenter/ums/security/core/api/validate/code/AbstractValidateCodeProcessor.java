@@ -2,14 +2,13 @@ package top.dcenter.ums.security.core.api.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.social.connect.web.HttpSessionSessionStrategy;
-import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.ums.security.core.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,10 +29,6 @@ import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_NO
  */
 @Slf4j
 public abstract class AbstractValidateCodeProcessor implements ValidateCodeProcessor {
-    /**
-     * 操作 session 的工具类
-     */
-    protected final SessionStrategy sessionStrategy;
 
     protected final Map<String, ValidateCodeGenerator<?>> validateCodeGenerators;
 
@@ -44,7 +39,6 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
      */
     public AbstractValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
 
-        this.sessionStrategy = new HttpSessionSessionStrategy();
         if (validateCodeGenerators == null)
         {
             this.validateCodeGenerators = new HashMap<>(0);
@@ -61,6 +55,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
         ValidateCode validateCode;
         HttpServletRequest req = request.getRequest();
+        HttpSession session = req.getSession();
         String ip = req.getRemoteAddr();
         String sid = request.getSessionId();
         String uri = req.getRequestURI();
@@ -71,7 +66,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             boolean validateStatus = sent(request, validateCode);
             if (!validateStatus)
             {
-                this.sessionStrategy.removeAttribute(request, getValidateCodeType().getSessionKey());
+                session.removeAttribute(getValidateCodeType().getSessionKey());
                 log.warn("发送验证码失败: ip={}, sid={}, uri={}, validateCode={}",
                          ip, sid, uri, validateCode.toString());
                 return false;
@@ -79,7 +74,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         }
         catch (Exception e)
         {
-            this.sessionStrategy.removeAttribute(request, getValidateCodeType().getSessionKey());
+            session.removeAttribute(getValidateCodeType().getSessionKey());
             if (e instanceof ValidateCodeException)
             {
                 ValidateCodeException exception = (ValidateCodeException) e;
@@ -124,7 +119,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             {
                 return false;
             }
-            this.sessionStrategy.setAttribute(request, validateCodeType.getSessionKey(), validateCode);
+            request.getRequest().getSession().setAttribute(validateCodeType.getSessionKey(), validateCode);
         }
         catch (Exception e)
         {
@@ -163,8 +158,9 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
         String requestParamValidateCodeName = getValidateCodeGenerator(validateCodeType).getRequestParamValidateCodeName();
 
-        ValidateCode codeInSession = (ValidateCode) this.sessionStrategy.getAttribute(request, sessionKey);
-        String codeInRequest = request.getParameter(requestParamValidateCodeName).trim();
+        HttpSession session = request.getRequest().getSession();
+        ValidateCode codeInSession = (ValidateCode) session.getAttribute(sessionKey);
+        String codeInRequest = request.getParameter(requestParamValidateCodeName);
 
         HttpServletRequest req = request.getRequest();
 
@@ -173,6 +169,8 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             throw new ValidateCodeException(VALIDATE_CODE_NOT_EMPTY, req.getRemoteAddr(), validateCodeType.name());
         }
 
+        codeInRequest = codeInRequest.trim();
+
         if (codeInSession == null)
         {
             throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, req.getRemoteAddr(), codeInRequest);
@@ -180,7 +178,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
         if (codeInSession.isExpired())
         {
-            sessionStrategy.removeAttribute(request, sessionKey);
+            session.removeAttribute(sessionKey);
             throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, req.getRemoteAddr(), codeInRequest);
         }
 
@@ -188,7 +186,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         {
             throw new ValidateCodeException(VALIDATE_CODE_ERROR, req.getRemoteAddr(), codeInRequest);
         }
-        sessionStrategy.removeAttribute(request, sessionKey);
+        session.removeAttribute(sessionKey);
 
     }
 

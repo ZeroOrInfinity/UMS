@@ -1,7 +1,6 @@
 package top.dcenter.ums.security.core.api.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 
@@ -17,7 +16,7 @@ public interface RegisterUserDetailsService {
      * 手机短信登录用户注册接口
      * @param mobile    手机号
      * @return  注册后的 UserDetails 信息
-     * @exception RegisterUserFailureException
+     * @throws RegisterUserFailureException RegisterUserFailureException
      */
     UserDetails registerUser(String mobile) throws RegisterUserFailureException;
 
@@ -25,16 +24,8 @@ public interface RegisterUserDetailsService {
      * 用户名密码注册
      * @param request request
      * @return  注册后的 UserDetails 信息
-     * @exception RegisterUserFailureException
+     * @throws RegisterUserFailureException RegisterUserFailureException
      */
     UserDetails registerUser(ServletWebRequest request) throws RegisterUserFailureException;
-
-    /**
-     * 第三方登录的用户注册
-     * @param request   request
-     * @return  注册后的 UserDetails 信息
-     * @exception RegisterUserFailureException
-     */
-    UserDetails registerUser(ServletWebRequest request, ProviderSignInUtils providerSignInUtils) throws RegisterUserFailureException;
 
 }

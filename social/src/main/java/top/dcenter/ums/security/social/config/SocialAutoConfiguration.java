@@ -183,7 +183,8 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
     }
 
 
-
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"OBL_UNSATISFIED_OBLIGATION", "ODR_OPEN_DATABASE_RESOURCE"})
+    @SuppressWarnings("all")
     @Override
     public void afterPropertiesSet() throws Exception {
 

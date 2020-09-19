@@ -158,6 +158,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         updateRolesAuthorities();
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION")
     @NotNull
     private Consumer<Map<String, UriResourcesDTO>> map2mapConsumer(final Map<String, Set<String>> uriAuthoritiesMap) {
         return map -> map.forEach(

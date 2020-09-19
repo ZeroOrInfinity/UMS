@@ -3,16 +3,16 @@ package top.dcenter.ums.security.core.api.logout;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import top.dcenter.ums.security.core.api.service.CacheUserDetailsService;
 import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.properties.ClientProperties;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -31,17 +31,17 @@ public class DefaultLogoutSuccessHandler implements LogoutSuccessHandler {
     protected final RedirectStrategy redirectStrategy;
     protected final ClientProperties clientProperties;
     protected final ObjectMapper objectMapper;
-    protected CacheUserDetailsService cacheUserDetailsService;
+    @Autowired(required = false)
+    protected UserCache userCache;
 
-    public DefaultLogoutSuccessHandler(ClientProperties clientProperties, ObjectMapper objectMapper, CacheUserDetailsService cacheUserDetailsService) {
+    public DefaultLogoutSuccessHandler(ClientProperties clientProperties, ObjectMapper objectMapper) {
         this.clientProperties = clientProperties;
         this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        this.cacheUserDetailsService = cacheUserDetailsService;
         this.redirectStrategy = new DefaultRedirectStrategy();
     }
 
     @Override
-    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
 
         HttpSession session = request.getSession(true);
 
@@ -54,9 +54,9 @@ public class DefaultLogoutSuccessHandler implements LogoutSuccessHandler {
 
         // 清理缓存
         session.removeAttribute(SecurityConstants.SESSION_ENHANCE_CHECK_KEY);
-        if (cacheUserDetailsService != null && authentication != null)
+        if (userCache != null && authentication != null)
         {
-            cacheUserDetailsService.removeUserFromCache(authentication.getName());
+            userCache.removeUserFromCache(authentication.getName());
         }
 
         redirectProcessingLogoutByLoginProcessType(request, response, clientProperties, objectMapper,

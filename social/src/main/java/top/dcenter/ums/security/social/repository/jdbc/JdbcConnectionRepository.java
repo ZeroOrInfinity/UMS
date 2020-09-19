@@ -256,9 +256,6 @@ public class JdbcConnectionRepository implements ConnectionRepository {
 
 	private Connection<?> findPrimaryConnection(String providerId) {
 		ConnectionData connectionData = toConnectionData(jdbcConnectionDataRepository.findPrimaryConnection(userId, providerId));
-		if (connectionData == null) {
-			return null;
-		}
 		return getConnection(connectionData);
 	}
 	

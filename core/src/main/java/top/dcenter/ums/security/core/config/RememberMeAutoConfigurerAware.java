@@ -64,6 +64,7 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
         return null;
     }
 
+    @SuppressWarnings("all")
     @Override
     public void afterPropertiesSet() throws Exception {
 

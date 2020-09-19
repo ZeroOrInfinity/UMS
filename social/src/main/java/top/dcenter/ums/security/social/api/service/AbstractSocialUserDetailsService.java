@@ -1,8 +1,12 @@
 package top.dcenter.ums.security.social.api.service;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.social.security.SocialUserDetailsService;
+import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
+import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 
 /**
  * 用户名密码、手机短信、 OAuth 的登录与注册服务：<br><br>
@@ -18,5 +22,14 @@ public abstract class AbstractSocialUserDetailsService extends AbstractUserDetai
     public AbstractSocialUserDetailsService(ApplicationContext applicationContext) {
         super(applicationContext);
     }
+
+    /**
+     * 第三方登录的用户注册
+     * @param request   request
+     * @return  注册后的 UserDetails 信息
+     * @throws  RegisterUserFailureException  RegisterUserFailureException
+     */
+    public abstract UserDetails registerUser(ServletWebRequest request, ProviderSignInUtils providerSignInUtils) throws RegisterUserFailureException;
+
 
 }

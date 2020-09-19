@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Component;
-import top.dcenter.ums.security.core.api.service.CacheUserDetailsService;
+import top.dcenter.ums.security.social.api.service.CacheUserDetailsService;
 
 /**
  * 从缓存中查询用户信息(包含第三方登录用户信息), 包用户信息保持到缓存中
