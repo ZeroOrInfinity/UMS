@@ -14,6 +14,7 @@ import java.util.Arrays;
  * @author  zyw
  * @version V1.0  Created by 2020/5/2 18:26
  */
+@SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
 @Aspect
 //@Component
 @Slf4j

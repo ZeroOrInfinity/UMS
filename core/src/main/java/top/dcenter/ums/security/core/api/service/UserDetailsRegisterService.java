@@ -11,7 +11,7 @@ import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
  * @version V1.0
  * Created by 2020/5/16 10:48
  */
-public interface RegisterUserDetailsService {
+public interface UserDetailsRegisterService {
     /**
      * 手机短信登录用户注册接口
      * @param mobile    手机号

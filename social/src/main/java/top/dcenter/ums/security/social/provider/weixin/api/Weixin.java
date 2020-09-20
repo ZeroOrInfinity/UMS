@@ -1,6 +1,3 @@
-/**
- * 
- */
 package top.dcenter.ums.security.social.provider.weixin.api;
 
 /**
@@ -14,6 +11,8 @@ public interface Weixin {
 	/**
 	 * 根据 openId 获取微信用户信息
 	 * @see com.ymt.pz365.framework.security.social.api.SocialUserProfileService#getUserProfile(java.lang.String)
+	 * @param openId    openId
+	 * @return WeixinUserInfo
 	 */
 	@SuppressWarnings("JavadocReference")
 	WeixinUserInfo getUserInfo(String openId);

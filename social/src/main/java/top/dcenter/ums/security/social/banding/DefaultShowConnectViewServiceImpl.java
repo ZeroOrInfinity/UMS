@@ -23,13 +23,13 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.CHARSET_UTF
  * @author zyw
  * @version V1.0  Created by 2020/5/26 13:52
  */
-public class DefaultShowConnectViewService implements ShowConnectViewService {
+public class DefaultShowConnectViewServiceImpl implements ShowConnectViewService {
 
     private final ClientProperties clientProperties;
     private final ObjectMapper objectMapper;
     private final SocialProperties socialProperties;
 
-    public DefaultShowConnectViewService(ClientProperties clientProperties, ObjectMapper objectMapper, SocialProperties socialProperties) {
+    public DefaultShowConnectViewServiceImpl(ClientProperties clientProperties, ObjectMapper objectMapper, SocialProperties socialProperties) {
         this.clientProperties = clientProperties;
         this.objectMapper = objectMapper;
         this.socialProperties = socialProperties;
@@ -60,7 +60,6 @@ public class DefaultShowConnectViewService implements ShowConnectViewService {
         } else {
             response.getWriter().write(objectMapper.writeValueAsString(ResponseResult.success("绑定成功", userInfoList)));
         }
-        return;
 
     }
 }

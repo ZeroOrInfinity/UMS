@@ -40,7 +40,7 @@ public class SecurityConstants {
     /**
      * The default name for remember me parameter name and remember me cookie name
      */
-    public static final String DEFAULT_REMEMBER_ME_NAME = "rememberMe";
+    public static final String DEFAULT_REMEMBER_ME_NAME = "REMEMBER_ME";
     /**
      * 把 session enhance check value 存储在 session 时所用的 key
      */

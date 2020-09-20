@@ -8,14 +8,14 @@ import org.springframework.social.security.SocialUserDetails;
 /**
  * 从缓存中查询用户信息, 把用户信息存入缓存, 移除缓存.
  * 只是对 {@link UserCache} 的 copy, 防止 IOC 容器中的其他 UserCache 注入本应用
- * 用法可以参考 demo 模块的 {@link top.dcenter.security.service.LoginSocialUserDetailService}.
+ * 用法可以参考 demo 模块的 {@link demo.security.service.LoginSocialUserDetailsService}.
  * @see UserCache
  * @author zyw
  * @version V1.0
  * Created by 2020/5/31 15:30
  */
 @SuppressWarnings("JavadocReference")
-public interface CacheUserDetailsService extends UserCache {
+public interface SocialUserCache extends UserCache {
 
     /**
      * 只是对 {@link #getUserFromCache(String)} 返回结果转换为 {@link SocialUserDetails}

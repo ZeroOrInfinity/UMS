@@ -36,9 +36,9 @@ import java.util.stream.Collectors;
  *
  * @author zhailiang
  * @author  zyw
- * @createdDate 2020-05-09 11:37
+ * @version V1.0  Created by 2020-05-09 11:37
  */
-@SuppressWarnings("JavadocReference")
+@SuppressWarnings({"JavadocReference", "AlibabaLowerCamelCaseVariableNaming"})
 @Slf4j
 public class SocialCoreConfig extends SpringSocialConfigurer {
 
@@ -48,7 +48,7 @@ public class SocialCoreConfig extends SpringSocialConfigurer {
 		this.socialProperties = socialProperties;
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	protected <T> T postProcess(T object) {
 		SocialAuthenticationFilter filter = (SocialAuthenticationFilter) super.postProcess(object);
@@ -60,7 +60,7 @@ public class SocialCoreConfig extends SpringSocialConfigurer {
 		// 1. 获取 ConnectionFactories 并另外暂存到 Set
 		Set<String> providerIds = registry.registeredProviderIds();
 		Set<ConnectionFactory> connectionFactorySet =
-				providerIds.stream().map(providerId -> registry.getConnectionFactory(providerId)).collect(Collectors.toSet());
+				providerIds.stream().map(registry::getConnectionFactory).collect(Collectors.toSet());
 		// 2. 用反射或取 registry 中的 ConnectionFactories 并清空 ConnectionFactories 的值
 		Map<Class<?>, String> apiTypeIndex;
 		try

@@ -32,7 +32,7 @@ public class SocialAuthenticationSignUpAutoConfigurerAware implements HttpSecuri
     }
 
     @Override
-    public void postConfigure(HttpSecurity http) throws Exception {
+    public void postConfigure(HttpSecurity http) {
         // dto nothing
     }
 
@@ -55,7 +55,7 @@ public class SocialAuthenticationSignUpAutoConfigurerAware implements HttpSecuri
 
         Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
 
-        resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
+        resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
 
         return resultMap;
 

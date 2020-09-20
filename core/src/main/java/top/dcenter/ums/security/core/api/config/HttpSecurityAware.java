@@ -23,17 +23,17 @@ import java.util.Set;
  */
 public interface HttpSecurityAware {
 
-    String permitAll = "permitAll";
-    String denyAll = "denyAll";
-    String anonymous = "anonymous";
-    String authenticated = "authenticated";
-    String fullyAuthenticated = "fullyAuthenticated";
-    String rememberMe = "rememberMe";
-    String hasRole = "hasRole";
-    String hasAnyRole = "hasAnyRole";
-    String hasAuthority = "hasAuthority";
-    String hasAnyAuthority = "hasAnyAuthority";
-    String hasIpAddress = "hasIpAddress";
+    String PERMIT_ALL = "permitAll";
+    String DENY_ALL = "denyAll";
+    String ANONYMOUS = "anonymous";
+    String AUTHENTICATED = "authenticated";
+    String FULLY_AUTHENTICATED = "fullyAuthenticated";
+    String REMEMBER_ME = "rememberMe";
+    String HAS_ROLE = "hasRole";
+    String HAS_ANY_ROLE = "hasAnyRole";
+    String HAS_AUTHORITY = "hasAuthority";
+    String HAS_ANY_AUTHORITY = "hasAnyAuthority";
+    String HAS_IP_ADDRESS = "hasIpAddress";
 
     /**
      * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在前面处理的配置。<br><br>
@@ -55,13 +55,13 @@ public interface HttpSecurityAware {
      * 因为 authorizeRequests 配置时候要 authorizeRequests().anyRequest().authenticate 放到最后，所以这里临时把 权限与 uri 放入 map
      * 给主配置器处理.<br><br>
      * return 可以为 null 值
-     * @return authorizeRequestMap ==key== 为权限类型({@link #permitAll},{@link #denyAll},
-     * {@link #anonymous},{@link #authenticated},{@link #fullyAuthenticated},{@link #rememberMe},{@link #hasRole},{@link #hasAnyRole},
-     *      {@link #hasAuthority},{@link #hasAnyAuthority},{@link #hasIpAddress}); ==value== 为
+     * @return authorizeRequestMap ==key== 为权限类型({@link #PERMIT_ALL},{@link #DENY_ALL},
+     * {@link #ANONYMOUS},{@link #AUTHENTICATED},{@link #FULLY_AUTHENTICATED},{@link #REMEMBER_ME},{@link #HAS_ROLE},{@link #HAS_ANY_ROLE},
+     *      {@link #HAS_AUTHORITY},{@link #HAS_ANY_AUTHORITY},{@link #HAS_IP_ADDRESS}); ==value== 为
      *      {@link Map}(Map<String, Set<String>>的 =key= 为 uri, =value= 为 role/authority/ip 的 Set; 当 authorizeRequestMap
-     *      的 key 为 {@link #hasRole},{@link #hasAnyRole}/{@link #hasAuthority}/{@link #hasAnyAuthority}/
-     *      {@link #hasIpAddress}时, set 不为 null, 当 authorizeRequestMap 的 key 为 {@link #permitAll}/{@link #denyAll}/
-     *      {@link #anonymous}/{@link #authenticated}/{@link #fullyAuthenticated}/@link #rememberMe}时, set 可以为
+     *      的 key 为 {@link #HAS_ROLE},{@link #HAS_ANY_ROLE}/{@link #HAS_AUTHORITY}/{@link #HAS_ANY_AUTHORITY}/
+     *      {@link #HAS_IP_ADDRESS}时, set 不为 null, 当 authorizeRequestMap 的 key 为 {@link #PERMIT_ALL}/{@link #DENY_ALL}/
+     *      {@link #ANONYMOUS}/{@link #AUTHENTICATED}/{@link #FULLY_AUTHENTICATED}/@link #REMEMBER_ME}时, set 可以为
      *      null).
      */
     Map<String, Map<String, Set<String>>> getAuthorizeRequestMap();

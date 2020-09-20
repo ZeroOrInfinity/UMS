@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.view.RedirectView;
 import top.dcenter.ums.security.core.exception.ParameterErrorException;
-import top.dcenter.ums.security.social.callback.RedirectUrlHelper;
+import top.dcenter.ums.security.social.callback.RedirectUrlHelperServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,9 +32,9 @@ import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.TAMPER_WITH_REDI
 public class SocialController {
 
 
-    private final RedirectUrlHelper redirectUrlHelper;
+    private final RedirectUrlHelperServiceImpl redirectUrlHelper;
 
-    public SocialController(RedirectUrlHelper redirectUrlHelper) {
+    public SocialController(RedirectUrlHelperServiceImpl redirectUrlHelper) {
         this.redirectUrlHelper = redirectUrlHelper;
     }
 

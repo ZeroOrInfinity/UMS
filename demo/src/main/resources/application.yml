@@ -90,9 +90,9 @@ security:
     # 设置记住我功能的 session 的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
     remember-me:
       remember-me-timeout: P14D
-      remember-me-cookie-name: rememberMe
-      remember-me-parameter: rememberMe
-      # 当为 true 时 rememberMe 只能用于 https, 默认为 false
+      remember-me-cookie-name: REMEMBER_ME
+      remember-me-parameter: REMEMBER_ME
+      # 当为 true 时 REMEMBER_ME 只能用于 https, 默认为 false
       use-secure-cookie: false
 
     # session 设置
@@ -127,10 +127,10 @@ security:
       # csrf tokenRepository 的存储类型, 默认为 session. 集群选择 redis, 也可以自己自定义
       token-repository-type: redis
     anonymous:
-      # anonymous 是否开启, 默认为 false;
+      # ANONYMOUS 是否开启, 默认为 false;
       anonymous-is-open: true
-      # 匿名用户名称, 默认为 anonymous
-      principal: anonymous
+      # 匿名用户名称, 默认为 ANONYMOUS
+      principal: ANONYMOUS
       # 匿名用户权限 list, 默认为 ROLE_ANONYMOUS
       authorities:
         - ROLE_ANONYMOUS

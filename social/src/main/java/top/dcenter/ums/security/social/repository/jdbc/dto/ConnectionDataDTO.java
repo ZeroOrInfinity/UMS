@@ -1,5 +1,7 @@
 package top.dcenter.ums.security.social.repository.jdbc.dto;
 
+import lombok.ToString;
+
 import java.io.Serializable;
 
 /**
@@ -7,8 +9,11 @@ import java.io.Serializable;
  * @author zyw
  * @version V1.0  Created by 2020/6/13 14:15
  */
+@ToString
 public class ConnectionDataDTO implements Serializable {
-	
+
+	private static final long serialVersionUID = 7392678048215679277L;
+
 	private String providerId;
 	
 	private String providerUserId;

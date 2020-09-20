@@ -18,6 +18,7 @@ package top.dcenter.ums.security.social.provider.gitee.adapter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -90,7 +91,7 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
 
 	@Override
 	@SuppressWarnings({"unchecked", "rawtypes", "resource"})
-	public T extractData(ClientHttpResponse response) throws IOException {
+	public T extractData(@NotNull ClientHttpResponse response) throws IOException {
 		MessageBodyClientHttpResponseWrapper responseWrapper = new MessageBodyClientHttpResponseWrapper(response);
 		if (!responseWrapper.hasMessageBody() || responseWrapper.hasEmptyMessageBody()) {
 			return null;
@@ -165,7 +166,7 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
 		private PushbackInputStream pushbackInputStream;
 
 
-		public MessageBodyClientHttpResponseWrapper(ClientHttpResponse response) throws IOException {
+		public MessageBodyClientHttpResponseWrapper(ClientHttpResponse response) {
 			this.response = response;
 		}
 
@@ -182,14 +183,12 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
 		 */
 		public boolean hasMessageBody() throws IOException {
 			HttpStatus status = HttpStatus.resolve(getRawStatusCode());
-			if (status != null && (status.is1xxInformational() || status == HttpStatus.NO_CONTENT ||
-					status == HttpStatus.NOT_MODIFIED)) {
+			boolean isNonMessageBody = status != null && (status.is1xxInformational() || status == HttpStatus.NO_CONTENT ||
+					status == HttpStatus.NOT_MODIFIED);
+			if (isNonMessageBody) {
 				return false;
 			}
-			if (getHeaders().getContentLength() == 0) {
-				return false;
-			}
-			return true;
+			return getHeaders().getContentLength() != 0;
 		}
 
 		/**
@@ -233,16 +232,19 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
 		}
 
 
+		@NotNull
 		@Override
 		public HttpHeaders getHeaders() {
 			return this.response.getHeaders();
 		}
 
+		@NotNull
 		@Override
 		public InputStream getBody() throws IOException {
 			return (this.pushbackInputStream != null ? this.pushbackInputStream : this.response.getBody());
 		}
 
+		@NotNull
 		@Override
 		public HttpStatus getStatusCode() throws IOException {
 			return this.response.getStatusCode();
@@ -253,6 +255,7 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
 			return this.response.getRawStatusCode();
 		}
 
+		@NotNull
 		@Override
 		public String getStatusText() throws IOException {
 			return this.response.getStatusText();

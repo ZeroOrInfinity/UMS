@@ -37,6 +37,7 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.URL_SEPARAT
  * @author zyw
  * @version V1.0  Created by 2020/5/20 14:54
  */
+@SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
 @Slf4j
 public class BandingConnectSupport {
 
@@ -171,6 +172,7 @@ public class BandingConnectSupport {
             return callbackUrl;
         }
         HttpServletRequest nativeRequest = request.getNativeRequest(HttpServletRequest.class);
+        assert nativeRequest != null;
         if (applicationUrl != null) {
             return applicationUrl + connectPath(nativeRequest);
         } else {

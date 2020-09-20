@@ -32,9 +32,9 @@ import top.dcenter.ums.security.social.api.banding.ShowConnectViewService;
 import top.dcenter.ums.security.social.api.banding.ShowConnectionStatusViewService;
 import top.dcenter.ums.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
-import top.dcenter.ums.security.social.banding.DefaultShowConnectViewService;
-import top.dcenter.ums.security.social.banding.DefaultShowConnectionStatusViewService;
-import top.dcenter.ums.security.social.callback.RedirectUrlHelper;
+import top.dcenter.ums.security.social.banding.DefaultShowConnectViewServiceImpl;
+import top.dcenter.ums.security.social.banding.DefaultShowConnectionStatusViewServiceImpl;
+import top.dcenter.ums.security.social.callback.RedirectUrlHelperServiceImpl;
 import top.dcenter.ums.security.social.controller.BandingConnectController;
 import top.dcenter.ums.security.social.controller.SocialController;
 import top.dcenter.ums.security.social.properties.SocialProperties;
@@ -125,8 +125,8 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.social.api.callback.RedirectUrlHelperService")
-    public RedirectUrlHelper redirectUrlHelper() {
-        return new RedirectUrlHelper();
+    public RedirectUrlHelperServiceImpl redirectUrlHelper() {
+        return new RedirectUrlHelperServiceImpl();
     }
 
     @Bean
@@ -149,13 +149,13 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.social.api.banding.ShowConnectViewService")
     public ShowConnectViewService showConnectViewService(ClientProperties clientProperties, ObjectMapper objectMapper) {
-        return new DefaultShowConnectViewService(clientProperties, objectMapper, this.socialProperties);
+        return new DefaultShowConnectViewServiceImpl(clientProperties, objectMapper, this.socialProperties);
     }
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.social.api.banding.ShowConnectionStatusViewService")
     public ShowConnectionStatusViewService showConnectionStatusViewService(ObjectMapper objectMapper) {
-        return new DefaultShowConnectionStatusViewService(objectMapper);
+        return new DefaultShowConnectionStatusViewServiceImpl(objectMapper);
     }
 
     @Bean
@@ -178,13 +178,12 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
     }
 
     @Bean
-    public SocialController socialController(RedirectUrlHelper redirectUrlHelper) {
+    public SocialController socialController(RedirectUrlHelperServiceImpl redirectUrlHelper) {
         return new SocialController(redirectUrlHelper);
     }
 
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"OBL_UNSATISFIED_OBLIGATION", "ODR_OPEN_DATABASE_RESOURCE"})
-    @SuppressWarnings("all")
     @Override
     public void afterPropertiesSet() throws Exception {
 

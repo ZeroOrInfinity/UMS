@@ -8,7 +8,7 @@ import java.util.Date;
  * A data class representing Basic user information element
  * @author edva8332
  */
-@SuppressWarnings("jol")
+@SuppressWarnings({"jol", "AlibabaRemoveCommentedCode"})
 public class WeiboUserInfo {
     /**
      * 是否允许所有人给我发私信
@@ -465,6 +465,7 @@ public class WeiboUserInfo {
         this.verified = verified;
     }
 
+    @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
     public void setVerified_reason(String verifiedReason) {
         this.verifiedReason = verifiedReason;
     }

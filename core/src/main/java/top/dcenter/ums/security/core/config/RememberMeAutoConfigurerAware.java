@@ -42,14 +42,14 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
     }
 
     @Override
-    public void postConfigure(HttpSecurity http) throws Exception {
+    public void postConfigure(HttpSecurity http) {
         // dto nothing
     }
 
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
 
-        // 开启 rememberMe 功能
+        // 开启 REMEMBER_ME 功能
         http.rememberMe()
                 .rememberMeParameter(clientProperties.getRememberMe().getRememberMeParameter())
                 .rememberMeCookieName(clientProperties.getRememberMe().getRememberMeCookieName())
@@ -64,7 +64,6 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
         return null;
     }
 
-    @SuppressWarnings("all")
     @Override
     public void afterPropertiesSet() throws Exception {
 

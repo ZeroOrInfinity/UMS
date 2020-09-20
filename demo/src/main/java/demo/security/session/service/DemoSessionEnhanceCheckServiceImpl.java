@@ -21,7 +21,7 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.extractUserA
  */
 @Component
 @Slf4j
-public class DemoSessionEnhanceCheckService implements SessionEnhanceCheckService {
+public class DemoSessionEnhanceCheckServiceImpl implements SessionEnhanceCheckService {
 
     @Override
     public void setEnhanceCheckValue(@NonNull HttpSession session, @NonNull HttpServletRequest request) {

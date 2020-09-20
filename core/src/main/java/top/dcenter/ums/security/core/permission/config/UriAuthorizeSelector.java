@@ -28,22 +28,10 @@ final class UriAuthorizeSelector implements ImportSelector {
 
 
         boolean filterOrInterceptor = attributes.getBoolean("filterOrInterceptor");
-        boolean restfulAPI = attributes.getBoolean("restfulAPI");
-        boolean repeat = attributes.getBoolean("repeat");
 
         List<String> classNames = new ArrayList<>(2);
         if (filterOrInterceptor)
         {
-            if (restfulAPI)
-            {
-                classNames.add(RestfulAPI.class.getName());
-            }
-
-            if (repeat)
-            {
-                classNames.add(Repeat.class.getName());
-            }
-
             classNames.add(UriAuthorizeFilterAutoConfiguration.class.getName());
         }
         else

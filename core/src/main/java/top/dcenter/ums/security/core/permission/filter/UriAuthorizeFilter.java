@@ -1,17 +1,13 @@
 package top.dcenter.ums.security.core.permission.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
-import top.dcenter.ums.security.core.permission.config.Repeat;
-import top.dcenter.ums.security.core.permission.config.RestfulAPI;
-import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -19,15 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import static top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService.PERMISSION_DELIMITER;
 
 /**
  * uri 访问权限过滤器
@@ -37,18 +27,8 @@ import static top.dcenter.ums.security.core.api.permission.service.AbstractUriAu
 @Slf4j
 public class UriAuthorizeFilter extends OncePerRequestFilter {
 
-    private final UriAuthorizeService uriAuthorizeService;
 
-    /**
-     * restfulAPI 不为 null 表示为 restful API, 否则不是.
-     */
-    @Autowired(required = false)
-    private RestfulAPI restfulAPI;
-    /**
-     * Repeat 不为 null 表示有需要验证权限的多个不同的 uri 对同一个 uri 都匹配的情况
-     */
-    @Autowired(required = false)
-    private Repeat repeat;
+    private final UriAuthorizeService uriAuthorizeService;
 
     /**
      * 需要进行授权的 uri 集合
@@ -69,12 +49,12 @@ public class UriAuthorizeFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
 
-        String requestURI = request.getRequestURI();
+        String requestUri = request.getRequestURI();
 
         // 是否属于要认证的 uri
-        if (uriAuthorizeService.isUriContainsInUriSet(uriOfPermissionSet, requestURI))
+        if (uriAuthorizeService.isUriContainsInUriSet(uriOfPermissionSet, requestUri))
         {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -94,63 +74,15 @@ public class UriAuthorizeFilter extends OncePerRequestFilter {
             final String method = request.getMethod();
 
             // 用户是否有此 uri 的权限
-            if (uriAuthorizeService.isUriContainsInUriSet(uriAuthorityOfUserRoleMap.keySet(), requestURI))
+            if (uriAuthorizeService.isUriContainsInUriSet(uriAuthorityOfUserRoleMap.keySet(), requestUri))
             {
-                // 用户的 uri 权限集合
-                Set<String> uriAuthoritySet = new HashSet<>();
 
-                Iterator<Map.Entry<String, Set<String>>> it = uriAuthorityOfUserRoleMap.entrySet().iterator();
-                while (it.hasNext())
-                {
-                    Map.Entry<String, Set<String>> next = it.next();
-                    if (matcher.match(next.getKey(), requestURI))
-                    {
-                        // 添加基于用户 role 的 uri 权限集合
-                        uriAuthoritySet.addAll(next.getValue());
-                        if (repeat == null)
-                        {
-                            // 只添加第一次匹配 uri 权限集合
-                            break;
-                        }
-                        // 添加所有匹配的 uri 权限集合(耗时)
-                    }
-                }
+                // 有访问权限
+                log.info("URI权限控制-放行: sid={}, user={}, ip={}, uri={}, method={}, time={}, referer={}, agent={}",
+                         sid, principal, ip, uri, method, now, referer, userAgent);
 
-                // 基于用户 authentication 的 uri 的权限集合
-                Set<String> userAuthoritySet =
-                        authentication.getAuthorities()
-                                .stream()
-                                .map(grantedAuth -> grantedAuth.getAuthority())
-                                .flatMap(authorities -> Arrays.stream(StringUtils.splitByWholeSeparator(authorities, PERMISSION_DELIMITER)))
-                                .collect(Collectors.toSet());
-
-                // 两个集合的交集
-                uriAuthoritySet.retainAll(userAuthoritySet);
-
-
-                // 用户有 uri 的权限
-                if (uriAuthoritySet.size() > 0)
-                {
-                    boolean hasPermission = true;
-
-                    // 如果是 restful API 则判断权限后缀是否与 request method 是否
-                    if (restfulAPI != null)
-                    {
-                        hasPermission = uriAuthoritySet.stream()
-                                        .anyMatch(
-                                                authority -> authority.endsWith(PermissionSuffixType.getPermissionSuffix(method))
-                                        );
-                    }
-
-                    if (hasPermission)
-                    {
-                        // 有访问权限
-                        log.info("URI权限控制-放行: sid={}, user={}, ip={}, uri={}, method={}, time={}, referer={}, agent={}",
-                                 sid, principal, ip, uri, method, now, referer, userAgent);
-                        filterChain.doFilter(request, response);
-                        return;
-                    }
-                }
+                filterChain.doFilter(request, response);
+                return;
 
             }
 
@@ -164,4 +96,5 @@ public class UriAuthorizeFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
 
     }
+
 }

@@ -158,6 +158,12 @@ public class ClientProperties {
      * 登录后是否利用 Referer 进行跳转, 默认为: true
      */
     public Boolean useReferer = Boolean.TRUE;
+    /**
+     * 允许来自同一来源(如: example.com)的请求, 默认为: false
+     */
+    public Boolean sameOrigin = Boolean.FALSE;
+
+
 
 
     public ClientProperties() {
@@ -229,11 +235,11 @@ public class ClientProperties {
         private Duration rememberMeTimeout = Duration.parse("P14D");
 
         /**
-         * 设置记住我功能的 CookieName，默认 rememberMe
+         * 设置记住我功能的 CookieName，默认 REMEMBER_ME
          */
         private String rememberMeCookieName = DEFAULT_REMEMBER_ME_NAME;
         /**
-         * 设置记住我功能的参数名称，默认 rememberMe
+         * 设置记住我功能的参数名称，默认 REMEMBER_ME
          */
         private String rememberMeParameter = DEFAULT_REMEMBER_ME_NAME;
 
@@ -267,13 +273,13 @@ public class ClientProperties {
     @Setter
     public static class AnonymousProperties {
         /**
-         * anonymous 是否开启, 默认为 false;
+         * ANONYMOUS 是否开启, 默认为 false;
          */
         private Boolean anonymousIsOpen = true;
         /**
-         * 匿名用户名称, 默认为 anonymous
+         * 匿名用户名称, 默认为 ANONYMOUS
          */
-        private String  principal = "anonymous";
+        private String  principal = "ANONYMOUS";
         /**
          * 匿名用户权限 list, 默认为 ROLE_ANONYMOUS
          */

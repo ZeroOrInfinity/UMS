@@ -43,12 +43,12 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
     }
 
     @Override
-    public void postConfigure(HttpSecurity http) throws Exception {
+    public void postConfigure(HttpSecurity http) {
         // dto nothing
     }
 
     @Override
-    public void preConfigure(HttpSecurity http) throws Exception {
+    public void preConfigure(HttpSecurity http) {
         // dto nothing
     }
 
@@ -73,7 +73,7 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
 
         Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
 
-        resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
+        resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
 
         return resultMap;
     }

@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Component;
-import top.dcenter.ums.security.social.api.service.CacheUserDetailsService;
+import top.dcenter.ums.security.social.api.service.SocialUserCache;
 
 /**
  * 从缓存中查询用户信息(包含第三方登录用户信息), 包用户信息保持到缓存中
@@ -22,14 +22,14 @@ import top.dcenter.ums.security.social.api.service.CacheUserDetailsService;
  */
 @Component
 @Slf4j
-public class RedisCacheUserDetailsService implements CacheUserDetailsService {
+public class RedisSocialUserCache implements SocialUserCache {
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private PasswordEncoder passwordEncoder;
     private final ObjectMapper objectMapper;
 
-    public RedisCacheUserDetailsService(ObjectMapper objectMapper) {
+    public RedisSocialUserCache(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }

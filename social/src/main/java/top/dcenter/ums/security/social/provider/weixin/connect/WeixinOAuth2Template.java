@@ -16,6 +16,8 @@ import org.springframework.web.client.RestTemplate;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import static top.dcenter.ums.security.social.provider.weixin.api.WeixinImpl.ERR_CODE;
+
 /**
  *
  * 完成微信的OAuth2认证流程的模板类。国内厂商实现的OAuth2每个都不同, spring默认提供的OAuth2Template适应不了，只能针对每个厂商自己微调。
@@ -23,7 +25,7 @@ import java.util.Map;
  * @author zhailiang
  *
  */
-@SuppressWarnings("AlibabaClassNamingShouldBeCamel")
+@SuppressWarnings({"AlibabaClassNamingShouldBeCamel", "AlibabaUndefineMagicConstant"})
 @Slf4j
 public class WeixinOAuth2Template extends OAuth2Template {
 
@@ -78,9 +80,9 @@ public class WeixinOAuth2Template extends OAuth2Template {
 
         StringBuilder refreshTokenUrl = new StringBuilder(REFRESH_TOKEN_URL);
 
-        refreshTokenUrl.append("?appid=" + clientId);
+        refreshTokenUrl.append("?appid=").append(clientId);
         refreshTokenUrl.append("&grant_type=refresh_token");
-        refreshTokenUrl.append("&refresh_token=" + refreshToken);
+        refreshTokenUrl.append("&refresh_token=").append(refreshToken);
 
         return getAccessToken(refreshTokenUrl);
     }
@@ -105,9 +107,9 @@ public class WeixinOAuth2Template extends OAuth2Template {
         }
 
         //返回错误码时直接返回空
-        if (StringUtils.isNotBlank(MapUtils.getString(result, "errcode")))
+        if (StringUtils.isNotBlank(MapUtils.getString(result, ERR_CODE)))
         {
-            String errcode = MapUtils.getString(result, "errcode");
+            String errcode = MapUtils.getString(result, ERR_CODE);
             String errmsg = MapUtils.getString(result, "errmsg");
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST,
                                                "获取access token失败, errcode:" + errcode + ", errmsg:" + errmsg);

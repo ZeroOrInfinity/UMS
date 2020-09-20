@@ -25,7 +25,7 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.UUID_INTERC
  * @author zyw
  * @version V1.0  Created by 2020/5/25 20:54
  */
-public class RedirectUrlHelper implements RedirectUrlHelperService {
+public class RedirectUrlHelperServiceImpl implements RedirectUrlHelperService {
     /**
      * 解析 state，返回真实的回调地址
      * @param state redirectUrl 中的 state 参数的值

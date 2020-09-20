@@ -44,7 +44,7 @@ import java.util.Set;
  * 简单的实现 Redis cache 自定义配置 {@link CacheManager}, 向 IOC 容器中注入 beanName=socialRedisHashCacheManager 的实例. <br><br>
  * 此 redis Cache 对 {@link org.springframework.data.redis.cache.RedisCache} 进行了修改, 把缓存的 KV 格式该成了 Hash 格式.
  * @author zyw
- * @createrDate 2020-06-11 22:57
+ * @version V1.0  Created by  2020-06-11 22:57
  */
 @Configuration
 @EnableConfigurationProperties({RedisCacheProperties.class})
@@ -80,7 +80,7 @@ public class RedisCacheAutoConfig {
      * 配置 Jackson2JsonRedisSerializer 序列化器，在配置 redisTemplate需要用来做k,v的
      * 序列化器
      */
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private static Jackson2JsonRedisSerializer getJackson2JsonRedisSerializer(){
         Jackson2JsonRedisSerializer jackson2JsonRedisSerializer;
         jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
@@ -183,7 +183,7 @@ public class RedisCacheAutoConfig {
         Set<String> cacheNames = cache.getCacheNames();
 
         // 对每个缓存空间应用不同的配置
-        Map<String, RedisCacheConfiguration> configMap = new HashMap<>();
+        Map<String, RedisCacheConfiguration> configMap = new HashMap<>(cacheNames.size());
         for (String cacheName : cacheNames)
         {
             configMap.put(cacheName,

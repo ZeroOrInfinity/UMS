@@ -29,12 +29,13 @@ public class SmsCodeLoginAuthenticationAutoConfigurerAware implements HttpSecuri
     private SmsCodeLoginAutoAuthenticationConfigurer smsCodeLoginAutoAuthenticationConfigurer;
     private final SmsCodeLoginAuthenticationProperties smsCodeLoginAuthenticationProperties;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public SmsCodeLoginAuthenticationAutoConfigurerAware(SmsCodeLoginAuthenticationProperties smsCodeLoginAuthenticationProperties) {
         this.smsCodeLoginAuthenticationProperties = smsCodeLoginAuthenticationProperties;
     }
 
     @Override
-    public void postConfigure(HttpSecurity http) throws Exception {
+    public void postConfigure(HttpSecurity http) {
         // dto nothing
     }
 
@@ -55,7 +56,7 @@ public class SmsCodeLoginAuthenticationAutoConfigurerAware implements HttpSecuri
 
         Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
 
-        resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
+        resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
 
         return resultMap;
     }

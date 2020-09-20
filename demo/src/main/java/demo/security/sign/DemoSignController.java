@@ -19,17 +19,20 @@ import static top.dcenter.ums.security.core.util.SignUtil.formatDate;
  * @author flex_song zyw
  * @version V1.0  Created by 2020/9/14 17:49
  */
+@SuppressWarnings("AlibabaUndefineMagicConstant")
 @RestController
 @EnableSign
 public class DemoSignController {
 
     private final SignService signService;
     private SignProperties signProperties;
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public DemoSignController(SignService signService, SignProperties signProperties) {
         this.signService = signService;
         this.signProperties = signProperties;
     }
 
+    @SuppressWarnings("AlibabaMethodTooLong")
     @RequestMapping("/testSign")
     public String testSign() throws UnsupportedEncodingException {
 
@@ -166,10 +169,11 @@ public class DemoSignController {
      * 2020-09-03: -
      * 2020-09-04: √
      * 2020-09-05: √
-     * @param forwardDays
+     * @param forwardDays   forwardDays
      * @return
      * @throws UnsupportedEncodingException
      */
+    @SuppressWarnings("JavaDoc")
     @RequestMapping("/testSignOfLastSevenDays/{forwardDays}")
     public String testSignOfRange(@PathVariable Integer forwardDays) throws UnsupportedEncodingException {
 

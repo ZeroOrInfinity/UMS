@@ -40,7 +40,7 @@ public class SocialSecurityAutoConfigurerAware implements HttpSecurityAware {
     }
 
     @Override
-    public void preConfigure(HttpSecurity http) throws Exception {
+    public void preConfigure(HttpSecurity http) {
         // dto nothing
     }
 
@@ -54,7 +54,7 @@ public class SocialSecurityAutoConfigurerAware implements HttpSecurityAware {
 
         Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
 
-        resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
+        resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
 
         return resultMap;
     }

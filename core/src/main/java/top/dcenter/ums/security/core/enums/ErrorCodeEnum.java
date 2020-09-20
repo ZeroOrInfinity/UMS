@@ -9,6 +9,7 @@ import top.dcenter.ums.security.core.consts.SecurityConstants;
  * @author zyw
  * @version V1.0  Created by 2020/5/30 12:49
  */
+@SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
 public enum ErrorCodeEnum {
 
 

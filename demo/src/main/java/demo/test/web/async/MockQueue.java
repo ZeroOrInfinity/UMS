@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
  * @author  zyw
  * @version V1.0  Created by 2020/5/2 23:12
  */
+@SuppressWarnings("AlibabaAvoidManuallyCreateThread")
 @Slf4j
 @Component
 public class MockQueue {
@@ -23,10 +24,9 @@ public class MockQueue {
 
     /**
      * 模拟队列, 未实现多线程安全问题
-     * @param placeOrder
-     * @throws InterruptedException
+     * @param placeOrder    placeOrder
      */
-    public void setPlaceOrder(String placeOrder) throws InterruptedException {
+    public void setPlaceOrder(String placeOrder) {
         new Thread(() -> {
             log.info("接到下单请求：{}", placeOrder);
             try

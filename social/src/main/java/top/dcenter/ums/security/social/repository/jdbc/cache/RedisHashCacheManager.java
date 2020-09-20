@@ -1,5 +1,6 @@
 package top.dcenter.ums.security.social.repository.jdbc.cache;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.transaction.AbstractTransactionSupportingCacheManager;
 import org.springframework.data.redis.cache.RedisCache;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -36,6 +37,7 @@ import java.util.Set;
  * @see RedisCacheConfiguration
  * @see RedisHashCacheWriter
  */
+@SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
 public class RedisHashCacheManager extends AbstractTransactionSupportingCacheManager {
 
 	private final RedisHashCacheWriter cacheWriter;
@@ -221,6 +223,7 @@ public class RedisHashCacheManager extends AbstractTransactionSupportingCacheMan
 	 * (non-Javadoc)
 	 * @see org.springframework.cache.support.AbstractCacheManager#loadCaches()
 	 */
+	@NotNull
 	@Override
 	protected Collection<RedisCache> loadCaches() {
 
@@ -238,7 +241,7 @@ public class RedisHashCacheManager extends AbstractTransactionSupportingCacheMan
 	 * @see org.springframework.cache.support.AbstractCacheManager#getMissingCache(java.lang.String)
 	 */
 	@Override
-	protected RedisCache getMissingCache(String name) {
+	protected RedisCache getMissingCache(@NotNull String name) {
 		return allowInFlightCacheCreation ? createRedisCache(name, defaultCacheConfig) : null;
 	}
 
@@ -251,6 +254,7 @@ public class RedisHashCacheManager extends AbstractTransactionSupportingCacheMan
 
 		getCacheNames().forEach(it -> {
 
+			//noinspection RedundantClassCall
 			RedisCache cache = RedisCache.class.cast(lookupCache(it));
 			configurationMap.put(it, cache != null ? cache.getCacheConfiguration() : null);
 		});
@@ -287,7 +291,7 @@ public class RedisHashCacheManager extends AbstractTransactionSupportingCacheMan
 
 		private RedisHashCacheManagerBuilder() {}
 
-		private RedisHashCacheManagerBuilder(RedisHashCacheWriter cacheWriter) {
+		private RedisHashCacheManagerBuilder(@org.jetbrains.annotations.Nullable RedisHashCacheWriter cacheWriter) {
 			this.cacheWriter = cacheWriter;
 		}
 
@@ -394,8 +398,8 @@ public class RedisHashCacheManager extends AbstractTransactionSupportingCacheMan
 		}
 
 		/**
-		 * @param cacheName
-		 * @param cacheConfiguration
+		 * @param cacheName             cacheName
+		 * @param cacheConfiguration    cacheConfiguration
 		 * @return this {@link RedisHashCacheManagerBuilder}.
 		 * @since 2.2
 		 */

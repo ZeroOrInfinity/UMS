@@ -1,5 +1,7 @@
 package top.dcenter.ums.security.core.util;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -15,6 +17,7 @@ import java.util.Random;
  * @author zyw
  * @version V1.0  Created by 2020/5/4 9:25
  */
+@SuppressWarnings("AlibabaUndefineMagicConstant")
 public class ImageUtil {
 
     /**
@@ -24,8 +27,8 @@ public class ImageUtil {
      * @param h     图片高度
      * @param outputFile    输出文件
      * @param verifySize    验证码长度
-     * @return
-     * @throws IOException
+     * @return  验证码
+     * @throws IOException  IOException
      */
     public static String outputVerifyImage(int w, int h, File outputFile, int verifySize) throws IOException {
         String verifyCode = ValidateCodeUtil.generateVerifyCode(verifySize);
@@ -40,8 +43,8 @@ public class ImageUtil {
      * @param h     图片高度
      * @param os    输出流
      * @param verifySize    验证码长度
-     * @return
-     * @throws IOException
+     * @return  验证码
+     * @throws IOException IOException
      */
     public static String outputVerifyImage(int w, int h, OutputStream os, int verifySize) throws IOException {
         String verifyCode = ValidateCodeUtil.generateVerifyCode(verifySize);
@@ -56,8 +59,9 @@ public class ImageUtil {
      * @param h     图片高度
      * @param outputFile    输出文件
      * @param code  验证码
-     * @throws IOException
+     * @throws IOException  IOException
      */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public static void outputImage(int w, int h, File outputFile, String code) throws IOException {
         if (outputFile == null) {
             return;
@@ -88,7 +92,7 @@ public class ImageUtil {
      * @param h     图片高度
      * @param os    输出流
      * @param code  验证码
-     * @throws IOException
+     * @throws IOException  IOException
      */
     public static void outputImage(int w, int h, OutputStream os, String code) throws IOException {
         BufferedImage image = getBufferedImage(w, h, code);
@@ -100,17 +104,19 @@ public class ImageUtil {
      * @param width     图片宽度
      * @param height     图片高度
      * @param code  验证码
-     * @return
+     * @return  BufferedImage
      */
+    @SuppressWarnings("MismatchedReadAndWriteOfArray")
     public static BufferedImage getBufferedImage(int width, int height, String code) {
         int verifySize = code.length();
         int tempWidth = height * 45 / 10;
-        width = width > tempWidth ? width : tempWidth;
+        width = Math.max(width, tempWidth);
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Random rand = new Random();
         Graphics2D g2 = image.createGraphics();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         Color[] colors = new Color[5];
         Color[] colorSpaces = new Color[] { Color.WHITE, Color.CYAN, Color.GRAY, Color.LIGHT_GRAY, Color.MAGENTA,
                 Color.ORANGE, Color.PINK, Color.YELLOW };

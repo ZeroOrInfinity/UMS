@@ -21,17 +21,19 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.CHARSET_UTF
  * @version V1.0  Created by 2020/5/26 13:52
  */
 @Component
-public class DemoShowConnectionStatusViewService implements ShowConnectionStatusViewService {
+public class DemoShowConnectionStatusViewServiceImpl implements ShowConnectionStatusViewService {
 
     private final ObjectMapper objectMapper;
 
-    public DemoShowConnectionStatusViewService(ObjectMapper objectMapper) {
+    public DemoShowConnectionStatusViewServiceImpl(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+        @SuppressWarnings("unchecked")
         Map<String, List<Connection<?>>> connections = (Map<String, List<Connection<?>>>) model.get("connectionMap");
 
         Map<String, Boolean> result = new HashMap<>(16);

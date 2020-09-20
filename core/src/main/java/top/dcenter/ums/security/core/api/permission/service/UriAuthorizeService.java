@@ -19,8 +19,8 @@ public interface UriAuthorizeService {
 
     /**
      * 根据 authentication 来判断 request 是否有访问权限.
-     * @param request
-     * @param authentication
+     * @param request           request
+     * @param authentication    authentication
      * @param uriAuthorize      uri 权限
      * @return  有访问权限则返回 true, 否则返回 false.
      */
@@ -28,7 +28,7 @@ public interface UriAuthorizeService {
 
     /**
      * 获取用户角色的 uri 权限 Map
-     * @param authentication    authentication 基于
+     * @param authentication    authentication
      * @return 用户角色的 uri 权限 Map(uri, Set(authority))
      */
     Optional<Map<String, Set<String>>> getUriAuthoritiesOfUserRole(Authentication authentication);
@@ -56,7 +56,7 @@ public interface UriAuthorizeService {
     Optional<Map<String, Map<String, UriResourcesDTO>>> getRolesAuthorities();
 
     /**
-     * 更新角色的 uri 的权限 map
+     * 每次修改角色的权限时, 都要更新角色的 uri 的权限 map
      */
     void updateRolesAuthorities();
 

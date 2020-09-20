@@ -23,6 +23,11 @@ public class WeixinImpl extends AbstractOAuth2ApiBinding implements Weixin {
 	 */
 	private static final String URL_GET_USER_INFO = "https://api.weixin.qq.com/sns/userinfo?openid=";
 
+	/**
+	 * 微信响应错误码 key
+	 */
+	public static final String ERR_CODE = "errcode";
+
 	private final ObjectMapper objectMapper;
 
 	/**
@@ -52,7 +57,7 @@ public class WeixinImpl extends AbstractOAuth2ApiBinding implements Weixin {
 	public WeixinUserInfo getUserInfo(String openId) {
 		String url = URL_GET_USER_INFO + openId;
 		String response = getRestTemplate().getForObject(url, String.class);
-		if(StringUtils.contains(response, "errcode")) {
+		if(StringUtils.contains(response, ERR_CODE)) {
 			return null;
 		}
 		WeixinUserInfo profile = null;

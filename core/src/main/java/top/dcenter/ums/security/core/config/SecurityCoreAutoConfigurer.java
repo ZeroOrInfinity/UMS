@@ -14,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,6 +49,7 @@ import static top.dcenter.ums.security.core.api.config.HttpSecurityAware.*;
  */
 @SuppressWarnings("jol")
 @Configuration
+@EnableWebSecurity
 @AutoConfigureAfter({
         SecurityAutoConfiguration.class,
         SmsCodeLoginAuthenticationAutoConfigurerAware.class,
@@ -90,7 +92,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
 
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         String[] ignoringUrls = clientProperties.getIgnoringUrls();
         web.ignoring()
                 .antMatchers(Objects.requireNonNullElseGet(ignoringUrls, () -> new String[0]));
@@ -108,38 +110,35 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        // 把权限类型: permitAll, denyAll, anonymous, authenticated, fullyAuthenticated, rememberMe 放入 authorizeRequestMap
+        // 把权限类型: PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED, FULLY_AUTHENTICATED, REMEMBER_ME 放入 authorizeRequestMap
         Map<String, Set<String>> authorizeRequestMap = new HashMap<>(16);
-        // 把权限类型: hasRole, hasAnyRole, hasAuthority, hasAnyAuthority, hasIpAddress 放入 authorizeRequestMapPlus
+        // 把权限类型: HAS_ROLE, HAS_ANY_ROLE, HAS_AUTHORITY, HAS_ANY_AUTHORITY, HAS_IP_ADDRESS 放入 authorizeRequestMapPlus
         Map<String, Map<String, Set<String>>> authorizeRequestMapPlus = new HashMap<>(16);
 
         /* 对所有的AuthorizeRequestUris 进行分类，放入对应的 Map
          * 把从 HttpSecurityAware#getAuthorizeRequestMap() 获取的 authorizeRequestMap 根据权限分类进行合并,
-         * 把权限类型: permitAll, denyAll, anonymous, authenticated, fullyAuthenticated, rememberMe 放入 authorizeRequestMap
-         * 把权限类型: hasRole, hasAnyRole, hasAuthority, hasAnyAuthority, hasIpAddress 放入 authorizeRequestMapPlus
+         * 把权限类型: PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED, FULLY_AUTHENTICATED, REMEMBER_ME 放入 authorizeRequestMap
+         * 把权限类型: HAS_ROLE, HAS_ANY_ROLE, HAS_AUTHORITY, HAS_ANY_AUTHORITY, HAS_IP_ADDRESS 放入 authorizeRequestMapPlus
          */
         groupingAuthorizeRequestUris(http, authorizeRequestMap, authorizeRequestMapPlus);
 
         // 将 AuthorizeRequestUriSet 转换为对应的 array
-        String[] permitAllArray = set2ArrayByType(authorizeRequestMap, permitAll);
-        String[] denyAllArray = set2ArrayByType(authorizeRequestMap, denyAll);
-        String[] anonymousArray = set2ArrayByType(authorizeRequestMap, anonymous);
-        String[] authenticatedArray = set2ArrayByType(authorizeRequestMap, authenticated);
-        String[] fullyAuthenticatedArray = set2ArrayByType(authorizeRequestMap, fullyAuthenticated);
-        String[] rememberMeArray = set2ArrayByType(authorizeRequestMap, rememberMe);
+        String[] permitAllArray = set2ArrayByType(authorizeRequestMap, PERMIT_ALL);
+        String[] denyAllArray = set2ArrayByType(authorizeRequestMap, DENY_ALL);
+        String[] anonymousArray = set2ArrayByType(authorizeRequestMap, ANONYMOUS);
+        String[] authenticatedArray = set2ArrayByType(authorizeRequestMap, AUTHENTICATED);
+        String[] fullyAuthenticatedArray = set2ArrayByType(authorizeRequestMap, FULLY_AUTHENTICATED);
+        String[] rememberMeArray = set2ArrayByType(authorizeRequestMap, REMEMBER_ME);
 
         // 将 AuthorizeRequestUriMap<String, Set<String>> 转换为对应的 Map<uri, role[]>
-        Map<String, String[]> hasRoleMap = toMapPlusByType(authorizeRequestMapPlus, hasRole);
-        Map<String, String[]> hasAnyRoleMap = toMapPlusByType(authorizeRequestMapPlus, hasAnyRole);
-        Map<String, String[]> hasAuthorityMap = toMapPlusByType(authorizeRequestMapPlus, hasAuthority);
-        Map<String, String[]> hasAnyAuthorityMap = toMapPlusByType(authorizeRequestMapPlus, hasAnyAuthority);
-        Map<String, String[]> hasIpAddressMap = toMapPlusByType(authorizeRequestMapPlus, hasIpAddress);
-
-
+        Map<String, String[]> hasRoleMap = toMapPlusByType(authorizeRequestMapPlus, HAS_ROLE);
+        Map<String, String[]> hasAnyRoleMap = toMapPlusByType(authorizeRequestMapPlus, HAS_ANY_ROLE);
+        Map<String, String[]> hasAuthorityMap = toMapPlusByType(authorizeRequestMapPlus, HAS_AUTHORITY);
+        Map<String, String[]> hasAnyAuthorityMap = toMapPlusByType(authorizeRequestMapPlus, HAS_ANY_AUTHORITY);
+        Map<String, String[]> hasIpAddressMap = toMapPlusByType(authorizeRequestMapPlus, HAS_IP_ADDRESS);
 
         // 添加 AjaxOrFormRequestFilter 增加对 Ajax 格式与 form 格式的解析,
         http.addFilterBefore(new AjaxOrFormRequestFilter(objectMapper), CsrfFilter.class);
-
 
         // 判断是否开启根据不同的uri跳转到相对应的登录页, 假设开启
         String loginUnAuthenticationUrl = clientProperties.getLoginUnAuthenticationUrl();
@@ -168,26 +167,60 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                 .successHandler(baseAuthenticationSuccessHandler)
                 .failureHandler(baseAuthenticationFailureHandler);
 
-
         // 匿名用户配置
+        anonymousConfigurer(http);
+
+        // 配置 uri 验证与授权信息
+        urlAuthorizationConfigurer(http, permitAllArray, denyAllArray, anonymousArray, authenticatedArray,
+                                   fullyAuthenticatedArray, rememberMeArray, hasRoleMap, hasAnyRoleMap,
+                                   hasAuthorityMap, hasAnyAuthorityMap, hasIpAddressMap);
+
+        // logout
+        logoutConfigurer(http);
+
+        // 允许来自同一来源(如: example.com)的请求
+        if (clientProperties.getSameOrigin())
+        {
+            http.headers().frameOptions().sameOrigin();
+        }
+
+        if (socialWebSecurityConfigurerMap != null)
+        {
+            for (HttpSecurityAware postConfigurer : socialWebSecurityConfigurerMap.values())
+            {
+                postConfigurer.postConfigure(http);
+            }
+        }
+    }
+
+    private void anonymousConfigurer(HttpSecurity http) throws Exception {
         ClientProperties.AnonymousProperties anonymous = clientProperties.getAnonymous();
         String[] authorities = new String[anonymous.getAuthorities().size()];
         anonymous.getAuthorities().toArray(authorities);
-
         if (anonymous.getAnonymousIsOpen())
         {
             http.anonymous()
                 .principal(anonymous.getPrincipal())
                 .authorities(authorities);
-
         }
         else
         {
             http.anonymous().disable();
         }
+    }
 
+    private void logoutConfigurer(HttpSecurity http) throws Exception {
+        http.logout()
+                .logoutUrl(clientProperties.getLogoutUrl())
+                .logoutSuccessHandler(defaultLogoutSuccessHandler)
+                .logoutSuccessUrl(clientProperties.getLogoutSuccessUrl())
+                .deleteCookies(clientProperties.getRememberMe().getRememberMeCookieName(),
+                           clientProperties.getSession().getSessionCookieName())
+                .clearAuthentication(true)
+                .invalidateHttpSession(true);
+    }
 
-        // 配置 uri 验证与授权信息
+    private void urlAuthorizationConfigurer(HttpSecurity http, String[] permitAllArray, String[] denyAllArray, String[] anonymousArray, String[] authenticatedArray, String[] fullyAuthenticatedArray, String[] rememberMeArray, Map<String, String[]> hasRoleMap, Map<String, String[]> hasAnyRoleMap, Map<String, String[]> hasAuthorityMap, Map<String, String[]> hasAnyAuthorityMap, Map<String, String[]> hasIpAddressMap) throws Exception {
         final ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry = http.authorizeRequests();
         expressionInterceptUrlRegistry
             .antMatchers(permitAllArray).permitAll()
@@ -201,45 +234,22 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
         hasAnyRoleMap.forEach((uri, roleArr) -> expressionInterceptUrlRegistry.antMatchers(uri).hasAnyRole(roleArr));
         hasAuthorityMap.forEach(
                 (uri, authorityArr) -> {
-                    for (int i = 0, length = authorityArr.length; i < length; i++)
+                    for (String s : authorityArr)
                     {
-                        expressionInterceptUrlRegistry.antMatchers(uri).hasAuthority(authorityArr[i]);
+                        expressionInterceptUrlRegistry.antMatchers(uri).hasAuthority(s);
                     }
                 });
         hasAnyAuthorityMap.forEach((uri, authorityArr) -> expressionInterceptUrlRegistry.antMatchers(uri).hasAnyAuthority(authorityArr));
         hasIpAddressMap.forEach(
                 (uri, ipArr) -> {
-                    for (int i = 0, length = ipArr.length; i < length; i++)
+                    for (String s : ipArr)
                     {
-                        expressionInterceptUrlRegistry.antMatchers(uri).hasIpAddress(ipArr[i]);
+                        expressionInterceptUrlRegistry.antMatchers(uri).hasIpAddress(s);
                     }
                 });
-
         expressionInterceptUrlRegistry
             .anyRequest()
             .authenticated();
-
-        // logout
-        http.logout()
-                .logoutUrl(clientProperties.getLogoutUrl())
-                .logoutSuccessHandler(defaultLogoutSuccessHandler)
-                .logoutSuccessUrl(clientProperties.getLogoutSuccessUrl())
-                .deleteCookies(clientProperties.getRememberMe().getRememberMeCookieName(),
-                           clientProperties.getSession().getSessionCookieName())
-                .clearAuthentication(true)
-                .invalidateHttpSession(true);
-
-        // 允许来自同一来源(如: example.com)的请求
-        http.headers().frameOptions().sameOrigin();
-
-
-        if (socialWebSecurityConfigurerMap != null)
-        {
-            for (HttpSecurityAware postConfigurer : socialWebSecurityConfigurerMap.values())
-            {
-                postConfigurer.postConfigure(http);
-            }
-        }
     }
 
 
@@ -282,18 +292,16 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
         Map<String, Set<String>> map = authorizeRequestMap.get(authorizeRequestType);
         if (map != null)
         {
-            Map<String, String[]> resultMap =
-                    map.entrySet()
-                       .stream()
-                       .collect(Collectors.toMap(entry -> entry.getKey(),
-                                                 entry ->
-                                                 {
-                                                     Set<String> value = entry.getValue();
-                                                     int length = value.size();
-                                                     String[] authorityArr = new String[length];
-                                                     return value.toArray(authorityArr);
-                                                 }));
-            return resultMap;
+            return map.entrySet()
+               .stream()
+               .collect(Collectors.toMap(Map.Entry::getKey,
+                                         entry ->
+                                         {
+                                             Set<String> value = entry.getValue();
+                                             int length = value.size();
+                                             String[] authorityArr = new String[length];
+                                             return value.toArray(authorityArr);
+                                         }));
 
         }
         return new HashMap<>(0);
@@ -304,9 +312,9 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
      * 把权限作为 key 与之相对应的 uriSet 作为 value, 分类放入 map, 此 map 存储在 applicationContent 时所用的 key
      * 传入参数都不能为 null.
      * @param http  HttpSecurity
-     * @param targetAuthorizeRequestMap  用于存储 permitAll, denyAll, anonymous, authenticated, fullyAuthenticated,
-     *                                   rememberMe 的权限类型.
-     * @param targetAuthorizeRequestMapPlus  用于存储 hasRole, hasAnyRole, hasAuthority, hasAnyAuthority, hasIpAddress
+     * @param targetAuthorizeRequestMap  用于存储 PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED, FULLY_AUTHENTICATED,
+     *                                   REMEMBER_ME 的权限类型.
+     * @param targetAuthorizeRequestMapPlus  用于存储 HAS_ROLE, HAS_ANY_ROLE, HAS_AUTHORITY, HAS_ANY_AUTHORITY, HAS_IP_ADDRESS
      *                                       的权限类型.
      * @throws Exception  Exception
      */
@@ -319,18 +327,18 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
             {
                 configurer.preConfigure(http);
                 Map<String, Map<String, Set<String>>> authorizeRequestMap = configurer.getAuthorizeRequestMap();
-                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, permitAll);
-                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, denyAll);
-                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, anonymous);
-                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, authenticated);
-                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, fullyAuthenticated);
-                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, rememberMe);
+                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, PERMIT_ALL);
+                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, DENY_ALL);
+                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, ANONYMOUS);
+                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, AUTHENTICATED);
+                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, FULLY_AUTHENTICATED);
+                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, REMEMBER_ME);
 
-                groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, hasRole);
-                groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, hasAnyRole);
-                groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, hasAuthority);
-                groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, hasAnyAuthority);
-                groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, hasIpAddress);
+                groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, HAS_ROLE);
+                groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, HAS_ANY_ROLE);
+                groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, HAS_AUTHORITY);
+                groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, HAS_ANY_AUTHORITY);
+                groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, HAS_IP_ADDRESS);
             }
 
             ApplicationContext applicationContext = getApplicationContext();
@@ -344,7 +352,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
 
     /**
      * 根据权限类型从 authorizeRequestMap 提取的 uriSet 添加到 map 中, 权限仅限制为:
-     * permitAll, denyAll, anonymous, authenticated, fullyAuthenticated, rememberMe 的类型.
+     * PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED, FULLY_AUTHENTICATED, REMEMBER_ME 的类型.
      * @param targetAuthorizeRequestMap 不可以为null
      * @param srcAuthorizeRequestMap  可以为 null
      * @param authorizeRequestType 不允许为 null
@@ -361,12 +369,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                 return;
             }
 
-            Set<String> set = stringSetMap.keySet();
-            if (set == null)
-            {
-                set = new HashSet<>();
-            }
-            final Set<String> uriSet = set;
+            final Set<String> uriSet = stringSetMap.keySet();
 
             targetAuthorizeRequestMap.compute(authorizeRequestType, (k, v) -> {
 
@@ -382,7 +385,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
 
     /**
      * 根据权限类型从 authorizeRequestMap 提取的 uriSet 添加到 map 中, 权限仅限制为:
-     * hasRole, hasAnyRole, hasAuthority, hasAnyAuthority, hasIpAddress 的类型.
+     * HAS_ROLE, HAS_ANY_ROLE, HAS_AUTHORITY, HAS_ANY_AUTHORITY, HAS_IP_ADDRESS 的类型.
      * @param targetAuthorizeRequestMap 不可以为null
      * @param srcAuthorizeRequestMap  可以为 null
      * @param authorizeRequestType 不允许为 null

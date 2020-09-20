@@ -1,6 +1,7 @@
 package top.dcenter.ums.security.core.api.session.strategy;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -130,6 +131,7 @@ public class EnhanceConcurrentControlAuthenticationStrategy extends ConcurrentSe
                 String originalSessionId;
                 String newSessionId;
                 Object mutex = WebUtils.getSessionMutex(session);
+                //noinspection SynchronizationOnLocalVariableOrMethodParameter
                 synchronized (mutex) {
                     // We need to migrate to a new session
                     originalSessionId = session.getId();
@@ -196,7 +198,7 @@ public class EnhanceConcurrentControlAuthenticationStrategy extends ConcurrentSe
      *
      * @param originalSessionId the original session identifier
      * @param newSession the newly created session
-     * @param auth the token for the newly authenticated principal
+     * @param auth the token for the newly AUTHENTICATED principal
      */
     protected void onSessionChange(String originalSessionId, HttpSession newSession,
                                    Authentication auth) {
@@ -209,7 +211,7 @@ public class EnhanceConcurrentControlAuthenticationStrategy extends ConcurrentSe
      * user should be prevented from opening more sessions than allowed. If set to
      * <tt>true</tt>, a <tt>SessionAuthenticationException</tt> will be raised which means
      * the user authenticating will be prevented from authenticating. if set to
-     * <tt>false</tt>, the user that has already authenticated will be forcibly logged
+     * <tt>false</tt>, the user that has already AUTHENTICATED will be forcibly logged
      * out.
      *
      * @param exceptionIfMaximumExceeded defaults to <tt>false</tt>.
@@ -258,7 +260,7 @@ public class EnhanceConcurrentControlAuthenticationStrategy extends ConcurrentSe
      */
     @Override
     public void setApplicationEventPublisher(
-            ApplicationEventPublisher applicationEventPublisher) {
+            @NotNull ApplicationEventPublisher applicationEventPublisher) {
         Assert.notNull(applicationEventPublisher,
                        "applicationEventPublisher cannot be null");
         this.applicationEventPublisher = applicationEventPublisher;
@@ -270,11 +272,11 @@ public class EnhanceConcurrentControlAuthenticationStrategy extends ConcurrentSe
 
     protected static final class NullEventPublisher implements ApplicationEventPublisher {
         @Override
-        public void publishEvent(ApplicationEvent event) {
+        public void publishEvent(@NotNull ApplicationEvent event) {
         }
 
         @Override
-        public void publishEvent(Object event) {
+        public void publishEvent(@NotNull Object event) {
         }
     }
 

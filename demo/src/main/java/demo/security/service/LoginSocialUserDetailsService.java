@@ -5,13 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.test.entity.UserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.social.security.SocialUser;
@@ -23,8 +22,7 @@ import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
 import top.dcenter.ums.security.core.util.RequestUtil;
 import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
-import top.dcenter.ums.security.social.api.service.CacheUserDetailsService;
-import top.dcenter.ums.security.social.properties.SocialProperties;
+import top.dcenter.ums.security.social.api.service.SocialUserCache;
 
 import java.util.List;
 
@@ -41,7 +39,6 @@ import java.util.List;
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 @Slf4j
 @Component
-@EnableWebSecurity
 public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsService {
 
     /**
@@ -58,14 +55,18 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
     private final JdbcTemplate jdbcTemplate;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
-    private CacheUserDetailsService cacheUserDetailsService;
+    private SocialUserCache socialUserCache;
 
-    private SocialProperties socialProperties;
+    /**
+     * 用于密码加解密
+     */
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    public LoginSocialUserDetailsService(ApplicationContext applicationContext, JdbcTemplate jdbcTemplate, SocialProperties socialProperties) {
-        super(applicationContext);
+
+    public LoginSocialUserDetailsService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.socialProperties = socialProperties;
         this.objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
@@ -77,9 +78,9 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
         {
             // 从缓存中查询用户信息:
             // 从缓存中查询用户信息
-            if (this.cacheUserDetailsService != null)
+            if (this.socialUserCache != null)
             {
-                UserDetails userDetails = this.cacheUserDetailsService.getUserFromCache(username);
+                UserDetails userDetails = this.socialUserCache.getUserFromCache(username);
                 if (userDetails != null)
                 {
                     return userDetails;
@@ -125,9 +126,9 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
         try
         {
             // 从缓存中查询用户信息
-            if (this.cacheUserDetailsService != null)
+            if (this.socialUserCache != null)
             {
-                SocialUserDetails userDetails = this.cacheUserDetailsService.getSocialUserFromCache(userId);
+                SocialUserDetails userDetails = this.socialUserCache.getSocialUserFromCache(userId);
                 if (userDetails != null)
                 {
                     return null;
@@ -196,7 +197,7 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
         );
 
         // 把用户信息存入缓存
-        cacheUserDetailsService.putUserInCache(user);
+        socialUserCache.putUserInCache(user);
 
         return user;
     }
@@ -226,14 +227,14 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
         );
 
         // 把用户信息存入缓存
-        cacheUserDetailsService.putUserInCache(user);
+        socialUserCache.putUserInCache(user);
 
         return user;
 
     }
 
     @Override
-    public UserDetails registerUser(ServletWebRequest request, ProviderSignInUtils providerSignInUtils) throws RegisterUserFailureException {
+    public SocialUserDetails registerUser(ServletWebRequest request, ProviderSignInUtils providerSignInUtils) throws RegisterUserFailureException {
 
         UserInfo userInfo = RequestUtil.extractRequest2Object(request.getRequest(), objectMapper, UserInfo.class);
         String userId = null;
@@ -256,7 +257,7 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
             providerSignInUtils.doPostSignUp(userId, request);
             log.info("Demo ======>: 第三方登录用户：{}, 注册成功", userId);
             //noinspection all
-            User user = new User(userId,
+            SocialUser user = new SocialUser(userId,
                                   encodedPassword,
                                   true,
                                   true,
@@ -266,7 +267,7 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
             );
 
             // 把用户信息存入缓存
-            cacheUserDetailsService.putUserInCache(user);
+            socialUserCache.putUserInCache(user);
 
             return user;
         }

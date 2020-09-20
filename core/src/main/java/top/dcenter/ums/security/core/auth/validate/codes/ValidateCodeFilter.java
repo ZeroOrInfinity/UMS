@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -71,10 +72,10 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response,
+                                    @NotNull FilterChain filterChain) throws ServletException, IOException {
 
-        final String requestURI = request.getRequestURI();
+        final String requestUri = request.getRequestURI();
         // 验证码逻辑，当短信验证码与图片验证码 url 相同时，优先使用短信验证码逻辑。
         ValidateCodeType validateCodeType = getValidateCodeType(request);
 
@@ -107,7 +108,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
                      e.getMessage(),
                      ip,
                      sid,
-                     requestURI);
+                     requestUri);
 
             AbstractResponseJsonAuthenticationException ex;
             if (e instanceof AbstractResponseJsonAuthenticationException)
@@ -135,8 +136,8 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
         ValidateCodeType result;
         String method = request.getMethod();
         if (!StringUtils.equalsIgnoreCase(method, GET_METHOD)) {
-            String requestURI = request.getRequestURI();
-            result = authUrlMap.getOrDefault(requestURI, null);
+            String requestUri = request.getRequestURI();
+            result = authUrlMap.getOrDefault(requestUri, null);
             if (result != null)
             {
                 return result;
@@ -144,7 +145,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
 
             for (Map.Entry<String, ValidateCodeType> next : authUrlMap.entrySet())
             {
-                if (pathMatcher.match(next.getKey(), requestURI))
+                if (pathMatcher.match(next.getKey(), requestUri))
                 {
                     return next.getValue();
                 }

@@ -51,7 +51,7 @@ public class ValidateCodeAutoConfigurerAware implements HttpSecurityAware {
         validateCodeProperties.getImage().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
         Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
 
-        resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
+        resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
 
         return resultMap;
     }

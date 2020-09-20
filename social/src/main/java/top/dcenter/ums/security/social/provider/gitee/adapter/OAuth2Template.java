@@ -55,6 +55,7 @@ import static top.dcenter.ums.security.social.provider.gitee.api.Gitee.SCOPE;
  * @author Keith Donald
  * @author Roy Clarkson
  */
+@SuppressWarnings({"All", "AlibabaCommentsMustBeJavadocFormat", "AlibabaClassNamingShouldBeCamel"})
 public class OAuth2Template implements OAuth2Operations {
 
 	private final String clientId;
@@ -179,7 +180,6 @@ public class OAuth2Template implements OAuth2Operations {
 		return postForAccessGrant(accessTokenUrl, params);
 	}
 
-	@SuppressWarnings("AliDeprecation")
 	@Override
 	@Deprecated
 	public AccessGrant refreshAccess(String refreshToken, String scope, MultiValueMap<String, String> additionalParameters) {
@@ -241,7 +241,9 @@ public class OAuth2Template implements OAuth2Operations {
 		restTemplate.setErrorHandler(new LoggingErrorHandler());
 		if (!useParametersForClientAuthentication) {
 			List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
-			if (interceptors == null) {   // defensively initialize list if it is null. (See SOCIAL-430)
+			// defensively initialize list if it is null. (See SOCIAL-430)
+			//noinspection ConstantConditions
+			if (interceptors == null) {
 				interceptors = new ArrayList<>();
 				restTemplate.setInterceptors(interceptors);
 			}
@@ -325,14 +327,17 @@ public class OAuth2Template implements OAuth2Operations {
 	}
 
 	// Retrieves object from map into an Integer, regardless of the object's actual type. Allows for flexibility in object type (eg, "3600" vs 3600).
+	@SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
 	private Long getIntegerValue(Map<String, Object> map, String key) {
 		try {
-			return Long.valueOf(String.valueOf(map.get(key))); // normalize to String before creating integer value;			
+			// normalize to String before creating integer value;
+			return Long.valueOf(String.valueOf(map.get(key)));
 		} catch (NumberFormatException e) {
 			return null;
 		}
 	}
 
+	@SuppressWarnings("AliDeprecation")
 	class PreemptiveBasicAuthClientHttpRequestInterceptor implements ClientHttpRequestInterceptor {
 
 		private final String username;
@@ -355,7 +360,7 @@ public class OAuth2Template implements OAuth2Operations {
 		@Override
 		public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
 			// 在 AbstractRememberMeServices#decodeCookie() 中 Base64.getDecoder().decode(cookieValue.getBytes()) 进行解密
-			//noinspection deprecation,AliDeprecation
+			// noinspection deprecation
 			request.getHeaders().set("Authorization",
 			                         "Basic " + new String(Base64.encode((username + ":" + password).getBytes(charset)), charset));
 			return execution.execute(request, body);

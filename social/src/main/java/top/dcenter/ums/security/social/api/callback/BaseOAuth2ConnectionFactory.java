@@ -4,7 +4,7 @@ import org.springframework.social.connect.ApiAdapter;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 import org.springframework.social.oauth2.OAuth2ServiceProvider;
-import top.dcenter.ums.security.social.callback.RedirectUrlHelper;
+import top.dcenter.ums.security.social.callback.RedirectUrlHelperServiceImpl;
 import top.dcenter.ums.security.social.callback.SocialOAuth2AuthenticationService;
 import top.dcenter.ums.security.social.controller.SocialController;
 import top.dcenter.ums.security.social.properties.SocialProperties;
@@ -25,7 +25,7 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.UUID_SEPARA
  * 添加专门为多个回调地址添加路由功能方法 {@link #generateState(String)}，方便对于多个回调地址进行路由管理。<br><br>
  * 注意： 所有第三方登录的 {@link org.springframework.social.connect.ConnectionFactory} 必须继承此抽象工厂。<br><br>
  *     如果修改构建统一的回调地址逻辑{@link #buildReturnToUrl(HttpServletRequest, Set)}，同时要修改 {@link SocialController#authCallbackRouter(HttpServletRequest)} 的逻辑。<br><br>
- *     如果修改回调地址加密逻辑{@link #generateState(String)}}，同时要修改 {@link RedirectUrlHelper#decodeRedirectUrl(String)} 的解密逻辑。
+ *     如果修改回调地址加密逻辑{@link #generateState(String)}}，同时要修改 {@link RedirectUrlHelperServiceImpl#decodeRedirectUrl(String)} 的解密逻辑。
  * @author zyw
  * @version V1.0  Created by 2020/5/21 10:54
  */
@@ -51,7 +51,7 @@ public abstract class BaseOAuth2ConnectionFactory<T> extends OAuth2ConnectionFac
      * 注意：这里实现接口时，对 realAuthCallbackPath(格式为：path=myAuthCallbackPath)
      * 格式化后再对它进行加密({@link java.util.Base64})，以便在
      * {@link SocialController#authCallbackRouter(HttpServletRequest)} 中进行解密。<br><br>
-     * 修改此方法逻辑时，同时要修改 {@link RedirectUrlHelper#decodeRedirectUrl(String)}} 的解密逻辑。
+     * 修改此方法逻辑时，同时要修改 {@link RedirectUrlHelperServiceImpl#decodeRedirectUrl(String)}} 的解密逻辑。
      * @param realAuthCallbackPath 用于 {@link SocialController#authCallbackRouter(HttpServletRequest)} 路由的 realAuthCallbackPath.
      * @return  加密后的 state
      */

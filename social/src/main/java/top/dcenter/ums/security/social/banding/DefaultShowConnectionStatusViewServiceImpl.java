@@ -19,11 +19,11 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.CHARSET_UTF
  * @author zyw
  * @version V1.0  Created by 2020/5/26 13:52
  */
-public class DefaultShowConnectionStatusViewService implements ShowConnectionStatusViewService {
+public class DefaultShowConnectionStatusViewServiceImpl implements ShowConnectionStatusViewService {
 
     private final ObjectMapper objectMapper;
 
-    public DefaultShowConnectionStatusViewService(ObjectMapper objectMapper) {
+    public DefaultShowConnectionStatusViewServiceImpl(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 

@@ -2,6 +2,7 @@ package top.dcenter.ums.security.core.auth.session.filter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
@@ -57,7 +58,7 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
 
@@ -83,21 +84,21 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isPermitUri(String requestURI, HttpSession session) {
+    private boolean isPermitUri(String requestUri, HttpSession session) {
         // authorizeRequestMap 通过 SecurityCoreAutoConfigurer.groupingAuthorizeRequestUris(..) 注入 ServletContext,
         // 首次访问时从 ServletContext 赋值
         if (MapUtils.isEmpty(this.authorizeRequestMap))
         {
 
-            //noinspection unchecked,ConstantConditions
+            // noinspection unchecked
             this.authorizeRequestMap =
                     Objects.requireNonNullElse((Map<String, Set<String>>) session.getServletContext().getAttribute(SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY), new HashMap<>(0));
         }
         Set<String> permitSet =
-                Objects.requireNonNullElse(this.authorizeRequestMap.get(HttpSecurityAware.permitAll), new HashSet<>());
+                Objects.requireNonNullElse(this.authorizeRequestMap.get(HttpSecurityAware.PERMIT_ALL), new HashSet<>());
         for (String permitUri : permitSet)
         {
-            if (this.pathMatcher.match(permitUri, requestURI))
+            if (this.pathMatcher.match(permitUri, requestUri))
             {
                 return true;
             }

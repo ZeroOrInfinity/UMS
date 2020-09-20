@@ -82,7 +82,7 @@ import java.util.Map;
  * @author Craig Walls
  * @author Roy Clarkson
  */
-@SuppressWarnings("JavadocReference")
+@SuppressWarnings({"ALL", "AlibabaCommentsMustBeJavadocFormat"})
 @RequestMapping("/connect")
 public class BandingConnectController implements InitializingBean, IBandingController {
 	
@@ -328,7 +328,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 			@RequestParam(value="error_description", required=false) String errorDescription,
 			@RequestParam(value="error_uri", required=false) String errorUri,
 			NativeWebRequest request) {
-		Map<String, String> errorMap = new HashMap<String, String>();
+		Map<String, String> errorMap = new HashMap<String, String>(3);
 		errorMap.put("error", error);
 		if (errorDescription != null) { errorMap.put("errorDescription", errorDescription); }
 		if (errorUri != null) { errorMap.put("errorUri", errorUri); }

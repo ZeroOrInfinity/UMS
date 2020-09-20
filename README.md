@@ -8,7 +8,7 @@
 ![SpringSocial](https://img.shields.io/badge/SpringSocial-1.1.6-green.svg)
 ![license](https://img.shields.io/badge/license-MIT-yellow.svg)
 
-用户管理脚手架集成：验证码、手机登录、支持qq,weibo,weixin,gitee第三方登录（自动注册，绑定与解绑）、基于 RBAC 的 uri
+用户管理脚手架集成：验证码、手机登录、支持qq,weibo,weixin,gitee第三方登录(自动注册，绑定与解绑)、基于 RBAC 的 uri
  访问权限控制功能、通过统一的回调地址入口实现多回调地址的路由功能、签到等功能。通过实现几个 API
  接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑。
 
@@ -37,11 +37,25 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 ## 三、`TODO List`:
 - demo 待完善
 - 第三方登录功能添加 JustAuth 工具, 支持更多的第三方登录. 
-- 上传 maven 版本库
 
 ## 四、`使用方式(Quick Start)`：
 
-- 添加依赖(Add Dependency)：
+- 添加依赖(Add Dependency): 根据所需的功能打入相应的依赖
+    ```xml
+       <!-- 验证码, 手机登录, 访问权限控制功能, 签到, 简化session/rememberMe/crsf/anonymous配置等功能 -->
+       <dependency>
+           <groupId>top.dcenter</groupId>
+           <artifactId>ums-core-spring-boot-starter</artifactId>
+           <version>1.0.6</version>
+       </dependency>
+       <!-- 包含 ums-core-spring-boot-starter 依赖 -->
+       <!-- 第三方登录(自动注册，绑定与解绑, redis cache), 通过统一的回调地址入口实现多回调地址的路由功能 -->
+       <dependency>
+           <groupId>top.dcenter</groupId>
+           <artifactId>ums-social-spring-boot-starter</artifactId>
+           <version>1.06</version>
+       </dependency>
+    ```
 - 通过 application.yml 或 application.properties 配置(See below `五`): 查看下方`五`的 application.properties 或 application.yml 配置.
 - 实现对应功能时需要实现的接口(The interface that needs to be implemented when the corresponding function is present)：    
     1. 用户服务(user service): `必须实现(Must implemented)`
@@ -59,18 +73,15 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
           `getRolesAuthorities()`返回值: Map<`role`, Map<`uri`, `UriResourcesDTO`>>, `UriResourcesDTO` 中字段 `uri` 
           与 `permission` 必须有值. 
         - 使用方法(Usage):
-            - 类上添加: @EnableUriAuthorize(filterOrInterceptor = false, restfulAPI = false, repeat = false),
-              filterOrInterceptor=false 时为拦截器(注解方式)模式; filterOrInterceptor=true 时为过滤器模式, 算法上根据 restfulAPI 与 repeat 不同有区别.
-            - filterOrInterceptor=true 时, 启用过滤器模式, 无需在方法上配置; 另外还要设置 restfulAPI 与 repeat, 根据不同设置 UriAuthorizeFilter 算法上有区别: 
-              1. 是否需要验证权限的多个不同的 uri 对同一个 uri 都匹配的情况下: repeat=true 时表示有, 否则无. 例如: uri=/test/permission/** 与 uri=/test/** 对 /test/permission/xx/xx 都匹配, 应该设置 repeat=true.
-              2. 如果是 restful 风格 API, 那么 restfulAPI=true, 设置 uri 权限时必须根据 requestMethod 类型添加指定的后缀.
+            - 类上添加: @EnableUriAuthorize(filterOrInterceptor = false),
+              filterOrInterceptor=false 时为拦截器(注解方式)模式; filterOrInterceptor=true 时为过滤器模式.
+            - filterOrInterceptor=true 时, 启用过滤器模式, 无需在方法上配置: 
+              注意: 过滤器模式必须 uri 与 权限是一对一关系, 也就是说不适合 restful 风格的 API.
             ```java
             
-            // 例如: 给角色 ROLE_USER 的 uri=/test/permission/** 添加编辑(edit)/查询(list)权限,
+            // 例如: 给角色 ROLE_USER 的 uri=/test/permission/** 添加编辑(edit)权限,
             public class UriPermissionService {
           
-                @Autowired
-                private UserService userService;
                 @Autowired
                 private RoleResourcesService roleResourcesService;
                 @Autowired
@@ -87,15 +98,19 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
                     // ...
                     uriResources.setUrl(uri);
           
-                    // 添加 uri 的编辑(edit)/查询(list)权限.
-                    // 这里用了 PermissionSuffixType 枚举来规范添加 uri 权限后缀, 在 restfulAPI=true 时要判断此后缀是否与 requestMethod 相匹配,
-                    // 因为编辑/查询对应的就是 requestMethod=PUT 的权限和 requestMethod =GET 的权限, 详细信息查看 PermissionSuffixType 枚举. 
-                    uriResources.setPermission(String.format("{}}{}{}{}{}",
-                                                             uri,
-                                                             PermissionSuffixType.EDIT.getPermissionSuffix(),
-                                                             AbstractUriAuthorizeService.PERMISSION_DELIMITER,
-                                                             uri,
-                                                             PermissionSuffixType.LIST.getPermissionSuffix()));
+                    // 添加 uri 的编辑(edit)权限.
+                    // 这里用了 PermissionSuffixType 枚举来规范添加 uri 权限后缀, 详细信息查看 PermissionSuffixType 枚举. 
+                    // 注意: 过滤器模式必须 uri 与 权限是一对一关系
+                    uriResources.setPermission(String.format("{}{}",
+                                                             uri, PermissionSuffixType.EDIT.getPermissionSuffix()));
+          
+                    //uriResources.setPermission(String.format("{}{}{}{}{}{}",
+                    //                                         uri,
+                    //                                         PermissionSuffixType.EDIT.getPermissionSuffix(),
+                    //                                         AbstractUriAuthorizeService.PERMISSION_DELIMITER,
+                    //                                         uri,
+                    //                                         PermissionSuffixType.LIST.getPermissionSuffix()));
+          
                     // 存入数据库
                     uriResourcesService.save(uriResources);
           
@@ -107,29 +122,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
                     roleResource.setUriResources(uriResources.getId());
                     
                     // 存入数据库
-                    roleResourcesService.save(roleResource);
-                    
-                    /* 
-                     * 3. 当 filterOrInterceptor=true 时, 也就是 Filter 模式, 需要把 uri 权限添加到用户的 authorities;
-                     * 注意: 当 filterOrInterceptor=false 时, 拦截器方式, 也就是使用注解方式, 只需要添加角色权限即可, 不把 uri 权限添加到用户的 authorities. 
-                     */
-           
-                    // == 添加用户权限 start == 
-                    
-                    List<User> userList = userRoleService.getUsersByRole(role);
-                    // 添加用户 uri 权限
-                    userList.forEach(
-                        user -> {
-                            Set<GrantedAuthority> grantedAuthoritySet = user.getAuthorities();
-                            List<GrantedAuthority> newGrantedAuthorityList = 
-                                              AuthorityUtils.commaSeparatedStringToAuthorityList(uriResources.getPermission);
-                            grantedAuthoritySet.addAll(newGrantedAuthorityList);
-                        }
-                    );
-                    // 更新
-                    userService.update(userList);
-                    
-                    // == 添加用户权限 end ==
+                    roleResourcesService.save(roleResource);                    
                       
                 }
             }
@@ -206,16 +199,15 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
                 public static String getPermissionSuffix(String method) {
                     Objects.requireNonNull(method, "method require non null");
                     PermissionSuffixType[] types = values();
-                    for (int i = 0, length = types.length; i < length; i++)
-                    {
-                        if (types[i].method.equals(method.toUpperCase()))
+                    for(PermissionSuffixType type: types){
+                        if (type.method.equals(method.toUpperCase()))
                         {
-                            return types[i].getPermissionSuffix();
+                            return type.getPermissionSuffix();
                         }
                     }
                     return null;
                 }
-            
+                
             }
             ```
             - filterOrInterceptor=false 时, 拦截器方式, 在方法上添加注解 `@UriAuthorize("/test/permission:add")`即可实现权限控制. 示例:
@@ -267,12 +259,12 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
             public class UriAuthorizeConfigurerAware implements HttpSecurityAware {
             
                 @Override
-                public void postConfigure(HttpSecurity http) throws Exception {
+                public void postConfigure(HttpSecurity http)  {
                     // dto nothing
                 }
             
                 @Override
-                public void preConfigure(HttpSecurity http) throws Exception {
+                public void preConfigure(HttpSecurity http)  {
                     // dto nothing
                 }
             
@@ -305,16 +297,16 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
             ```
             ```java
             /**
-             * @PreAuthorize 注解需要 @EnableGlobalMethodSecurity(prePostEnabled = true) 支持, 在 @EnableUriAuthorize 中
+             * &#64;PreAuthorize 注解需要 @EnableGlobalMethodSecurity(prePostEnabled = true) 支持, 在 @EnableUriAuthorize 中
              * {@link UriAuthorizeInterceptorAutoConfiguration}已配置, 不需要再次配置. <br>
-             * @UriAuthorize 注解需要 @EnableUriAuthorize 支持
+             * &#64;UriAuthorize 注解需要 @EnableUriAuthorize 支持
              * @author zyw
              * @version V1.0  Created by 2020/9/9 22:49
              */
-            @RestController
+            @SuppressWarnings("JavadocReference")@RestController
             @Slf4j
-            // filterOrInterceptor=false 时为拦截器(注解方式)模式; filterOrInterceptor=true 时为过滤器模式, 算法上根据 restfulAPI 与 repeat 不同有区别.
-            @EnableUriAuthorize(filterOrInterceptor = false, restfulAPI = false, repeat = false)
+            // filterOrInterceptor=false 时为拦截器(注解方式)模式; filterOrInterceptor=true 时为过滤器模式.
+            @EnableUriAuthorize(filterOrInterceptor = false)
             public class PermissionController {
                 /**
                  * 此 uri 已经设置 permitAll, 不用登录验证
@@ -560,6 +552,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter-data-redis</artifactId>
       </dependency>
+      <!-- 为了解决 ClassNotFoundException: org.apache.commons.pool2.impl.GenericObjectPoolConfig -->
       <dependency>
           <groupId>org.apache.commons</groupId>
           <artifactId>commons-pool2</artifactId>
@@ -874,6 +867,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
   - 使用说明(Usage):
     ```java
     // 添加 @EnabledSign
+    @SuppressWarnings("JavadocReference")
     @EnabledSign
     @RestController
     public class SignController {

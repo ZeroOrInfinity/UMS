@@ -36,7 +36,8 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     /**
      * 权限前缀
      */
-    protected final String defaultRolePrefix = "ROLE_";
+    private static final String DEFAULT_ROLE_PREFIX = "ROLE_";
+
     /**
      * 权限分隔符
      */
@@ -59,14 +60,13 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         // Map(uri, Set(authority))
         Map<String, Set<String>> uriAuthorityMap = getUriAuthoritiesOfUserRole(authentication).orElse(new HashMap<>(0));
 
-        final String requestURI = request.getRequestURI();
+        final String requestUri = request.getRequestURI();
         Set<String> uriSet = uriAuthorityMap.keySet();
 
         // uri 是否匹配
-        if (isUriContainsInUriSet(uriSet, requestURI))
+        if (isUriContainsInUriSet(uriSet, requestUri))
         {
-            return uriAuthorityMap.entrySet().stream()
-                                  .map(Map.Entry::getValue)
+            return uriAuthorityMap.values().stream()
                                   // 权限是否匹配
                                   .anyMatch(authoritySet -> authoritySet.contains(uriAuthorize));
         }
@@ -95,7 +95,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
                 authoritySet.stream()
                             .map(authorities -> StringUtils.splitByWholeSeparator(authorities, PERMISSION_DELIMITER))
                             .flatMap(Arrays::stream)
-                            .filter(authority -> authority.startsWith(this.defaultRolePrefix))
+                            .filter(authority -> authority.startsWith(DEFAULT_ROLE_PREFIX))
                             .collect(Collectors.toSet());
 
         /*
@@ -128,9 +128,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
          */
         Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthorities.size());
 
-        rolesAuthorities.entrySet()
-                        .stream()
-                        .map(Map.Entry::getValue)
+        rolesAuthorities.values()
                         .forEach(map2mapConsumer(uriAuthoritiesMap));
 
         return Optional.of(uriAuthoritiesMap);
@@ -153,7 +151,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         // 角色 uri 权限 Map(role, map(uri, uriResourcesDTO))
         updateRolesAuthorities();
     }

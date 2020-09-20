@@ -483,7 +483,7 @@ public class SocialProperties {
 
     @Getter
     @Setter
-    public class QqProperties extends SocialBaseProperties {
+    public class QqProperties extends AbstractSocialBaseProperties {
         /**
          * 服务提供商标识, 默认为 qq
          */
@@ -496,7 +496,7 @@ public class SocialProperties {
 
     @Getter
     @Setter
-    public class GiteeProperties extends SocialBaseProperties {
+    public class GiteeProperties extends AbstractSocialBaseProperties {
         /**
          * 服务提供商标识, 默认为 gitee
          */
@@ -513,7 +513,7 @@ public class SocialProperties {
      */
     @Getter
     @Setter
-    public class WeixinProperties extends SocialBaseProperties {
+    public class WeixinProperties extends AbstractSocialBaseProperties {
 
         /**
          * 第三方id，用来决定发起第三方登录的url，默认是 weixin。
@@ -531,7 +531,7 @@ public class SocialProperties {
      */
     @Getter
     @Setter
-    public class WeiboProperties extends SocialBaseProperties {
+    public class WeiboProperties extends AbstractSocialBaseProperties {
 
         /**
          * 第三方id，用来决定发起第三方登录的url，默认是 weibo。

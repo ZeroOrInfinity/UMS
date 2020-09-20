@@ -15,6 +15,7 @@
  */
 package top.dcenter.ums.security.social.provider.gitee.adapter;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
@@ -46,6 +47,7 @@ import java.util.List;
  * @author Craig Walls
  * @author Greg Turnquist
  */
+@SuppressWarnings("AlibabaClassNamingShouldBeCamel")
 public abstract class AbstractOAuth2ApiBinding implements ApiBinding, InitializingBean {
 
 	private final String accessToken;
@@ -119,6 +121,7 @@ public abstract class AbstractOAuth2ApiBinding implements ApiBinding, Initializi
 	 * @see OAuth2Version
 	 * @return the version of OAuth 2 in play.
 	 */
+	@SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
 	protected OAuth2Version getOAuth2Version() {
 		return OAuth2Version.BEARER;
 	}
@@ -202,6 +205,7 @@ public abstract class AbstractOAuth2ApiBinding implements ApiBinding, Initializi
 
 	// Temporary: The RestTemplate that accepts a list of message converters wasn't added until Spring 3.2.7.
 	//            Remove this method and use that constructor exclusively when 3.1.x support is no longer necessary (Spring Social 2.0).
+	@SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
 	private RestTemplate createRestTemplateWithCulledMessageConverters() {
 		RestTemplate client;
 		List<HttpMessageConverter<?>> messageConverters = getMessageConverters();
@@ -218,10 +222,9 @@ public abstract class AbstractOAuth2ApiBinding implements ApiBinding, Initializi
 	/**
 	 * After construction, include option to decorate the {@link RestTemplate} followed by an optional
 	 * configuration step. Many providers initialize sub-APIs, and this provides a convenient hook.
-	 * @throws Exception if any error occurs decorating the RestTemplate
 	 */
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		this.restTemplate = postProcess(this.restTemplate);
 		postConstructionConfiguration();
 	}
@@ -252,6 +255,7 @@ public abstract class AbstractOAuth2ApiBinding implements ApiBinding, Initializi
  * @author Keith Donald
  * @author Craig Walls
  */
+@SuppressWarnings("AlibabaClassNamingShouldBeCamel")
 class OAuth2RequestInterceptor implements ClientHttpRequestInterceptor {
 
 	private final String accessToken;
@@ -263,8 +267,9 @@ class OAuth2RequestInterceptor implements ClientHttpRequestInterceptor {
 		this.oauth2Version = oauth2Version;
 	}
 
+	@NotNull
 	@Override
-	public ClientHttpResponse intercept(final HttpRequest request, final byte[] body, ClientHttpRequestExecution execution) throws IOException {
+	public ClientHttpResponse intercept(@NotNull final HttpRequest request, @NotNull final byte[] body, ClientHttpRequestExecution execution) throws IOException {
 		HttpRequest protectedResourceRequest = new HttpRequestDecorator(request);
 		protectedResourceRequest.getHeaders().set("Authorization", oauth2Version.getAuthorizationHeaderValue(accessToken));
 		return execution.execute(protectedResourceRequest, body);
@@ -277,6 +282,7 @@ class OAuth2RequestInterceptor implements ClientHttpRequestInterceptor {
  * ClientHttpRequestInterceptor implementation that adds the OAuth2 access token as a query parameter to protected resource requests before execution.
  * @author Craig Walls
  */
+@SuppressWarnings("AlibabaClassNamingShouldBeCamel")
 class OAuth2TokenParameterRequestInterceptor implements ClientHttpRequestInterceptor {
 
 	private final String parameterName;
@@ -301,8 +307,9 @@ class OAuth2TokenParameterRequestInterceptor implements ClientHttpRequestInterce
 		this.parameterName = parameterName;
 	}
 
+	@NotNull
 	@Override
-	public ClientHttpResponse intercept(final HttpRequest request, final byte[] body, ClientHttpRequestExecution execution) throws IOException {
+	public ClientHttpResponse intercept(@NotNull final HttpRequest request, @NotNull final byte[] body, ClientHttpRequestExecution execution) throws IOException {
 		HttpRequestDecorator protectedResourceRequest = new HttpRequestDecorator(request);
 		protectedResourceRequest.addParameter(parameterName, accessToken);
 		return execution.execute(protectedResourceRequest, body);

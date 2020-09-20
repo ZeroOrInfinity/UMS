@@ -16,6 +16,7 @@
 
 package top.dcenter.ums.security.social.provider.gitee.adapter;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -99,20 +100,21 @@ import java.util.stream.Stream;
 
 public class RestTemplate extends InterceptingHttpAccessor implements RestOperations {
 
+	@SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
 	private static final boolean romePresent;
-
+	@SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
 	private static final boolean jaxb2Present;
-
+	@SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
 	private static final boolean jackson2Present;
-
+	@SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
 	private static final boolean jackson2XmlPresent;
-
+	@SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
 	private static final boolean jackson2SmilePresent;
-
+	@SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
 	private static final boolean jackson2CborPresent;
-
+	@SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
 	private static final boolean gsonPresent;
-
+	@SuppressWarnings("AlibabaConstantFieldShouldBeUpperCase")
 	private static final boolean jsonbPresent;
 
 	static {
@@ -199,8 +201,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 	}
 
 	/**
-	 * Create a new instance of the {@link RestTemplate} using the given list of
-	 * {@link HttpMessageConverter} to use.
+	 * Create a new instance of the {@link RestTemplate} using the given list of {@link HttpMessageConverter} to use.
 	 * @param messageConverters the list of {@link HttpMessageConverter} to use
 	 * @since 3.2.7
 	 */
@@ -213,7 +214,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	private static DefaultUriBuilderFactory initUriTemplateHandler() {
 		DefaultUriBuilderFactory uriFactory = new DefaultUriBuilderFactory();
-		uriFactory.setEncodingMode(EncodingMode.URI_COMPONENT);  // for backwards compatibility..
+		// for backwards compatibility..
+		uriFactory.setEncodingMode(EncodingMode.URI_COMPONENT);
 		return uriFactory;
 	}
 
@@ -272,7 +274,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 	 * @param uriVars the default URI variable values
 	 * @since 4.3
 	 */
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({"deprecation", "AliDeprecation"})
 	public void setDefaultUriVariables(Map<String, ?> uriVars) {
 		if (this.uriTemplateHandler instanceof DefaultUriBuilderFactory) {
 			((DefaultUriBuilderFactory) this.uriTemplateHandler).setDefaultUriVariables(uriVars);
@@ -317,7 +319,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	@Override
 	@Nullable
-	public <T> T getForObject(String url, Class<T> responseType, Object... uriVariables) throws RestClientException {
+	public <T> T getForObject(@NotNull String url, @NotNull Class<T> responseType, @SuppressWarnings("NullableProblems") Object... uriVariables) throws RestClientException {
 		RequestCallback requestCallback = acceptHeaderRequestCallback(responseType);
 		HttpMessageConverterExtractor<T> responseExtractor =
 				new HttpMessageConverterExtractor<>(responseType, getMessageConverters(), logger);
@@ -326,7 +328,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	@Override
 	@Nullable
-	public <T> T getForObject(String url, Class<T> responseType, Map<String, ?> uriVariables) throws RestClientException {
+	public <T> T getForObject(@NotNull String url, @NotNull Class<T> responseType, @NotNull Map<String, ?> uriVariables) throws RestClientException {
 		RequestCallback requestCallback = acceptHeaderRequestCallback(responseType);
 		HttpMessageConverterExtractor<T> responseExtractor =
 				new HttpMessageConverterExtractor<>(responseType, getMessageConverters(), logger);
@@ -335,53 +337,65 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	@Override
 	@Nullable
-	public <T> T getForObject(URI url, Class<T> responseType) throws RestClientException {
+	public <T> T getForObject(@NotNull URI url, @NotNull Class<T> responseType) throws RestClientException {
 		RequestCallback requestCallback = acceptHeaderRequestCallback(responseType);
 		HttpMessageConverterExtractor<T> responseExtractor =
 				new HttpMessageConverterExtractor<>(responseType, getMessageConverters(), logger);
 		return execute(url, HttpMethod.GET, requestCallback, responseExtractor);
 	}
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> getForEntity(String url, Class<T> responseType, Object... uriVariables)
+	public <T> ResponseEntity<T> getForEntity(@NotNull String url, @NotNull Class<T> responseType, @SuppressWarnings("NullableProblems") Object... uriVariables)
 			throws RestClientException {
 
 		RequestCallback requestCallback = acceptHeaderRequestCallback(responseType);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
+		//noinspection ConstantConditions
 		return nonNull(execute(url, HttpMethod.GET, requestCallback, responseExtractor, uriVariables));
 	}
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> getForEntity(String url, Class<T> responseType, Map<String, ?> uriVariables)
+	public <T> ResponseEntity<T> getForEntity(@NotNull String url, @NotNull Class<T> responseType, @NotNull Map<String, ?> uriVariables)
 			throws RestClientException {
 
 		RequestCallback requestCallback = acceptHeaderRequestCallback(responseType);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
+		//noinspection ConstantConditions
 		return nonNull(execute(url, HttpMethod.GET, requestCallback, responseExtractor, uriVariables));
 	}
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> getForEntity(URI url, Class<T> responseType) throws RestClientException {
+	public <T> ResponseEntity<T> getForEntity(@NotNull URI url, @NotNull Class<T> responseType) throws RestClientException {
 		RequestCallback requestCallback = acceptHeaderRequestCallback(responseType);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
+		//noinspection ConstantConditions
 		return nonNull(execute(url, HttpMethod.GET, requestCallback, responseExtractor));
 	}
 
 
 	// HEAD
 
+	@NotNull
 	@Override
-	public HttpHeaders headForHeaders(String url, Object... uriVariables) throws RestClientException {
+	public HttpHeaders headForHeaders(@NotNull String url, @SuppressWarnings("NullableProblems") Object... uriVariables) throws RestClientException {
+		//noinspection ConstantConditions
 		return nonNull(execute(url, HttpMethod.HEAD, null, headersExtractor(), uriVariables));
 	}
 
+	@NotNull
 	@Override
-	public HttpHeaders headForHeaders(String url, Map<String, ?> uriVariables) throws RestClientException {
+	public HttpHeaders headForHeaders(@NotNull String url, @NotNull Map<String, ?> uriVariables) throws RestClientException {
+		//noinspection ConstantConditions
 		return nonNull(execute(url, HttpMethod.HEAD, null, headersExtractor(), uriVariables));
 	}
 
+	@NotNull
 	@Override
-	public HttpHeaders headForHeaders(URI url) throws RestClientException {
+	public HttpHeaders headForHeaders(@NotNull URI url) throws RestClientException {
+		//noinspection ConstantConditions
 		return nonNull(execute(url, HttpMethod.HEAD, null, headersExtractor()));
 	}
 
@@ -390,7 +404,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	@Override
 	@Nullable
-	public URI postForLocation(String url, @Nullable Object request, Object... uriVariables)
+	public URI postForLocation(@NotNull String url, @Nullable Object request, @SuppressWarnings("NullableProblems") Object... uriVariables)
 			throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(request);
@@ -400,7 +414,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	@Override
 	@Nullable
-	public URI postForLocation(String url, @Nullable Object request, Map<String, ?> uriVariables)
+	public URI postForLocation(@NotNull String url, @Nullable Object request, @NotNull Map<String, ?> uriVariables)
 			throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(request);
@@ -410,7 +424,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	@Override
 	@Nullable
-	public URI postForLocation(URI url, @Nullable Object request) throws RestClientException {
+	public URI postForLocation(@NotNull URI url, @Nullable Object request) throws RestClientException {
 		RequestCallback requestCallback = httpEntityCallback(request);
 		HttpHeaders headers = execute(url, HttpMethod.POST, requestCallback, headersExtractor());
 		return (headers != null ? headers.getLocation() : null);
@@ -418,8 +432,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	@Override
 	@Nullable
-	public <T> T postForObject(String url, @Nullable Object request, Class<T> responseType,
-			Object... uriVariables) throws RestClientException {
+	public <T> T postForObject(@NotNull String url, @Nullable Object request, @NotNull Class<T> responseType,
+	                           @SuppressWarnings("NullableProblems") Object... uriVariables) throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(request, responseType);
 		HttpMessageConverterExtractor<T> responseExtractor =
@@ -429,8 +443,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	@Override
 	@Nullable
-	public <T> T postForObject(String url, @Nullable Object request, Class<T> responseType,
-			Map<String, ?> uriVariables) throws RestClientException {
+	public <T> T postForObject(@NotNull String url, @Nullable Object request, @NotNull Class<T> responseType,
+	                           @NotNull Map<String, ?> uriVariables) throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(request, responseType);
 		HttpMessageConverterExtractor<T> responseExtractor =
@@ -440,7 +454,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	@Override
 	@Nullable
-	public <T> T postForObject(URI url, @Nullable Object request, Class<T> responseType)
+	public <T> T postForObject(@NotNull URI url, @Nullable Object request, @NotNull Class<T> responseType)
 			throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(request, responseType);
@@ -449,30 +463,36 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 		return execute(url, HttpMethod.POST, requestCallback, responseExtractor);
 	}
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> postForEntity(String url, @Nullable Object request,
-			Class<T> responseType, Object... uriVariables) throws RestClientException {
+	public <T> ResponseEntity<T> postForEntity(@NotNull String url, @Nullable Object request,
+	                                           @NotNull Class<T> responseType, @SuppressWarnings("NullableProblems") Object... uriVariables) throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(request, responseType);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
+		//noinspection ConstantConditions
 		return nonNull(execute(url, HttpMethod.POST, requestCallback, responseExtractor, uriVariables));
 	}
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> postForEntity(String url, @Nullable Object request,
-			Class<T> responseType, Map<String, ?> uriVariables) throws RestClientException {
+	public <T> ResponseEntity<T> postForEntity(@NotNull String url, @Nullable Object request,
+	                                           @NotNull Class<T> responseType, @NotNull Map<String, ?> uriVariables) throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(request, responseType);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
+		//noinspection ConstantConditions
 		return nonNull(execute(url, HttpMethod.POST, requestCallback, responseExtractor, uriVariables));
 	}
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> postForEntity(URI url, @Nullable Object request, Class<T> responseType)
+	public <T> ResponseEntity<T> postForEntity(@NotNull URI url, @Nullable Object request, @NotNull Class<T> responseType)
 			throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(request, responseType);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
+		//noinspection ConstantConditions
 		return nonNull(execute(url, HttpMethod.POST, requestCallback, responseExtractor));
 	}
 
@@ -480,7 +500,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 	// PUT
 
 	@Override
-	public void put(String url, @Nullable Object request, Object... uriVariables)
+	public void put(@NotNull String url, @Nullable Object request, @SuppressWarnings("NullableProblems") Object... uriVariables)
 			throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(request);
@@ -488,7 +508,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 	}
 
 	@Override
-	public void put(String url, @Nullable Object request, Map<String, ?> uriVariables)
+	public void put(@NotNull String url, @Nullable Object request, @NotNull Map<String, ?> uriVariables)
 			throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(request);
@@ -496,7 +516,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 	}
 
 	@Override
-	public void put(URI url, @Nullable Object request) throws RestClientException {
+	public void put(@NotNull URI url, @Nullable Object request) throws RestClientException {
 		RequestCallback requestCallback = httpEntityCallback(request);
 		execute(url, HttpMethod.PUT, requestCallback, null);
 	}
@@ -506,8 +526,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	@Override
 	@Nullable
-	public <T> T patchForObject(String url, @Nullable Object request, Class<T> responseType,
-			Object... uriVariables) throws RestClientException {
+	public <T> T patchForObject(@NotNull String url, @Nullable Object request, @NotNull Class<T> responseType,
+	                            @SuppressWarnings("NullableProblems") Object... uriVariables) throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(request, responseType);
 		HttpMessageConverterExtractor<T> responseExtractor =
@@ -517,8 +537,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	@Override
 	@Nullable
-	public <T> T patchForObject(String url, @Nullable Object request, Class<T> responseType,
-			Map<String, ?> uriVariables) throws RestClientException {
+	public <T> T patchForObject(@NotNull String url, @Nullable Object request, @NotNull Class<T> responseType,
+	                            @NotNull Map<String, ?> uriVariables) throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(request, responseType);
 		HttpMessageConverterExtractor<T> responseExtractor =
@@ -528,7 +548,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	@Override
 	@Nullable
-	public <T> T patchForObject(URI url, @Nullable Object request, Class<T> responseType)
+	public <T> T patchForObject(@NotNull URI url, @Nullable Object request, @NotNull Class<T> responseType)
 			throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(request, responseType);
@@ -541,39 +561,42 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 	// DELETE
 
 	@Override
-	public void delete(String url, Object... uriVariables) throws RestClientException {
+	public void delete(@NotNull String url, @SuppressWarnings("NullableProblems") Object... uriVariables) throws RestClientException {
 		execute(url, HttpMethod.DELETE, null, null, uriVariables);
 	}
 
 	@Override
-	public void delete(String url, Map<String, ?> uriVariables) throws RestClientException {
+	public void delete(@NotNull String url, @NotNull Map<String, ?> uriVariables) throws RestClientException {
 		execute(url, HttpMethod.DELETE, null, null, uriVariables);
 	}
 
 	@Override
-	public void delete(URI url) throws RestClientException {
+	public void delete(@NotNull URI url) throws RestClientException {
 		execute(url, HttpMethod.DELETE, null, null);
 	}
 
 
 	// OPTIONS
 
+	@NotNull
 	@Override
-	public Set<HttpMethod> optionsForAllow(String url, Object... uriVariables) throws RestClientException {
+	public Set<HttpMethod> optionsForAllow(@NotNull String url, @SuppressWarnings("NullableProblems") Object... uriVariables) throws RestClientException {
 		ResponseExtractor<HttpHeaders> headersExtractor = headersExtractor();
 		HttpHeaders headers = execute(url, HttpMethod.OPTIONS, null, headersExtractor, uriVariables);
 		return (headers != null ? headers.getAllow() : Collections.emptySet());
 	}
 
+	@NotNull
 	@Override
-	public Set<HttpMethod> optionsForAllow(String url, Map<String, ?> uriVariables) throws RestClientException {
+	public Set<HttpMethod> optionsForAllow(@NotNull String url, @NotNull Map<String, ?> uriVariables) throws RestClientException {
 		ResponseExtractor<HttpHeaders> headersExtractor = headersExtractor();
 		HttpHeaders headers = execute(url, HttpMethod.OPTIONS, null, headersExtractor, uriVariables);
 		return (headers != null ? headers.getAllow() : Collections.emptySet());
 	}
 
+	@NotNull
 	@Override
-	public Set<HttpMethod> optionsForAllow(URI url) throws RestClientException {
+	public Set<HttpMethod> optionsForAllow(@NotNull URI url) throws RestClientException {
 		ResponseExtractor<HttpHeaders> headersExtractor = headersExtractor();
 		HttpHeaders headers = execute(url, HttpMethod.OPTIONS, null, headersExtractor);
 		return (headers != null ? headers.getAllow() : Collections.emptySet());
@@ -582,81 +605,97 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	// exchange
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> exchange(String url, HttpMethod method,
-			@Nullable HttpEntity<?> requestEntity, Class<T> responseType, Object... uriVariables)
+	public <T> ResponseEntity<T> exchange(@NotNull String url, @NotNull HttpMethod method,
+	                                      @Nullable HttpEntity<?> requestEntity, @NotNull Class<T> responseType, @SuppressWarnings("NullableProblems") Object... uriVariables)
 			throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(requestEntity, responseType);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
+		//noinspection ConstantConditions
 		return nonNull(execute(url, method, requestCallback, responseExtractor, uriVariables));
 	}
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> exchange(String url, HttpMethod method,
-			@Nullable HttpEntity<?> requestEntity, Class<T> responseType, Map<String, ?> uriVariables)
+	public <T> ResponseEntity<T> exchange(@NotNull String url, @NotNull HttpMethod method,
+	                                      @Nullable HttpEntity<?> requestEntity, @NotNull Class<T> responseType, @NotNull Map<String, ?> uriVariables)
 			throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(requestEntity, responseType);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
+		//noinspection ConstantConditions
 		return nonNull(execute(url, method, requestCallback, responseExtractor, uriVariables));
 	}
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-			Class<T> responseType) throws RestClientException {
+	public <T> ResponseEntity<T> exchange(@NotNull URI url, @NotNull HttpMethod method, @Nullable HttpEntity<?> requestEntity,
+	                                      @NotNull Class<T> responseType) throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(requestEntity, responseType);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
+		//noinspection ConstantConditions
 		return nonNull(execute(url, method, requestCallback, responseExtractor));
 	}
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> exchange(String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-			ParameterizedTypeReference<T> responseType, Object... uriVariables) throws RestClientException {
+	public <T> ResponseEntity<T> exchange(@NotNull String url, @NotNull HttpMethod method, @Nullable HttpEntity<?> requestEntity,
+	                                      ParameterizedTypeReference<T> responseType, @NotNull Object... uriVariables) throws RestClientException {
 
 		Type type = responseType.getType();
 		RequestCallback requestCallback = httpEntityCallback(requestEntity, type);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(type);
+		//noinspection ConstantConditions
 		return nonNull(execute(url, method, requestCallback, responseExtractor, uriVariables));
 	}
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> exchange(String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-			ParameterizedTypeReference<T> responseType, Map<String, ?> uriVariables) throws RestClientException {
+	public <T> ResponseEntity<T> exchange(@NotNull String url, @NotNull HttpMethod method, @Nullable HttpEntity<?> requestEntity,
+	                                      ParameterizedTypeReference<T> responseType, @NotNull Map<String, ?> uriVariables) throws RestClientException {
 
 		Type type = responseType.getType();
 		RequestCallback requestCallback = httpEntityCallback(requestEntity, type);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(type);
+		//noinspection ConstantConditions
 		return nonNull(execute(url, method, requestCallback, responseExtractor, uriVariables));
 	}
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-			ParameterizedTypeReference<T> responseType) throws RestClientException {
+	public <T> ResponseEntity<T> exchange(@NotNull URI url, @NotNull HttpMethod method, @Nullable HttpEntity<?> requestEntity,
+	                                      ParameterizedTypeReference<T> responseType) throws RestClientException {
 
 		Type type = responseType.getType();
 		RequestCallback requestCallback = httpEntityCallback(requestEntity, type);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(type);
+		//noinspection ConstantConditions
 		return nonNull(execute(url, method, requestCallback, responseExtractor));
 	}
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> exchange(RequestEntity<?> requestEntity, Class<T> responseType)
+	public <T> ResponseEntity<T> exchange(@NotNull RequestEntity<?> requestEntity, @NotNull Class<T> responseType)
 			throws RestClientException {
 
 		RequestCallback requestCallback = httpEntityCallback(requestEntity, responseType);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(responseType);
+		//noinspection ConstantConditions
 		return nonNull(doExecute(requestEntity.getUrl(), requestEntity.getMethod(), requestCallback, responseExtractor));
 	}
 
+	@NotNull
 	@Override
-	public <T> ResponseEntity<T> exchange(RequestEntity<?> requestEntity, ParameterizedTypeReference<T> responseType)
+	public <T> ResponseEntity<T> exchange(@NotNull RequestEntity<?> requestEntity, ParameterizedTypeReference<T> responseType)
 			throws RestClientException {
 
 		Type type = responseType.getType();
 		RequestCallback requestCallback = httpEntityCallback(requestEntity, type);
 		ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(type);
+		//noinspection ConstantConditions
 		return nonNull(doExecute(requestEntity.getUrl(), requestEntity.getMethod(), requestCallback, responseExtractor));
 	}
 
@@ -676,8 +715,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 	 */
 	@Override
 	@Nullable
-	public <T> T execute(String url, HttpMethod method, @Nullable RequestCallback requestCallback,
-			@Nullable ResponseExtractor<T> responseExtractor, Object... uriVariables) throws RestClientException {
+	public <T> T execute(@NotNull String url, @NotNull HttpMethod method, @Nullable RequestCallback requestCallback,
+	                     @Nullable ResponseExtractor<T> responseExtractor, @SuppressWarnings("NullableProblems") Object... uriVariables) throws RestClientException {
 
 		URI expanded = getUriTemplateHandler().expand(url, uriVariables);
 		return doExecute(expanded, method, requestCallback, responseExtractor);
@@ -696,8 +735,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 	 */
 	@Override
 	@Nullable
-	public <T> T execute(String url, HttpMethod method, @Nullable RequestCallback requestCallback,
-			@Nullable ResponseExtractor<T> responseExtractor, Map<String, ?> uriVariables)
+	public <T> T execute(@NotNull String url, @NotNull HttpMethod method, @Nullable RequestCallback requestCallback,
+	                     @Nullable ResponseExtractor<T> responseExtractor, @NotNull Map<String, ?> uriVariables)
 			throws RestClientException {
 
 		URI expanded = getUriTemplateHandler().expand(url, uriVariables);
@@ -717,8 +756,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 	 */
 	@Override
 	@Nullable
-	public <T> T execute(URI url, HttpMethod method, @Nullable RequestCallback requestCallback,
-			@Nullable ResponseExtractor<T> responseExtractor) throws RestClientException {
+	public <T> T execute(@NotNull URI url, @NotNull HttpMethod method, @Nullable RequestCallback requestCallback,
+	                     @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException {
 
 		return doExecute(url, method, requestCallback, responseExtractor);
 	}
@@ -860,7 +899,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 		}
 
 		@Override
-		public void doWithRequest(ClientHttpRequest request) throws IOException {
+		public void doWithRequest(@NotNull ClientHttpRequest request) throws IOException {
 			if (this.responseType != null) {
 				List<MediaType> allSupportedMediaTypes = getMessageConverters().stream()
 						.filter(converter -> canReadResponse(this.responseType, converter))
@@ -926,8 +965,9 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public void doWithRequest(ClientHttpRequest httpRequest) throws IOException {
+		public void doWithRequest(@NotNull ClientHttpRequest httpRequest) throws IOException {
 			super.doWithRequest(httpRequest);
+			//noinspection ConstantConditions
 			Object requestBody = this.requestEntity.getBody();
 			if (requestBody == null) {
 				HttpHeaders httpHeaders = httpRequest.getHeaders();
@@ -1008,7 +1048,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 		}
 
 		@Override
-		public ResponseEntity<T> extractData(ClientHttpResponse response) throws IOException {
+		public ResponseEntity<T> extractData(@NotNull ClientHttpResponse response) throws IOException {
 			if (this.delegate != null) {
 				T body = this.delegate.extractData(response);
 				return ResponseEntity.status(response.getRawStatusCode()).headers(response.getHeaders()).body(body);

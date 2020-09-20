@@ -1,6 +1,3 @@
-/**
- * 
- */
 package top.dcenter.ums.security.social.provider.weixin.connect;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +20,7 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.URL_SEPARAT
  * @author zhailiang
  *
  */
+@SuppressWarnings("JavaDoc")
 public class WeixinConnectionFactory extends BaseOAuth2ConnectionFactory<Weixin> {
 	
 	/**
@@ -52,8 +50,8 @@ public class WeixinConnectionFactory extends BaseOAuth2ConnectionFactory<Weixin>
 	 */
 	@Override
 	public Connection<Weixin> createConnection(AccessGrant accessGrant) {
-		return new OAuth2Connection<Weixin>(getProviderId(), extractProviderUserId(accessGrant), accessGrant.getAccessToken(),
-				accessGrant.getRefreshToken(), accessGrant.getExpireTime(), getOAuth2ServiceProvider(), getApiAdapter(extractProviderUserId(accessGrant)));
+		return new OAuth2Connection<>(getProviderId(), extractProviderUserId(accessGrant), accessGrant.getAccessToken(),
+		                              accessGrant.getRefreshToken(), accessGrant.getExpireTime(), getOAuth2ServiceProvider(), getApiAdapter(extractProviderUserId(accessGrant)));
 	}
 
 	/**
@@ -61,13 +59,14 @@ public class WeixinConnectionFactory extends BaseOAuth2ConnectionFactory<Weixin>
 	 */
 	@Override
 	public Connection<Weixin> createConnection(ConnectionData data) {
-		return new OAuth2Connection<Weixin>(data, getOAuth2ServiceProvider(), getApiAdapter(data.getProviderUserId()));
+		return new OAuth2Connection<>(data, getOAuth2ServiceProvider(), getApiAdapter(data.getProviderUserId()));
 	}
 	
 	private ApiAdapter<Weixin> getApiAdapter(String providerUserId) {
 		return new WeixinAdapter(providerUserId);
 	}
 	
+	@SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
 	private OAuth2ServiceProvider<Weixin> getOAuth2ServiceProvider() {
 		return (OAuth2ServiceProvider<Weixin>) getServiceProvider();
 	}

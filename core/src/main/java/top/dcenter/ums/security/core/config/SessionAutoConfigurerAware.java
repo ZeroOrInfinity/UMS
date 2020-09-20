@@ -35,13 +35,12 @@ public class SessionAutoConfigurerAware implements HttpSecurityAware {
 
     private final EnhanceConcurrentControlAuthenticationStrategy enhanceConcurrentControlAuthenticationStrategy;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public SessionAutoConfigurerAware(ClientProperties clientProperties,
                                       BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
                                       SessionEnhanceCheckFilter sessionEnhanceCheckFilter,
                                       DefaultRedirectInvalidSessionStrategy defaultRedirectInvalidSessionStrategy,
                                       ObjectMapper objectMapper,
-                                      EnhanceConcurrentControlAuthenticationStrategy enhanceConcurrentControlAuthenticationStrategy) throws Exception {
+                                      EnhanceConcurrentControlAuthenticationStrategy enhanceConcurrentControlAuthenticationStrategy) {
         this.clientProperties = clientProperties;
         this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
         this.sessionEnhanceCheckFilter = sessionEnhanceCheckFilter;
@@ -52,7 +51,7 @@ public class SessionAutoConfigurerAware implements HttpSecurityAware {
     }
 
     @Override
-    public void postConfigure(HttpSecurity http) throws Exception {
+    public void postConfigure(HttpSecurity http) {
         // dto nothing
     }
 
@@ -95,7 +94,7 @@ public class SessionAutoConfigurerAware implements HttpSecurityAware {
 
         Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
 
-        resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
+        resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
 
         return resultMap;
     }

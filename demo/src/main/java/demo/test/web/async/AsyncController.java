@@ -12,6 +12,7 @@ import org.springframework.web.context.request.async.DeferredResult;
  * @author  zyw
  * @version V1.0  Created by 2020/5/2 22:41
  */
+@SuppressWarnings("AlibabaRemoveCommentedCode")
 @RestController
 @Slf4j
 public class AsyncController {
@@ -24,7 +25,7 @@ public class AsyncController {
     }
 
     @GetMapping("/order")
-    public DeferredResult<String> order() throws InterruptedException {
+    public DeferredResult<String> order() {
         log.info("AsyncController.order 主线程开启");
 
         String orderNumber = RandomStringUtils.randomNumeric(8);

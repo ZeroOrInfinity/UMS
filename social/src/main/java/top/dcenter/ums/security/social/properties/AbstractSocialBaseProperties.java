@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public abstract class SocialBaseProperties {
+public abstract class AbstractSocialBaseProperties {
 
     private String appId;
     private String appSecret;
