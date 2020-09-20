@@ -215,9 +215,9 @@ public class ClientProperties {
          */
         private String invalidSessionUrl = DEFAULT_SESSION_INVALID_URL;
         /**
-         * concurrent session 失效后跳转地址, loginProcessType=redirect 时有效. 默认: /security/concurrentSession.html
+         * concurrent session 失效后跳转地址, loginProcessType=redirect 时有效. 默认: /
          */
-        private String invalidSessionOfConcurrentUrl = "/security/concurrentSession.html";
+        private String invalidSessionOfConcurrentUrl = "/";
         /**
          * session 的 cookie name, 默认为: JSESSIONID, , 需要与 server.servlet.session.cookie.name 同时设置
          */

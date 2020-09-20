@@ -13,9 +13,12 @@ import top.dcenter.ums.security.core.consts.SecurityConstants;
 public enum ErrorCodeEnum {
 
 
+    LOGOUT_SUCCESS(0, "登出成功"),
+
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "操作未授权"),
     INVALID_SESSION(HttpStatus.UNAUTHORIZED.value(), "session 失效"),
-    CONCURRENT_SESSION(HttpStatus.UNAUTHORIZED.value(), "你的账号在其他客户端上登录, 此客户端退出登录状态, 如非本来, 请更改密码"),
+    EXPIRED_SESSION(HttpStatus.UNAUTHORIZED.value(), "session 过期"),
+    CONCURRENT_SESSION(HttpStatus.UNAUTHORIZED.value(), "你的账号在其他客户端上登录, 此客户端退出登录状态, 如非本人, 请更改密码"),
     SESSION_ENHANCE_CHECK(HttpStatus.UNAUTHORIZED.value(), "session 非法"),
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "功能还在开发中"),
     INTERNAL_SERVER_ERROR(HttpStatus.NOT_FOUND.value(), SecurityConstants.INTERNAL_SERVER_ERROR_MSG),
@@ -58,6 +61,7 @@ public enum ErrorCodeEnum {
     REDIRECT_URL_PARAMETER_ERROR(801, "回调地址不正确"),
     TAMPER_WITH_REDIRECT_URL_PARAMETER(802, "回调参数被篡改"),
     ILLEGAL_ACCESS_URL_ERROR(803, "非法访问");
+
 
     /**
      * 错误代码

@@ -76,7 +76,7 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
                          request.getRequestURI(),
                          checkValue);
                 this.baseAuthenticationFailureHandler.onAuthenticationFailure(request, response,
-                                                                              new SessionEnhanceCheckException(SESSION_ENHANCE_CHECK, session.getId()));
+                                                                              new SessionEnhanceCheckException(SESSION_ENHANCE_CHECK, session.getId(), checkValue));
                 return;
             }
         }

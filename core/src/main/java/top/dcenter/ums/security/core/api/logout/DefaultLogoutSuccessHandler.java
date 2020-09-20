@@ -60,6 +60,6 @@ public class DefaultLogoutSuccessHandler implements LogoutSuccessHandler {
         }
 
         redirectProcessingLogoutByLoginProcessType(request, response, clientProperties, objectMapper,
-                                                   redirectStrategy, ErrorCodeEnum.CONCURRENT_SESSION);
+                                                   redirectStrategy, ErrorCodeEnum.LOGOUT_SUCCESS);
     }
 }

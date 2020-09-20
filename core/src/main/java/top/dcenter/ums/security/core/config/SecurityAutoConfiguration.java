@@ -99,8 +99,11 @@ public class SecurityAutoConfiguration implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        // 在 mvc 中做 Uri 映射等动作
-        MvcUtil.registerController("clientSecurityController", applicationContext, BaseSecurityController.class);
+        if (clientProperties.getOpenAuthenticationRedirect())
+        {
+            // 在 mvc 中做 Uri 映射等动作
+            MvcUtil.registerController("clientSecurityController", applicationContext, BaseSecurityController.class);
+        }
 
     }
 }

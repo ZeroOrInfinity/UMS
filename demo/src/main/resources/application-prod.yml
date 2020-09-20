@@ -60,7 +60,7 @@ redis:
       - cacheName
 
 server:
-  port: 80
+  port: 9090
 
 swagger:
   show: false

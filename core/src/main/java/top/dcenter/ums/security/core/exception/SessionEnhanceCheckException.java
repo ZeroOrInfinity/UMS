@@ -11,11 +11,11 @@ public class SessionEnhanceCheckException extends AbstractResponseJsonAuthentica
 
     private static final long serialVersionUID = 2776218597485877301L;
 
-    public SessionEnhanceCheckException(ErrorCodeEnum errorCodeEnum, Throwable t, String sessionId) {
-        super(errorCodeEnum, t, null, sessionId);
+    public SessionEnhanceCheckException(ErrorCodeEnum errorCodeEnum, Throwable t, String sessionId, String data) {
+        super(errorCodeEnum, t, data, sessionId);
     }
 
-    public SessionEnhanceCheckException(ErrorCodeEnum errorCodeEnum, String sessionId) {
-        super(errorCodeEnum, null, sessionId);
+    public SessionEnhanceCheckException(ErrorCodeEnum errorCodeEnum, String sessionId, String data) {
+        super(errorCodeEnum, data, sessionId);
     }
 }

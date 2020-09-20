@@ -45,11 +45,13 @@ server:
 security:
   client:
     login-page: /login
+    # 登录失败页
     failure-url: /login
     # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
     login-process-type: redirect
     # 设置处理登录表单的 uri，不需要用户实现此 uri，由 Spring security 自动实现， 默认为 /authentication/form
     login-processing-url: /authentication/form
+    # 登录成功页
     success-url: /
     # 设置登出 url, 默认为 /logout
     logout-url: /logout
@@ -107,7 +109,7 @@ security:
       # 如果设置为true，则允许HTTP会话在网址中使用HttpServletResponse.encodeRedirectURL（String）或HttpServletResponse.encodeURL（字符串）时被改写，被包含在URL，
       # 否则不允许HTTP会话。 这可以防止信息泄漏到外部域, 默认为: false
       enable-session-url-rewriting: false
-      # concurrent session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /security/concurrentSession.html
+      # concurrent session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /
       invalid-session-of-concurrent-url: /concurrentSession.html
       # session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /session/invalid, 注意: 如果修改此 uri, 需要重新实现修改后的 uri
       invalid-session-url: /session/invalid
@@ -286,7 +288,8 @@ spring:
         max-wait: PT10S
         max-idle: 8
         min-idle: 1
-
+  mvc:
+    throw-exception-if-no-handler-found: true
 debug: true
 
 server:

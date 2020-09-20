@@ -56,8 +56,8 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
             session.removeAttribute(SESSION_ENHANCE_CHECK_KEY);
 
             redirectProcessingByLoginProcessType(request, response, clientProperties, objectMapper,
-                                                 redirectStrategy, ErrorCodeEnum.CONCURRENT_SESSION,
-                                                 clientProperties.getSession().getInvalidSessionOfConcurrentUrl());
+                                                 redirectStrategy, ErrorCodeEnum.EXPIRED_SESSION,
+                                                 clientProperties.getLoginPage());
         }
         catch (Exception e)
         {
