@@ -26,7 +26,7 @@ public class DefaultImageCodeFactory implements ImageCodeFactory {
     }
 
     @Override
-    public ImageCode getImageCode(ServletRequest request, ValidateCodeTokenFactory validateCodeTokenFactory) {
+    public ImageCode getImageCode(ServletRequest request) {
 
         ValidateCodeProperties.ImageCodeProperties imageProp = this.validateCodeProperties.getImage();
 
@@ -46,7 +46,7 @@ public class DefaultImageCodeFactory implements ImageCodeFactory {
         String code = ValidateCodeUtil.generateVerifyCode(codeLength);
 
         BufferedImage bufferedImage = ImageUtil.getBufferedImage(w, h, code);
-        return new ImageCode(bufferedImage, code, expireIn, validateCodeTokenFactory.getToken());
+        return new ImageCode(bufferedImage, code, expireIn);
 
     }
 

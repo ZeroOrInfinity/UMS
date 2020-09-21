@@ -22,8 +22,8 @@ public class ImageCode extends ValidateCode {
     @Transient
     private transient BufferedImage image;
 
-    public ImageCode(BufferedImage image, String code, int expireIn, String token) {
-        super(code, expireIn, token);
+    public ImageCode(BufferedImage image, String code, int expireIn) {
+        super(code, expireIn);
         this.image = image;
     }
 

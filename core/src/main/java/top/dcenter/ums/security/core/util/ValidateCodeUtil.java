@@ -1,6 +1,7 @@
 package top.dcenter.ums.security.core.util;
 
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * 验证码工具
@@ -11,6 +12,16 @@ public class ValidateCodeUtil {
 
     public static final String VERIFY_CODES = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
     public static final String NUMBER_VERIFY_CODES = "0123456789";
+
+
+    /**
+     * 不带 - 的 uuid
+     * @return  不带 - 的 uuid 字符串
+     */
+    public static String getUUID() {
+        return UUID.randomUUID().toString().replaceAll("-", "");
+    }
+
 
     /**
      * 使用系统默认字符源生成验证码

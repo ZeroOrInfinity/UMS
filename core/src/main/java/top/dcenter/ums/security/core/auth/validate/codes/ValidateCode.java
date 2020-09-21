@@ -22,12 +22,10 @@ public class ValidateCode implements Serializable {
 
     private String code;
     private LocalDateTime expireTime;
-    private String token;
 
-    public ValidateCode(String code, int expireIn, String token) {
+    public ValidateCode(String code, int expireIn) {
         this.code = code;
         this.expireTime = LocalDateTime.now().plusSeconds(expireIn);
-        this.token = token;
     }
 
     public boolean isExpired() {

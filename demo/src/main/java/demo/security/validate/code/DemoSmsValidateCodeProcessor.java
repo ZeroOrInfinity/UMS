@@ -9,9 +9,9 @@ import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor;
 import top.dcenter.ums.security.core.consts.RegexConstants;
-import top.dcenter.ums.security.core.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
 
 import java.util.Map;
@@ -56,7 +56,9 @@ public class DemoSmsValidateCodeProcessor extends SmsValidateCodeProcessor {
         {
             throw new ValidateCodeParamErrorException(MOBILE_PARAMETER_ERROR, validateCodeProperties.getSms().getRequestParamMobileName(), request.getRequest().getRemoteAddr());
         }
-        catch (PatternSyntaxException e) { }
+        catch (PatternSyntaxException e) {
+            log.error(e.getMessage(), e);
+        }
 
         throw new ValidateCodeParamErrorException(MOBILE_FORMAT_ERROR, mobile, request.getRequest().getRemoteAddr());
     }

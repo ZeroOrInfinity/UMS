@@ -3,7 +3,6 @@ package demo.security.validate.code;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.dcenter.ums.security.core.api.validate.code.SmsCodeSender;
-import top.dcenter.ums.security.core.api.validate.code.ValidateCodeTokenFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsCodeGenerator;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
@@ -19,13 +18,13 @@ import javax.servlet.ServletRequest;
 @Slf4j
 public class DemoSmsCodeGenerator extends SmsCodeGenerator {
 
-    public DemoSmsCodeGenerator(SmsCodeSender smsCodeSender, ValidateCodeProperties validateCodeProperties, ValidateCodeTokenFactory validateCodeTokenFactory) {
-        super(validateCodeProperties, smsCodeSender, validateCodeTokenFactory);
+    public DemoSmsCodeGenerator(SmsCodeSender smsCodeSender, ValidateCodeProperties validateCodeProperties) {
+        super(validateCodeProperties, smsCodeSender);
     }
 
     @Override
     public ValidateCode generate(ServletRequest request) {
-        ValidateCode validateCode = smsCodeSender.getCode(validateCodeTokenFactory);
+        ValidateCode validateCode = smsCodeSender.getCode();
         if (log.isDebugEnabled())
         {
             log.debug("Demo =======>: {} = {}", this.validateCodeProperties.getSms().getRequestParamSmsCodeName(),

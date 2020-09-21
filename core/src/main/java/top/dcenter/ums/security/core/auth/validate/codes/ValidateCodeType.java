@@ -1,4 +1,4 @@
-package top.dcenter.ums.security.core.enums;
+package top.dcenter.ums.security.core.auth.validate.codes;
 
 import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_KEY_CUSTOMIZE;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_KEY_IMAGE;

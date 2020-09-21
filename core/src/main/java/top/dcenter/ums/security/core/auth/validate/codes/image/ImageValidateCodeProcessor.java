@@ -4,9 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
-import top.dcenter.ums.security.core.api.validate.code.ValidateCodeTokenFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
-import top.dcenter.ums.security.core.enums.ValidateCodeType;
+import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
@@ -23,9 +22,8 @@ import java.util.Map;
 @Slf4j
 public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
 
-    public ImageValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators,
-                                      ValidateCodeTokenFactory validateCodeTokenFactory) {
-        super(validateCodeGenerators, validateCodeTokenFactory);
+    public ImageValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
+        super(validateCodeGenerators);
     }
 
     @Override

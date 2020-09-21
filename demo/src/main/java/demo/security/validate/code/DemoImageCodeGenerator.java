@@ -3,7 +3,6 @@ package demo.security.validate.code;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.dcenter.ums.security.core.api.validate.code.ImageCodeFactory;
-import top.dcenter.ums.security.core.api.validate.code.ValidateCodeTokenFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
@@ -20,14 +19,13 @@ import javax.servlet.ServletRequest;
 public class DemoImageCodeGenerator extends ImageCodeGenerator {
 
     public DemoImageCodeGenerator(ImageCodeFactory imageCodeFactory,
-                                  ValidateCodeTokenFactory validateCodeTokenFactory,
                                   ValidateCodeProperties validateCodeProperties) {
-        super(validateCodeProperties, imageCodeFactory, validateCodeTokenFactory);
+        super(validateCodeProperties, imageCodeFactory);
     }
 
     @Override
     public ImageCode generate(ServletRequest request) {
-        ImageCode imageCode = imageCodeFactory.getImageCode(request, validateCodeTokenFactory);
+        ImageCode imageCode = imageCodeFactory.getImageCode(request);
         if (log.isDebugEnabled())
         {
             log.debug("Demo =====>: {} = {}", this.validateCodeProperties.getImage().getRequestParamImageCodeName(),

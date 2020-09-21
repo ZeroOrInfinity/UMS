@@ -9,10 +9,9 @@ import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.ums.security.core.api.validate.code.SmsCodeSender;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
-import top.dcenter.ums.security.core.api.validate.code.ValidateCodeTokenFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
 import top.dcenter.ums.security.core.consts.RegexConstants;
-import top.dcenter.ums.security.core.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 
@@ -38,9 +37,8 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
     @Autowired
     protected ValidateCodeProperties validateCodeProperties;
 
-    public SmsValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators,
-                                    ValidateCodeTokenFactory validateCodeTokenFactory) {
-        super(validateCodeGenerators, validateCodeTokenFactory);
+    public SmsValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
+        super(validateCodeGenerators);
     }
 
     /**

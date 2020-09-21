@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
-import top.dcenter.ums.security.core.enums.ValidateCodeType;
+import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,18 +31,13 @@ import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_NO
 public abstract class AbstractValidateCodeProcessor implements ValidateCodeProcessor {
 
     protected final Map<String, ValidateCodeGenerator<?>> validateCodeGenerators;
-    protected final ValidateCodeTokenFactory validateCodeTokenFactory;
 
     /**
      * 验证码处理逻辑的默认实现抽象类.<br><br>
      *
      * @param validateCodeGenerators    子类继承时对此参数不需要操作，在子类注入 IOC 容器时，spring自动注入此参数
-     * @param validateCodeTokenFactory  验证码随机 token 工厂
      */
-    public AbstractValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators,
-                                         ValidateCodeTokenFactory validateCodeTokenFactory) {
-
-        this.validateCodeTokenFactory = validateCodeTokenFactory;
+    public AbstractValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
 
         if (validateCodeGenerators == null)
         {
@@ -72,7 +67,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             boolean validateStatus = sent(request, validateCode);
             if (!validateStatus)
             {
-                session.removeAttribute(getValidateCodeType().getSessionKey() + validateCode.getToken());
+                session.removeAttribute(getValidateCodeType().getSessionKey());
                 log.warn("发送验证码失败: ip={}, sid={}, uri={}, validateCode={}",
                          ip, sid, uri, validateCode.toString());
                 return false;
@@ -128,7 +123,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             {
                 return false;
             }
-            req.getSession().setAttribute(validateCodeType.getSessionKey() + validateCode.getToken(), validateCode);
+            req.getSession().setAttribute(validateCodeType.getSessionKey(), validateCode);
         }
         catch (Exception e)
         {
@@ -176,6 +171,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
         if (!StringUtils.isNotBlank(codeInRequest))
         {
+            session.removeAttribute(sessionKey);
             throw new ValidateCodeException(VALIDATE_CODE_NOT_EMPTY, req.getRemoteAddr(), validateCodeType.name());
         }
 
@@ -194,6 +190,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
         if (!StringUtils.equalsIgnoreCase(codeInSession.getCode(), codeInRequest))
         {
+            session.removeAttribute(sessionKey);
             throw new ValidateCodeException(VALIDATE_CODE_ERROR, req.getRemoteAddr(), codeInRequest);
         }
         session.removeAttribute(sessionKey);

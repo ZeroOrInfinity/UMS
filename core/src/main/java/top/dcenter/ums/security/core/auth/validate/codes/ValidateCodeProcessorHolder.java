@@ -4,7 +4,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessor;
-import top.dcenter.ums.security.core.enums.ValidateCodeType;
 
 import java.util.Collection;
 import java.util.Map;
@@ -20,7 +19,6 @@ public class ValidateCodeProcessorHolder implements InitializingBean {
 
     private Map<String, ValidateCodeProcessor> validateCodeProcessors;
 
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private GenericApplicationContext applicationContext;
 
@@ -59,7 +57,7 @@ public class ValidateCodeProcessorHolder implements InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
 
         // 解决循环应用问题
         Map<String, ValidateCodeProcessor> validateCodeProcessorMap = applicationContext.getBeansOfType(ValidateCodeProcessor.class);

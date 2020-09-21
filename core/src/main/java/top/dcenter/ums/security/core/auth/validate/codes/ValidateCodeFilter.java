@@ -12,7 +12,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessor;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;

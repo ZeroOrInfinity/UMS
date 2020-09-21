@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestUtils;
 import top.dcenter.ums.security.core.api.validate.code.ImageCodeFactory;
-import top.dcenter.ums.security.core.api.validate.code.ValidateCodeTokenFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.ImageUtil;
@@ -29,7 +28,7 @@ public class DemoImageCodeFactory implements ImageCodeFactory {
     }
 
     @Override
-    public ImageCode getImageCode(ServletRequest request, ValidateCodeTokenFactory validateCodeTokenFactory) {
+    public ImageCode getImageCode(ServletRequest request) {
 
         ValidateCodeProperties.ImageCodeProperties imageProp = this.validateCodeProperties.getImage();
 
@@ -54,7 +53,7 @@ public class DemoImageCodeFactory implements ImageCodeFactory {
             log.debug("Demo =====>: {} = {}", this.validateCodeProperties.getImage().getRequestParamImageCodeName(),
                       code);
         }
-        return new ImageCode(bufferedImage, code, expireIn, validateCodeTokenFactory.getToken());
+        return new ImageCode(bufferedImage, code, expireIn);
     }
 
 }

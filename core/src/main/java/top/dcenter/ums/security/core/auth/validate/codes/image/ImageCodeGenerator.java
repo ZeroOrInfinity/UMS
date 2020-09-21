@@ -3,8 +3,7 @@ package top.dcenter.ums.security.core.auth.validate.codes.image;
 import lombok.extern.slf4j.Slf4j;
 import top.dcenter.ums.security.core.api.validate.code.ImageCodeFactory;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
-import top.dcenter.ums.security.core.api.validate.code.ValidateCodeTokenFactory;
-import top.dcenter.ums.security.core.enums.ValidateCodeType;
+import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 
 import javax.servlet.ServletRequest;
@@ -21,17 +20,15 @@ public class ImageCodeGenerator implements ValidateCodeGenerator<ImageCode> {
 
     protected final ValidateCodeProperties validateCodeProperties;
     protected final ImageCodeFactory imageCodeFactory;
-    protected final ValidateCodeTokenFactory validateCodeTokenFactory;
 
-    public ImageCodeGenerator(ValidateCodeProperties validateCodeProperties, ImageCodeFactory imageCodeFactory, ValidateCodeTokenFactory validateCodeTokenFactory) {
+    public ImageCodeGenerator(ValidateCodeProperties validateCodeProperties, ImageCodeFactory imageCodeFactory) {
         this.validateCodeProperties = validateCodeProperties;
         this.imageCodeFactory = imageCodeFactory;
-        this.validateCodeTokenFactory = validateCodeTokenFactory;
     }
 
     @Override
     public ImageCode generate(ServletRequest request) {
-        return imageCodeFactory.getImageCode(request, validateCodeTokenFactory);
+        return imageCodeFactory.getImageCode(request);
     }
 
     @Override

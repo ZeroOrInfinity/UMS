@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import java.util.ArrayList;
 import java.util.List;
 
+import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_CLEANUP_CRON;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_REQUEST_PARAM_IMAGE_CODE_NAME;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_REQUEST_PARAM_MOBILE_NAME;
@@ -35,6 +36,11 @@ public class ValidateCodeProperties {
     public SmsCodeProperties getSms() {
         return sms;
     }
+
+    /**
+     * 定时清除过期验证码任务 Cron expression, 默认: 0 0/3 * * * *
+     */
+    private String cleanupCron = DEFAULT_CLEANUP_CRON;
 
     /**
      * 图片验证码属性
