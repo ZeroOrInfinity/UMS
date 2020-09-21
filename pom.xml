@@ -6,12 +6,13 @@
 
     <groupId>top.dcenter</groupId>
     <artifactId>ums</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
 
     <packaging>pom</packaging>
     <name>ums</name>
     <description>User management scaffolding integration: validate code, mobile login, OAuth2(automatic registration, binding and unbinding), RBAC-based uri access control function, routing function of multiple callback addresses through a unified callback address entry, and sign etc...
     </description>
+
 
     <url>https://github.com/ZeroOrInfinity/UMS</url>
 
@@ -56,7 +57,7 @@
     </distributionManagement>
 
     <properties>
-        <top.dcenter.version>1.0.8</top.dcenter.version>
+        <top.dcenter.version>1.0.9</top.dcenter.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
