@@ -3,6 +3,7 @@ package demo.security.validate.code;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.dcenter.ums.security.core.api.validate.code.SmsCodeSender;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCodeTokenFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.ValidateCodeUtil;
@@ -15,11 +16,12 @@ import top.dcenter.ums.security.core.util.ValidateCodeUtil;
 @Component
 @Slf4j
 public class DemoSmsCodeSender implements SmsCodeSender {
+
+    private final ValidateCodeProperties validateCodeProperties;
+
     public DemoSmsCodeSender(ValidateCodeProperties validateCodeProperties) {
         this.validateCodeProperties = validateCodeProperties;
     }
-
-    private ValidateCodeProperties validateCodeProperties;
 
     @Override
     public boolean sendSms(String mobile, String validateCode) {
@@ -29,7 +31,7 @@ public class DemoSmsCodeSender implements SmsCodeSender {
     }
 
     @Override
-    public ValidateCode getCode() {
+    public ValidateCode getCode(ValidateCodeTokenFactory validateCodeTokenFactory) {
         ValidateCodeProperties.SmsCodeProperties smsCodeProp = this.validateCodeProperties.getSms();
         int expireIn = smsCodeProp.getExpire();
         int codeLength = smsCodeProp.getLength();
@@ -40,6 +42,6 @@ public class DemoSmsCodeSender implements SmsCodeSender {
             log.debug("Demo =======>: {} = {}", this.validateCodeProperties.getSms().getRequestParamSmsCodeName(),
                       code);
         }
-        return new ValidateCode(code, expireIn);
+        return new ValidateCode(code, expireIn, validateCodeTokenFactory.getToken());
     }
 }

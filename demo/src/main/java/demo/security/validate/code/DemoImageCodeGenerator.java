@@ -3,6 +3,7 @@ package demo.security.validate.code;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.dcenter.ums.security.core.api.validate.code.ImageCodeFactory;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCodeTokenFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
@@ -18,18 +19,15 @@ import javax.servlet.ServletRequest;
 @Slf4j
 public class DemoImageCodeGenerator extends ImageCodeGenerator {
 
-    private final ImageCodeFactory imageCodeFactory;
-    private final ValidateCodeProperties validateCodeProperties;
-
-    public DemoImageCodeGenerator(ImageCodeFactory imageCodeFactory, ValidateCodeProperties validateCodeProperties) {
-        super(validateCodeProperties, imageCodeFactory);
-        this.imageCodeFactory = imageCodeFactory;
-        this.validateCodeProperties = validateCodeProperties;
+    public DemoImageCodeGenerator(ImageCodeFactory imageCodeFactory,
+                                  ValidateCodeTokenFactory validateCodeTokenFactory,
+                                  ValidateCodeProperties validateCodeProperties) {
+        super(validateCodeProperties, imageCodeFactory, validateCodeTokenFactory);
     }
 
     @Override
     public ImageCode generate(ServletRequest request) {
-        ImageCode imageCode = imageCodeFactory.getImageCode(request);
+        ImageCode imageCode = imageCodeFactory.getImageCode(request, validateCodeTokenFactory);
         if (log.isDebugEnabled())
         {
             log.debug("Demo =====>: {} = {}", this.validateCodeProperties.getImage().getRequestParamImageCodeName(),

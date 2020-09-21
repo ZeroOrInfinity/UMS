@@ -3,6 +3,7 @@ package top.dcenter.ums.security.core.auth.validate.codes.sms;
 import lombok.extern.slf4j.Slf4j;
 import top.dcenter.ums.security.core.api.validate.code.SmsCodeSender;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCodeTokenFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.ums.security.core.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
@@ -21,15 +22,17 @@ public class SmsCodeGenerator implements ValidateCodeGenerator<ValidateCode> {
 
     protected final ValidateCodeProperties validateCodeProperties;
     protected final SmsCodeSender smsCodeSender;
+    protected final ValidateCodeTokenFactory validateCodeTokenFactory;
 
-    public SmsCodeGenerator(ValidateCodeProperties validateCodeProperties, SmsCodeSender smsCodeSender) {
+    public SmsCodeGenerator(ValidateCodeProperties validateCodeProperties, SmsCodeSender smsCodeSender, ValidateCodeTokenFactory validateCodeTokenFactory) {
         this.validateCodeProperties = validateCodeProperties;
         this.smsCodeSender = smsCodeSender;
+        this.validateCodeTokenFactory = validateCodeTokenFactory;
     }
 
     @Override
     public ValidateCode generate(ServletRequest request) {
-        return smsCodeSender.getCode();
+        return smsCodeSender.getCode(validateCodeTokenFactory);
     }
 
     @Override

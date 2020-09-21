@@ -23,7 +23,8 @@ public interface SmsCodeSender {
 
     /**
      * 生成验证码
+     * @param validateCodeTokenFactory 随机校验码 token
      * @return {@link ValidateCode}
      */
-    ValidateCode getCode();
+    ValidateCode getCode(ValidateCodeTokenFactory validateCodeTokenFactory);
 }

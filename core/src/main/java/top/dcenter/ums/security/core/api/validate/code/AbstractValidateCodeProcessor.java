@@ -31,13 +31,18 @@ import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_NO
 public abstract class AbstractValidateCodeProcessor implements ValidateCodeProcessor {
 
     protected final Map<String, ValidateCodeGenerator<?>> validateCodeGenerators;
+    protected final ValidateCodeTokenFactory validateCodeTokenFactory;
 
     /**
      * 验证码处理逻辑的默认实现抽象类.<br><br>
      *
-     * @param validateCodeGenerators 子类继承时对此参数不需要操作，在子类注入 IOC 容器时，spring自动注入此参数
+     * @param validateCodeGenerators    子类继承时对此参数不需要操作，在子类注入 IOC 容器时，spring自动注入此参数
+     * @param validateCodeTokenFactory  验证码随机 token 工厂
      */
-    public AbstractValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
+    public AbstractValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators,
+                                         ValidateCodeTokenFactory validateCodeTokenFactory) {
+
+        this.validateCodeTokenFactory = validateCodeTokenFactory;
 
         if (validateCodeGenerators == null)
         {
@@ -48,6 +53,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         this.validateCodeGenerators =
                 values.stream().collect(Collectors.toMap((ValidateCodeGenerator::getValidateCodeType),
                                                          validateCodeGenerator -> validateCodeGenerator));
+
     }
 
     @Override
@@ -66,7 +72,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             boolean validateStatus = sent(request, validateCode);
             if (!validateStatus)
             {
-                session.removeAttribute(getValidateCodeType().getSessionKey());
+                session.removeAttribute(getValidateCodeType().getSessionKey() + validateCode.getToken());
                 log.warn("发送验证码失败: ip={}, sid={}, uri={}, validateCode={}",
                          ip, sid, uri, validateCode.toString());
                 return false;
@@ -114,6 +120,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     @Override
     public boolean saveSession(ServletWebRequest request, ValidateCode validateCode) {
 
+        HttpServletRequest req = request.getRequest();
         try
         {
             ValidateCodeType validateCodeType = getValidateCodeType();
@@ -121,14 +128,14 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             {
                 return false;
             }
-            request.getRequest().getSession().setAttribute(validateCodeType.getSessionKey(), validateCode);
+            req.getSession().setAttribute(validateCodeType.getSessionKey() + validateCode.getToken(), validateCode);
         }
         catch (Exception e)
         {
             String msg = String.format("验证码保存到Session失败: error=%s, ip=%s, code=%s",
-                                          e.getMessage(),
-                                          request.getRequest().getRemoteAddr(),
-                                          validateCode);
+                                       e.getMessage(),
+                                       req.getRemoteAddr(),
+                                       validateCode);
             log.error(msg, e);
             return false;
         }

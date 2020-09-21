@@ -12,7 +12,9 @@ import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticati
 import top.dcenter.ums.security.core.api.validate.code.ImageCodeFactory;
 import top.dcenter.ums.security.core.api.validate.code.SmsCodeSender;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCodeTokenFactory;
 import top.dcenter.ums.security.core.auth.controller.ValidateCodeController;
+import top.dcenter.ums.security.core.auth.validate.codes.DefaultValidateCodeTokenFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeFilter;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeProcessorHolder;
 import top.dcenter.ums.security.core.auth.validate.codes.image.DefaultImageCodeFactory;
@@ -42,15 +44,23 @@ public class ValidateCodeBeanAutoConfiguration implements InitializingBean {
     private GenericApplicationContext applicationContext;
 
     @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.validate.code.ValidateCodeTokenFactory")
+    public DefaultValidateCodeTokenFactory defaultValidateCodeTokenFactory() {
+        return new DefaultValidateCodeTokenFactory();
+    }
+
+    @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator")
-    public ImageCodeGenerator imageCodeGenerator(ValidateCodeProperties validateCodeProperties) {
-        return new ImageCodeGenerator(validateCodeProperties, imageCodeFactory(validateCodeProperties));
+    public ImageCodeGenerator imageCodeGenerator(ValidateCodeProperties validateCodeProperties,
+                                                 ValidateCodeTokenFactory validateCodeTokenFactory) {
+        return new ImageCodeGenerator(validateCodeProperties, imageCodeFactory(validateCodeProperties), validateCodeTokenFactory);
     }
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.sms.SmsCodeGenerator")
-    public SmsCodeGenerator smsCodeGenerator(ValidateCodeProperties validateCodeProperties, SmsCodeSender smsCodeSender) {
-        return new SmsCodeGenerator(validateCodeProperties, smsCodeSender);
+    public SmsCodeGenerator smsCodeGenerator(ValidateCodeProperties validateCodeProperties, SmsCodeSender smsCodeSender,
+                                             ValidateCodeTokenFactory validateCodeTokenFactory) {
+        return new SmsCodeGenerator(validateCodeProperties, smsCodeSender, validateCodeTokenFactory);
     }
 
     @Bean
@@ -67,14 +77,16 @@ public class ValidateCodeBeanAutoConfiguration implements InitializingBean {
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.image.ImageValidateCodeProcessor")
-    public ImageValidateCodeProcessor imageValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
-        return new ImageValidateCodeProcessor(validateCodeGenerators);
+    public ImageValidateCodeProcessor imageValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators,
+                                                                 ValidateCodeTokenFactory validateCodeTokenFactory) {
+        return new ImageValidateCodeProcessor(validateCodeGenerators, validateCodeTokenFactory);
     }
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor")
-    public SmsValidateCodeProcessor smsValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
-        return new SmsValidateCodeProcessor(validateCodeGenerators);
+    public SmsValidateCodeProcessor smsValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators,
+                                                             ValidateCodeTokenFactory validateCodeTokenFactory) {
+        return new SmsValidateCodeProcessor(validateCodeGenerators, validateCodeTokenFactory);
     }
 
     @Bean

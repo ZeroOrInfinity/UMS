@@ -93,7 +93,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
 
                 } else
                 {
-                    log.warn("违法的校验码类型: error={}, ip={}, sid={}, type={}",
+                    log.warn("违法的验证码类型: error={}, ip={}, sid={}, type={}",
                                  ILLEGAL_VALIDATE_CODE_TYPE.getMsg(),
                              ip,
                              sid,

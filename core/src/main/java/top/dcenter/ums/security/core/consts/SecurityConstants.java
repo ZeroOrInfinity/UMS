@@ -74,7 +74,7 @@ public class SecurityConstants {
     /**
      * 图片验证码的 SESSION KEY
      */
-    public static final String SESSION_KEY_IMAGE = "SESSION_KEY_IMAGE_CODE";
+    public static final String SESSION_KEY_IMAGE = "SESSION_KEY_IMAGE_CODE:";
     /**
      * 提交图片验证码请求时，请求中带点图片验证码变量名，默认 imageCode
      */
@@ -83,7 +83,7 @@ public class SecurityConstants {
     /**
      * 短信验证码的 SESSION KEY
      */
-    public static final String SESSION_KEY_SMS = "SESSION_KEY_SMS_CODE";
+    public static final String SESSION_KEY_SMS = "SESSION_KEY_SMS_CODE:";
     /**
      * 提交短信验证码请求时，请求中带的短信验证码变量名，默认 smsCode
      */
@@ -96,7 +96,7 @@ public class SecurityConstants {
     /**
      * 轨迹验证码验证码的 SESSION KEY
      */
-    public static final String SESSION_KEY_TRACK = "SESSION_KEY_TRACK_CODE";
+    public static final String SESSION_KEY_TRACK = "SESSION_KEY_TRACK_CODE:";
     /**
      * 提交轨迹验证码请求时，请求中带的轨迹验证码变量名，默认 trackCode
      */
@@ -104,7 +104,7 @@ public class SecurityConstants {
     /**
      * 滑块验证码的 SESSION KEY
      */
-    public static final String SESSION_KEY_SLIDER = "SESSION_KEY_SLIDER_CODE";
+    public static final String SESSION_KEY_SLIDER = "SESSION_KEY_SLIDER_CODE:";
     /**
      * 提交滑块验证码请求时，请求中带的滑块验证码变量名，默认 sliderCode
      */
@@ -112,7 +112,7 @@ public class SecurityConstants {
     /**
      * 从图片中选取内容的验证码的 SESSION KEY
      */
-    public static final String SESSION_KEY_SELECTION = "SESSION_KEY_SELECTION_CODE";
+    public static final String SESSION_KEY_SELECTION = "SESSION_KEY_SELECTION_CODE:";
     /**
      * 从图片中选取内容的验证码请求时，请求中带的从图片中选取内容的验证码变量名，默认 selectionCode
      */
@@ -120,7 +120,7 @@ public class SecurityConstants {
     /**
      * 自定义验证码的 SESSION KEY
      */
-    public static final String SESSION_KEY_CUSTOMIZE = "SESSION_KEY_CUSTOMIZE_CODE";
+    public static final String SESSION_KEY_CUSTOMIZE = "SESSION_KEY_CUSTOMIZE_CODE:";
     /**
      * 提交自定义验证码请求时，请求中带的自定义验证码变量名，默认 customizeCode
      */

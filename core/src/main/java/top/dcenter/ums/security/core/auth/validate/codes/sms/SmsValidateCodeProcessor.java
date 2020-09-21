@@ -9,6 +9,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.ums.security.core.api.validate.code.SmsCodeSender;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCodeTokenFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.ums.security.core.consts.RegexConstants;
 import top.dcenter.ums.security.core.enums.ValidateCodeType;
@@ -29,7 +30,6 @@ import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.MOBILE_PARAMETER
  * @author  zyw
  * @version V1.0  Created by 2020/5/6 15:09
  */
-@SuppressWarnings("SpringJavaAutowiredMembersInspection")
 @Slf4j
 public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
 
@@ -38,8 +38,9 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
     @Autowired
     protected ValidateCodeProperties validateCodeProperties;
 
-    public SmsValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
-        super(validateCodeGenerators);
+    public SmsValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators,
+                                    ValidateCodeTokenFactory validateCodeTokenFactory) {
+        super(validateCodeGenerators, validateCodeTokenFactory);
     }
 
     /**

@@ -3,6 +3,7 @@ package top.dcenter.ums.security.core.auth.validate.codes.image;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.ServletRequestUtils;
 import top.dcenter.ums.security.core.api.validate.code.ImageCodeFactory;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCodeTokenFactory;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.ImageUtil;
 import top.dcenter.ums.security.core.util.ValidateCodeUtil;
@@ -25,7 +26,7 @@ public class DefaultImageCodeFactory implements ImageCodeFactory {
     }
 
     @Override
-    public ImageCode getImageCode(ServletRequest request) {
+    public ImageCode getImageCode(ServletRequest request, ValidateCodeTokenFactory validateCodeTokenFactory) {
 
         ValidateCodeProperties.ImageCodeProperties imageProp = this.validateCodeProperties.getImage();
 
@@ -45,7 +46,8 @@ public class DefaultImageCodeFactory implements ImageCodeFactory {
         String code = ValidateCodeUtil.generateVerifyCode(codeLength);
 
         BufferedImage bufferedImage = ImageUtil.getBufferedImage(w, h, code);
-        return new ImageCode(bufferedImage, code, expireIn);
+        return new ImageCode(bufferedImage, code, expireIn, validateCodeTokenFactory.getToken());
+
     }
 
 }
