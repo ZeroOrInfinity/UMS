@@ -8,20 +8,18 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_CLEANUP_CRON;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_REQUEST_PARAM_IMAGE_CODE_NAME;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_REQUEST_PARAM_MOBILE_NAME;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_REQUEST_PARAM_SMS_CODE_NAME;
 
 /**
- * 验证码属性
+ * 验证码属性, 各种验证码会设置成同一个 uri 时, 会有优先级(按顺序从高到低): SMS,CUSTOMIZE,SELECTION,TRACK,SLIDER,IMAGE
  * @author zhailiang
  * @author  zyw
  * @version V1.0  Created by 2020/5/3 19:52
  */
 @Getter
-@Setter
 @ConfigurationProperties("security.codes")
 public class ValidateCodeProperties {
 
@@ -29,18 +27,14 @@ public class ValidateCodeProperties {
     private final ImageCodeProperties image = new ImageCodeProperties();
     @NestedConfigurationProperty
     private final SmsCodeProperties sms = new SmsCodeProperties();
-
-    public ImageCodeProperties getImage() {
-        return image;
-    }
-    public SmsCodeProperties getSms() {
-        return sms;
-    }
-
-    /**
-     * 定时清除过期验证码任务 Cron expression, 默认: 0 0/3 * * * *
-     */
-    private String cleanupCron = DEFAULT_CLEANUP_CRON;
+    @NestedConfigurationProperty
+    private final SliderCodeProperties slider = new SliderCodeProperties();
+    @NestedConfigurationProperty
+    private final TrackCodeProperties track = new TrackCodeProperties();
+    @NestedConfigurationProperty
+    private final SelectionCodeProperties selection = new SelectionCodeProperties();
+    @NestedConfigurationProperty
+    private final CustomizeCodeProperties customize = new CustomizeCodeProperties();
 
     /**
      * 图片验证码属性
@@ -74,7 +68,7 @@ public class ValidateCodeProperties {
         private String requestParamMobileName = DEFAULT_REQUEST_PARAM_MOBILE_NAME;
 
         /**
-         * 设置需要短信验证码认证的 uri，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
+         * 设置需要短信验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 为空
          */
         private List<String> authUrls;
 
@@ -129,7 +123,87 @@ public class ValidateCodeProperties {
          */
         private String requestParamImageCodeName = DEFAULT_REQUEST_PARAM_IMAGE_CODE_NAME;
         /**
-         * 设置需要图片验证码认证的 uri，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
+         * 设置需要图片验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
+         */
+        private List<String> authUrls;
+
+    }
+
+    /**
+     * 滑块验证码属性
+     * @author  zyw
+     * @version V1.0  Created by 2020-09-22 13:28
+     */
+    @Getter
+    @Setter
+    public static class SliderCodeProperties {
+
+        public SliderCodeProperties() {
+            this.authUrls = new ArrayList<>();
+        }
+
+        /**
+         * 设置需要验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 空
+         */
+        private List<String> authUrls;
+
+    }
+
+    /**
+     * 轨迹验证码属性
+     * @author  zyw
+     * @version V1.0  Created by 2020-09-22 13:28
+     */
+    @Getter
+    @Setter
+    public static class TrackCodeProperties {
+
+        public TrackCodeProperties() {
+            this.authUrls = new ArrayList<>();
+        }
+
+        /**
+         * 设置需要验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 空
+         */
+        private List<String> authUrls;
+
+    }
+
+    /**
+     * 选择类验证码属性
+     * @author  zyw
+     * @version V1.0  Created by 2020-09-22 13:28
+     */
+    @Getter
+    @Setter
+    public static class SelectionCodeProperties {
+
+        public SelectionCodeProperties() {
+            this.authUrls = new ArrayList<>();
+        }
+
+        /**
+         * 设置需要验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 空
+         */
+        private List<String> authUrls;
+
+    }
+
+    /**
+     * 自定义验证码属性
+     * @author  zyw
+     * @version V1.0  Created by 2020-09-22 13:28
+     */
+    @Getter
+    @Setter
+    public static class CustomizeCodeProperties {
+
+        public CustomizeCodeProperties() {
+            this.authUrls = new ArrayList<>();
+        }
+
+        /**
+         * 设置需要验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 空
          */
         private List<String> authUrls;
 

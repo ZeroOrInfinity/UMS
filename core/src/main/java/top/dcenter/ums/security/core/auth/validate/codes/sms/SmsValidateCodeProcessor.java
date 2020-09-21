@@ -7,16 +7,15 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
-import top.dcenter.ums.security.core.api.validate.code.SmsCodeSender;
-import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
+import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
 import top.dcenter.ums.security.core.consts.RegexConstants;
 import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
 import java.util.regex.PatternSyntaxException;
 
 import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.MOBILE_FORMAT_ERROR;
@@ -37,8 +36,8 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
     @Autowired
     protected ValidateCodeProperties validateCodeProperties;
 
-    public SmsValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
-        super(validateCodeGenerators);
+    public SmsValidateCodeProcessor(ValidateCodeGeneratorHolder validateCodeGeneratorHolder) {
+        super(validateCodeGeneratorHolder);
     }
 
     /**

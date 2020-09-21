@@ -3,14 +3,13 @@ package top.dcenter.ums.security.core.auth.validate.codes.image;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
-import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
 
 /**
@@ -22,8 +21,8 @@ import java.util.Map;
 @Slf4j
 public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
 
-    public ImageValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
-        super(validateCodeGenerators);
+    public ImageValidateCodeProcessor(ValidateCodeGeneratorHolder validateCodeGeneratorHolder) {
+        super(validateCodeGeneratorHolder);
     }
 
     @Override

@@ -703,13 +703,13 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
       codes:
         # 图片验证码
         image:
-          # 设置需要图片验证码认证的 uri，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
+          # 设置需要图片验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
           auth-urls:
             - /authentication/form
             - /authentication/social          
         # 短信验证码
         sms:
-          # 设置需要短信验证码认证的 uri，多个 uri 用 “，”号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
+          # 设置需要短信验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “，”号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
           auth-urls:
             - /authentication/mobile
     ```
@@ -720,7 +720,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
       codes:
         # 图片验证码
         image:
-          # 设置需要图片验证码认证的 uri，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
+          # 设置需要图片验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
           auth-urls:
             - /authentication/form
             - /authentication/social
@@ -734,7 +734,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
           request-param-image-code-name: imageCode
         # 短信验证码
         sms:
-          # 设置需要短信验证码认证的 uri，多个 uri 用 “，”号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
+          # 设置需要短信验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “，”号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
           auth-urls:
             - /authentication/mobile
           length: 6

@@ -2,7 +2,7 @@ package demo.security.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import top.dcenter.ums.security.core.api.validate.code.ImageCodeFactory;
+import top.dcenter.ums.security.core.api.validate.code.image.ImageCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;

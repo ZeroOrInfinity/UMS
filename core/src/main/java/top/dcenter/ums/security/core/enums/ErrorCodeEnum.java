@@ -37,6 +37,7 @@ public enum ErrorCodeEnum {
     VALIDATE_CODE_ERROR(603, "验证码错误"),
     ILLEGAL_VALIDATE_CODE_TYPE(604, "非法的验证码类型"),
     GET_VALIDATE_CODE_FAILURE(605, "获取验证码失败，请重试"),
+    VALIDATE_CODE_FAILURE(606, "验证码校验不通过，请重试"),
 
     SMS_CODE_PARAMETER_ERROR(610, "短信验证码参数错误"),
     SMS_CODE_ERROR(611, "短信验证码错误"),

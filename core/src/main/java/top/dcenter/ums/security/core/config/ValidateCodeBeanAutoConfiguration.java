@@ -9,11 +9,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
-import top.dcenter.ums.security.core.api.validate.code.ImageCodeFactory;
-import top.dcenter.ums.security.core.api.validate.code.SmsCodeSender;
-import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
+import top.dcenter.ums.security.core.api.validate.code.image.ImageCodeFactory;
+import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.auth.controller.ValidateCodeController;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeFilter;
+import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeProcessorHolder;
 import top.dcenter.ums.security.core.auth.validate.codes.image.DefaultImageCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator;
@@ -23,8 +23,6 @@ import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.MvcUtil;
-
-import java.util.Map;
 
 /**
  * 验证码功能配置
@@ -54,7 +52,7 @@ public class ValidateCodeBeanAutoConfiguration implements InitializingBean {
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.validate.code.SmsCodeSender")
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender")
     public SmsCodeSender smsCodeSender(ValidateCodeProperties validateCodeProperties) {
         return new DefaultSmsCodeSender(validateCodeProperties);
     }
@@ -67,19 +65,24 @@ public class ValidateCodeBeanAutoConfiguration implements InitializingBean {
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.image.ImageValidateCodeProcessor")
-    public ImageValidateCodeProcessor imageValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
-        return new ImageValidateCodeProcessor(validateCodeGenerators);
+    public ImageValidateCodeProcessor imageValidateCodeProcessor(ValidateCodeGeneratorHolder validateCodeGeneratorHolder) {
+        return new ImageValidateCodeProcessor(validateCodeGeneratorHolder);
     }
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor")
-    public SmsValidateCodeProcessor smsValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
-        return new SmsValidateCodeProcessor(validateCodeGenerators);
+    public SmsValidateCodeProcessor smsValidateCodeProcessor(ValidateCodeGeneratorHolder validateCodeGeneratorHolder) {
+        return new SmsValidateCodeProcessor(validateCodeGeneratorHolder);
     }
 
     @Bean
     public ValidateCodeProcessorHolder validateCodeProcessorHolder() {
         return new ValidateCodeProcessorHolder();
+    }
+
+    @Bean
+    public ValidateCodeGeneratorHolder validateCodeGeneratorHolder() {
+        return new ValidateCodeGeneratorHolder();
     }
 
     @Bean()

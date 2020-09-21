@@ -49,6 +49,10 @@ public class ValidateCodeAutoConfigurerAware implements HttpSecurityAware {
         permitAllMap.put("/code/*", null);
         validateCodeProperties.getSms().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
         validateCodeProperties.getImage().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
+        validateCodeProperties.getSlider().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
+        validateCodeProperties.getSelection().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
+        validateCodeProperties.getTrack().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
+        validateCodeProperties.getCustomize().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
         Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
 
         resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);

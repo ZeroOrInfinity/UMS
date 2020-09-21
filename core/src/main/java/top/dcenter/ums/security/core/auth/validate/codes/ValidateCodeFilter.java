@@ -1,7 +1,6 @@
 package top.dcenter.ums.security.core.auth.validate.codes;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -47,8 +46,10 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
      */
     private final ValidateCodeProcessorHolder validateCodeProcessorHolder;
 
+    /**
+     *  验证码认证 map&#60;uri, validateCodeType&#62;
+     */
     @Getter
-    @Setter
     private Map<String, ValidateCodeType> authUrlMap = new HashMap<>();
 
     public ValidateCodeFilter(ValidateCodeProcessorHolder validateCodeProcessorHolder,
@@ -64,8 +65,15 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
     public void afterPropertiesSet() throws ServletException {
         super.afterPropertiesSet();
         // 添加图片验证码 urls
-        ConvertUtil.list2Map(validateCodeProperties.getImage().getAuthUrls(), ValidateCodeType.IMAGE,
-                             authUrlMap);
+        ConvertUtil.list2Map(validateCodeProperties.getImage().getAuthUrls(), ValidateCodeType.IMAGE, authUrlMap);
+        // 添加滑块验证码 urls
+        ConvertUtil.list2Map(validateCodeProperties.getSlider().getAuthUrls(), ValidateCodeType.SLIDER, authUrlMap);
+        // 添加轨迹验证码 urls
+        ConvertUtil.list2Map(validateCodeProperties.getTrack().getAuthUrls(), ValidateCodeType.TRACK, authUrlMap);
+        // 添加选择类验证码 urls
+        ConvertUtil.list2Map(validateCodeProperties.getSelection().getAuthUrls(), ValidateCodeType.SELECTION, authUrlMap);
+        // 添加自定义验证码 urls
+        ConvertUtil.list2Map(validateCodeProperties.getCustomize().getAuthUrls(), ValidateCodeType.CUSTOMIZE, authUrlMap);
         // 添加短信验证码 urls
         ConvertUtil.list2Map(validateCodeProperties.getSms().getAuthUrls(), ValidateCodeType.SMS, authUrlMap);
     }
@@ -116,7 +124,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
             }
             else
             {
-                ex = new ValidateCodeException(ErrorCodeEnum.VALIDATE_CODE_ERROR, e, ip, e.getMessage());
+                ex = new ValidateCodeException(ErrorCodeEnum.VALIDATE_CODE_ERROR, e, ip, validateCodeType.name());
             }
             baseAuthenticationFailureHandler.onAuthenticationFailure(request, response, ex);
             return;

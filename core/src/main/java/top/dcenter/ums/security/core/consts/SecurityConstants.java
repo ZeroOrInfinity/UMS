@@ -127,12 +127,6 @@ public class SecurityConstants {
     public static final String DEFAULT_REQUEST_PARAM_CUSTOMIZE_CODE_NAME = "customizeCode";
 
 
-    /**
-     * 定时清除过期验证码任务 Cron expression
-     */
-    public static final String DEFAULT_CLEANUP_CRON = "0 0/3 * * * *";
-
-
     // =============== url 相关 ===============
 
     /**

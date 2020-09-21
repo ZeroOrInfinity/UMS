@@ -1,4 +1,4 @@
-package top.dcenter.ums.security.core.api.validate.code;
+package top.dcenter.ums.security.core.api.validate.code.image;
 
 import top.dcenter.ums.security.core.auth.validate.codes.image.DefaultImageCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;

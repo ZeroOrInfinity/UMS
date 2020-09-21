@@ -1,24 +1,19 @@
 package top.dcenter.ums.security.core.api.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.springframework.data.annotation.Transient;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.lang.reflect.Field;
 
 import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE;
 import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_CODE_TYPE;
-import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_ERROR;
-import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_EXPIRED;
-import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EMPTY;
 
 /**
  * 验证码处理逻辑的默认实现抽象类
@@ -30,24 +25,16 @@ import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_NO
 @Slf4j
 public abstract class AbstractValidateCodeProcessor implements ValidateCodeProcessor {
 
-    protected final Map<String, ValidateCodeGenerator<?>> validateCodeGenerators;
+    protected ValidateCodeGeneratorHolder validateCodeGeneratorHolder;
 
     /**
      * 验证码处理逻辑的默认实现抽象类.<br><br>
      *
-     * @param validateCodeGenerators    子类继承时对此参数不需要操作，在子类注入 IOC 容器时，spring自动注入此参数
+     * @param validateCodeGeneratorHolder   validateCodeGeneratorHolder
      */
-    public AbstractValidateCodeProcessor(Map<String, ValidateCodeGenerator<?>> validateCodeGenerators) {
+    public AbstractValidateCodeProcessor(ValidateCodeGeneratorHolder validateCodeGeneratorHolder) {
 
-        if (validateCodeGenerators == null)
-        {
-            this.validateCodeGenerators = new HashMap<>(0);
-            return;
-        }
-        Collection<ValidateCodeGenerator<?>> values = validateCodeGenerators.values();
-        this.validateCodeGenerators =
-                values.stream().collect(Collectors.toMap((ValidateCodeGenerator::getValidateCodeType),
-                                                         validateCodeGenerator -> validateCodeGenerator));
+        this.validateCodeGeneratorHolder = validateCodeGeneratorHolder;
 
     }
 
@@ -63,15 +50,14 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         try
         {
             validateCode = generate(request);
-            saveSession(request, validateCode);
             boolean validateStatus = sent(request, validateCode);
             if (!validateStatus)
             {
-                session.removeAttribute(getValidateCodeType().getSessionKey());
                 log.warn("发送验证码失败: ip={}, sid={}, uri={}, validateCode={}",
                          ip, sid, uri, validateCode.toString());
                 return false;
             }
+            saveSession(request, validateCode);
         }
         catch (Exception e)
         {
@@ -115,6 +101,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     @Override
     public boolean saveSession(ServletWebRequest request, ValidateCode validateCode) {
 
+
         HttpServletRequest req = request.getRequest();
         try
         {
@@ -123,6 +110,10 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             {
                 return false;
             }
+
+            // 移除不必要的属性值
+            removeUnnecessaryFieldValue(validateCode);
+
             req.getSession().setAttribute(validateCodeType.getSessionKey(), validateCode);
         }
         catch (Exception e)
@@ -135,6 +126,26 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             return false;
         }
         return true;
+    }
+
+    /**
+     * 移除不必要的属性值
+     * @param validateCode  验证码
+     * @throws IllegalAccessException   IllegalAccessException
+     */
+    private void removeUnnecessaryFieldValue(ValidateCode validateCode) throws IllegalAccessException {
+
+        Field[] fields = validateCode.getClass().getDeclaredFields();
+
+        for (Field field : fields)
+        {
+            field.setAccessible(true);
+            Transient aTransient = field.getDeclaredAnnotation(Transient.class);
+            if (aTransient != null)
+            {
+                field.set(validateCode, null);
+            }
+        }
     }
 
     /**
@@ -158,43 +169,10 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
     @Override
     public void validate(ServletWebRequest request) throws ValidateCodeException {
+
         ValidateCodeType validateCodeType = getValidateCodeType();
-        String sessionKey = validateCodeType.getSessionKey();
-
-        String requestParamValidateCodeName = getValidateCodeGenerator(validateCodeType).getRequestParamValidateCodeName();
-
-        HttpSession session = request.getRequest().getSession();
-        ValidateCode codeInSession = (ValidateCode) session.getAttribute(sessionKey);
-        String codeInRequest = request.getParameter(requestParamValidateCodeName);
-
-        HttpServletRequest req = request.getRequest();
-
-        if (!StringUtils.isNotBlank(codeInRequest))
-        {
-            session.removeAttribute(sessionKey);
-            throw new ValidateCodeException(VALIDATE_CODE_NOT_EMPTY, req.getRemoteAddr(), validateCodeType.name());
-        }
-
-        codeInRequest = codeInRequest.trim();
-
-        if (codeInSession == null)
-        {
-            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, req.getRemoteAddr(), codeInRequest);
-        }
-
-        if (codeInSession.isExpired())
-        {
-            session.removeAttribute(sessionKey);
-            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, req.getRemoteAddr(), codeInRequest);
-        }
-
-        if (!StringUtils.equalsIgnoreCase(codeInSession.getCode(), codeInRequest))
-        {
-            session.removeAttribute(sessionKey);
-            throw new ValidateCodeException(VALIDATE_CODE_ERROR, req.getRemoteAddr(), codeInRequest);
-        }
-        session.removeAttribute(sessionKey);
-
+        ValidateCodeGenerator<?> validateCodeGenerator = getValidateCodeGenerator(validateCodeType);
+        validateCodeGenerator.validate(request);
     }
 
 
@@ -214,13 +192,10 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     private ValidateCodeGenerator<?> getValidateCodeGenerator(ValidateCodeType type) throws ValidateCodeException {
         try
         {
-            if (validateCodeGenerators != null)
+            ValidateCodeGenerator<?> validateCodeGenerator = validateCodeGeneratorHolder.findValidateCodeGenerator(type);
+            if (validateCodeGenerator != null)
             {
-                ValidateCodeGenerator<?> validateCodeGenerator = validateCodeGenerators.get(type.name().toLowerCase());
-                if (validateCodeGenerator != null)
-                {
-                    return validateCodeGenerator;
-                }
+                return validateCodeGenerator;
             }
             throw new ValidateCodeException(ILLEGAL_VALIDATE_CODE_TYPE, null, type.name());
         }
