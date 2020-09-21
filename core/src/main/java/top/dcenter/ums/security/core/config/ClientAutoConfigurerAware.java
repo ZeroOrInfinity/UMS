@@ -71,6 +71,15 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
 
         clientProperties.getPermitUrls().forEach(uri -> permitAllMap.put(uri, null));
 
+        // 添加 login routing 功能 的 登录页面
+        clientProperties
+                .getAuthRedirectSuffixCondition()
+                .stream()
+                .map(pair -> pair.split("="))
+                .filter(arr -> arr.length > 1)
+                .map(arr -> arr[1])
+                .forEach(uri -> permitAllMap.put(uri, null));
+
         Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
 
         resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
