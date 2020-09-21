@@ -208,4 +208,84 @@ public class ValidateCodeProperties {
         private List<String> authUrls;
 
     }
+
+    /**
+     * 滑块验证码属性
+     * @author  zyw
+     * @version V1.0  Created by 2020-09-22 13:28
+     */
+    @Getter
+    @Setter
+    public static class SliderCodeProperties {
+
+        public SliderCodeProperties() {
+            this.authUrls = new ArrayList<>();
+        }
+
+        /**
+         * 设置需要验证码认证的 uri，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
+         */
+        private List<String> authUrls;
+
+    }
+
+    /**
+     * 轨迹验证码属性
+     * @author  zyw
+     * @version V1.0  Created by 2020-09-22 13:28
+     */
+    @Getter
+    @Setter
+    public static class TrackCodeProperties {
+
+        public TrackCodeProperties() {
+            this.authUrls = new ArrayList<>();
+        }
+
+        /**
+         * 设置需要验证码认证的 uri，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
+         */
+        private List<String> authUrls;
+
+    }
+
+    /**
+     * 选择类验证码属性
+     * @author  zyw
+     * @version V1.0  Created by 2020-09-22 13:28
+     */
+    @Getter
+    @Setter
+    public static class SelectionCodeProperties {
+
+        public SelectionCodeProperties() {
+            this.authUrls = new ArrayList<>();
+        }
+
+        /**
+         * 设置需要验证码认证的 uri，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
+         */
+        private List<String> authUrls;
+
+    }
+
+    /**
+     * 自定义验证码属性
+     * @author  zyw
+     * @version V1.0  Created by 2020-09-22 13:28
+     */
+    @Getter
+    @Setter
+    public static class CustomizeCodeProperties {
+
+        public CustomizeCodeProperties() {
+            this.authUrls = new ArrayList<>();
+        }
+
+        /**
+         * 设置需要验证码认证的 uri，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
+         */
+        private List<String> authUrls;
+
+    }
 }
