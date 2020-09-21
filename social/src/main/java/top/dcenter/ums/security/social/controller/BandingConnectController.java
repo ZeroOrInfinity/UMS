@@ -20,7 +20,6 @@ import lombok.Setter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionFactory;
@@ -53,7 +52,6 @@ import top.dcenter.ums.security.social.properties.SocialProperties;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -135,9 +133,11 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	 * @param connectionRepository the current user's {@link ConnectionRepository} needed to persist connections;
 	 *                             must be a proxy to a request-scoped bean<br><br>
 	 *                             在创建时通过 spring 自动注入一个代理，在调用 connectionRepository的方法之前，通过
-	 *                             {@link org.springframework.aop.framework.CglibAopProxy}中的
-	 *                             {@link CglibAopProxy.DynamicAdvisedInterceptor#intercept(Object, Method, Object[], MethodProxy)} 方法
-	 *                             注入相应的 request-scoped connectionRepository。<br><br>
+	 *                             <pre>
+	 *                                 org.springframework.aop.framework.CglibAopProxy
+	 *                                 CglibAopProxy.DynamicAdvisedInterceptor#intercept(Object, Method, Object[], MethodProxy)
+	 *                             </pre>
+	 *                             方法注入相应的 request-scoped connectionRepository。<br><br>
 	 *                             典型用法，比如：ConnectionRepository 声明 @bean 时，
 	 *                             再添加一个 @Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.INTERFACES)
 	 */

@@ -60,7 +60,7 @@ public class ConvertUtil {
      * List 转换为 Map 类型，map 的 v 的值统一为 参数 value
      * @param list  不为 null
      * @param value map 的 value，不为 null
-     * @return  HashMap<String, T>, 如果没有之会返回空的 Map
+     * @return  HashMap&#60;String, T&#62;, 如果没有之会返回空的 Map
      */
     public static <T> Map<String, T> list2Map(List<String> list, T value){
         return list.stream().collect(Collectors.toMap(Function.identity(), (s) -> value));
@@ -82,7 +82,7 @@ public class ConvertUtil {
      * @param kvStrings   字符串
      * @param separator 分隔符，不为 null
      * @param kvSeparator key 与 value 的分隔符，不为 null
-     * @return  HashMap<String, Object>, 当 kvStrings 为空时，返回空的 map
+     * @return  HashMap&#60;String, Object&#62;, 当 kvStrings 为空时，返回空的 map
      */
     public static Map<String, Object> string2JsonMap(String kvStrings, String separator, String kvSeparator){
         String[] splits = StringUtils.splitByWholeSeparator(kvStrings, separator);
@@ -133,7 +133,7 @@ public class ConvertUtil {
      * @param keyStr   keyStr 格式：name,age
      * @param separator 分隔符, 如 ','，不为 null
      * @param value map 的 value，不为 null
-     * @return  HashMap<String, T>, 当 keyStr 为空时，返回空的 map
+     * @return  HashMap&#60;String, T&#62;, 当 keyStr 为空时，返回空的 map
      */
     public static <T> Map<String, T> keyString2Map(String keyStr, String separator, T value){
         String[] splits = StringUtils.splitByWholeSeparator(keyStr, separator);
@@ -173,8 +173,8 @@ public class ConvertUtil {
 
     /**
      * 修改 toString 输出符合Json 格式.
-     * @param <K>
-     * @param <V>
+     * @param &#60;K&#62;
+     * @param &#60;V&#62;
      */
     private static class JsonMap<K, V> extends HashMap<K, V> {
 

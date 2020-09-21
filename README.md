@@ -469,9 +469,6 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         date-format: yyyy-MM-dd HH:mm:ss
         time-zone: GMT+8
     
-      mvc:
-        throw-exception-if-no-handler-found: true
-    
     
     security:
       client:
@@ -500,7 +497,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         # 是否开启根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationUrl 和 authRedirectSuffixCondition
         open-authentication-redirect: true
         # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require,
-        # 当 isOpenAuthenticationRedirect = true 时生效. 注意: 如果修改此 uri, 需要重新实现修改后的 uri
+        # 当 openAuthenticationRedirect = true 时生效. 注意: 如果修改此 uri, 需要重新实现修改后的 uri
         login-un-authentication-url: /authentication/require
         # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空.
         # 当 openAuthenticationRedirect = true 时生效.
@@ -556,17 +553,20 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
     ```yaml
     spring:
       session:
-        # session 存储模式设置, 要导入相应的 spring-session 类的依赖, 默认为 InMemory, 分布式服务器应用把 session 放入 redis 等中间件
-        store-type: InMemory
+        # session 存储模式设置, 要导入相应的 spring-session 类的依赖, 默认为 none, 分布式服务器应用把 session 放入 redis 等中间件
+        store-type: none
+        # session 过期时间
+        timeout: PT300s
     ```
       
   - 详细配置(Detailed configuration):
     ```yaml
     spring:
       session:
-        # session 存储模式设置, 要导入相应的 spring-session 类的依赖, 默认为 InMemory, 分布式服务器应用把 session 放入 redis 等中间件
+        # session 存储模式设置, 要导入相应的 spring-session 类的依赖, 默认为 none, 分布式服务器应用把 session 放入 redis 等中间件
         store-type: redis
         timeout: PT600S
+        # session redis 缓存设置
         redis:
           # redis 刷新模式
           flush-mode: on_save
@@ -893,6 +893,9 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 - 在 social 模块
     ```yaml
     spring: 
+      # 设置缓存为 Redis
+      cache:
+        type: redis
       # redis
       redis:
         host: 192.168.88.88

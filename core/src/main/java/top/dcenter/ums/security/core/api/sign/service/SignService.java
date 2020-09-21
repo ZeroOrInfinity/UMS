@@ -1,6 +1,5 @@
 package top.dcenter.ums.security.core.api.sign.service;
 
-import top.dcenter.ums.security.core.properties.SignProperties;
 import top.dcenter.ums.security.core.sign.UserSignServiceImpl;
 
 import java.io.UnsupportedEncodingException;
@@ -84,7 +83,7 @@ public interface SignService {
     Map<String, Boolean> getSignInfo(String uid, LocalDate date) throws UnsupportedEncodingException;
 
     /**
-     * 获取最近几天的签到情况, 多少天由 {@link SignProperties#getLastFewDays()} 决定
+     * 获取最近几天的签到情况, 多少天由 <pre> SignProperties#getLastFewDays() </pre> 决定
      *
      * @param uid  用户ID
      * @param date 日期

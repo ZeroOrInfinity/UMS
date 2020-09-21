@@ -6,7 +6,7 @@
 
     <groupId>top.dcenter</groupId>
     <artifactId>ums</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
 
     <packaging>pom</packaging>
     <name>ums</name>
@@ -56,8 +56,7 @@
     </distributionManagement>
 
     <properties>
-        <classifier>demo.security.DemoApplication</classifier>
-        <top.dcenter.version>1.0.6</top.dcenter.version>
+        <top.dcenter.version>1.0.7</top.dcenter.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>

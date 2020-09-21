@@ -24,8 +24,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * 增加对 Ajax 格式与 form 格式的解析, 解析数据时默认使用 UTF-8 格式, 覆写了 {@link AjaxOrFormRequest#getParameter(String)},
- * {@link AjaxOrFormRequest#getInputStream()}, 添加了 {@link AjaxOrFormRequest#getFormMap()}, {@link AjaxOrFormRequest#getBody()}<br><br>
+ * 增加对 Ajax 格式与 form 格式的解析, 解析数据时默认使用 UTF-8 格式, 覆写了
+ * <pre>
+ *     AjaxOrFormRequest#getParameter(String);
+ *     AjaxOrFormRequest#getInputStream();
+ * </pre>, 添加了
+ * <pre>
+ *     AjaxOrFormRequest#getFormMap();
+ *     AjaxOrFormRequest#getBody();
+ * </pre><br><br>
  * 解决  Ajax 格式与 form 格式的请求被读取一次后, 不能在次读取的问题.
  * @author zyw
  * @version V1.0  Created by 2020/6/9 14:01

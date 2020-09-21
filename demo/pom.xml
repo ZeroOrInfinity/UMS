@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>1.0.6</version>
+        <version>1.0.7</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -125,7 +125,7 @@
                             <archive>
                                 <manifest>
                                     <!--运行jar包时运行的主类，要求类全名-->
-                                    <mainClass>${classifier}</mainClass>
+                                    <mainClass>demo.security.DemoApplication</mainClass>
                                     <!-- 是否指定项目classpath下的依赖 -->
                                     <addClasspath>true</addClasspath>
                                     <!-- 指定依赖的时候声明前缀 -->
@@ -204,7 +204,7 @@
                             <archive>
                                 <manifest>
                                     <!--运行jar包时运行的主类，要求类全名-->
-                                    <mainClass>${classifier}</mainClass>
+                                    <mainClass>demo.security.DemoApplication</mainClass>
                                     <!-- 是否指定项目classpath下的依赖 -->
                                     <addClasspath>true</addClasspath>
                                     <!-- 指定依赖的时候声明前缀 -->

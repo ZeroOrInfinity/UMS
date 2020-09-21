@@ -8,7 +8,7 @@ import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
  *     1. 用于用户名密码、手机短信、 OAuth 的登录逻辑。<br><br>
  *     2. 用于用户名密码、手机短信、 OAuth 的注册逻辑。<br><br>
  *     3. 如果要使用缓存, 引入 {@link SocialUserCache}, 用法可以参考
- *     {@link demo.security.service.LoginSocialUserDetailService}.
+ *     <pre> demo.security.service.LoginSocialUserDetailService </pre>
  * @author zyw
  * @version V1.0  Created by 2020/5/16 10:19
  */

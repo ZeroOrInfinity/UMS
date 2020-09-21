@@ -206,7 +206,7 @@ public class UserSignServiceImpl implements SignService {
     }
 
     /**
-     * 获取最近几天的签到情况, 多少天由 {@link SignProperties#getLastFewDays()} 决定
+     * 获取最近几天的签到情况, 多少天由 <pre> SignProperties#getLastFewDays() </pre>
      *
      * @param uid   用户ID
      * @param date  日期

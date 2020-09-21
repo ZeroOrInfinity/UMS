@@ -195,7 +195,7 @@ public class SecurityConstants {
 
     // =================== Callback 相关 ===================
     /**
-     * 对真实回调地址设置成KV键值对形式时的 key , 例如：回调地址(/auth/callback) -> 加密前设置key(path=/auth/callback), key = path
+     * 对真实回调地址设置成KV键值对形式时的 key , 例如：回调地址(/auth/callback) -&#62; 加密前设置key(path=/auth/callback), key = path
      */
     public static final String CALLBACK_URL_KEY_IN_STATE = "path";
 

@@ -58,8 +58,8 @@ public interface HttpSecurityAware {
      * @return authorizeRequestMap ==key== 为权限类型({@link #PERMIT_ALL},{@link #DENY_ALL},
      * {@link #ANONYMOUS},{@link #AUTHENTICATED},{@link #FULLY_AUTHENTICATED},{@link #REMEMBER_ME},{@link #HAS_ROLE},{@link #HAS_ANY_ROLE},
      *      {@link #HAS_AUTHORITY},{@link #HAS_ANY_AUTHORITY},{@link #HAS_IP_ADDRESS}); ==value== 为
-     *      {@link Map}(Map<String, Set<String>>的 =key= 为 uri, =value= 为 role/authority/ip 的 Set; 当 authorizeRequestMap
-     *      的 key 为 {@link #HAS_ROLE},{@link #HAS_ANY_ROLE}/{@link #HAS_AUTHORITY}/{@link #HAS_ANY_AUTHORITY}/
+     *      {@link Map}(Map&#60;String, Set&#60;String&#62;&#62;的 =key= 为 uri, =value= 为 role/authority/ip 的 Set; 当
+     *      authorizeRequestMap 的 key 为 {@link #HAS_ROLE},{@link #HAS_ANY_ROLE}/{@link #HAS_AUTHORITY}/{@link #HAS_ANY_AUTHORITY}/
      *      {@link #HAS_IP_ADDRESS}时, set 不为 null, 当 authorizeRequestMap 的 key 为 {@link #PERMIT_ALL}/{@link #DENY_ALL}/
      *      {@link #ANONYMOUS}/{@link #AUTHENTICATED}/{@link #FULLY_AUTHENTICATED}/@link #REMEMBER_ME}时, set 可以为
      *      null).
