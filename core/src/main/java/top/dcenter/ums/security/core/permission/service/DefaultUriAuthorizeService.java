@@ -38,7 +38,7 @@ public class DefaultUriAuthorizeService extends AbstractUriAuthorizeService {
         }
         catch (IOException e)
         {
-            log.error(String.format("权限控制错误响应异常: status={}, error={}", status, e.getMessage()), e);
+            log.error(String.format("权限控制错误响应异常: status=%s, error=%s", status, e.getMessage()), e);
         }
     }
 

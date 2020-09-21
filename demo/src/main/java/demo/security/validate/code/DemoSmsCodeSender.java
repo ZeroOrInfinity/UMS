@@ -23,6 +23,7 @@ public class DemoSmsCodeSender implements SmsCodeSender {
 
     @Override
     public boolean sendSms(String mobile, String validateCode) {
+        // ... 业务逻辑
         log.info("Demo =====>: 短信验证码发送成功：{}", validateCode);
         return true;
     }

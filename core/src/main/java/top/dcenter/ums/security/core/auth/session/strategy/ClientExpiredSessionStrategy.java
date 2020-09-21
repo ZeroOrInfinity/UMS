@@ -61,7 +61,7 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
         }
         catch (Exception e)
         {
-            log.error(String.format("SESSION过期处理失败: error={}, ip={}, sid={}, uri={}",
+            log.error(String.format("SESSION过期处理失败: error=%s, ip=%s, sid=%s, uri=%s",
                                     e.getMessage(), request.getRemoteAddr(), session.getId(), request.getRequestURI()), e);
             throw new ExpiredSessionDetectedException(ErrorCodeEnum.SERVER_ERROR, session.getId());
         }

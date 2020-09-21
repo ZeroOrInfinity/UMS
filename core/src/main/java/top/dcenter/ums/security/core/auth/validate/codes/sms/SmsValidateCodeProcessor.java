@@ -66,15 +66,17 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
         }
         catch (ServletRequestBindingException e)
         {
-            log.error(String.format("发送验证码失败-手机号参数错误: error={}, ip={}, sid={}, uri={}, validateCode={}",
-                                    e.getMessage(), ip, sid, uri, validateCode.toString()), e);
+            String msg = String.format("发送验证码失败-手机号参数错误: error=%s, ip=%s, sid=%s, uri=%s, validateCode=%s",
+                                          e.getMessage(), ip, sid, uri, validateCode.toString());
+            log.error(msg, e);
             throw new ValidateCodeParamErrorException(MOBILE_PARAMETER_ERROR,
                                                       validateCodeProperties.getSms().getRequestParamMobileName(),
                                                       ip);
         }
         catch (PatternSyntaxException e) {
-            log.error(String.format("发送验证码失败-手机号格式不正确: error={}, ip={}, sid={}, uri={}, validateCode={}",
-                                    e.getMessage(), ip, sid, uri, validateCode.toString()), e);
+            String msg = String.format("发送验证码失败-手机号格式不正确: error=%s, ip=%s, sid=%s, uri=%s, validateCode=%s",
+                                          e.getMessage(), ip, sid, uri, validateCode.toString());
+            log.error(msg, e);
         }
 
         throw new ValidateCodeParamErrorException(MOBILE_FORMAT_ERROR, mobile, ip);

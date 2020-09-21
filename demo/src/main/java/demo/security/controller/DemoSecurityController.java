@@ -100,7 +100,7 @@ public class DemoSecurityController implements BaseSecurityController {
             String requestUri = request.getRequestURI();
             String ip = request.getRemoteAddr();
             //noinspection MalformedFormatString
-            log.error(String.format("IllegalAccessUrlException: ip={}, uri={}, sid={}, error={}",
+            log.error(String.format("IllegalAccessUrlException: ip=%s, uri=%s, sid=%s, error=%s",
                                     ip,
                                     requestUri,
                                     request.getSession(true).getId(),

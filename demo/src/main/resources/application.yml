@@ -73,7 +73,7 @@ security:
     # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
     # 规则具体看 AntPathMatcher.match(pattern, path)
     auth-redirect-suffix-condition:
-      - '/hello=/login'
+      - '/hello=/login2'
       - '/user/**=/login'
       - '/order/**=/login'
       - '/file/**=/login'

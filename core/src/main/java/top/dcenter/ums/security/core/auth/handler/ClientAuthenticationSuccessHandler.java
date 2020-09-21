@@ -107,7 +107,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         }
         catch (Exception e)
         {
-            log.error(String.format("设置登录成功后跳转的URL失败: error={}, user={}, ip={}, ua={}, sid={}",
+            log.error(String.format("设置登录成功后跳转的URL失败: error=%s, user=%s, ip=%s, ua=%s, sid=%s",
                                     e.getMessage(), username, ip, userAgent, sid), e);
         }
 

@@ -47,7 +47,7 @@ public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
         catch (Exception e)
         {
             HttpServletRequest req = request.getRequest();
-            log.error(String.format("发送验证码失败: error={}, ip={}, sid={}, uri={}, validateCode={}",
+            log.error(String.format("发送验证码失败: error=%s, ip=%s, sid=%s, uri=%s, validateCode=%s",
                                     e.getMessage(),
                                     req.getRemoteAddr(),
                                     request.getSessionId(),

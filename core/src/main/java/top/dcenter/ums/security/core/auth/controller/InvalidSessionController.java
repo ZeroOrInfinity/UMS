@@ -57,12 +57,9 @@ public class InvalidSessionController {
         {
             String requestUri = request.getRequestURI();
             String ip = request.getRemoteAddr();
-            //noinspection MalformedFormatString
-            log.error(String.format("IllegalAccessUrlException: ip={}, uri={}, sid={}, error={}",
-                                    ip,
-                                    requestUri,
-                                    request.getSession(true).getId(),
-                                    e.getMessage()), e);
+            String msg = String.format("IllegalAccessUrlException: ip=%s, uri=%s, sid=%s, error=%s",
+                                        ip, requestUri, request.getSession(true).getId(), e.getMessage());
+            log.error(msg, e);
             throw new IllegalAccessUrlException(ErrorCodeEnum.SERVER_ERROR, requestUri, ip);
         }
     }

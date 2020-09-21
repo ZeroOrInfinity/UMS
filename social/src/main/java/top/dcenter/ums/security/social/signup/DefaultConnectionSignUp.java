@@ -39,7 +39,7 @@ public class DefaultConnectionSignUp implements BaseConnectionSignUp {
             return null;
         }
         catch (Exception e) {
-            log.error(String.format("OAuth2自动注册处理器重名检查失败: error={}, username={}", e.getMessage(), displayName), e);
+            log.error(String.format("OAuth2自动注册处理器重名检查失败: error=%s, username=%s", e.getMessage(), displayName), e);
             return null;
         }
     }

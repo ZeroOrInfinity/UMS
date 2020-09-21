@@ -71,7 +71,7 @@ public class SocialUserController {
         catch (DuplicateConnectionException e)
         {
             log.info("用户注册失败：{}", user);
-            return ResponseResult.fail(String.format("{} 用户注册失败", user.getUsername()), ErrorCodeEnum.USER_REGISTER_FAILURE);
+            return ResponseResult.fail(String.format("%s 用户注册失败", user.getUsername()), ErrorCodeEnum.USER_REGISTER_FAILURE);
         }
 
         log.info("Demo ========>: 用户注册成功：{}", user);

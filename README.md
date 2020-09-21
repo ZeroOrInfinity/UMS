@@ -101,10 +101,10 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
                     // 添加 uri 的编辑(edit)权限.
                     // 这里用了 PermissionSuffixType 枚举来规范添加 uri 权限后缀, 详细信息查看 PermissionSuffixType 枚举. 
                     // 注意: 过滤器模式必须 uri 与 权限是一对一关系
-                    uriResources.setPermission(String.format("{}{}",
+                    uriResources.setPermission(String.format("%s%s",
                                                              uri, PermissionSuffixType.EDIT.getPermissionSuffix()));
           
-                    //uriResources.setPermission(String.format("{}{}{}{}{}{}",
+                    //uriResources.setPermission(String.format("%s%s%s%s%s%s",
                     //                                         uri,
                     //                                         PermissionSuffixType.EDIT.getPermissionSuffix(),
                     //                                         AbstractUriAuthorizeService.PERMISSION_DELIMITER,
@@ -504,7 +504,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
         # 规则具体看 AntPathMatcher.match(pattern, path)
         auth-redirect-suffix-condition:
-          - '/hello=/login'
+          - '/hello=/login2'
           - '/user/**=/login'
           - '/order/**=/login'
           - '/file/**=/login'
