@@ -36,9 +36,12 @@ public class UserSignServiceImpl implements SignService {
     private final RedisConnectionFactory redisConnectionFactory;
     private final SignProperties signProperties;
 
+    private final String charset;
+
     public UserSignServiceImpl(RedisConnectionFactory redisConnectionFactory, SignProperties signProperties) {
         this.redisConnectionFactory = redisConnectionFactory;
         this.signProperties = signProperties;
+        charset = signProperties.getCharset();
     }
 
     public RedisConnection getConnection() {
@@ -48,7 +51,13 @@ public class UserSignServiceImpl implements SignService {
     private byte[] buildSignKey(String uid, LocalDate date) throws UnsupportedEncodingException {
 
         return (signProperties.getSignKeyPrefix()
-                + SignUtil.buildSignKey(uid, date)).getBytes(signProperties.getCharset());
+                + SignUtil.buildSignKey(uid, date)).getBytes(charset);
+    }
+
+    private byte[] buildAllSignKey(LocalDate date) throws UnsupportedEncodingException {
+
+        return (signProperties.getAllSignKeyPrefix()
+                + SignUtil.formatDate(date)).getBytes(charset);
     }
 
     /**
@@ -57,7 +66,7 @@ public class UserSignServiceImpl implements SignService {
      * @param uid  用户ID
      * @param date 日期
      * @return 之前的签到状态
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
     public boolean doSign(String uid, LocalDate date) throws UnsupportedEncodingException {
@@ -68,6 +77,7 @@ public class UserSignServiceImpl implements SignService {
         try (RedisConnection connection = getConnection())
         {
             final Boolean isSet = connection.setBit(buildSignKey(uid, date), offset, true);
+            connection.incr(buildAllSignKey(date));
             return Optional.ofNullable(isSet).orElse(false);
         }
     }
@@ -78,7 +88,7 @@ public class UserSignServiceImpl implements SignService {
      * @param uid  用户ID
      * @param date 日期
      * @return 当前的签到状态
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
     public boolean checkSign(String uid, LocalDate date) throws UnsupportedEncodingException {
@@ -99,7 +109,7 @@ public class UserSignServiceImpl implements SignService {
      * @param uid  用户ID
      * @param date 日期
      * @return 当前的签到次数
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
     public long getSignCount(String uid, LocalDate date) throws UnsupportedEncodingException {
@@ -113,13 +123,30 @@ public class UserSignServiceImpl implements SignService {
         }
     }
 
+    @Override
+    public long getAllSignCount(LocalDate date) throws UnsupportedEncodingException {
+
+        Objects.requireNonNull(date, "date 不能为 null");
+        byte[] value;
+        try (RedisConnection connection = getConnection())
+        {
+            value = connection.get(buildAllSignKey(date));
+        }
+        if (value != null)
+        {
+            return Long.parseLong(new String(value, charset));
+        }
+
+        return 0L;
+    }
+
     /**
      * 获取当月连续签到次数
      *
      * @param uid  用户ID
      * @param date 日期
      * @return 当月连续签到次数
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
     public long getContinuousSignCount(String uid, LocalDate date) throws UnsupportedEncodingException {
@@ -127,7 +154,7 @@ public class UserSignServiceImpl implements SignService {
         Objects.requireNonNull(date, "date 不能为 null");
 
         int signCount = 0;
-        List<Long> list = null;
+        List<Long> list;
         try (RedisConnection connection = getConnection())
         {
             final BitFieldSubCommands subCommands =
@@ -169,11 +196,13 @@ public class UserSignServiceImpl implements SignService {
         Objects.requireNonNull(uid, "uib 不能为 null");
         Objects.requireNonNull(date, "date 不能为 null");
 
+        //noinspection UnusedAssignment
         Long pos = -1L;
         try (RedisConnection connection = getConnection())
         {
             pos = connection.bitPos(buildSignKey(uid, date), true);
         }
+        //noinspection ConstantConditions
         return (pos != null && pos < 0) ? null : date.withDayOfMonth((int) (pos + 1));
     }
 
@@ -183,7 +212,7 @@ public class UserSignServiceImpl implements SignService {
      * @param uid  用户ID
      * @param date 日期
      * @return Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
     public Map<String, Boolean> getSignInfo(String uid, LocalDate date) throws UnsupportedEncodingException {
@@ -211,7 +240,7 @@ public class UserSignServiceImpl implements SignService {
      * @param uid   用户ID
      * @param date  日期
      * @return      Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
     public Map<String, Boolean> getSignInfoForTheLastFewDays(String uid, LocalDate date) throws UnsupportedEncodingException {
@@ -272,8 +301,9 @@ public class UserSignServiceImpl implements SignService {
      * @param dayOfMonth    当月的第几天
      * @param lastFewDays   获取最近几天的签到情况, 默认为 7 天
      * @param signMap       Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
+    @SuppressWarnings("UnnecessaryLocalVariable")
     private void fillingSignDetail2SignMapOfCrossMonth(String uid, LocalDate date, int dayOfMonth,
                                                        int lastFewDays, Map<String, Boolean> signMap) throws UnsupportedEncodingException {
 
@@ -330,7 +360,7 @@ public class UserSignServiceImpl implements SignService {
      * @param lowDay            低位数(DayOfMonth)
      * @param beforeOfHighDay   高位数(DayOfMonth)
      * @param signMap           Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     private void fillingSignDetail2SignMap(int type, int offset, String uid, LocalDate date,
                                            int lowDay, int beforeOfHighDay, Map<String, Boolean> signMap) throws UnsupportedEncodingException {

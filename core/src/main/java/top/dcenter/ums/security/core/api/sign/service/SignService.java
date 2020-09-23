@@ -28,7 +28,7 @@ public interface SignService {
      * @param uid  用户ID
      * @param date 日期
      * @return 之前的签到状态
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     boolean doSign(String uid, LocalDate date) throws UnsupportedEncodingException;
 
@@ -38,7 +38,7 @@ public interface SignService {
      * @param uid  用户ID
      * @param date 日期
      * @return 当前的签到状态
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     boolean checkSign(String uid, LocalDate date) throws UnsupportedEncodingException;
 
@@ -48,9 +48,18 @@ public interface SignService {
      * @param uid  用户ID
      * @param date 日期
      * @return 当前的签到次数
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     long getSignCount(String uid, LocalDate date) throws UnsupportedEncodingException;
+
+    /**
+     * 获取所有用户的当月签到总次数
+     *
+     * @param date 日期
+     * @return 当前的签到次数
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
+     */
+    long getAllSignCount(LocalDate date) throws UnsupportedEncodingException;
 
     /**
      * 获取当月连续签到次数
@@ -58,7 +67,7 @@ public interface SignService {
      * @param uid  用户ID
      * @param date 日期
      * @return 当月连续签到次数
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     long getContinuousSignCount(String uid, LocalDate date) throws UnsupportedEncodingException;
 
@@ -68,7 +77,7 @@ public interface SignService {
      * @param uid  用户ID
      * @param date 日期
      * @return 首次签到日期, 如果没有任何签到日期，返回 null
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     LocalDate getFirstSignDate(String uid, LocalDate date) throws UnsupportedEncodingException;
 
@@ -78,7 +87,7 @@ public interface SignService {
      * @param uid  用户ID
      * @param date 日期
      * @return Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     Map<String, Boolean> getSignInfo(String uid, LocalDate date) throws UnsupportedEncodingException;
 
@@ -88,7 +97,7 @@ public interface SignService {
      * @param uid  用户ID
      * @param date 日期
      * @return Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     Map<String, Boolean> getSignInfoForTheLastFewDays(String uid, LocalDate date) throws UnsupportedEncodingException;
 

@@ -174,7 +174,7 @@ public class DemoSignController {
      * 2020-09-05: √
      * @param forwardDays   forwardDays
      * @return
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @SuppressWarnings("JavaDoc")
     @RequestMapping("/testSignOfLastSevenDays/{forwardDays}")
