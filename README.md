@@ -76,7 +76,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
             - 类上添加: @EnableUriAuthorize(filterOrInterceptor = false),
               filterOrInterceptor=false 时为拦截器(注解方式)模式; filterOrInterceptor=true 时为过滤器模式.
             - filterOrInterceptor=true 时, 启用过滤器模式, 无需在方法上配置: 
-              注意: 过滤器模式必须 uri 与 权限是一对一关系, 也就是说不适合 restful 风格的 API.
+              注意: 过滤器模式必须 uri(此 uri 不包含 servletContextPath) 与 权限是一对一关系, 也就是说不适合 restful 风格的 API.
             ```java
             
             // 例如: 给角色 ROLE_USER 的 uri=/test/permission/** 添加编辑(edit)权限,
@@ -90,7 +90,8 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
                 private UserRoleService userRoleService;
                 @Autowired
                 private RoleService roleService;
-          
+                
+                // 注意: 此 uri 不包含 servletContextPath .
                 public boolean addUriPermission(String role, String uri, List<PermissionSuffixType> permissionSuffixTypeList) {
           
                     // 1. 创建 UriResources          
@@ -98,7 +99,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
                     // ...
                     uriResources.setUrl(uri);
           
-                    // 添加 uri 的编辑(edit)权限.
+                    // 添加 uri 的编辑(edit)权限. 注意: 此 uri 不包含 servletContextPath .
                     // 这里用了 PermissionSuffixType 枚举来规范添加 uri 权限后缀, 详细信息查看 PermissionSuffixType 枚举. 
                     // 注意: 过滤器模式必须 uri 与 权限是一对一关系
                     uriResources.setPermission(String.format("%s%s",
@@ -379,10 +380,11 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
          方法去设置真实的回调地址: realAuthCallbackPath(格式为：`path=myAuthCallbackPath`).
        - 自定义路由算法(Custom routing algorithm): 
          1. 统一回调地址与真实回调地址的转换逻辑：
-             - 构建统一的回调地址: 实现`BaseOAuth2ConnectionFactory#buildReturnToUrl(..)`方法
+             - 构建统一的回调地址: 默认实现 `SocialOAuth2AuthenticationService#buildReturnToUrl(..)`,
+               自定义请实现`BaseOAuth2ConnectionFactory#buildReturnToUrl(..)`方法
              - 跳转到真实的回调地址: `SocialController#authCallbackRouter(..)`
          2. 对 `state` 的加解密逻辑：
-            - 构建真实回调地址到`state`并进行加密: `BaseOAuth2ConnectionFactory#generateState(..)`
+            - 把真实回调地址加入到`state`并进行加密: `BaseOAuth2ConnectionFactory#generateState(..)`
             - 解密`state`并返回真实的回调地址: `RedirectUrlHelperService#decodeRedirectUrl(..)`
 
 
@@ -772,7 +774,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         sign-in-url: /signIn.html
         # 第三方登录用户授权失败跳转页面， 默认为 /signIn.html
         failure-url: /signIn.html
-        # redirectUrl 直接由 domain/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+        # redirectUrl 直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
         # 第三方登录回调的域名
         domain: http://www.dcenter.top
         ####### 第三方登录绑定相关
@@ -829,7 +831,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         # 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth/callback
         # 如果更改此 url，更改后的必须要实现 SocialController#authCallbackRouter(HttpServletRequest) 的功能
         callback-url: /auth/callback
-        # redirectUrl 直接由 domain/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+        # redirectUrl 直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
         # 第三方登录回调的域名
         domain: http://www.dcenter.top
         # 第三方登录用户注册时: 用户唯一 ID 字段名称， 默认为 userId
@@ -943,6 +945,8 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         last-few-days: 7
         # 用于 redis 签到 key 前缀，默认为： u:sign:
         sign-key-prefix: 'u:sign:'
+        # 用于 redis 总签到 key 前缀，默认为： all:sign:
+        all-sign-key-prefix: 'all:sign:'
         # redis key(String) 转 byte[] 转换时所用的 charset
         charset: UTF-8
     ```
@@ -965,6 +969,36 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         
         // ...
     }
+    ```
+    
+### 12. 统一回调地址路由(callback routing)
+- 在 social 模块
+  - 详细配置(Detailed configuration):
+    ```yaml
+    social:
+      # =================== 统一回调路由地址 =======================
+      # 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth/callback
+      # 如果更改此 url，更改后的必须要实现 SocialController#authCallbackRouter(HttpServletRequest) 的功能
+      callback-url: /auth/callback
+      # redirectUrl 直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+      # 第三方登录回调的域名
+      domain: http://www.dcenter.top
+  
+      # =================== 第三方服务商的信息 =======================
+      # 从第三方服务商获取的信息
+      # 用户设置 appId 时，{providerId}第三方登录自动开启，不同 providerId（如qq） 中的 appId 只有在设置值时才开启，默认都关闭
+      qq:
+        app-id:
+        app-secret:
+      gitee:
+        app-id:
+        app-secret:
+      weixin:
+        app-id:
+        app-secret:
+      weibo:
+        app-id:
+        app-secret:
     ```
     
 

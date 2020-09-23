@@ -10,6 +10,7 @@ import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
 import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeService;
 import top.dcenter.ums.security.core.util.ConvertUtil;
+import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -60,7 +61,9 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         // Map(uri, Set(authority))
         Map<String, Set<String>> uriAuthorityMap = getUriAuthoritiesOfUserRole(authentication).orElse(new HashMap<>(0));
 
-        final String requestUri = request.getRequestURI();
+        // 去除 ServletContextPath 的 uri
+        final String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
+
         Set<String> uriSet = uriAuthorityMap.keySet();
 
         // uri 是否匹配
@@ -154,6 +157,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     public void afterPropertiesSet() {
         // 角色 uri 权限 Map(role, map(uri, uriResourcesDTO))
         updateRolesAuthorities();
+
     }
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION")

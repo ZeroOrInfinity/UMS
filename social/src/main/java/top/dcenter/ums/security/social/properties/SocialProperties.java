@@ -5,11 +5,13 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import top.dcenter.ums.security.social.api.repository.UsersConnectionRepositoryFactory;
+import top.dcenter.ums.security.social.config.SocialAutoConfiguration;
 import top.dcenter.ums.security.social.controller.SocialController;
 
 import javax.servlet.http.HttpServletRequest;
 
 import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_SIGN_UP_PROCESSING_URL_SOCIAL;
+import static top.dcenter.ums.security.core.consts.SecurityConstants.URL_SEPARATOR;
 
 /**
  * social 第三方登录属性
@@ -118,7 +120,7 @@ public class SocialProperties {
     }
     /**
      * 第三方登录回调的域名, 例如：https://localhost 默认为 "http://127.0.0.1"，
-     * redirectUrl 直接由 domain/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+     * redirectUrl 直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
      */
     private String domain = "http://127.0.0.1";
 
@@ -489,9 +491,10 @@ public class SocialProperties {
          */
         private String providerId = "qq";
         /**
-         * 回调地址(格式必须是：domain/callbackUrl/providerId)，默认
+         * 回调地址(格式必须是：domain/servletContextPath/callbackUrl/providerId)，servletContextPath 在
+         * {@link SocialAutoConfiguration#init()} 中设置
          */
-        private String redirectUrl = domain + callbackUrl + "/" + providerId;
+        private String redirectUrl = domain + callbackUrl + URL_SEPARATOR + providerId;
     }
 
     @Getter
@@ -502,9 +505,10 @@ public class SocialProperties {
          */
         private String providerId = "gitee";
         /**
-         * 回调地址(格式必须是：domain/callbackUrl/providerId)，默认
+         * 回调地址(格式必须是：domain/servletContextPath/callbackUrl/providerId)，servletContextPath 在
+         * {@link SocialAutoConfiguration#init()} 中设置
          */
-        private String redirectUrl = domain + callbackUrl + "/" + providerId;
+        private String redirectUrl = domain + callbackUrl + URL_SEPARATOR + providerId;
 
     }
 
@@ -520,9 +524,10 @@ public class SocialProperties {
          */
         private String providerId = "weixin";
         /**
-         * 回调地址(格式必须是：domain/callbackUrl/providerId)，默认
+         * 回调地址(格式必须是：domain/servletContextPath/callbackUrl/providerId)，servletContextPath 在
+         * {@link SocialAutoConfiguration#init()} 中设置
          */
-        private String redirectUrl = domain + callbackUrl + "/" + providerId;
+        private String redirectUrl = domain + callbackUrl + URL_SEPARATOR + providerId;
 
     }
 
@@ -538,9 +543,10 @@ public class SocialProperties {
          */
         private String providerId = "weibo";
         /**
-         * 回调地址(格式必须是：domain/callbackUrl/providerId)，默认
+         * 回调地址(格式必须是：domain/servletContextPath/callbackUrl/providerId)，servletContextPath 在
+         * {@link SocialAutoConfiguration#init()} 中设置
          */
-        private String redirectUrl = domain + callbackUrl + "/" + providerId;
+        private String redirectUrl = domain + callbackUrl + URL_SEPARATOR + providerId;
 
     }
 

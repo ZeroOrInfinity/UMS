@@ -6,6 +6,7 @@ import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProce
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
+import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
@@ -50,7 +51,7 @@ public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
                                     e.getMessage(),
                                     req.getRemoteAddr(),
                                     request.getSessionId(),
-                                    req.getRequestURI(),
+                                    MvcUtil.getServletContextPath() + req.getRequestURI(),
                                     validateCode.toString()), e);
         }
         return false;

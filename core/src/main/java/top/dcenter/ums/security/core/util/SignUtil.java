@@ -12,7 +12,7 @@ public class SignUtil {
 
     /**
      * 格式化日期到 yyyyMM 模式
-     * @param date
+     * @param date  date
      * @return  返回 yyyyMM 模式的日期字符串
      */
     public static String formatDate(LocalDate date) {
@@ -21,7 +21,7 @@ public class SignUtil {
 
     /**
      * 根据指定的 pattern 格式化日期
-     * @param date
+     * @param date  date
      * @param pattern   日期格式
      * @return  返回指定的 pattern 模式的日期字符串
      */
@@ -32,10 +32,11 @@ public class SignUtil {
     /**
      * 构建 redis 上用户签到 key 字符串
      * @param uid   用户 ID
-     * @param date
-     * @return  返回签到 可以 字符串， 格式如：u:sign:uid:yyyyMM:
+     * @param date  date
+     * @return  返回签到 key 字符串， 格式如：uid:yyyyMM
      */
     public static String buildSignKey(String uid, LocalDate date) {
         return String.format("%s:%s", uid, formatDate(date));
     }
+
 }

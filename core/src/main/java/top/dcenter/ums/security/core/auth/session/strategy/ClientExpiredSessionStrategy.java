@@ -10,6 +10,7 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.ExpiredSessionDetectedException;
 import top.dcenter.ums.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,12 +39,14 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
         this.redirectStrategy = new DefaultRedirectStrategy();
     }
 
+    @SuppressWarnings("RedundantThrows")
     @Override
     public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException {
 
         if (log.isDebugEnabled())
         {
-            log.debug("concurrent login session expired, Redirecting to {}", clientProperties.getSession().getInvalidSessionUrl());
+            log.debug("concurrent login session expired, Redirecting to {}",
+                      MvcUtil.getServletContextPath() + clientProperties.getSession().getInvalidSessionUrl());
         }
 
         HttpServletRequest request = event.getRequest();
@@ -62,7 +65,7 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
         catch (Exception e)
         {
             log.error(String.format("SESSION过期处理失败: error=%s, ip=%s, sid=%s, uri=%s",
-                                    e.getMessage(), request.getRemoteAddr(), session.getId(), request.getRequestURI()), e);
+                                    e.getMessage(), request.getRemoteAddr(), session.getId(), MvcUtil.getServletContextPath() + request.getRequestURI()), e);
             throw new ExpiredSessionDetectedException(ErrorCodeEnum.SERVER_ERROR, session.getId());
         }
     }

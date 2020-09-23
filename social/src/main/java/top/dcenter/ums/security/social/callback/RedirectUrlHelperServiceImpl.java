@@ -28,8 +28,8 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.UUID_INTERC
 public class RedirectUrlHelperServiceImpl implements RedirectUrlHelperService {
     /**
      * 解析 state，返回真实的回调地址
-     * @param state redirectUrl 中的 state 参数的值
-     * @return 返回真实回调地址, 如果传入 state 为格式不正确，返回 null
+     * @param state state 参数值
+     * @return 返回真实回调地址 redirectUrl, 如果传入 state 为格式不正确，返回 null
      */
     @Override
     public String decodeRedirectUrl(@NonNull String state) {

@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
+import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -49,9 +50,9 @@ public class UriAuthorizeFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
 
-        String requestUri = request.getRequestURI();
+        String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
 
         // 是否属于要认证的 uri
         if (uriAuthorizeService.isUriContainsInUriSet(uriOfPermissionSet, requestUri))
@@ -79,7 +80,7 @@ public class UriAuthorizeFilter extends OncePerRequestFilter {
 
                 // 有访问权限
                 log.info("URI权限控制-放行: sid={}, user={}, ip={}, uri={}, method={}, time={}, referer={}, agent={}",
-                         sid, principal, ip, uri, method, now, referer, userAgent);
+                         sid, principal, ip, MvcUtil.getServletContextPath() + uri, method, now, referer, userAgent);
 
                 filterChain.doFilter(request, response);
                 return;
@@ -88,7 +89,7 @@ public class UriAuthorizeFilter extends OncePerRequestFilter {
 
             // 没有访问权限
             log.warn("URI权限控制-禁止: sid={}, user={}, ip={}, uri={}, method={}, time={}, referer={}, agent={}",
-                     sid, principal, ip, uri, method, now, referer, userAgent);
+                     sid, principal, ip, MvcUtil.getServletContextPath() + uri, method, now, referer, userAgent);
             uriAuthorizeService.handlerError(HttpStatus.FORBIDDEN.value(), response);
             return;
         }

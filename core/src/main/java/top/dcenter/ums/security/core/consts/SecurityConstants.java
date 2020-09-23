@@ -13,6 +13,15 @@ public class SecurityConstants {
     // =================== 认证授权相关 ===================
 
     /**
+     * {@link top.dcenter.ums.security.core.util.MvcUtil} 的 servletContextPath 字段名称
+     */
+    public static final String SERVLET_CONTEXT_PATH_PARAM_NAME = "servletContextPath";
+    /**
+     * {@link top.dcenter.ums.security.core.util.MvcUtil} 的 {@link org.springframework.web.util.UrlPathHelper} 字段名称
+     */
+    public static final String MVC_URL_PATH_HELPER_PARAM_NAME = "urlPathHelper";
+
+    /**
      * 当请求需要身份认证时，默认跳转的url
      */
     public static final String DEFAULT_UN_AUTHENTICATION_URL = "/authentication/require";
@@ -76,7 +85,7 @@ public class SecurityConstants {
      */
     public static final String SESSION_KEY_IMAGE = "SESSION_KEY_IMAGE_CODE:";
     /**
-     * 提交图片验证码请求时，请求中带点图片验证码变量名，默认 imageCode
+     * 提交图片验证码请求时，请求中带的图片验证码变量名，默认 imageCode
      */
     public static final String DEFAULT_REQUEST_PARAM_IMAGE_CODE_NAME = "imageCode";
 

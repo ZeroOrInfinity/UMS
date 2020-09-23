@@ -1,5 +1,6 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  top.dcenter.ums.security.social.config.PropertiesAutoConfiguration,\
   top.dcenter.ums.security.social.config.SocialAutoConfiguration,\
   top.dcenter.ums.security.social.config.RedisCacheAutoConfig,\
   top.dcenter.ums.security.social.config.SocialAuthenticationSignUpAutoConfig,\

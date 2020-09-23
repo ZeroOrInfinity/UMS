@@ -28,7 +28,7 @@ public class SocialOAuth2AuthenticationService<S> extends OAuth2AuthenticationSe
 
     /**
      * 使 social 支持通过统一的回调地址路由到多个回调地址。<br><br>
-     * 如要自定义此逻辑，请实现 {@link BaseOAuth2ConnectionFactory#buildReturnToUrl(HttpServletRequest, Set)} 即可。
+     * 如要自定义此逻辑，实现 {@link BaseOAuth2ConnectionFactory#buildReturnToUrl(HttpServletRequest, Set)} 即可。
      * @param request   request
      * @return  返回统一的回调地址
      */

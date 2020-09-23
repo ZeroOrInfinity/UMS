@@ -144,6 +144,8 @@ security:
     last-few-days: 10
     # 用于 redis 签到 key 前缀，默认为： u:sign:
     sign-key-prefix: 'u:sign:'
+    # 用于 redis 总签到 key 前缀，默认为： all:sign:
+    all-sign-key-prefix: 'all:sign:'
     # redis key(String) 转 byte[] 转换时所用的 charset
     charset: UTF-8
 
@@ -211,12 +213,6 @@ security:
     sign-in-url: /signIn.html
     # 第三方登录用户授权失败跳转页面， 默认为 /signIn.html
     failure-url: /signIn.html
-    # 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth/callback
-    # 如果更改此 url，更改后的必须要实现 SocialController#authCallbackRouter(HttpServletRequest) 的功能
-    callback-url: /auth/callback
-    # redirectUrl 直接由 domain/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
-    # 第三方登录回调的域名
-    domain: http://www.dcenter.top
     # 第三方登录用户注册时: 用户唯一 ID 字段名称， 默认为 userId
     user-id-param-name: userId
     # 第三方登录用户注册时 密码 字段名称， 默认为 password
@@ -258,6 +254,30 @@ security:
     # 用户需要对第三方登录的用户表与 curd 的 sql 语句结构进行更改时（curd 语句通过配置文件修改暂时未实现），
     # 请实现 UsersConnectionRepositoryFactory，可以参考 OAuth2UsersConnectionRepositoryFactory、OAuthJdbcUsersConnectionRepository、JdbcConnectionRepository
 
+    # =================== 统一回调路由地址 =======================
+    # 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth/callback
+    # 如果更改此 url，更改后的必须要实现 SocialController#authCallbackRouter(HttpServletRequest) 的功能
+    callback-url: /auth/callback
+    # redirectUrl 直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+    # 第三方登录回调的域名
+    domain: http://www.dcenter.top
+
+    # =================== 第三方服务商的信息 =======================
+    # 从第三方服务商获取的信息
+    # 用户设置 appId 时，{providerId}第三方登录自动开启，不同 providerId（如qq） 中的 appId 只有在设置值时才开启，默认都关闭
+    qq:
+      app-id:
+      app-secret:
+    gitee:
+      app-id:
+      app-secret:
+    weixin:
+      app-id:
+      app-secret:
+    weibo:
+      app-id:
+      app-secret:
+
 
 ---
 spring:
@@ -288,10 +308,14 @@ spring:
         min-idle: 1
   mvc:
     throw-exception-if-no-handler-found: true
+  thymeleaf:
+    cache: false
 debug: true
 
 server:
   port: 9090
+  servlet:
+    context-path: /demo
 
 security:
   # 第三方登录配置: social

@@ -77,6 +77,16 @@ public class ConvertUtil {
     }
 
     /**
+     * List&#60;uri&#62; 转换为 Map&#60;uri, value&#62; 类型，map 的 v 的值统一为 参数 value, k=servletContextPath+uri
+     * @param list  {@link List}
+     * @param value map 的 value
+     * @param map 用于存储结果的 Map&#60;uri, value&#62;
+     */
+    public static <T> void list2MapWithServletContextPath(List<String> list, T value, Map<String, T> map){
+        list.forEach(s -> map.put(MvcUtil.getServletContextPath() + s, value));
+    }
+
+    /**
      * 字符转换为 Map 类型，比如：name=tom,age=18
      * 当 kvStrings 为空时，返回空的 map
      * @param kvStrings   字符串
@@ -98,6 +108,7 @@ public class ConvertUtil {
         return map;
     }
 
+    @SuppressWarnings("unchecked")
     private static void string2JsonMap(String kvSeparator, String[] splits, Map<String, Object> map) {
         for (String split : splits)
         {
@@ -173,10 +184,10 @@ public class ConvertUtil {
 
     /**
      * 修改 toString 输出符合Json 格式.
-     * @param &#60;K&#62;
-     * @param &#60;V&#62;
      */
     private static class JsonMap<K, V> extends HashMap<K, V> {
+
+        private static final long serialVersionUID = 5603812891003320178L;
 
         public JsonMap(int initialCapacity, float loadFactor) {
             super(initialCapacity, loadFactor);
@@ -237,6 +248,8 @@ public class ConvertUtil {
     }
 
     private static class JsonList<E> extends ArrayList<E> {
+        private static final long serialVersionUID = 752591930857178273L;
+
         public JsonList(int initialCapacity) {
             super(initialCapacity);
         }

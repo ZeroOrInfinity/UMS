@@ -15,6 +15,7 @@ import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticatio
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.ConvertUtil;
+import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -41,6 +42,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
 
     private final AntPathMatcher pathMatcher;
+
     /**
      * 验证码处理器 Holder
      */
@@ -76,6 +78,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
         ConvertUtil.list2Map(validateCodeProperties.getCustomize().getAuthUrls(), ValidateCodeType.CUSTOMIZE, authUrlMap);
         // 添加短信验证码 urls
         ConvertUtil.list2Map(validateCodeProperties.getSms().getAuthUrls(), ValidateCodeType.SMS, authUrlMap);
+
     }
 
     @Override
@@ -115,7 +118,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
                      e.getMessage(),
                      ip,
                      sid,
-                     requestUri);
+                     MvcUtil.getServletContextPath() + requestUri);
 
             AbstractResponseJsonAuthenticationException ex;
             if (e instanceof AbstractResponseJsonAuthenticationException)
@@ -143,18 +146,19 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
         ValidateCodeType result;
         String method = request.getMethod();
         if (!StringUtils.equalsIgnoreCase(method, GET_METHOD)) {
-            String requestUri = request.getRequestURI();
+            // 去除 ServletContextPath 的 uri
+            String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
             result = authUrlMap.getOrDefault(requestUri, null);
             if (result != null)
             {
                 return result;
             }
 
-            for (Map.Entry<String, ValidateCodeType> next : authUrlMap.entrySet())
+            for (Map.Entry<String, ValidateCodeType> entry : authUrlMap.entrySet())
             {
-                if (pathMatcher.match(next.getKey(), requestUri))
+                if (pathMatcher.match(entry.getKey(), requestUri))
                 {
-                    return next.getValue();
+                    return entry.getValue();
                 }
             }
         }

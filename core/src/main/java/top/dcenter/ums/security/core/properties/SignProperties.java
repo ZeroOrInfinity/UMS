@@ -20,6 +20,11 @@ public class SignProperties {
     private String signKeyPrefix = "u:sign:";
 
     /**
+     * 用于 redis 总签到 key 前缀，默认为： all:sign:
+     */
+    private String allSignKeyPrefix = "all:sign:";
+
+    /**
      * redis key(String) 转 byte[] 转换时所用的 charset
      */
     private String charset = "UTF-8";

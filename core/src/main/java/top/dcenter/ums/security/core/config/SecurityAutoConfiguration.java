@@ -7,11 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.context.support.GenericWebApplicationContext;
+import org.springframework.web.util.UrlPathHelper;
 import top.dcenter.ums.security.core.api.advice.SecurityControllerExceptionHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
@@ -25,6 +28,12 @@ import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticatio
 import top.dcenter.ums.security.core.properties.ClientProperties;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
+import java.lang.reflect.Field;
+import java.util.Objects;
+
+import static top.dcenter.ums.security.core.consts.SecurityConstants.MVC_URL_PATH_HELPER_PARAM_NAME;
+import static top.dcenter.ums.security.core.consts.SecurityConstants.SERVLET_CONTEXT_PATH_PARAM_NAME;
+
 /**
  * security 配置
  * @author zhailiang
@@ -34,6 +43,11 @@ import top.dcenter.ums.security.core.util.MvcUtil;
 @Configuration
 @AutoConfigureAfter({PropertiesAutoConfiguration.class})
 public class SecurityAutoConfiguration implements InitializingBean {
+
+    /**
+     * {@link UrlPathHelper} 的 beanName
+     */
+    private static final String URL_PATH_HELPER_BEAN_NAME = "mvcUrlPathHelper";
 
     private final ClientProperties clientProperties;
     private final ObjectMapper objectMapper;
@@ -104,6 +118,32 @@ public class SecurityAutoConfiguration implements InitializingBean {
             // 在 mvc 中做 Uri 映射等动作
             MvcUtil.registerController("clientSecurityController", applicationContext, BaseSecurityController.class);
         }
+
+        // 给 MvcUtil.SERVLET_CONTEXT_PATH 设置 servletContextPath
+        Class<MvcUtil> mvcUtilClass = MvcUtil.class;
+        Class.forName(mvcUtilClass.getName());
+        Field[] declaredFields = mvcUtilClass.getDeclaredFields();
+        for (Field field : declaredFields)
+        {
+            field.setAccessible(true);
+            if (Objects.equals(field.getName(), SERVLET_CONTEXT_PATH_PARAM_NAME))
+            {
+                String contextPath;
+                try {
+                    contextPath = Objects.requireNonNull(((AnnotationConfigServletWebServerApplicationContext) this.applicationContext).getServletContext()).getContextPath();
+                }
+                catch (Exception e) {
+                    contextPath = Objects.requireNonNull(((GenericWebApplicationContext) this.applicationContext).getServletContext()).getContextPath();
+                }
+                field.set(null, contextPath);
+            }
+            else if (Objects.equals(field.getName(), MVC_URL_PATH_HELPER_PARAM_NAME))
+            {
+                UrlPathHelper mvcUrlPathHelper = applicationContext.getBean(URL_PATH_HELPER_BEAN_NAME, UrlPathHelper.class);
+                field.set(null, mvcUrlPathHelper);
+            }
+        }
+
 
     }
 }

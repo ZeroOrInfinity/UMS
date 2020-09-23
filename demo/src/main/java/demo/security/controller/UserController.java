@@ -30,6 +30,11 @@ public class UserController {
         return "login";
     }
 
+    @GetMapping("/login2")
+    public String login2() {
+        return "login2";
+    }
+
     @GetMapping("/banding")
     public String banding() {
         return "banding";

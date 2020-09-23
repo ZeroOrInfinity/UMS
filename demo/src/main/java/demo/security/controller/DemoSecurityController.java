@@ -14,6 +14,7 @@ import top.dcenter.ums.security.core.api.controller.BaseSecurityController;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
 import top.dcenter.ums.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -80,6 +81,10 @@ public class DemoSecurityController implements BaseSecurityController {
                 if (StringUtils.isNotBlank(targetUrl))
                 {
                     targetUrl = targetUrl.replaceFirst(URL_REGEX, URI_$1);
+
+                    String contextPath = request.getServletContext().getContextPath();
+                    targetUrl = StringUtils.substringAfter(targetUrl, contextPath);
+
                     Iterator<Map.Entry<String, String>> iterator = authRedirectUrls.entrySet().iterator();
                     Map.Entry<String, String> entry;
                     while (iterator.hasNext())
@@ -99,10 +104,9 @@ public class DemoSecurityController implements BaseSecurityController {
         {
             String requestUri = request.getRequestURI();
             String ip = request.getRemoteAddr();
-            //noinspection MalformedFormatString
             log.error(String.format("IllegalAccessUrlException: ip=%s, uri=%s, sid=%s, error=%s",
                                     ip,
-                                    requestUri,
+                                    MvcUtil.getServletContextPath() + requestUri,
                                     request.getSession(true).getId(),
                                     e.getMessage()), e);
             throw new IllegalAccessUrlException(ErrorCodeEnum.SERVER_ERROR, requestUri, ip);

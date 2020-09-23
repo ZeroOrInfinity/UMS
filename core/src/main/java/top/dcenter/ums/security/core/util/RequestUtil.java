@@ -23,6 +23,7 @@ public class RequestUtil {
      */
     public static final String VALIDATE_JSON_PREFIX  = AjaxOrFormRequestFilter.VALIDATE_JSON_PREFIX;
 
+
     /**
      * 提取 request 中的 json 数据. 转换为 T 对象
      * @param request   json类型的输入流, not Null

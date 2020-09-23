@@ -7,8 +7,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
@@ -25,6 +26,7 @@ import org.springframework.social.connect.web.ConnectInterceptor;
 import org.springframework.social.connect.web.DisconnectInterceptor;
 import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 import top.dcenter.ums.security.core.properties.ClientProperties;
 import top.dcenter.ums.security.core.util.MvcUtil;
 import top.dcenter.ums.security.social.api.banding.IBandingController;
@@ -43,13 +45,16 @@ import top.dcenter.ums.security.social.repository.jdbc.factory.OAuthJdbcUsersCon
 import top.dcenter.ums.security.social.signup.DefaultConnectionSignUp;
 import top.dcenter.ums.security.social.view.ConnectionStatusView;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Objects;
 
 import static top.dcenter.ums.security.core.consts.SecurityConstants.QUERY_DATABASE_NAME_SQL;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX;
+import static top.dcenter.ums.security.core.consts.SecurityConstants.URL_SEPARATOR;
 
 /**
  * social 第三方登录通用配置
@@ -60,7 +65,7 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.QUERY_TABLE
  */
 @Configuration
 @EnableSocial
-@EnableConfigurationProperties({SocialProperties.class})
+@AutoConfigureAfter({PropertiesAutoConfiguration.class})
 @Slf4j
 public class SocialAutoConfiguration extends SocialConfigurerAdapter implements InitializingBean {
     private final DataSource dataSource;
@@ -84,6 +89,36 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
         this.userDetailService = userDetailService;
         this.connectInterceptors = connectInterceptorsProvider.getIfAvailable();
         this.disconnectInterceptors = disconnectInterceptorsProvider.getIfAvailable();
+
+    }
+
+    @PostConstruct
+    public void init() {
+        // 获取 servletContextPath
+        String contextPath;
+        try {
+            contextPath = Objects.requireNonNull(((AnnotationConfigServletWebServerApplicationContext) this.applicationContext).getServletContext()).getContextPath();
+        }
+        catch (Exception e) {
+            contextPath = Objects.requireNonNull(((GenericWebApplicationContext) this.applicationContext).getServletContext()).getContextPath();
+        }
+
+        String callbackUrl = socialProperties.getCallbackUrl();
+        String domain = socialProperties.getDomain();
+
+        String partRedirectUrl = domain + contextPath + callbackUrl + URL_SEPARATOR;
+
+        SocialProperties.QqProperties qq = socialProperties.getQq();
+        SocialProperties.WeiboProperties weibo = socialProperties.getWeibo();
+        SocialProperties.WeixinProperties weixin = socialProperties.getWeixin();
+        SocialProperties.GiteeProperties gitee = socialProperties.getGitee();
+
+        // OAuth2 回调地址中添加 servletContextPath
+        qq.setRedirectUrl(partRedirectUrl + qq.getProviderId());
+        weibo.setRedirectUrl(partRedirectUrl + weibo.getProviderId());
+        weixin.setRedirectUrl(partRedirectUrl + weixin.getProviderId());
+        gitee.setRedirectUrl(partRedirectUrl + gitee.getProviderId());
+
     }
 
     @Override

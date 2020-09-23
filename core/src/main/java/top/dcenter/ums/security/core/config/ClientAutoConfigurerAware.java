@@ -22,7 +22,7 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
     /**
      *  网站图标
      */
-    public static final String FAVICON = "/favicon.ico";
+    public static final String FAVICON = "/**/favicon.ico";
     /**
      *  js
      */
@@ -56,6 +56,7 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
     public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
 
         final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
+
 
         permitAllMap.put(FAVICON, null);
         permitAllMap.put(JS, null);

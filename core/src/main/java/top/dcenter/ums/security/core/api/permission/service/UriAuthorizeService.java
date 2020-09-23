@@ -67,7 +67,7 @@ public interface UriAuthorizeService {
     AntPathMatcher getAntPathMatcher();
 
     /**
-     * 遍历 uriSet, 测试是否有匹配 requestUri 的 uri.
+     * 遍历 uriSet, 测试是否有匹配 requestUri(去除 ServletContextPath) 的 uri.
      * @param uriSet        uriSet(可以是Ant通配符的 uri)
      * @param requestUri    requestUri
      * @return Boolean

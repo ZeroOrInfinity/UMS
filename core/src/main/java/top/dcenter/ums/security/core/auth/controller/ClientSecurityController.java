@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
+import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 
 /**
  * 客户端 url 认证与授权的路由控制.<br><br>
@@ -49,6 +50,9 @@ public class ClientSecurityController implements BaseSecurityController {
     private final RedirectStrategy redirectStrategy;
     private final ClientProperties clientProperties;
     private final AntPathMatcher pathMatcher;
+    /**
+     * Map&#60;requestUri, loginUri&#62;
+     */
     private final Map<String, String> authRedirectUrls;
 
     public ClientSecurityController(ClientProperties clientProperties) {
@@ -77,11 +81,15 @@ public class ClientSecurityController implements BaseSecurityController {
                 if (StringUtils.isNotBlank(targetUrl))
                 {
                     targetUrl = targetUrl.replaceFirst(URL_REGEX, URI_$1);
-                    Iterator<Map.Entry<String, String>> iterator = authRedirectUrls.entrySet().iterator();
+                    String contextPath = request.getServletContext().getContextPath();
+                    targetUrl = StringUtils.substringAfter(targetUrl, contextPath);
+
+                    Iterator<Map.Entry<String, String>> it = authRedirectUrls.entrySet().iterator();
+
                     Map.Entry<String, String> entry;
-                    while (iterator.hasNext())
+                    while (it.hasNext())
                     {
-                        entry = iterator.next();
+                        entry = it.next();
                         if (pathMatcher.match(entry.getKey(), targetUrl))
                         {
                             redirectStrategy.sendRedirect(request, response, entry.getValue());
@@ -97,10 +105,10 @@ public class ClientSecurityController implements BaseSecurityController {
             String requestUri = request.getRequestURI();
             String ip = request.getRemoteAddr();
             String msg = String.format("IllegalAccessUrlException: ip=%s, uri=%s, sid=%s, error=%s",
-                                          ip,
-                                          requestUri,
-                                          request.getSession(true).getId(),
-                                          e.getMessage());
+                                      ip,
+                                      getServletContextPath() + requestUri,
+                                      request.getSession(true).getId(),
+                                      e.getMessage());
             log.error(msg, e);
             throw new IllegalAccessUrlException(ErrorCodeEnum.SERVER_ERROR, requestUri, ip);
         }

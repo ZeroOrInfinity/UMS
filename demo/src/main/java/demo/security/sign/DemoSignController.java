@@ -139,6 +139,9 @@ public class DemoSignController {
             }
         }
 
+        sb.append("本月所有用户总签数：").append("<br>");
+        long allSignCount = signService.getAllSignCount(today);
+        sb.append(allSignCount).append("<br>");
 
         return sb.toString();
     }
@@ -201,6 +204,10 @@ public class DemoSignController {
                 sb.append(entry.getKey()).append(": ").append(entry.getValue() ? "√" : "-").append("<br>");
             }
         }
+
+        sb.append("本月所有用户总签数：").append("<br>");
+        long allSignCount = signService.getAllSignCount(today);
+        sb.append(allSignCount).append("<br>");
 
         return sb.toString();
     }
