@@ -15,6 +15,7 @@ import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticati
 import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.enums.LoginProcessType;
 import top.dcenter.ums.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.core.util.MvcUtil;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 import top.dcenter.ums.security.core.vo.UserInfoJsonVo;
 
@@ -78,13 +79,10 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
 
             // 设置跳转的 url
             SavedRequest savedRequest = requestCache.getRequest(request, response);
-            String targetUrl;
+            String targetUrl = MvcUtil.getServletContextPath() + getDefaultTargetUrl();
             if (savedRequest != null)
             {
-                targetUrl = requireNonNullElse(savedRequest.getRedirectUrl(), getDefaultTargetUrl());
-            } else
-            {
-                targetUrl = getDefaultTargetUrl();
+                targetUrl = requireNonNullElse(savedRequest.getRedirectUrl(), targetUrl);
             }
 
             // 判断是否返回 json 类型
