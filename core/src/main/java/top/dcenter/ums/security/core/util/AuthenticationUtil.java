@@ -30,8 +30,8 @@ public class AuthenticationUtil {
     /**
      * 在提取 User-Agent 时, 需要被移除掉的字符的正则表达式
      */
-    public static final String EXTRACT_USER_AGENT_REGEX = "[\\.|\\d|\\s|\\(|\\)]";
-
+    @SuppressWarnings("All")
+    public static final String EXTRACT_USER_AGENT_REGEX = "[\\.\\d\\s\\(\\)]";
 
     /**
      * 判断 exception 是不是 {@link AbstractResponseJsonAuthenticationException} 的子类, 如果不是, 则返回 null.
@@ -73,7 +73,6 @@ public class AuthenticationUtil {
             ResponseResult result;
             if (e != null)
             {
-                status = e.getErrorCodeEnum().getCode();
                 result = ResponseResult.fail(e.getErrorCodeEnum(), e.getData());
             }
             else
