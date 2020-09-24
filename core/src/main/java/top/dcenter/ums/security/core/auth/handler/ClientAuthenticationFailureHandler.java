@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.authenticationFailureProcessing;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.getAbstractResponseJsonAuthenticationException;
@@ -56,7 +57,7 @@ public class ClientAuthenticationFailureHandler extends BaseAuthenticationFailur
         {
             AjaxOrFormRequestFilter.AjaxOrFormRequest ajaxOrFormRequest =
                     ((AjaxOrFormRequestFilter.AjaxOrFormRequest) request);
-            reqData = new String(ajaxOrFormRequest.getBody(), StandardCharsets.UTF_8);
+            reqData = new String(Objects.requireNonNullElse(ajaxOrFormRequest.getBody(), "".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
         }
         else
         {

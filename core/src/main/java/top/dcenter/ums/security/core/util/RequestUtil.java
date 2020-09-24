@@ -8,6 +8,7 @@ import top.dcenter.ums.security.core.consts.SecurityConstants;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Objects;
 
 import static top.dcenter.ums.security.core.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
 
@@ -39,7 +40,7 @@ public class RequestUtil {
             if (request instanceof AjaxOrFormRequestFilter.AjaxOrFormRequest)
             {
                 AjaxOrFormRequestFilter.AjaxOrFormRequest ajaxOrFormRequest = (AjaxOrFormRequestFilter.AjaxOrFormRequest) request;
-                bodies = ajaxOrFormRequest.getBody();
+                bodies = Objects.requireNonNullElse(ajaxOrFormRequest.getBody(), "".getBytes(StandardCharsets.UTF_8));
             }
             else
             {

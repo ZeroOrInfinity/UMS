@@ -1,6 +1,5 @@
 package top.dcenter.ums.security.core.auth.validate.codes.image;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -23,7 +22,6 @@ public class ImageCode extends ValidateCode {
     private static final long serialVersionUID = 2978186282822455898L;
 
     @ToString.Exclude
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Transient
     private BufferedImage image;
 

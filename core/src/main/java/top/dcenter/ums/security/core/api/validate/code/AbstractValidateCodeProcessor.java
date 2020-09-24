@@ -112,7 +112,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
                 return false;
             }
 
-            // 移除不必要的属性值
+            // 移除不必要的属性值(图片等)
             removeUnnecessaryFieldValue(validateCode);
 
             req.getSession().setAttribute(validateCodeType.getSessionKey(), validateCode);
