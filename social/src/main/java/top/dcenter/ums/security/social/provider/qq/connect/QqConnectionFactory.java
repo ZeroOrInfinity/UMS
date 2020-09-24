@@ -23,6 +23,7 @@ public class QqConnectionFactory extends BaseOAuth2ConnectionFactory<Qq> {
 
     @Override
     public String generateState() {
+        // 这里不带 ServletContextPath callbackUri, 在 SocialController#authCallbackRouter(..) 会自动添加 ServletContextPath
         return generateState(this.socialProperties.getCallbackUrl() + URL_SEPARATOR + getProviderId());
     }
 

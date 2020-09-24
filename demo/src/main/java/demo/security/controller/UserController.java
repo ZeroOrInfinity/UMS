@@ -45,6 +45,13 @@ public class UserController {
         return "index";
     }
 
+    @GetMapping("/signIn")
+    public String signIn() {
+        return "signIn";
+    }
+
+
+
     @GetMapping("/signUp")
     public String signUp(HttpServletRequest request, Model model) {
         // 获取用户信息逻辑

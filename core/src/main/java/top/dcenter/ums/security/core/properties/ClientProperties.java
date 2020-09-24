@@ -273,7 +273,7 @@ public class ClientProperties {
     @Setter
     public static class AnonymousProperties {
         /**
-         * ANONYMOUS 是否开启, 默认为 false;
+         * ANONYMOUS 是否开启, 默认为 true;
          */
         private Boolean anonymousIsOpen = true;
         /**

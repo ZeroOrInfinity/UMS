@@ -87,7 +87,10 @@ security:
       - /testSign
       - /testSignOfLastSevenDays/**
 
-    # 设置记住我功能的 session 的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
+    # ============= remember-me =============
+    # 设置记住我功能的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
+    # 记住我功能默认通过 org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl 存入数据库中
+    # 实现 BasedRememberMeTokenRepositoryFactory 可以自定义缓存方式
     remember-me:
       remember-me-timeout: P14D
       remember-me-cookie-name: REMEMBER_ME
@@ -113,6 +116,8 @@ security:
       invalid-session-url: /session/invalid
       # session 的 cookie name, 默认为: JSESSIONID, 需要与 server.servlet.session.cookie.name 同时设置
       session-cookie-name: SID
+
+    # ============= csrf =============
     csrf:
       # csrf 是否开启, 默认为 false;
       csrf-is-open: false
@@ -124,10 +129,11 @@ security:
 #        - /logout
         - /user/**
         - /file/**
-      # csrf tokenRepository 的存储类型, 默认为 session. 集群选择 redis, 也可以自己自定义
-      token-repository-type: redis
+      # csrf tokenRepository 的存储类型, 默认为 session. 因为 session 可以配置缓存在 redis 等, 也可以自己自定义, 例如: redis
+      token-repository-type: session
+    # ============= 匿名用户配置 =============
     anonymous:
-      # ANONYMOUS 是否开启, 默认为 false;
+      # ANONYMOUS 是否开启, 默认为 true;
       anonymous-is-open: true
       # 匿名用户名称, 默认为 ANONYMOUS
       principal: ANONYMOUS

@@ -24,6 +24,7 @@ public class GiteeConnectionFactory extends BaseOAuth2ConnectionFactory<Gitee> {
 
     @Override
     public String generateState() {
+        // 这里不带 ServletContextPath callbackUri, 在 SocialController#authCallbackRouter(..) 会自动添加 ServletContextPath
         return generateState(this.socialProperties.getCallbackUrl() + URL_SEPARATOR + getProviderId());
     }
 

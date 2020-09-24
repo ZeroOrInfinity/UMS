@@ -38,6 +38,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 ## 三、`TODO List`:
 - demo 待完善
 - 第三方登录功能添加 JustAuth 工具, 支持更多的第三方登录. 
+- OAuth2 authenticate server
 
 ## 四、`使用方式(Quick Start)`：
 
@@ -648,7 +649,9 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
     ```yaml
     security:
       client:
-        # 设置记住我功能的 session 的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
+        # 设置记住我功能的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
+        # 记住我功能默认通过 org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl 存入数据库中
+        # 实现 BasedRememberMeTokenRepositoryFactory 可以自定义缓存方式
         remember-me:
           remember-me-timeout: P14D
           remember-me-cookie-name: rememberMe
@@ -674,7 +677,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
     #        - /logout
             - /user/**
             - /file/**
-          # csrf tokenRepository 的存储类型, 默认为 session. 集群选择 redis, 也可以自己自定义
+          # csrf tokenRepository 的存储类型, 默认为 session. 因为 session 可以配置缓存在 redis 等, 也可以自己自定义, 例如: redis
           token-repository-type: redis
     ```
 ### 6. anonymous
@@ -685,7 +688,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
     security:
       client:
         anonymous:
-          # anonymous 是否开启, 默认为 false;
+          # anonymous 是否开启, 默认为 true;
           anonymous-is-open: true
           # 匿名用户名称, 默认为 anonymous
           principal: anonymous
@@ -1102,7 +1105,7 @@ CREATE TABLE `sys_user_role` (
 
 
 
-## 七、`时序图(Sequence Diagram)`
+## 七、`时序图(Sequence Diagram)`: 随着版本迭代会有出入
 ### 1. crsf
 ![crsf](doc/SequenceDiagram/crsf.png)
 ### 2. getValidateCode

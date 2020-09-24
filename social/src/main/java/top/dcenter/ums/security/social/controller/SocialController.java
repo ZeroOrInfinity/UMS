@@ -76,7 +76,7 @@ public class SocialController {
                 if (StringUtils.isNotBlank(redirectUrl))
                 {
                     String code = request.getParameter(URL_PARAMETER_CODE);
-                    // 重新组装 url 参数
+                    // 重新组装 url 参数, 不带 ServletContextPath
                     redirectUrl = String.format("%s%s%s%s%s%s%s%s%s",
                                                 redirectUrl,
                                                 URL_PARAMETER_IDENTIFIER,
@@ -87,6 +87,7 @@ public class SocialController {
                                                 URL_PARAMETER_STATE,
                                                 KEY_VALUE_SEPARATOR,
                                                 state);
+                    // 会自动添加 ServletContextPath
                     return new RedirectView(redirectUrl, true);
                 }
                 log.error("统一回调地址路由-state被篡改: ip={}, sid={}, uri={}, state={}, queryString={}, redirectUrl={}",

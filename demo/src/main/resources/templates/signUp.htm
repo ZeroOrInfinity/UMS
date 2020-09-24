@@ -98,7 +98,16 @@
     }
 
     $("#img").click(function () {
-        this.setAttribute('src', '/code/image?' + Math.random());
+        let uri = this.getAttribute("src");        console.log(uri)
+        let end = uri.indexOf('?', 0);
+        console.log(end)
+        if (end === -1) {
+            uri = uri + '?'+ Math.random();
+        } else {
+            uri = uri.substring(0, end) + '?'+ Math.random();
+        }
+        console.log(uri)
+        this.setAttribute('src', uri);
     });
 
 
