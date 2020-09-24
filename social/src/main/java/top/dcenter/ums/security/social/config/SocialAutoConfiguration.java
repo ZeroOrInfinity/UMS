@@ -147,7 +147,7 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
                                                                            this.socialProperties,
                                                                            repository);
         // 设置 OAuth 回调地址
-        controller.setCallbackUrl(this.socialProperties.getDomain() + this.socialProperties.getCallbackUrl());
+        controller.setCallbackUrl(this.socialProperties.getDomain() + MvcUtil.getServletContextPath() + this.socialProperties.getCallbackUrl());
         // 设置绑定与解绑拦截器
         if (!CollectionUtils.isEmpty(this.connectInterceptors)) {
             controller.setConnectInterceptors(this.connectInterceptors);
