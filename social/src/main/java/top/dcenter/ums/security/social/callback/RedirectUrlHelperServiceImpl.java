@@ -38,7 +38,7 @@ public class RedirectUrlHelperServiceImpl implements RedirectUrlHelperService {
         {
             return null;
         }
-        byte[] router = Base64.getDecoder().decode(state.substring(UUID_INTERCEPT_NUMBER));
+        byte[] router = Base64.getDecoder().decode(state.substring(UUID_INTERCEPT_NUMBER).getBytes(UTF_8));
         // 提取 redirectUrl
         Map<String, Object> routerMap = ConvertUtil.string2JsonMap(new String(router, UTF_8),
                                                                    URL_PARAMETER_SEPARATOR,

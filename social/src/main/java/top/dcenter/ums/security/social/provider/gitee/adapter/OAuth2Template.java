@@ -360,9 +360,10 @@ public class OAuth2Template implements OAuth2Operations {
 		@Override
 		public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
 			// 在 AbstractRememberMeServices#decodeCookie() 中 Base64.getDecoder().decode(cookieValue.getBytes()) 进行解密
-			// noinspection deprecation
+			// noinspection deprecation,AliDeprecation
 			request.getHeaders().set("Authorization",
 			                         "Basic " + new String(Base64.encode((username + ":" + password).getBytes(charset)), charset));
+
 			return execution.execute(request, body);
 		}
 

@@ -15,8 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.util.Map;
 
 import static top.dcenter.ums.security.core.consts.SecurityConstants.HEADER_ACCEPT;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
@@ -58,14 +57,18 @@ public class SocialAuthenticationFailureHandler extends SimpleUrlAuthenticationF
         String reqData;
         if (request instanceof AjaxOrFormRequestFilter.AjaxOrFormRequest)
         {
-            AjaxOrFormRequestFilter.AjaxOrFormRequest ajaxOrFormRequest =
-                    ((AjaxOrFormRequestFilter.AjaxOrFormRequest) request);
-            reqData = new String(Objects.requireNonNullElse(ajaxOrFormRequest.getBody(), "".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+            AjaxOrFormRequestFilter.AjaxOrFormRequest ajaxOrFormRequest = ((AjaxOrFormRequestFilter.AjaxOrFormRequest) request);
+            Map<String, Object> formMap = ajaxOrFormRequest.getFormMap();
+            formMap.computeIfPresent(clientProperties.passwordParameter, (k, v) -> v = "PROTECTED");
+            reqData = formMap.toString();
         }
         else
         {
-            reqData = request.getParameterMap().toString();
+            Map<String, String[]> parameterMap = request.getParameterMap();
+            parameterMap.computeIfPresent(clientProperties.passwordParameter, (k, v) -> v = new String[]{"PROTECTED"});
+            reqData = parameterMap.toString();
         }
+
         log.info("OAuth2登录失败: user={}, ip={}, ua={}, sid={}, reqData={}",
                  e == null ? null : e.getUid(),
                  request.getRemoteAddr(),
