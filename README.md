@@ -3,8 +3,9 @@
 ![Maven](https://img.shields.io/badge/Maven-3.6.3-green.svg)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7.27-green.svg)
 ![Redis](https://img.shields.io/badge/Redis-5.0.3-green.svg)
-![SpringBoot](https://img.shields.io/badge/SpringBoot-2.3.1-green.svg)
+![SpringBoot](https://img.shields.io/badge/SpringBoot-2.3.4-green.svg)
 ![SpringSecurity](https://img.shields.io/badge/SpringSecurity-5.3.5-green.svg)
+![SpringSecurity](https://img.shields.io/badge/SpringSession-2.3.1-green.svg)
 ![SpringSocial](https://img.shields.io/badge/SpringSocial-1.1.6-green.svg)
 ![license](https://img.shields.io/badge/license-MIT-yellow.svg)
 
