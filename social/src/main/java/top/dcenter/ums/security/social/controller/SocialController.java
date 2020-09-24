@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.view.RedirectView;
 import top.dcenter.ums.security.core.exception.ParameterErrorException;
-import top.dcenter.ums.security.core.util.MvcUtil;
 import top.dcenter.ums.security.social.callback.RedirectUrlHelperServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,9 +54,6 @@ public class SocialController {
         String sid = request.getSession(true).getId();
         String uri = request.getRequestURI();
 
-        log.info("统一回调地址路由: ip={}, sid={}, uri={}, state={}, queryString={}",
-                 ip, sid, MvcUtil.getServletContextPath() + uri, state, queryString);
-
         if (StringUtils.isNotBlank(state))
         {
             // 解密 state 获取真实的回调地址
@@ -69,7 +65,7 @@ public class SocialController {
                 if (redirectUrl.matches(RFC_6819_CHECK_REGEX))
                 {
                     log.error("统一回调地址路由-state被篡改: ip={}, sid={}, uri={}, state={}, queryString={}, redirectUrl={}",
-                              ip, sid, MvcUtil.getServletContextPath() + uri, state, queryString, redirectUrl);
+                              ip, sid, uri, state, queryString, redirectUrl);
                     throw new ParameterErrorException(REDIRECT_URL_PARAMETER_ILLEGAL, redirectUrl,
                                                       sid);
                 }
@@ -87,17 +83,20 @@ public class SocialController {
                                                 URL_PARAMETER_STATE,
                                                 KEY_VALUE_SEPARATOR,
                                                 state);
+
+                    log.info("统一回调地址路由: ip={}, sid={}, uri={}, state={}, queryString={}, redirectUrl={}",
+                             ip, sid, uri, state, queryString, redirectUrl);
                     // 会自动添加 ServletContextPath
                     return new RedirectView(redirectUrl, true);
                 }
                 log.error("统一回调地址路由-state被篡改: ip={}, sid={}, uri={}, state={}, queryString={}, redirectUrl={}",
-                          ip, sid, MvcUtil.getServletContextPath() + uri, state, queryString, redirectUrl);
+                          ip, sid, uri, state, queryString, redirectUrl);
                 throw new ParameterErrorException(REDIRECT_URL_PARAMETER_ERROR, redirectUrl, sid);
             }
 
         }
         log.warn("统一回调地址路由-state为空: ip={}, sid={}, uri={}, state={}, queryString={}",
-                  ip, sid, MvcUtil.getServletContextPath() + uri, state, queryString);
+                  ip, sid, uri, state, queryString);
         throw new ParameterErrorException(TAMPER_WITH_REDIRECT_URL_PARAMETER, state, sid);
 
     }

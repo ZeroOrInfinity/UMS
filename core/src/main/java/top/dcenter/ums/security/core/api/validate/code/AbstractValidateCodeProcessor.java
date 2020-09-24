@@ -7,7 +7,6 @@ import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -55,7 +54,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             if (!validateStatus)
             {
                 log.warn("发送验证码失败: ip={}, sid={}, uri={}, validateCode={}",
-                         ip, sid, MvcUtil.getServletContextPath() + uri, validateCode.toString());
+                         ip, sid, uri, validateCode.toString());
                 return false;
             }
             saveSession(request, validateCode);

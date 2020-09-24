@@ -80,7 +80,7 @@ public class UriAuthorizeFilter extends OncePerRequestFilter {
 
                 // 有访问权限
                 log.info("URI权限控制-放行: sid={}, user={}, ip={}, uri={}, method={}, time={}, referer={}, agent={}",
-                         sid, principal, ip, MvcUtil.getServletContextPath() + uri, method, now, referer, userAgent);
+                         sid, principal, ip, uri, method, now, referer, userAgent);
 
                 filterChain.doFilter(request, response);
                 return;
@@ -89,7 +89,7 @@ public class UriAuthorizeFilter extends OncePerRequestFilter {
 
             // 没有访问权限
             log.warn("URI权限控制-禁止: sid={}, user={}, ip={}, uri={}, method={}, time={}, referer={}, agent={}",
-                     sid, principal, ip, MvcUtil.getServletContextPath() + uri, method, now, referer, userAgent);
+                     sid, principal, ip, uri, method, now, referer, userAgent);
             uriAuthorizeService.handlerError(HttpStatus.FORBIDDEN.value(), response);
             return;
         }

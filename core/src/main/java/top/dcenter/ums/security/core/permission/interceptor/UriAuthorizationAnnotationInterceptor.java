@@ -9,7 +9,6 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
 import top.dcenter.ums.security.core.permission.annotation.UriAuthorize;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -62,13 +61,13 @@ public class UriAuthorizationAnnotationInterceptor implements HandlerInterceptor
         if (hasPermission)
         {
             log.info("URI权限控制-放行: sid={}, user={}, ip={}, uri={}, method={}, time={}, referer={}, agent={}",
-                     sid, principal, ip, MvcUtil.getServletContextPath() + uri, method, now, referer, userAgent);
+                     sid, principal, ip, uri, method, now, referer, userAgent);
             return true;
         }
 
         // 没有访问权限
         log.warn("URI权限控制-禁止: sid={}, user={}, ip={}, uri={}, method={}, time={}, referer={}, agent={}",
-                 sid, principal, ip, MvcUtil.getServletContextPath() + uri, method, now, referer, userAgent);
+                 sid, principal, ip, uri, method, now, referer, userAgent);
         uriAuthorizeService.handlerError(HttpStatus.FORBIDDEN.value(), response);
 
         return false;
