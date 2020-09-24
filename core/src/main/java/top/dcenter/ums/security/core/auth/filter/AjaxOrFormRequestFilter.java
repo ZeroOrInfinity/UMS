@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.core.consts.SecurityConstants;
@@ -21,7 +22,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 增加对 Ajax 格式与 form 格式的解析, 解析数据时默认使用 UTF-8 格式, 覆写了
@@ -56,8 +59,8 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NotNull HttpServletRequest request,
+                                    @NotNull HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         filterChain.doFilter(new AjaxOrFormRequest(request, objectMapper), response);
     }
@@ -107,7 +110,7 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
                 catch (Exception e) {
                     log.error(String.format("读取请求数据失败: %s",e.getMessage()), e);
                 }
-                formMap = map;
+                formMap = Objects.requireNonNullElse(map, new HashMap<>(0));
                 body = bytes;
             } else
             {
@@ -166,12 +169,12 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
         }
 
         @Override
-        public int read(byte[] b, int off, int len) throws IOException {
+        public int read(@NotNull byte[] b, int off, int len) throws IOException {
             return this.delegate.read(b, off, len);
         }
 
         @Override
-        public int read(byte[] b) throws IOException {
+        public int read(@NotNull byte[] b) throws IOException {
             return this.delegate.read(b);
         }
 
