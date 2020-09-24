@@ -51,6 +51,7 @@ public class SocialSecurityAutoConfigurerAware implements HttpSecurityAware {
         permitAllMap.put(socialProperties.getCallbackUrl(), null);
         permitAllMap.put(socialProperties.getCallbackUrl() + "/*", null);
         permitAllMap.put(socialProperties.getSocialUserRegisterUrl(), null);
+        permitAllMap.put(socialProperties.getSignUpUrl(), null);
 
         Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
 
