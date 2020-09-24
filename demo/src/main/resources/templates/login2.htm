@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>登录</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@1.11.1/dist/jquery.min.js"></script>
+
 </head>
 <body>
 <h2>登录页面 login2</h2>
@@ -15,7 +16,7 @@
         <tr>
             <td>用户名：</td>
             <td><input type="text" name="username" value="admin" ><p style="color: #ff0000"
-                                                                           id="error-name"></p></td>
+                                                                     id="error-name"></p></td>
         </tr>
         <tr>
             <td>密码：</td>
@@ -70,13 +71,6 @@
             </td>
         </tr>
         <tr>
-            <td>图形验证码：</td>
-            <td>
-                <input type="text" name="imageCode">
-                <img class="img-mobile img" th:src="@{/code/image}" style="width: 67px; height: 23px">
-            </td>
-        </tr>
-        <tr>
             <td ><input type="checkbox" name="rememberMe" checked="true">记住我</input></td>
             <td><p style="color: #ff0000" id="error-code-mobile"></p></td>
         </tr>
@@ -92,8 +86,11 @@
 <a href="/auth/callback/qq">QQ登录</a>
 &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="/auth/weixin">微信登录</a>
+
+<dev id="basePath" th:basePath="@{/}" style="display: none"/>
 </body>
 <script>
+    var basePath = $("#basePath").attr("basePath");
     $.fn.serializeObject = function()
     {
         let o = {};
@@ -122,11 +119,11 @@
             uri = uri.substring(0, end) + '?'+ Math.random();
         }
         console.log(uri)
-        this.setAttribute('src', uri);;
+        this.setAttribute('src', uri);
     });
 
 
-    function submitFormByAjax(url, formId, errorNameId, errorCodeId, imgId) {
+    function submitFormByAjax(url, formId, errorNameId, errorCodeId, imgId, refresh) {
         return function () {
             console.log(JSON.stringify($(formId).serializeObject()))
             $.ajax({
@@ -144,7 +141,7 @@
                     console.log(data)
                     let uri = data.data.url
                     if (uri === null) {
-                        uri = '/'
+                        uri = basePath
                     }
                     window.location.href = uri;
                 },
@@ -164,7 +161,9 @@
                             $(errorCodeId).text(data.msg)
                         }
                     }
-                    $(imgId).trigger("click")
+                    if (refresh) {
+                        $(imgId).trigger("click");
+                    }
                 }
             })
             return
@@ -173,14 +172,14 @@
 
 
     $("#btn-mobile").click(
-        submitFormByAjax($("#mobile-form").attr("action"), "#mobile-form", "#error-name-mobile", "#error-code-mobile", ".img-mobile")
-        // submitFormByAjax("/authentication/mobile", "#mobile-form", "#error-name-mobile", "#error-code-mobile", ".img-mobile")
+        submitFormByAjax($("#mobile-form").attr("action"), "#mobile-form", "#error-name-mobile", "#error-code-mobile", ".img-mobile", true)
     )
 
 
     $("#btn-reg").click(
-        submitFormByAjax($("#reg-form").attr("action"), "#reg-form", "#error-name", "#error-code", ".img")
-        // submitFormByAjax("/authentication/form", "#reg-form", "#error-name", "#error-code", ".img")
+        submitFormByAjax($("#reg-form").attr("action"), "#reg-form", "#error-name", "#error-code", ".img", true)
     )
+
+
 </script>
 </html>
