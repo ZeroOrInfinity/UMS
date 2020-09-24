@@ -47,14 +47,14 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
        <dependency>
            <groupId>top.dcenter</groupId>
            <artifactId>ums-core-spring-boot-starter</artifactId>
-           <version>1.0.6</version>
+           <version>1.1.0-beta2</version>
        </dependency>
        <!-- 包含 ums-core-spring-boot-starter 依赖 -->
        <!-- 第三方登录(自动注册，绑定与解绑, redis cache), 通过统一的回调地址入口实现多回调地址的路由功能 -->
        <dependency>
            <groupId>top.dcenter</groupId>
            <artifactId>ums-social-spring-boot-starter</artifactId>
-           <version>1.06</version>
+           <version>1.1.0-beta2</version>
        </dependency>
     ```
 - 通过 application.yml 或 application.properties 配置(See below `五`): 查看下方`五`的 application.properties 或 application.yml 配置.
