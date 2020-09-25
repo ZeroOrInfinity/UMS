@@ -16,8 +16,9 @@
 
     <title>signUp</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@1.11.1/dist/jquery.min.js"></script>
+
 </head>
-<body>s
+<body>
 <h2>Demo注册页, 请替换本页，/authentication/social 用户不需要自己处理，只需要实现 AbstractSocialUserDetailsService 就行，可参考
     security-demo 的 LoginSocialUserDetailService</h2>
 <h3>替换本页，请配置 security.social.signUpUrl 属性来设置自己的注册页面</h3>
@@ -63,7 +64,7 @@
             <td>图形验证码：</td>
             <td>
                 <input type="text" name="imageCode">
-                <img id="img" th:src="@{/code/image}" style="width: 67px; height: 23px">
+                <img id="img" class="img" th:src="@{/code/image}" style="width: 67px; height: 23px">
             </td>
         </tr>
         <tr>
@@ -97,8 +98,9 @@
         return o;
     }
 
-    $("#img").click(function () {
-        let uri = this.getAttribute("src");        console.log(uri)
+    $(".img").click(function () {
+        let uri = this.getAttribute("src");
+        console.log(uri)
         let end = uri.indexOf('?', 0);
         console.log(end)
         if (end === -1) {
@@ -109,7 +111,6 @@
         console.log(uri)
         this.setAttribute('src', uri);
     });
-
 
     $("#btn-register").click(function () {
         console.log(JSON.stringify($('#social-form').serializeObject()))
