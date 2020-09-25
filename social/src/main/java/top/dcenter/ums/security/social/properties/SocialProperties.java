@@ -487,6 +487,10 @@ public class SocialProperties {
     @Setter
     public class QqProperties extends AbstractSocialBaseProperties {
         /**
+         * 是否支持 qq 第三方登录, 默认为 false
+         */
+        private Boolean enable = false;
+        /**
          * 服务提供商标识, 默认为 qq
          */
         private String providerId = "qq";
@@ -500,6 +504,10 @@ public class SocialProperties {
     @Getter
     @Setter
     public class GiteeProperties extends AbstractSocialBaseProperties {
+        /**
+         * 是否支持 gitee 第三方登录, 默认为 false
+         */
+        private Boolean enable = false;
         /**
          * 服务提供商标识, 默认为 gitee
          */
@@ -518,6 +526,10 @@ public class SocialProperties {
     @Getter
     @Setter
     public class WeixinProperties extends AbstractSocialBaseProperties {
+        /**
+         * 是否支持 weixin 第三方登录, 默认为 false
+         */
+        private Boolean enable = false;
 
         /**
          * 第三方id，用来决定发起第三方登录的url，默认是 weixin。
@@ -537,6 +549,10 @@ public class SocialProperties {
     @Getter
     @Setter
     public class WeiboProperties extends AbstractSocialBaseProperties {
+        /**
+         * 是否支持 weibo 第三方登录, 默认为 false
+         */
+        private Boolean enable = false;
 
         /**
          * 第三方id，用来决定发起第三方登录的url，默认是 weibo。

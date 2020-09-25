@@ -35,7 +35,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @AutoConfigureAfter({SocialAutoConfiguration.class})
-@ConditionalOnProperty(prefix = "security.social.weixin", name = "app-id")
+@ConditionalOnProperty(prefix = "security.social.weixin", name = "enable", havingValue = "true")
 public class WeixinAutoConfiguration extends BaseSocialConfigurerAdapter implements InitializingBean {
 
 	@SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")

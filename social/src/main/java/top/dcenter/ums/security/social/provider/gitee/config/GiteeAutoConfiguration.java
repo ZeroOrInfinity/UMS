@@ -34,7 +34,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @AutoConfigureAfter({SocialAutoConfiguration.class})
-@ConditionalOnProperty(prefix = "security.social.gitee", name = "app-id")
+@ConditionalOnProperty(prefix = "security.social.gitee", name = "enable", havingValue = "true")
 public class GiteeAutoConfiguration extends BaseSocialConfigurerAdapter implements InitializingBean {
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")

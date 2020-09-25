@@ -34,7 +34,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @AutoConfigureAfter({SocialAutoConfiguration.class})
-@ConditionalOnProperty(prefix = "security.social.weibo", name = "app-id")
+@ConditionalOnProperty(prefix = "security.social.weibo", name = "enable", havingValue = "true")
 public class WeiboAutoConfiguration extends BaseSocialConfigurerAdapter implements InitializingBean {
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")

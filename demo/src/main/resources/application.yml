@@ -203,17 +203,17 @@ security:
     auto-sign-in: false
 
     # social 第三方登录注册功能是否开启，默认为 false
-    social-sign-in-is-open: true
+    social-sign-up-is-open: true
 
-    # ============== 以下配置依赖 social-sign-in-is-open=true 时才有效 ==============
+    # ============== 以下配置依赖 social-sign-up-is-open=true 时才有效 ==============
 
-    # autoSignIn=true 且实现 ConnectionSignUp 接口则自动登录，而且 signUpUrl 会失效
+    # autoSignIn=true 且实现 BaseConnectionSignUp 接口则自动登录，而且 signUpUrl 会失效
     # 第三方登录用户授权成功跳转页面，默认为 /signUp.html， 用户必需设置
     sign-up-url: /signUp
     # 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /authentication/social 进行处理，由 Social 处理，不需要用户实现
     social-user-register-url: /authentication/social
 
-    # ============== 以上配置依赖 social-sign-in-is-open=true 时才有效 ==============
+    # ============== 以上配置依赖 social-sign-up-is-open=true 时才有效 ==============
 
     # 第三方登录页面， 默认为 /signIn.html
     sign-in-url: /signIn.html
@@ -236,6 +236,8 @@ security:
     banding-provider-connection-list-name: connections
     # 用户绑定第三方账号后返回状态信息的视图前缀, 默认: connect/
     # 对 AbstractView 子类定义 bean 时, beanName 的前缀必须与此属性值一样
+    # 查看所有第三方账号绑定状态 url: connect/
+    # 查看指定第三方账号绑定状态 url: connect/providerId(qq/gitee/weixin/weibo)
     view-path: connect/
 
     # 第三方授权登录用户信息表
@@ -270,17 +272,26 @@ security:
 
     # =================== 第三方服务商的信息 =======================
     # 从第三方服务商获取的信息
-    # 用户设置 appId 时，{providerId}第三方登录自动开启，不同 providerId（如qq） 中的 appId 只有在设置值时才开启，默认都关闭
     qq:
+      # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false
+      enable: false
       app-id:
       app-secret:
+      # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+      # redirect-url: http://www.dcenter.top/demo/auth/callback/qq
     gitee:
+      # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false
+      enable: true
       app-id:
       app-secret:
     weixin:
+      # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false
+      enable: false
       app-id:
       app-secret:
     weibo:
+      # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false
+      enable: false
       app-id:
       app-secret:
 
@@ -327,17 +338,26 @@ security:
   # 第三方登录配置: social
   social:
     # 从第三方服务商获取的信息
-    # 用户设置 appId 时，{providerId}第三方登录自动开启，不同 providerId（如qq） 中的 appId 只有在设置值时才开启，默认都关闭
     qq:
+      # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false
+      enable: false
       app-id:
       app-secret:
+      # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+      # redirect-url: http://www.dcenter.top/demo/auth/callback/qq
     gitee:
+      # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false
+      enable: true
       app-id:
       app-secret:
     weixin:
+      # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false
+      enable: false
       app-id:
       app-secret:
     weibo:
+      # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false
+      enable: false
       app-id:
       app-secret:
 
