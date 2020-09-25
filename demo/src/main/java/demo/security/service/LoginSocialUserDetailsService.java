@@ -197,7 +197,10 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
         );
 
         // 把用户信息存入缓存
-        socialUserCache.putUserInCache(user);
+        if (socialUserCache != null)
+        {
+            socialUserCache.putUserInCache(user);
+        }
 
         return user;
     }
@@ -227,7 +230,10 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
         );
 
         // 把用户信息存入缓存
-        socialUserCache.putUserInCache(user);
+        if (socialUserCache != null)
+        {
+            socialUserCache.putUserInCache(user);
+        }
 
         return user;
 
@@ -267,7 +273,10 @@ public class LoginSocialUserDetailsService extends AbstractSocialUserDetailsServ
             );
 
             // 把用户信息存入缓存
-            socialUserCache.putUserInCache(user);
+            if (socialUserCache != null)
+            {
+                socialUserCache.putUserInCache(user);
+            }
 
             return user;
         }
