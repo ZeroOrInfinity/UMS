@@ -1,12 +1,10 @@
 package top.dcenter.ums.security.core.auth.session.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.MapUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
-import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.core.api.session.SessionEnhanceCheckService;
 import top.dcenter.ums.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.ums.security.core.config.SecurityCoreAutoConfigurer;
@@ -18,16 +16,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import static top.dcenter.ums.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_ENHANCE_CHECK_KEY;
 import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.SESSION_ENHANCE_CHECK;
+import static top.dcenter.ums.security.core.util.AuthenticationUtil.isPermitUri;
 import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 import static top.dcenter.ums.security.core.util.MvcUtil.getUrlPathHelper;
 
@@ -65,7 +60,7 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
         HttpSession session = request.getSession(false);
         // 去除 ServletContextPath 的 uri
         String requestUri = getUrlPathHelper().getPathWithinApplication(request);
-        if (this.sessionEnhanceCheckService != null && session != null && !isPermitUri(requestUri, session))
+        if (this.sessionEnhanceCheckService != null && session != null && !isPermitUri(requestUri, session, pathMatcher))
         {
             // 用户 client 的特征值
             String checkValue = (String) session.getAttribute(SESSION_ENHANCE_CHECK_KEY);
@@ -85,34 +80,6 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    /**
-     * 是否是 permitUri
-     * @param requestUri    去除 ServletContextPath uri
-     * @param session       session
-     * @return  boolean
-     */
-    private boolean isPermitUri(String requestUri, HttpSession session) {
-        // authorizeRequestMap 通过 SecurityCoreAutoConfigurer.groupingAuthorizeRequestUris(..) 注入 ServletContext,
-        // 首次访问时从 ServletContext 赋值
-        if (MapUtils.isEmpty(this.authorizeRequestMap))
-        {
-
-            // noinspection unchecked
-            this.authorizeRequestMap =
-                    Objects.requireNonNullElse((Map<String, Set<String>>) session.getServletContext().getAttribute(SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY), new HashMap<>(0));
-        }
-        Set<String> permitSet =
-                Objects.requireNonNullElse(this.authorizeRequestMap.get(HttpSecurityAware.PERMIT_ALL), new HashSet<>());
-        for (String permitUri : permitSet)
-        {
-            if (this.pathMatcher.match(permitUri, requestUri))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.util.AntPathMatcher;
+import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.enums.LoginProcessType;
@@ -15,9 +17,16 @@ import top.dcenter.ums.security.core.vo.ResponseResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+
+import static top.dcenter.ums.security.core.consts.SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY;
 
 /**
  * auth util
@@ -45,6 +54,32 @@ public class AuthenticationUtil {
             e = (AbstractResponseJsonAuthenticationException) exception;
         }
         return e;
+    }
+
+
+    /**
+     * 是否是 permitUri
+     * @param requestUri    去除 ServletContextPath uri
+     * @param session       session
+     * @param matcher       AntPathMatcher
+     * @return  boolean
+     */
+    public static boolean isPermitUri(String requestUri, HttpSession session, AntPathMatcher matcher) {
+        // authorizeRequestMap 通过 SecurityCoreAutoConfigurer.groupingAuthorizeRequestUris(..) 注入 ServletContext,
+
+        // noinspection unchecked
+        Map<String, Set<String>> authorizeRequestMap = (Map<String, Set<String>>) session.getServletContext().getAttribute(SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY);
+        authorizeRequestMap = Objects.requireNonNullElse(authorizeRequestMap, new HashMap<>(0));
+        Set<String> permitSet =
+                Objects.requireNonNullElse(authorizeRequestMap.get(HttpSecurityAware.PERMIT_ALL), new HashSet<>(0));
+        for (String permitUri : permitSet)
+        {
+            if (matcher.match(permitUri, requestUri))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 

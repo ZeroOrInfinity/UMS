@@ -343,7 +343,8 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
 
             ApplicationContext applicationContext = getApplicationContext();
             WebApplicationContext servletContext = (WebApplicationContext) applicationContext;
-            // 把 targetAuthorizeRequestMap 添加到 ServletContext, 主要用于 SessionEnhanceCheckFilter
+
+            // 把 targetAuthorizeRequestMap 添加到 ServletContext, 主要用于 AuthenticationUtil.isPermitAll(..)
             Objects.requireNonNull(servletContext.getServletContext())
                     .setAttribute(SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY, targetAuthorizeRequestMap);
         }
