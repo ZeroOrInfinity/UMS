@@ -34,6 +34,7 @@ import top.dcenter.ums.security.social.api.banding.ShowConnectViewService;
 import top.dcenter.ums.security.social.api.banding.ShowConnectionStatusViewService;
 import top.dcenter.ums.security.social.api.repository.UsersConnectionRepositoryFactory;
 import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
+import top.dcenter.ums.security.social.api.signup.BaseConnectionSignUp;
 import top.dcenter.ums.security.social.banding.DefaultShowConnectViewServiceImpl;
 import top.dcenter.ums.security.social.banding.DefaultShowConnectionStatusViewServiceImpl;
 import top.dcenter.ums.security.social.callback.RedirectUrlHelperServiceImpl;
@@ -78,6 +79,8 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
     private GenericApplicationContext applicationContext;
 
     private UsersConnectionRepositoryFactory usersConnectionRepositoryFactory;
+
+    private BaseConnectionSignUp connectionSignUp;
 
     public SocialAutoConfiguration(ObjectProvider<List<ConnectInterceptor<?>>> connectInterceptorsProvider,
                                    ObjectProvider<List<DisconnectInterceptor<?>>> disconnectInterceptorsProvider,
@@ -127,8 +130,8 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
                                                                                connectionFactoryLocator,
                                                                                socialTextEncryptor(socialProperties),
                                                                                socialProperties,
-                                                                               null,
-                                                                               false);
+                                                                               connectionSignUp,
+                                                                               socialProperties.getAutoSignIn());
     }
 
     @Bean
@@ -176,7 +179,7 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "org.springframework.social.connect.ConnectionSignUp")
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.social.api.signup.BaseConnectionSignUp")
     public ConnectionSignUp connectionSignUp() {
         return new DefaultConnectionSignUp(userDetailService);
     }
@@ -225,6 +228,14 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
         // 在 mvc 中做 Uri 映射等动作
         MvcUtil.registerController("socialController", applicationContext, null);
         MvcUtil.registerController("connectController", applicationContext, IBandingController.class);
+
+        // ====== 给 this.connectionSignUp 赋值 ======
+        try {
+            this.connectionSignUp = applicationContext.getBean(BaseConnectionSignUp.class);
+        }
+        catch (Exception e) {
+            log.info("IOC 容器中不存在 BaseConnectionSignUp, 第三方登录自动注册功能关闭");
+        }
 
         // ====== 注册 ConnectionStatusView ======
 

@@ -33,7 +33,7 @@ import java.util.UUID;
  */
 @Configuration
 @AutoConfigureAfter({SocialAutoConfiguration.class})
-@ConditionalOnProperty(prefix = "security.social", name = "social-sign-in-is-open", havingValue = "true")
+@ConditionalOnProperty(prefix = "security.social", name = "social-sign-up-is-open", havingValue = "true")
 public class SocialAuthenticationSignUpAutoConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
     private final ProviderSignInUtils providerSignInUtils;

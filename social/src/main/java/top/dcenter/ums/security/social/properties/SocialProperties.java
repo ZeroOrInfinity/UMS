@@ -40,7 +40,7 @@ public class SocialProperties {
     /**
      * social 第三方登录注册功能是否开启，默认为 false
      */
-    private Boolean socialSignInIsOpen = false;
+    private Boolean socialSignUpIsOpen = false;
     /**
      * 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /authentication/social 进行处理，由 Social 处理，不需要用户实现
      */
@@ -48,7 +48,7 @@ public class SocialProperties {
 
     /**
      * 第三方登录用户授权成功且未注册，则跳转的注册页面， 默认为 /signUp.html，
-     * autoSignIn=true 且实现 ConnectionSignUp 接口则自动登录时 signUpUrl 会失效
+     * autoSignIn=true 且实现 BaseConnectionSignUp 接口则自动登录时 signUpUrl 会失效
      */
     private String signUpUrl = "/signUp.html";
 
@@ -58,7 +58,7 @@ public class SocialProperties {
     private String signInUrl = "/signIn.html";
 
     /**
-     * QQ 登录时是否自动注册：如果为 true 且实现 ConnectionSignUp 接口则自动登录，而且 signUpUrl 失效，否则不自动登录, 默认为 true
+     * 第三方登录时是否自动注册：如果为 true 且实现 BaseConnectionSignUp 接口则自动登录，而且 signUpUrl 失效, 默认为 true
      */
     private Boolean autoSignIn = true;
 
