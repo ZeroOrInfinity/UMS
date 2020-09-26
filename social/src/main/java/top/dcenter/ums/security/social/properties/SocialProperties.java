@@ -75,7 +75,7 @@ public class SocialProperties {
      */
     private String bandingProviderConnectionListName = "connections";
     /**
-     * 用户绑定第三方账号后返回状态信息的视图前缀, 默认: connect/<br><br>
+     * 用户绑定第三方账号后返回状态信息的视图前缀, 默认: connect/ , 在自定义 AbstractView 时有用<br><br>
      *     对 {@link org.springframework.web.servlet.view.AbstractView} 子类定义 bean 时, beanName 的前缀必须与此属性值一样
      */
     private String viewPath = "connect/";
