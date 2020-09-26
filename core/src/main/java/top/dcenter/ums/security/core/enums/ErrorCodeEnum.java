@@ -15,6 +15,8 @@ public enum ErrorCodeEnum {
 
     LOGOUT_SUCCESS(0, "登出成功"),
 
+    NOT_FOUND(404, "not found"),
+
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "操作未授权"),
     INVALID_SESSION(HttpStatus.UNAUTHORIZED.value(), "session 失效"),
     EXPIRED_SESSION(HttpStatus.UNAUTHORIZED.value(), "session 过期"),
