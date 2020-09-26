@@ -20,9 +20,9 @@ public class SignProperties {
     private String signKeyPrefix = "u:sign:";
 
     /**
-     * 用于 redis 总签到 key 前缀，默认为： all:sign:
+     * 用于 redis 总签到 key 前缀，默认为： total:sign:
      */
-    private String allSignKeyPrefix = "all:sign:";
+    private String totalSignKeyPrefix = "total:sign:";
 
     /**
      * redis key(String) 转 byte[] 转换时所用的 charset
@@ -32,6 +32,15 @@ public class SignProperties {
      * 获取最近几天的签到情况, 不能大于 28 天, 默认为 7 天
      */
     private Integer lastFewDays = 7;
+
+    /**
+     * 用户签到 redis key TTL, 默认: 二个月 , 单位: 秒
+     */
+    private Long userExpired = 2678400L;
+    /**
+     *  用户签到统计 redis key TTL, 默认: 二个月 , 单位: 秒
+     */
+    private Long totalExpired = 5356800L;
 
     public void setLastFewDays(Integer lastFewDays) {
         //noinspection AlibabaUndefineMagicConstant

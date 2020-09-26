@@ -1,19 +1,23 @@
 package top.dcenter.ums.security.core.sign;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisPipelineException;
+import org.springframework.lang.NonNull;
 import top.dcenter.ums.security.core.api.sign.service.SignService;
 import top.dcenter.ums.security.core.properties.SignProperties;
 import top.dcenter.ums.security.core.util.SignUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static top.dcenter.ums.security.core.util.SignUtil.formatDate;
 
@@ -27,14 +31,24 @@ import static top.dcenter.ums.security.core.util.SignUtil.formatDate;
  * 4. 获取用户当月最近连续签到次数<br>
  * 5. 获取用户当月首次签到日期<br>
  * 6. 获取用户当月每天的签到详情<br>
- * 7. 获取用户最近几天的签到情况<br>
+ * 7. 获取用户最近几天的签到情况, 多少天由 SignProperties#getLastFewDays() 决定.<br>
+ * 8. 获取用户最近几天的签到情况<br>
+ * 9. 删除指定用户与指定日期的数据<br>
+ * 10. 删除指定月份的用户签到统计数据<br>
  * @author flex_song zyw
  * @version V1.0  Created by 2020-09-14 10:00
  */
+@Slf4j
 public class UserSignServiceImpl implements SignService {
+
+    /**
+     * 日期格式
+     */
+    private static final String PATTERN = "yyyy-MM-dd";
 
     private final RedisConnectionFactory redisConnectionFactory;
     private final SignProperties signProperties;
+
 
     private final String charset;
 
@@ -54,10 +68,79 @@ public class UserSignServiceImpl implements SignService {
                 + SignUtil.buildSignKey(uid, date)).getBytes(charset);
     }
 
-    private byte[] buildAllSignKey(LocalDate date) throws UnsupportedEncodingException {
+    private byte[] buildTotalSignKey(LocalDate date) throws UnsupportedEncodingException {
 
-        return (signProperties.getAllSignKeyPrefix()
+        return (signProperties.getTotalSignKeyPrefix()
                 + SignUtil.formatDate(date)).getBytes(charset);
+    }
+
+    private byte[] buildDayKey(LocalDate date) throws UnsupportedEncodingException {
+        return (Integer.toString(date.getDayOfMonth()).getBytes(charset));
+    }
+
+    /**
+     * 删除指定用户与指定日期的数据
+     *
+     * @param uid  用户ID
+     * @param date 日期
+     * @return 已删除的 key 数量
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
+     */
+    @Override
+    public long delSignByUidAndDate(@NonNull String uid, @NonNull LocalDate date) throws UnsupportedEncodingException {
+
+        byte[] key = buildSignKey(uid, date);
+        return del(key);
+    }
+
+    /**
+     * 删除指定用户与指定日期的数据
+     *
+     * @param keyMap  k = 用户ID, v = LocalDate
+     * @return 已删除的 key 数量
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
+     */
+    @Override
+    public long delSignByUidAndDate(@NonNull Map<String, LocalDate> keyMap) throws UnsupportedEncodingException {
+
+        List<byte[]> keyList = new ArrayList<>();
+        Set<Map.Entry<String, LocalDate>> entries = keyMap.entrySet();
+        for (Map.Entry<String, LocalDate> entry : entries)
+        {
+            keyList.add(buildSignKey(entry.getKey(), entry.getValue()));
+        }
+        return del(keyList);
+    }
+
+    /**
+     * 删除指定月份的用户签到统计数据
+     *
+     * @param date 日期
+     * @return 已删除的 key 数量
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
+     */
+    @Override
+    public long delTotalSignByDate(@NonNull LocalDate date) throws UnsupportedEncodingException {
+
+        byte[] key = buildTotalSignKey(date);
+        return del(key);
+    }
+
+    /**
+     * 删除指定月份的用户签到统计数据
+     *
+     * @param dates 日期列表
+     * @return 已删除的 key 数量
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
+     */
+    @Override
+    public long delTotalSignByDate(@NonNull List<LocalDate> dates) throws UnsupportedEncodingException {
+        List<byte[]> keyList = new ArrayList<>();
+        for (LocalDate date : dates)
+        {
+            keyList.add(buildTotalSignKey(date));
+        }
+        return del(keyList);
     }
 
     /**
@@ -69,17 +152,33 @@ public class UserSignServiceImpl implements SignService {
      * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
-    public boolean doSign(String uid, LocalDate date) throws UnsupportedEncodingException {
-        Objects.requireNonNull(uid, "uib 不能为 null");
-        Objects.requireNonNull(date, "date 不能为 null");
+    public boolean doSign(@NonNull String uid, @NonNull LocalDate date) throws UnsupportedEncodingException {
 
         int offset = date.getDayOfMonth() - 1;
+        byte[] key = buildSignKey(uid, date);
+        byte[] totalKey = buildTotalSignKey(date);
+        byte[] dayKey = buildDayKey(date);
+        List<Object> pipelineList;
         try (RedisConnection connection = getConnection())
         {
-            final Boolean isSet = connection.setBit(buildSignKey(uid, date), offset, true);
-            connection.incr(buildAllSignKey(date));
-            return Optional.ofNullable(isSet).orElse(false);
+            connection.openPipeline();
+
+            connection.setBit(key, offset, true);
+            // 统计所有用户签到统计, 不考虑是否百分百成功, 所以对结果不用关心
+            connection.hIncrBy(totalKey, dayKey, 1L);
+            connection.expire(key, signProperties.getUserExpired());
+            connection.expire(totalKey, signProperties.getTotalExpired());
+
+            pipelineList = connection.closePipeline();
         }
+        catch (RedisPipelineException e)
+        {
+            log.error(String.format("用户签到错误-redis 操作错误: uid=%s, date=%s", uid, formatDate(date, PATTERN)), e);
+            // 对于单个用户: 签到操作是幂等操作, 不用考虑之前用户签到是否成功与失败; 对于所有用户签到统计, 类似于PV, 不需要精确统计.
+            return false;
+        }
+
+        return  Optional.of((boolean) pipelineList.get(0)).orElse(false);
     }
 
     /**
@@ -91,14 +190,13 @@ public class UserSignServiceImpl implements SignService {
      * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
-    public boolean checkSign(String uid, LocalDate date) throws UnsupportedEncodingException {
-        Objects.requireNonNull(uid, "uib 不能为 null");
-        Objects.requireNonNull(date, "date 不能为 null");
+    public boolean checkSign(@NonNull String uid, @NonNull LocalDate date) throws UnsupportedEncodingException {
 
         int offset = date.getDayOfMonth() - 1;
+        byte[] key = buildSignKey(uid, date);
         try (RedisConnection connection = getConnection())
         {
-            Boolean isSign = connection.getBit(buildSignKey(uid, date), offset);
+            Boolean isSign = connection.getBit(key, offset);
             return Optional.ofNullable(isSign).orElse(false);
         }
     }
@@ -112,32 +210,44 @@ public class UserSignServiceImpl implements SignService {
      * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
-    public long getSignCount(String uid, LocalDate date) throws UnsupportedEncodingException {
-        Objects.requireNonNull(uid, "uib 不能为 null");
-        Objects.requireNonNull(date, "date 不能为 null");
+    public long getSignCount(@NonNull String uid, @NonNull LocalDate date) throws UnsupportedEncodingException {
 
+        byte[] key = buildSignKey(uid, date);
         try (RedisConnection connection = getConnection())
         {
-            Long success = connection.bitCount(buildSignKey(uid, date));
+            Long success = connection.bitCount(key);
             return Optional.ofNullable(success).orElse(0L);
         }
     }
 
     @Override
-    public long getAllSignCount(LocalDate date) throws UnsupportedEncodingException {
+    public long getTotalSignCount(@NonNull LocalDate date) throws UnsupportedEncodingException {
 
-        Objects.requireNonNull(date, "date 不能为 null");
-        byte[] value;
+        Map<byte[], byte[]> monthMap;
+        byte[] totalKey = buildTotalSignKey(date);
         try (RedisConnection connection = getConnection())
         {
-            value = connection.get(buildAllSignKey(date));
-        }
-        if (value != null)
-        {
-            return Long.parseLong(new String(value, charset));
+            monthMap = connection.hGetAll(totalKey);
         }
 
-        return 0L;
+        if (monthMap != null)
+        {
+            return monthMap.values().stream()
+                    .mapToLong(b -> {
+                        try
+                        {
+                            return Long.parseLong(new String(b, charset));
+                        }
+                        catch (Exception e)
+                        {
+                            log.error(String.format("获取所有用户签到总次数错误: date=%s", formatDate(date, PATTERN)), e);
+                            return 0L;
+                        }
+                    })
+                    .sum();
+        }
+
+        return -1L;
     }
 
     /**
@@ -149,20 +259,19 @@ public class UserSignServiceImpl implements SignService {
      * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
-    public long getContinuousSignCount(String uid, LocalDate date) throws UnsupportedEncodingException {
-        Objects.requireNonNull(uid, "uib 不能为 null");
-        Objects.requireNonNull(date, "date 不能为 null");
+    public long getContinuousSignCount(@NonNull String uid, @NonNull LocalDate date) throws UnsupportedEncodingException {
 
         int signCount = 0;
         List<Long> list;
+        byte[] key = buildSignKey(uid, date);
+        final BitFieldSubCommands subCommands =
+                BitFieldSubCommands.create()
+                        .get(BitFieldSubCommands.BitFieldType
+                                     .unsigned(date.getDayOfMonth()))
+                        .valueAt(0L);
         try (RedisConnection connection = getConnection())
         {
-            final BitFieldSubCommands subCommands =
-                    BitFieldSubCommands.create()
-                            .get(BitFieldSubCommands.BitFieldType
-                            .unsigned(date.getDayOfMonth()))
-                            .valueAt(0L);
-            list = connection.bitField(buildSignKey(uid, date), subCommands);
+            list = connection.bitField(key, subCommands);
         }
         if (list != null && list.size() > 0) {
             // 取低位连续不为0的个数即为连续签到次数，需考虑当天尚未签到的情况
@@ -192,15 +301,13 @@ public class UserSignServiceImpl implements SignService {
      * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
-    public LocalDate getFirstSignDate(String uid, LocalDate date) throws UnsupportedEncodingException {
-        Objects.requireNonNull(uid, "uib 不能为 null");
-        Objects.requireNonNull(date, "date 不能为 null");
-
+    public LocalDate getFirstSignDate(@NonNull String uid, @NonNull LocalDate date) throws UnsupportedEncodingException {
         //noinspection UnusedAssignment
         Long pos = -1L;
+        byte[] key = buildSignKey(uid, date);
         try (RedisConnection connection = getConnection())
         {
-            pos = connection.bitPos(buildSignKey(uid, date), true);
+            pos = connection.bitPos(key, true);
         }
         //noinspection ConstantConditions
         return (pos != null && pos < 0) ? null : date.withDayOfMonth((int) (pos + 1));
@@ -215,22 +322,22 @@ public class UserSignServiceImpl implements SignService {
      * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
-    public Map<String, Boolean> getSignInfo(String uid, LocalDate date) throws UnsupportedEncodingException {
-        Objects.requireNonNull(uid, "uib 不能为 null");
-        Objects.requireNonNull(date, "date 不能为 null");
+    public Map<String, Boolean> getSignInfo(@NonNull String uid, @NonNull LocalDate date) throws UnsupportedEncodingException {
 
         Map<String, Boolean> signMap = new HashMap<>(date.getDayOfMonth());
         List<Long> list;
+        byte[] key = buildSignKey(uid, date);
+        final BitFieldSubCommands subCommands =
+                BitFieldSubCommands.create()
+                        .get(BitFieldSubCommands.BitFieldType
+                                     .unsigned(date.lengthOfMonth()))
+                        .valueAt(0L);
         try (RedisConnection connection = getConnection())
         {
-            final BitFieldSubCommands subCommands =
-                    BitFieldSubCommands.create()
-                                       .get(BitFieldSubCommands.BitFieldType
-                                       .unsigned(date.lengthOfMonth()))
-                                       .valueAt(0L);
-            list = connection.bitField(buildSignKey(uid, date), subCommands);
+            list = connection.bitField(key, subCommands);
         }
-        fillingSignMap(date, signMap, date.lengthOfMonth(), 0, list);
+        fillingSignMap(date, signMap, date.lengthOfMonth(), 0,
+                       Optional.ofNullable(list).orElse(new ArrayList<>(0)));
         return signMap;
     }
 
@@ -243,15 +350,15 @@ public class UserSignServiceImpl implements SignService {
      * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
-    public Map<String, Boolean> getSignInfoForTheLastFewDays(String uid, LocalDate date) throws UnsupportedEncodingException {
+    public Map<String, Boolean> getSignInfoForTheLastFewDays(@NonNull String uid, @NonNull LocalDate date) throws UnsupportedEncodingException {
+        return getSignInfoForTheLastFewDays(uid, date, signProperties.getLastFewDays());
+    }
 
-        Objects.requireNonNull(uid, "uib 不能为 null");
-        Objects.requireNonNull(date, "date 不能为 null");
+    @Override
+    public Map<String, Boolean> getSignInfoForTheLastFewDays(@NonNull String uid, @NonNull LocalDate date, int lastFewDays) throws UnsupportedEncodingException {
 
         // 今天是当月的第几天
         int dayOfMonth = date.getDayOfMonth();
-        // 获取最近几天的签到情况, 默认为 7 天
-        int lastFewDays = signProperties.getLastFewDays();
 
         Map<String, Boolean> signMap = new HashMap<>(dayOfMonth);
 
@@ -279,8 +386,8 @@ public class UserSignServiceImpl implements SignService {
      * @param beforeOfHighDay   高位数(DayOfMonth)
      * @param list              签到的 bit 数据
      */
-    private void fillingSignMap(LocalDate date, Map<String, Boolean> signMap, int lowDay, int beforeOfHighDay, List<Long> list) {
-        if (list != null && list.size() > 0)
+    private void fillingSignMap(@NonNull LocalDate date, @NonNull Map<String, Boolean> signMap, int lowDay, int beforeOfHighDay, @NonNull List<Long> list) {
+        if (list.size() > 0)
         {
             // 由低位到高位，为0表示未签到，为1表示已签到
             long v = list.get(0) == null ? 0 : list.get(0);
@@ -304,8 +411,8 @@ public class UserSignServiceImpl implements SignService {
      * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @SuppressWarnings("UnnecessaryLocalVariable")
-    private void fillingSignDetail2SignMapOfCrossMonth(String uid, LocalDate date, int dayOfMonth,
-                                                       int lastFewDays, Map<String, Boolean> signMap) throws UnsupportedEncodingException {
+    private void fillingSignDetail2SignMapOfCrossMonth(@NonNull String uid, @NonNull LocalDate date, int dayOfMonth,
+                                                       int lastFewDays, @NonNull Map<String, Boolean> signMap) throws UnsupportedEncodingException {
 
 
         LocalDate preMonthsDate = date.minusMonths(1);
@@ -326,27 +433,32 @@ public class UserSignServiceImpl implements SignService {
 
 
         List<Long> currentMonthList, preMonthList;
+
+        byte[] key = buildSignKey(uid, date);
+        // 获取当月中 dayOfMonth 天签到情况
+        final BitFieldSubCommands subCommands =
+                BitFieldSubCommands.create()
+                        .get(BitFieldSubCommands.BitFieldType.unsigned(currentMonthType))
+                        .valueAt(currentMonthOffset);
+
+        byte[] preMonthKey = buildSignKey(uid, preMonthsDate);
+        // 获取上月中月底的 remainingDays 天签到情况
+        final BitFieldSubCommands preMonthSubCommands =
+                BitFieldSubCommands.create()
+                        .get(BitFieldSubCommands.BitFieldType.unsigned(preMonthType))
+                        .valueAt(preMonthOffset);
         try (RedisConnection connection = getConnection())
         {
-            // 获取当月中 dayOfMonth 天签到情况
-            final BitFieldSubCommands subCommands =
-                            BitFieldSubCommands.create()
-                                               .get(BitFieldSubCommands.BitFieldType.unsigned(currentMonthType))
-                                               .valueAt(currentMonthOffset);
-            currentMonthList = connection.bitField(buildSignKey(uid, date), subCommands);
-
-            // 获取上月中月底的 remainingDays 天签到情况
-            final BitFieldSubCommands preMonthSubCommands =
-                            BitFieldSubCommands.create()
-                                               .get(BitFieldSubCommands.BitFieldType.unsigned(preMonthType))
-                                               .valueAt(preMonthOffset);
-            preMonthList = connection.bitField(buildSignKey(uid, preMonthsDate), preMonthSubCommands);
+            currentMonthList = connection.bitField(key, subCommands);
+            preMonthList = connection.bitField(preMonthKey, preMonthSubCommands);
         }
 
         // 当月
-        fillingSignMap(date, signMap, currentMonthLowDay, currentMonthBeforeOfHighDay, currentMonthList);
+        fillingSignMap(date, signMap, currentMonthLowDay, currentMonthBeforeOfHighDay,
+                       Optional.ofNullable(currentMonthList).orElse(new ArrayList<>(0)));
         // 上月
-        fillingSignMap(preMonthsDate, signMap, preMonthLowDay, preMonthBeforeOfHighDay, preMonthList);
+        fillingSignMap(preMonthsDate, signMap, preMonthLowDay, preMonthBeforeOfHighDay,
+                       Optional.ofNullable(preMonthList).orElse(new ArrayList<>(0)));
     }
 
 
@@ -362,19 +474,61 @@ public class UserSignServiceImpl implements SignService {
      * @param signMap           Key 为签到日期，Value 为签到状态的 Map("yyyy-MM-dd", boolean)
      * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
-    private void fillingSignDetail2SignMap(int type, int offset, String uid, LocalDate date,
-                                           int lowDay, int beforeOfHighDay, Map<String, Boolean> signMap) throws UnsupportedEncodingException {
+    private void fillingSignDetail2SignMap(int type, int offset, @NonNull String uid, @NonNull LocalDate date,
+                                           int lowDay, int beforeOfHighDay, @NonNull Map<String, Boolean> signMap) throws UnsupportedEncodingException {
 
         List<Long> list;
+        byte[] key = buildSignKey(uid, date);
+        final BitFieldSubCommands subCommands =
+                BitFieldSubCommands.create()
+                        .get(BitFieldSubCommands.BitFieldType.unsigned(type))
+                        .valueAt(offset);
         try (RedisConnection connection = getConnection())
         {
-            final BitFieldSubCommands subCommands =
-                            BitFieldSubCommands.create()
-                                               .get(BitFieldSubCommands.BitFieldType.unsigned(type))
-                                               .valueAt(offset);
-            list = connection.bitField(buildSignKey(uid, date), subCommands);
+            list = connection.bitField(key, subCommands);
         }
-        fillingSignMap(date, signMap, lowDay, beforeOfHighDay, list);
+        fillingSignMap(date, signMap, lowDay, beforeOfHighDay,
+                       Optional.ofNullable(list).orElse(new ArrayList<>(0)));
+    }
+
+
+    /**
+     * 从 redis 中删除指定的 keyList
+     *
+     * @param keyList  key 列表
+     * @return 已删除的 key 数量
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
+     */
+    @SuppressWarnings("RedundantThrows")
+    private long del(@NonNull List<byte[]> keyList) throws UnsupportedEncodingException {
+
+        Long result;
+
+        byte[][] bytesKey = new byte[keyList.size()][];
+        keyList.toArray(bytesKey);
+        try (RedisConnection connection = getConnection())
+        {
+            result = connection.del(bytesKey);
+        }
+        return  Optional.ofNullable(result).orElse(0L);
+    }
+
+    /**
+     * 从 redis 中删除指定的 key
+     *
+     * @param key  key
+     * @return 已删除的 key 数量
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
+     */
+    @SuppressWarnings("RedundantThrows")
+    private long del(@NonNull byte[] key) throws UnsupportedEncodingException {
+
+        Long result;
+        try (RedisConnection connection = getConnection())
+        {
+            result = connection.del(key);
+        }
+        return  Optional.ofNullable(result).orElse(0L);
     }
 
 }

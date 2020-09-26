@@ -9,6 +9,7 @@ import top.dcenter.ums.security.core.sign.config.EnableSign;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -32,6 +33,11 @@ public class DemoSignController {
         this.signProperties = signProperties;
     }
 
+    /**
+     * 签到测试
+     * @return json
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
+     */
     @SuppressWarnings("AlibabaMethodTooLong")
     @RequestMapping("/testSign")
     public String testSign() throws UnsupportedEncodingException {
@@ -72,7 +78,8 @@ public class DemoSignController {
         }
 
 
-        { // 查询 today 是否签到
+        // 查询 today 是否签到
+        {
             boolean signed = signService.checkSign("1000", today);
             if (signed) {
                 sb.append("今天您已签到：").append(formatDate(today, "yyyy-MM-dd")).append("<br>");
@@ -81,22 +88,26 @@ public class DemoSignController {
             }
         }
 
-        { // 查询 当月 总签到数
+        // 查询 当月 总签到数
+        {
             long count = signService.getSignCount("1000", today);
             sb.append("本月签到次数：").append(count).append("<br>");
         }
 
-        { // 查询连续签到天数
+        // 查询连续签到天数
+        {
             long count = signService.getContinuousSignCount("1000", today);
             sb.append("连续签到次数：").append(count).append("<br>");
         }
 
-        { // 查询当月首次签到日期
+        // 查询当月首次签到日期
+        {
             LocalDate date = signService.getFirstSignDate("1000", today);
             sb.append("本月首次签到：").append(formatDate(date, "yyyy-MM-dd")).append("<br>");
         }
 
-        { // 显示当月签到情况
+        // 显示当月签到情况
+        {
             sb.append("当月签到情况：").append("<br>");
             Map<String, Boolean> signInfo = new TreeMap<>(signService.getSignInfo("1000", today));
             for (Map.Entry<String, Boolean> entry : signInfo.entrySet()) {
@@ -116,22 +127,26 @@ public class DemoSignController {
         }
 
 
-        { // getSignCount
+        // getSignCount
+        {
             long count = signService.getSignCount("1000", today);
             sb.append("上月签到次数：").append(count).append("<br>");
         }
 
-        { // getContinuousSignCount
+        // getContinuousSignCount
+        {
             long count = signService.getContinuousSignCount("1000", today);
             sb.append("上月连续签到次数：").append(count).append("<br>");
         }
 
-        { // getFirstSignDate
+        // getFirstSignDate
+        {
             LocalDate date = signService.getFirstSignDate("1000", today);
             sb.append("上月首次签到：").append(formatDate(date, "yyyy-MM-dd")).append("<br>");
         }
 
-        { // getSignMap
+        // getSignMap
+        {
             sb.append("上月签到情况：").append("<br>");
             Map<String, Boolean> signInfo = new TreeMap<>(signService.getSignInfo("1000", today));
             for (Map.Entry<String, Boolean> entry : signInfo.entrySet()) {
@@ -140,43 +155,18 @@ public class DemoSignController {
         }
 
         sb.append("本月所有用户总签数：").append("<br>");
-        long allSignCount = signService.getAllSignCount(today);
+        long allSignCount = signService.getTotalSignCount(today);
         sb.append(allSignCount).append("<br>");
 
         return sb.toString();
     }
 
     /**
-     * 获取最近几天的签到情况, 默认为 7 天, security.sign.lastFewDays=10<br><br>
-     * 访问 http://localhost:9090/testSignOfLastSevenDays/10 的结果(访问此链接前先访问http://localhost:9090/testSign, 添加一些签到数据):
-     * 最近10天签到情况：
-     * 2020-09-06: √
-     * 2020-09-07: √
-     * 2020-09-08: √
-     * 2020-09-09: √
-     * 2020-09-10: √
-     * 2020-09-11: -
-     * 2020-09-12: -
-     * 2020-09-13: -
-     * 2020-09-14: √
-     * 2020-09-15: -
-     * 往前推 10 天后, 最近七天签到情况:
-     * 最近10天签到情况：
-     * 2020-08-27: √
-     * 2020-08-28: √
-     * 2020-08-29: √
-     * 2020-08-30: √
-     * 2020-08-31: -
-     * 2020-09-01: -
-     * 2020-09-02: √
-     * 2020-09-03: -
-     * 2020-09-04: √
-     * 2020-09-05: √
+     * 获取最近几天的签到情况, 默认为 7 天<br><br>
      * @param forwardDays   forwardDays
-     * @return
+     * @return json
      * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
-    @SuppressWarnings("JavaDoc")
     @RequestMapping("/testSignOfLastSevenDays/{forwardDays}")
     public String testSignOfRange(@PathVariable Integer forwardDays) throws UnsupportedEncodingException {
 
@@ -185,7 +175,8 @@ public class DemoSignController {
         StringBuilder sb = new StringBuilder();
 
 
-        { // 获取最近几天的签到情况, 默认为 7 天
+        // 获取最近几天的签到情况, 默认为 7 天
+        {
             sb.append("最近").append(signProperties.getLastFewDays()).append("天签到情况：").append("<br>");
             Map<String, Boolean> signInfo = new TreeMap<>(signService.getSignInfoForTheLastFewDays("1000", today));
             for (Map.Entry<String, Boolean> entry : signInfo.entrySet()) {
@@ -197,7 +188,8 @@ public class DemoSignController {
         sb.append("往前推 ").append(forwardDays).append(" 天后, 最近").append(signProperties.getLastFewDays()).append("天签到情况: ").append("<br>");
         today = today.minusDays(forwardDays);
 
-        { // 获取最近几天的签到情况, 默认为 7 天
+        // 获取最近几天的签到情况, 默认为 7 天
+        {
             sb.append("最近七天签到情况：").append("<br>");
             Map<String, Boolean> signInfo = new TreeMap<>(signService.getSignInfoForTheLastFewDays("1000", today));
             for (Map.Entry<String, Boolean> entry : signInfo.entrySet()) {
@@ -206,8 +198,39 @@ public class DemoSignController {
         }
 
         sb.append("本月所有用户总签数：").append("<br>");
-        long allSignCount = signService.getAllSignCount(today);
+        long allSignCount = signService.getTotalSignCount(today);
         sb.append(allSignCount).append("<br>");
+
+        return sb.toString();
+    }
+
+    /**
+     * 删除签到 key 测试
+     * @return json
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
+     */
+    @RequestMapping("/testDelOfCurrentMonth")
+    public String testDelOfCurrentMonth() throws UnsupportedEncodingException {
+
+        LocalDate today = LocalDate.now();
+
+        StringBuilder sb = new StringBuilder();
+
+
+        {
+            sb.append("删除用户当月签到 key").append("<br>");
+            long amount = signService.delSignByUidAndDate("1000", today);
+            sb.append("删除数量: ").append(amount).append("<br>");
+        }
+
+        {
+            sb.append("删除当月用户签到统计 key").append("<br>");
+            List<LocalDate> list = List.of(today);
+            long amount = signService.delTotalSignByDate(list);
+            sb.append("删除数量: ").append(amount).append("<br>");
+        }
+
+        sb.append("<br>");
 
         return sb.toString();
     }

@@ -86,6 +86,7 @@ security:
       - /**/*.html
       - /testSign
       - /testSignOfLastSevenDays/**
+      - /testDelOfCurrentMonth
 
     # ============= remember-me =============
     # 设置记住我功能的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
@@ -150,10 +151,14 @@ security:
     last-few-days: 10
     # 用于 redis 签到 key 前缀，默认为： u:sign:
     sign-key-prefix: 'u:sign:'
-    # 用于 redis 总签到 key 前缀，默认为： all:sign:
-    all-sign-key-prefix: 'all:sign:'
+    # 用于 redis 总签到 key 前缀，默认为： total:sign:
+    total-sign-key-prefix: 'total:sign:'
     # redis key(String) 转 byte[] 转换时所用的 charset
     charset: UTF-8
+    # 用户签到统计 redis key TTL, 默认: 二个月 , 单位: 秒
+    total-expired: 5356800
+    # 用户签到 redis key TTL, 默认: 二个月 , 单位: 秒
+    user-expired: 5356800
 
 
   # 验证码配置
@@ -202,6 +207,7 @@ security:
     # 第三方登录时是否自动注册：当为 true 且实现 ConnectionSignUp 接口，则开启自动注册，此时 signUpUrl 失效，否则不会开始自动注册，默认为 true
     auto-sign-in: false
 
+    # 当关闭自动注册后, 注册功能页面有验证码时, 则额外需要设置验证码校验功能.
     # social 第三方登录注册功能是否开启，默认为 false
     social-sign-up-is-open: true
 
@@ -234,10 +240,10 @@ security:
     banding-url: /banding
     # 用户绑定第三方账号的 List 的参数名称, 默认: connections
     banding-provider-connection-list-name: connections
-    # 用户绑定第三方账号后返回状态信息的视图前缀, 默认: connect/
-    # 对 AbstractView 子类定义 bean 时, beanName 的前缀必须与此属性值一样
-    # 查看所有第三方账号绑定状态 url: connect/
-    # 查看指定第三方账号绑定状态 url: connect/providerId(qq/gitee/weixin/weibo)
+    # 查看所有第三方账号绑定状态 url: /connect
+    # 查看指定第三方账号绑定状态 url: /connect/providerId(qq/gitee/weixin/weibo)
+    # 用户绑定第三方账号后返回状态信息的视图前缀, 默认: connect/ , 在自定义 AbstractView 时有用
+    # 对 AbstractView 子类定义 bean 时, beanName 的前缀必须与此属性值一样, 具体可以看 BandingConnectController#connectView(..) 几个方法
     view-path: connect/
 
     # 第三方授权登录用户信息表
