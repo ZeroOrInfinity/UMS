@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <!--    其他非 tyemleaf 模板可以使用预置 csrf 到 meta 中, 方便前端调用-->
+    <!-- csrf -->
+    <!--    <meta name="_csrf" th:content="${_csrf.token}"/>-->
+    <!-- default header name is X-CSRF-TOKEN -->
+    <!--    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>-->
+
+    <!--
+       js获取 CSRF Token
+       var csrfToken = $("meta[name='_csrf']").attr("content");
+       var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+    -->
+
+    <title>signUp</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@1.11.1/dist/jquery.min.js"></script>
+
+</head>
+<body>
+<h2>Demo注册页, 请替换本页，/authentication/social 用户不需要自己处理，只需要实现 AbstractSocialUserDetailsService 就行，可参考
+    security-demo 的 LoginSocialUserDetailService</h2>
+<h3>替换本页，请配置 security.social.signUpUrl 属性来设置自己的注册页面</h3>
+<h2>通过 ajax 请求 /social/user 可以获取第三方登录的用户信息：用户昵称，用户头像，第三方的 ProviderId，ProviderUserId</h2>
+<h2>如要自定义 /social/user 请配置 security.social.socialUserInfo 属性来获取自定义的用户信息</h2>
+<!-- 通过 th:action 的方式支持 csrf 或者 添加隐藏域<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
+<form id="social-form" th:action="@{/authentication/social}" method="post">
+    <table>
+        <tr>
+            <td>信 息：</td>
+            <td><input id="providerId" type="text" name="providerId" th:value="${userInfo?.providerId}"
+                       readonly/></td>
+        </tr>
+        <tr>
+            <td>providerUserId:</td>
+            <td><input id="providerUserId" type="text" name="providerUserId" th:value="${userInfo?.providerUserId}"
+                       readonly/></td>
+        </tr>
+        <tr>
+            <td>用户头像:</td>
+            <td><img id="avatarUrl" th:src="${userInfo?.avatarUrl}" name="avatarUrl"
+                     style="width: 100px; height: 100px"><input id="avatar-input" type="hidden"
+                                                                name="avatarUrl" th:value="${userInfo?.avatarUrl}"/>
+            </td>
+
+        </tr>
+        <tr>
+            <td>用 户 名：</td>
+            <td><input id="username" type="text" name="username" th:value="${userInfo?.userId}"/>
+                <p style="color: #ff0000"
+                   id="error-name">
+                </p></td>
+        </tr>
+        <tr>
+            <td>密码：</td>
+            <td><input type="password" name="password" value="123"></td>
+        </tr>
+        <tr>
+            <td>确认密码：</td>
+            <td><input type="password" name="checkPw" value="123"/></td>
+        </tr>
+        <tr>
+            <td>图形验证码：</td>
+            <td>
+                <input type="text" name="imageCode">
+                <img id="img" class="img" th:src="@{/code/image}" style="width: 67px; height: 23px">
+            </td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" name="rememberMe" checked="true">记住我</input></td>
+            <td><p style="color: #ff0000" id="error-code"></p></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <button id="btn-register" type="button" name="type" value="register">登录</button>
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+<script>
+
+    $.fn.serializeObject = function () {
+        let o = {};
+        let a = this.serializeArray();
+        $.each(a, function () {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    }
+
+    $(".img").click(function () {
+        let uri = this.getAttribute("src");
+        console.log(uri)
+        let end = uri.indexOf('?', 0);
+        console.log(end)
+        if (end === -1) {
+            uri = uri + '?'+ Math.random();
+        } else {
+            uri = uri.substring(0, end) + '?'+ Math.random();
+        }
+        console.log(uri)
+        this.setAttribute('src', uri);
+    });
+
+    $("#btn-register").click(function () {
+        console.log(JSON.stringify($('#social-form').serializeObject()))
+        $.ajax({
+            // 如果用的是模板，则 url 可以使用注入的方式，会跟着配置动态改变
+            url: $('#social-form').attr("action"),
+            // url: "/authentication/social",
+            data: JSON.stringify($('#social-form').serializeObject()),
+            type: "POST",
+            dataType: "json",
+            beforeSend: function (request) {
+                request.setRequestHeader("JSON", "json");
+            },
+            success: function (data) {
+                $("#error-name").text("")
+                $("#error-code").text("")
+                console.log("==========注册成功============")
+                // 注册成功
+                // ...
+                console.log(data)
+                window.location.href = data.data.url
+            },
+            error: function (data) {
+                // 注册失败
+                $("#error-name").text("")
+                $("#error-code").text("")
+                console.log("********注册失败*********")
+                console.log(data)
+                data = data.responseJSON
+                if (undefined !== data) {
+                    console.log(data);
+                    // 错误代码看ErrorCodeEnum
+                    if (data.code >= 900 && data.code < 1000) {
+                        $("#error-name").text(data.msg)
+                    } else if (data.code >= 600 && data.code < 700) {
+                        $("#error-code").text(data.msg)
+                    }
+                }
+                $("#img").trigger("click")
+            }
+        })
+        return
+    })
+
+</script>
+</html>

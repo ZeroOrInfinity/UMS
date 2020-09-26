@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@1.11.1/dist/jquery.min.js"></script>
+</head>
+<body>
+<h2>登录页面 login</h2>
+<h3>表单登录</h3>
+<h5>如果短信验证码与图片验证码同时配置时，优先使用短信验证码，图片验证码失效</h5>
+<!-- 通过 th:action 的方式支持 csrf 或者 添加隐藏域<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
+<form id="reg-form" th:action="@{/authentication/form}" method="post">
+    <table>
+        <tr>
+            <td>用户名：</td>
+            <td><input type="text" name="username" value="admin" ><p style="color: #ff0000"
+                                                                           id="error-name"></p></td>
+        </tr>
+        <tr>
+            <td>密码：</td>
+            <td><input type="password" name="password" value="admin"></td>
+        </tr>
+        <tr>
+            <td>图形验证码：</td>
+            <td>
+                <input type="text" name="imageCode">
+                <img class="img" th:src="@{/code/image}" style="width: 67px; height: 23px">
+            </td>
+        </tr>
+        <tr>
+            <td ><input type="checkbox" name="rememberMe" checked="true">记住我</input></td>
+            <td><p style="color: #ff0000" id="error-code"></p></td>
+        </tr>
+        <tr>
+            <td ><button id="btn-reg" type="button">登录ajax</button></td>
+            <!-- 通过 form submit 不能接收错误信息, 通过 ajax 可接收错误信息 -->
+            <td ><button type="submit">登录</button></td>
+        </tr>
+    </table>
+</form>
+<h3>手机登录</h3>
+<form id="mobile-form" th:action="@{/authentication/mobile}" method="post">
+    <table>
+        <tr>
+            <td>手机号码：</td>
+            <td>
+                <input type="tel" name="mobile" value="13345678980"><p style="color: #ff0000"
+                                                                       id="error-name-mobile"></p>
+                <a th:href="@{/code/sms?mobile=13345678980}" >发送验证码</a>
+            </td>
+        </tr>
+        <tr>
+            <td>手机验证码：</td>
+            <td>
+                <input type="text" name="smsCode">
+            </td>
+        </tr>
+        <tr>
+            <td>图形验证码：</td>
+            <td>
+                <input type="text" name="imageCode">
+                <img class="img-mobile img" th:src="@{/code/image}" style="width: 67px; height: 23px">
+            </td>
+        </tr>
+        <tr>
+            <td ><input type="checkbox" name="rememberMe" checked="true">记住我</input></td>
+            <td><p style="color: #ff0000" id="error-code-mobile"></p></td>
+        </tr>
+        <tr>
+            <td ><button id="btn-mobile" type="button">登录ajax</button></td>
+            <!-- 通过 form submit 不能接收错误信息, 通过 ajax 可接收错误信息 -->
+            <td ><button type="submit">登录</button></td>
+        </tr>
+    </table>
+</form>
+<br><br>
+<dev id="basePath" th:basePath="@{/}" style="display: none"/>
+</body>
+<script>
+    var basePath = $("#basePath").attr("basePath");
+    $.fn.serializeObject = function()
+    {
+        let o = {};
+        let a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    }
+
+    $(".img").click(function(){
+        let uri = this.getAttribute("src");
+        console.log(uri)
+        let end = uri.indexOf('?', 0);
+        console.log(end)
+        if (end === -1) {
+            uri = uri + '?'+ Math.random();
+        } else {
+            uri = uri.substring(0, end) + '?'+ Math.random();
+        }
+        console.log(uri)
+        this.setAttribute('src', uri);
+    });
+
+
+    function submitFormByAjax(url, formId, errorNameId, errorCodeId, imgId) {
+        return function () {
+            console.log(JSON.stringify($(formId).serializeObject()))
+            $.ajax({
+                // 如果用的是模板，则 url 可以使用注入的方式，会跟着配置动态改变
+                url: url,
+                data: JSON.stringify($(formId).serializeObject()),
+                type: "POST",
+                dataType: "json",
+                success: function (data) {
+                    $(errorNameId).text("")
+                    $(errorCodeId).text("")
+                    console.log("==========注册成功============")
+                    // 注册成功
+                    // ...
+                    console.log(data)
+                    let uri = data.data.url
+                    if (uri === null) {
+                        uri = basePath
+                    }
+                    window.location.href = uri;
+                },
+                error: function (data) {
+                    // 注册失败
+                    $(errorNameId).text("")
+                    $(errorCodeId).text("")
+                    console.log("********注册失败*********")
+                    console.log(data)
+                    data = data.responseJSON
+                    if (undefined !== data) {
+                        console.log(data);
+                        // 错误代码看ErrorCodeEnum
+                        if (data.code >= 900 && data.code < 1000) {
+                            $(errorNameId).text(data.msg)
+                        } else if (data.code >= 600 && data.code < 700) {
+                            $(errorCodeId).text(data.msg)
+                        }
+                    }
+                    $(imgId).trigger("click")
+                }
+            })
+            return
+        };
+    }
+
+
+    $("#btn-mobile").click(
+        submitFormByAjax($("#mobile-form").attr("action"), "#mobile-form", "#error-name-mobile", "#error-code-mobile", ".img-mobile")
+    )
+
+
+    $("#btn-reg").click(
+        submitFormByAjax($("#reg-form").attr("action"), "#reg-form", "#error-name", "#error-code", ".img")
+    )
+</script>
+</html>

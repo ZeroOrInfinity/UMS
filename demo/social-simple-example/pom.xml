@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>ums-demo</artifactId>
+        <groupId>top.dcenter</groupId>
+        <version>1.1.1</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>social-simple-example</artifactId>
+    <name>social-simple-example</name>
+    <description>使用用户管理脚手架(ums) social 模块基本功能简单的配置(第三方登录自动注册默认打开)
+    </description>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>top.dcenter</groupId>
+            <artifactId>ums-social-spring-boot-starter</artifactId>
+            <version>${top.dcenter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

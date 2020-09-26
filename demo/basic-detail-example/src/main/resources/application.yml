@@ -1,0 +1,180 @@
+server:
+  port: 9090
+
+spring:
+  profiles:
+    active: dev
+  # mysql
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/ums?useSSL=false&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+  # thymeleaf
+  thymeleaf:
+    encoding: utf-8
+    prefix: classpath:/templates/
+    suffix: .htm
+    servlet:
+      content-type: text/html;charset=UTF-8
+  # jackson
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+  # session 简单配置
+  session:
+    # session 存储模式设置, 要导入相应的 spring-session 类的依赖, 默认为 none, 分布式服务应用把 session 放入 redis 等中间件
+    store-type: none
+    # session 过期时间
+    timeout: PT300s
+
+  # ================= 签到需要的 redis 服务 ===============
+  # redis 配置
+  redis:
+    host: 192.168.88.88
+    port: 6379
+    password:
+    database: 0
+    # 连接超时的时间
+    timeout: 10000
+    # redis-lettuce-pool
+    lettuce:
+      # 会影响应用关闭是时间, dev 模式设置为 0
+      shutdown-timeout: PT500S
+      pool:
+        max-active: 8
+        max-wait: PT10S
+        max-idle: 8
+        min-idle: 1
+
+
+security:
+  client:
+    # 登录页
+    login-page: /login
+    # 登录失败页
+    failure-url: /login
+    # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
+    login-process-type: redirect
+    # 设置处理登录表单的 uri，不需要用户实现此 uri，由 Spring security 自动实现， 默认为 /authentication/form
+    login-processing-url: /authentication/form
+    # 登录成功页
+    success-url: /
+    # 设置登出 url, 默认为 /logout
+    logout-url: /logout
+    # 设置登出后跳转的 url, 默认为 /login
+    logout-success-url: /login
+    # 设置登录时用户名的 request 参数名称, 默认为 username
+    usernameParameter: username
+    # 设置登录时用户密码的 request 参数名称, 默认为 password
+    passwordParameter: password
+    # 登录后是否利用 Referer 进行跳转, 默认为: true
+    useReferer: true
+    # 设置由客户端决定认证成功要跳转的 url 的 request 参数名称, 默认为 redirectTargetUrl
+    targetUrlParameter: redirectTargetUrl
+    # 不需要认证的静态资源 urls, 例如: /resources/**, /static/**
+    ignoring-urls:
+      - /static/**
+    # 不需要认证的 uri, 默认为 空 Set.
+    permit-urls:
+      - /**/*.html
+      - /testSign
+      - /testSignOfLastSevenDays/**
+      - /testDelOfCurrentMonth
+
+    # =============== login routing 功能 ===============
+
+    # 是否开启根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationUrl 和 authRedirectSuffixCondition
+    open-authentication-redirect: true
+    # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require,
+    # 当 openAuthenticationRedirect = true 时生效. 注意: 如果修改此 uri, 需要重新实现修改后的 uri
+    login-un-authentication-url: /authentication/require
+    # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空.
+    # 当 openAuthenticationRedirect = true 时生效.
+    # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
+    # 规则具体看 AntPathMatcher.match(pattern, path)
+    auth-redirect-suffix-condition:
+      - '/hello=/login2'
+      - '/user/**=/login'
+      - '/order/**=/login'
+      - '/file/**=/login'
+      - '/social/**=/signIn.html'
+
+
+    # ============= remember-me =============
+    # 设置记住我功能的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
+    # 记住我功能默认通过 org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl 存入数据库中
+    # 实现 BasedRememberMeTokenRepositoryFactory 可以自定义缓存方式
+    remember-me:
+      remember-me-timeout: P14D
+      remember-me-cookie-name: REMEMBER_ME
+      remember-me-parameter: REMEMBER_ME
+      # 当为 true 时 REMEMBER_ME 只能用于 https, 默认为 false
+      use-secure-cookie: false
+
+    # ============= csrf =============
+    csrf:
+      # csrf 是否开启, 默认为 false;
+      csrf-is-open: false
+      # 忽略指定请求的 CSRF 防护, 默认为 空 Set
+      ignoring-ant-matcher-urls:
+        #        - /authentication/form
+        #        - /authentication/mobile
+        #        - /authentication/social
+        #        - /logout
+        - /user/**
+        - /file/**
+      # csrf tokenRepository 的存储类型, 默认为 session. 因为 session 可以配置缓存在 redis 等, 也可以自己自定义, 例如: redis
+      token-repository-type: session
+
+
+    # ============= 匿名用户配置 =============
+    anonymous:
+      # ANONYMOUS 是否开启, 默认为 true;
+      anonymous-is-open: true
+      # 匿名用户名称, 默认为 ANONYMOUS
+      principal: ANONYMOUS
+      # 匿名用户权限 list, 默认为 ROLE_ANONYMOUS
+      authorities:
+        - ROLE_ANONYMOUS
+        - /test/permission:add
+        - /test/permission:list
+        - /test/pass/:list
+
+  # ============= 用户签到配置 =============
+  # 签到功能 设置
+  sign:
+    # 获取最近几天的签到情况, 不能大于 28 天, 默认为 7 天
+    last-few-days: 7
+    # 用于 redis 签到 key 前缀，默认为： u:sign:
+    sign-key-prefix: 'u:sign:'
+    # 用于 redis 总签到 key 前缀，默认为： total:sign:
+    total-sign-key-prefix: 'total:sign:'
+    # redis key(String) 转 byte[] 转换时所用的 charset
+    charset: UTF-8
+    # 用户签到统计 redis key TTL, 默认: 二个月 , 单位: 秒
+    total-expired: 5356800
+    # 用户签到 redis key TTL, 默认: 二个月 , 单位: 秒
+    user-expired: 5356800
+
+
+
+---
+spring:
+  profiles: dev
+  mvc:
+    throw-exception-if-no-handler-found: true
+  thymeleaf:
+    cache: false
+  # redis 配置
+  redis:
+    # redis-lettuce-pool
+    lettuce:
+      # 会影响应用关闭是时间, dev 模式设置为 0
+      shutdown-timeout: PT0S
+
+debug: true
+server:
+  servlet:
+    context-path: /demo
