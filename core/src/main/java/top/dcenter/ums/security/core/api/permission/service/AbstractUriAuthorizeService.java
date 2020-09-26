@@ -1,7 +1,6 @@
 package top.dcenter.ums.security.core.api.permission.service;
 
 import lombok.Getter;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.Authentication;
@@ -13,7 +12,6 @@ import top.dcenter.ums.security.core.util.ConvertUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -96,8 +94,6 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
         final Set<String> roleSet =
                 authoritySet.stream()
-                            .map(authorities -> StringUtils.splitByWholeSeparator(authorities, PERMISSION_DELIMITER))
-                            .flatMap(Arrays::stream)
                             .filter(authority -> authority.startsWith(DEFAULT_ROLE_PREFIX))
                             .collect(Collectors.toSet());
 
