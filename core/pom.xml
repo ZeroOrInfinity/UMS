@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>1.1.0-beta2</version>
+        <version>1.1.0-beta3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -110,12 +110,20 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs-annotations</artifactId>
             <version>3.1.12</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+
 
     </dependencies>
 

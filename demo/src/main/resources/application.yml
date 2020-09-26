@@ -2,7 +2,7 @@ spring:
   profiles:
     active: dev
   session:
-    # 要导入相应的 spring-session 类的依赖, 默认为 none, 分布式服务器应用把 session 放入 redis, mongodb 等中间件
+    # 要导入相应的 spring-session 类的依赖, 默认为 none, 分布式服务应用把 session 放入 redis, mongodb 等中间件
     store-type: redis
     timeout: PT600S
     # session redis 缓存设置

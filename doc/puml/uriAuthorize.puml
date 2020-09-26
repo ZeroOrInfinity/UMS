@@ -42,7 +42,7 @@ client --> client: 基于 RBAC 的 uri 访问权限控制流程结束
 note over AbstractUriAuthorizeService: \n\
 实现 getRolesAuthorities() 方法\n\
 获取角色的 uri 的权限 map\n\
-返回值为: Map<role, Map<uri, UriResources>>;\n\
+返回值为: Map<role, Map<uri, UriResourcesDO>>;\n\
 在需要的权限设置的方法上添加\n\
 @UriAuthorize("/test/permission:add")注释\n\
 即可实现基于 RBAC 的 uri 访问权限控制
