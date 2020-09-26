@@ -1,14 +1,12 @@
 package top.dcenter.ums.security.core.permission.dto;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author zyw
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class UriResourcesDTO {
+public class UriResourcesDO {
 
     /**
      * uri

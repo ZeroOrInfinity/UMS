@@ -7,7 +7,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.AntPathMatcher;
-import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
+import top.dcenter.ums.security.core.permission.dto.UriResourcesDO;
 import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeService;
 import top.dcenter.ums.security.core.util.ConvertUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
@@ -47,7 +47,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     /**
      * 角色 uri 权限 Map(role, map(uri, uriResourcesDTO))
      */
-    protected Map<String, Map<String, UriResourcesDTO>> rolesAuthorities;
+    protected Map<String, Map<String, UriResourcesDO>> rolesAuthorities;
 
     @Getter
     protected AntPathMatcher antPathMatcher = new AntPathMatcher();
@@ -162,7 +162,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION")
     @NotNull
-    private Consumer<Map<String, UriResourcesDTO>> map2mapConsumer(final Map<String, Set<String>> uriAuthoritiesMap) {
+    private Consumer<Map<String, UriResourcesDO>> map2mapConsumer(final Map<String, Set<String>> uriAuthoritiesMap) {
         return map -> map.forEach(
                 (key, value) ->
                 {
