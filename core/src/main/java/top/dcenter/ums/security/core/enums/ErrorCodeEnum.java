@@ -60,6 +60,8 @@ public enum ErrorCodeEnum {
 
     PARAMETER_ERROR(700, "参数错误"),
 
+    ADD_PERMISSION_FAILURE(710, "添加权限失败"),
+
     REDIRECT_URL_PARAMETER_ILLEGAL(800, "非法的回调地址"),
     REDIRECT_URL_PARAMETER_ERROR(801, "回调地址不正确"),
     TAMPER_WITH_REDIRECT_URL_PARAMETER(802, "回调参数被篡改"),

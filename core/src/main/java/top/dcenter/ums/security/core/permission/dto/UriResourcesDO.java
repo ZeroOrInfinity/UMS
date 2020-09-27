@@ -1,11 +1,15 @@
 package top.dcenter.ums.security.core.permission.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author zyw
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UriResourcesDO {
 
     /**

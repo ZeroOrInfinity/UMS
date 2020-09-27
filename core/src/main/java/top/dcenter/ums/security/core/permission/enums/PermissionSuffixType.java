@@ -1,8 +1,7 @@
 package top.dcenter.ums.security.core.permission.enums;
 
 import lombok.Getter;
-
-import java.util.Objects;
+import org.springframework.lang.NonNull;
 
 /**
  * 权限后缀类型
@@ -72,14 +71,27 @@ public enum PermissionSuffixType {
      * @param method    requestMethod
      * @return  权限后缀, 如果 method 不匹配, 返回 null
      */
-    public static String getPermissionSuffix(String method) {
-        Objects.requireNonNull(method, "method require non null");
-        PermissionSuffixType[] types = values();
-        for (int i = 0, length = types.length; i < length; i++)
+    public static String getPermissionSuffix(@NonNull String method) {
+        PermissionSuffixType permissionType = getPermissionType(method);
+        if (permissionType == null)
         {
-            if (types[i].method.equals(method.toUpperCase()))
+            return null;
+        }
+        return permissionType.getPermissionSuffix();
+    }
+
+    /**
+     * 根据 requestMethod 获取权限后缀
+     * @param method    requestMethod
+     * @return  权限后缀, 如果 method 不匹配, 返回 null
+     */
+    public static PermissionSuffixType getPermissionType(@NonNull String method) {
+        PermissionSuffixType[] types = values();
+        for (PermissionSuffixType type : types)
+        {
+            if (type.method.equals(method.toUpperCase()))
             {
-                return types[i].getPermissionSuffix();
+                return type;
             }
         }
         return null;
