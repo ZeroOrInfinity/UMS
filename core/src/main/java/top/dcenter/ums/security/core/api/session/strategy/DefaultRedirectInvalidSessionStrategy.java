@@ -4,6 +4,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.AntPathMatcher;
@@ -15,6 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+import static java.util.Objects.requireNonNullElse;
+import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_REDIRECT_URL_KEY;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.isPermitUri;
 import static top.dcenter.ums.security.core.util.MvcUtil.getUrlPathHelper;
 
@@ -31,12 +36,14 @@ public final class DefaultRedirectInvalidSessionStrategy implements InvalidSessi
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 	private boolean createNewSession = true;
 	private final AntPathMatcher matcher;
+	private final RequestCache requestCache;
 
 	public DefaultRedirectInvalidSessionStrategy(String invalidSessionUrl) {
 		Assert.isTrue(UrlUtils.isValidRedirectUrl(invalidSessionUrl),
 				"url must start with '/' or with 'http(s)'");
 		this.destinationUrl = invalidSessionUrl;
 		this.matcher = new AntPathMatcher();
+		this.requestCache = new HttpSessionRequestCache();
 	}
 
 	@Override
@@ -60,7 +67,18 @@ public final class DefaultRedirectInvalidSessionStrategy implements InvalidSessi
 			request.getSession();
 		}
 
-		request.getSession().removeAttribute(SecurityConstants.SESSION_ENHANCE_CHECK_KEY);
+		// 获取原始请求的 url
+		SavedRequest savedRequest = requestCache.getRequest(request, response);
+		String originalUrl = request.getRequestURL().toString();
+		if (savedRequest != null)
+		{
+			originalUrl = requireNonNullElse(savedRequest.getRedirectUrl(), originalUrl);
+		}
+
+		session = request.getSession();
+		session.removeAttribute(SecurityConstants.SESSION_ENHANCE_CHECK_KEY);
+		// 保存原始请求到 session, 已备成功登录时跳转.
+		session.setAttribute(SESSION_REDIRECT_URL_KEY, originalUrl);
 
 		redirectStrategy.sendRedirect(request, response, redirectUrl);
 	}

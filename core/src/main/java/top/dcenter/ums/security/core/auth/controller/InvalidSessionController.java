@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -18,6 +20,7 @@ import top.dcenter.ums.security.core.properties.ClientProperties;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static top.dcenter.ums.security.core.util.AuthenticationUtil.getOriginalUrl;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.redirectProcessingByLoginProcessType;
 
 /**
@@ -34,9 +37,11 @@ public class InvalidSessionController {
     private final RedirectStrategy redirectStrategy;
     private final ClientProperties clientProperties;
     private final ObjectMapper objectMapper;
+    private final RequestCache requestCache;
 
     public InvalidSessionController(ClientProperties clientProperties, ObjectMapper objectMapper) {
         this.clientProperties = clientProperties;
+        this.requestCache = new HttpSessionRequestCache();
         this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.redirectStrategy = new DefaultRedirectStrategy();
     }
@@ -49,9 +54,12 @@ public class InvalidSessionController {
 
         try
         {
+            // 设置跳转的 url
+            String redirectUrl = getOriginalUrl(requestCache, request, response, clientProperties.getLoginPage());
+
             redirectProcessingByLoginProcessType(request, response, clientProperties, objectMapper,
                                                  redirectStrategy, ErrorCodeEnum.INVALID_SESSION,
-                                                 clientProperties.getLoginPage());
+                                                 redirectUrl);
         }
         catch (Exception e)
         {

@@ -10,12 +10,10 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.enums.LoginProcessType;
 import top.dcenter.ums.security.core.properties.ClientProperties;
-import top.dcenter.ums.security.core.util.MvcUtil;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 import top.dcenter.ums.security.core.vo.UserInfoJsonVo;
 
@@ -25,8 +23,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 
-import static java.util.Objects.requireNonNullElse;
+import static top.dcenter.ums.security.core.util.AuthenticationUtil.getOriginalUrl;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
+import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 
 /**
  * 客户端认证成功处理器, 默认简单实现，需自己去实现.<br><br>
@@ -76,19 +75,15 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
                                                 username,
                                                 null,
                                                 token.getAuthorities());
-
             // 设置跳转的 url
-            SavedRequest savedRequest = requestCache.getRequest(request, response);
-            String targetUrl = MvcUtil.getServletContextPath() + getDefaultTargetUrl();
-            if (savedRequest != null)
-            {
-                targetUrl = requireNonNullElse(savedRequest.getRedirectUrl(), targetUrl);
-            }
+            String targetUrl = getOriginalUrl(requestCache, request, response, getServletContextPath() + getDefaultTargetUrl());
+
 
             // 判断是否返回 json 类型
             userInfoJsonVo.setUrl(targetUrl);
             if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
             {
+                clearAuthenticationAttributes(request);
                 responseWithJson(response, HttpStatus.OK.value(),
                                  objectMapper.writeValueAsString(ResponseResult.success(userInfoJsonVo)));
                 return;
@@ -98,6 +93,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
             String acceptHeader = request.getHeader(SecurityConstants.HEADER_ACCEPT);
             if (StringUtils.isNotBlank(acceptHeader) && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {
+                clearAuthenticationAttributes(request);
                 responseWithJson(response, HttpStatus.OK.value(),
                                  objectMapper.writeValueAsString(ResponseResult.success(userInfoJsonVo)));
                 return;

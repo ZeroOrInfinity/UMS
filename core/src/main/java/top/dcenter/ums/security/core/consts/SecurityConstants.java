@@ -45,6 +45,10 @@ public class SecurityConstants {
      * session失效默认的跳转地址
      */
     public static final String DEFAULT_SESSION_INVALID_URL = "/session/invalid";
+    /**
+     * 在session失效时 原始请求 url 存储在 session 的 key
+     */
+    public static final String SESSION_REDIRECT_URL_KEY = "SESSION_REDIRECT_URL_KEY";
 
     /**
      * The default name for remember me parameter name and remember me cookie name

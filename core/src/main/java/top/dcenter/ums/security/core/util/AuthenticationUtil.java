@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.core.consts.SecurityConstants;
@@ -26,7 +28,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNullElse;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY;
+import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_REDIRECT_URL_KEY;
 
 /**
  * auth util
@@ -188,6 +192,38 @@ public class AuthenticationUtil {
         redirectProcessing(request, response, clientProperties, objectMapper, redirectStrategy, errorCodeEnum, referer);
     }
 
+    /**
+     * 从请求中获取原始请求 url, 如: 引发登录的原始请求, 登录成功后获取此 url 跳转会原始 url
+     * @param requestCache          requestCache
+     * @param request               request
+     * @param response              response
+     * @param defaultRedirectUrl    defaultRedirectUrl
+     * @return originalUrl
+     * @throws IOException  IOException
+     */
+    @SuppressWarnings("RedundantThrows")
+    public static String getOriginalUrl(RequestCache requestCache, HttpServletRequest request,
+                                      HttpServletResponse response,
+                                      String defaultRedirectUrl) throws IOException {
+        // 设置跳转的 url
+        SavedRequest savedRequest = requestCache.getRequest(request, response);
+        String redirectUrl = defaultRedirectUrl;
+        if (savedRequest != null)
+        {
+            redirectUrl = requireNonNullElse(savedRequest.getRedirectUrl(), redirectUrl);
+        }
+
+        // 从 session 中查看是否有原始请求连接.
+        HttpSession session = request.getSession();
+        String originalUrl = (String) session.getAttribute(SESSION_REDIRECT_URL_KEY);
+        if (StringUtils.isNotBlank(originalUrl))
+        {
+            redirectUrl = originalUrl;
+            session.removeAttribute(SESSION_REDIRECT_URL_KEY);
+        }
+
+        return redirectUrl;
+    }
 
     private static void redirectProcessing(HttpServletRequest request, HttpServletResponse response, ClientProperties clientProperties, ObjectMapper objectMapper, RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum, String redirectUrl) throws IOException {
         if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
