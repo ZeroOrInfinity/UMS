@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
 import top.dcenter.ums.security.core.util.MvcUtil;
@@ -21,7 +20,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * uri 访问权限过滤器
+ * uri 访问权限过滤器.<br><br>
+ *     注意: 过滤器模式"用户 uri" 必须与"权限"是一对一关系, 不然会越权
  * @author zyw
  * @version V1.0  Created by 2020/9/16 20:37
  */
@@ -31,28 +31,18 @@ public class UriAuthorizeFilter extends OncePerRequestFilter {
 
     private final UriAuthorizeService uriAuthorizeService;
 
-    /**
-     * 需要进行授权的 uri 集合
-      */
-    private final Set<String> uriOfPermissionSet;
-
-    private final AntPathMatcher matcher;
-
-
     public UriAuthorizeFilter(UriAuthorizeService uriAuthorizeService) {
 
         this.uriAuthorizeService = uriAuthorizeService;
-
-        // uri 权限 Map(uri, Set(authority))
-        uriOfPermissionSet = uriAuthorizeService.getUriAuthoritiesOfAllRole().orElse(new HashMap<>(0)).keySet();
-
-        matcher = uriAuthorizeService.getAntPathMatcher();
     }
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
 
         String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
+
+        // 需要进行授权的 uri 集合
+        Set<String> uriOfPermissionSet = uriAuthorizeService.getUriAuthoritiesOfAllRole().orElse(new HashMap<>(0)).keySet();
 
         // 是否属于要认证的 uri
         if (uriAuthorizeService.isUriContainsInUriSet(uriOfPermissionSet, requestUri))
@@ -74,7 +64,7 @@ public class UriAuthorizeFilter extends OncePerRequestFilter {
             String userAgent = request.getHeader("User-Agent");
             final String method = request.getMethod();
 
-            // 用户是否有此 uri 的权限
+            // 用户是否有此 uri 的权限, 注意: 必须 uri 与 权限是一对一关系, 不然会越权
             if (uriAuthorizeService.isUriContainsInUriSet(uriAuthorityOfUserRoleMap.keySet(), requestUri))
             {
 

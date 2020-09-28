@@ -55,11 +55,22 @@ public final class DefaultRedirectInvalidSessionStrategy implements InvalidSessi
 
 		// 去除 ServletContextPath 的 uri
 		String requestUri = getUrlPathHelper().getPathWithinApplication(request);
+		String originalUrl = null;
 		// 是否为 permitAll url
 		if (isPermitUri(requestUri, session, matcher))
 		{
 			// 设置跳转目标 url 为自己, 重新刷新 session
 			redirectUrl = requestUri;
+		}
+		else
+		{
+			// 获取原始请求的 url
+			SavedRequest savedRequest = requestCache.getRequest(request, response);
+			originalUrl = request.getRequestURL().toString();
+			if (savedRequest != null)
+			{
+				originalUrl = requireNonNullElse(savedRequest.getRedirectUrl(), originalUrl);
+			}
 		}
 		logger.debug("Starting new session (if required) and redirecting to '"
 				+ redirectUrl + "'");
@@ -67,18 +78,14 @@ public final class DefaultRedirectInvalidSessionStrategy implements InvalidSessi
 			request.getSession();
 		}
 
-		// 获取原始请求的 url
-		SavedRequest savedRequest = requestCache.getRequest(request, response);
-		String originalUrl = request.getRequestURL().toString();
-		if (savedRequest != null)
-		{
-			originalUrl = requireNonNullElse(savedRequest.getRedirectUrl(), originalUrl);
-		}
-
 		session = request.getSession();
 		session.removeAttribute(SecurityConstants.SESSION_ENHANCE_CHECK_KEY);
-		// 保存原始请求到 session, 已备成功登录时跳转.
-		session.setAttribute(SESSION_REDIRECT_URL_KEY, originalUrl);
+
+		if (originalUrl != null)
+		{
+			// 保存原始请求到 session, 已备成功登录时跳转.
+			session.setAttribute(SESSION_REDIRECT_URL_KEY, originalUrl);
+		}
 
 		redirectStrategy.sendRedirect(request, response, redirectUrl);
 	}

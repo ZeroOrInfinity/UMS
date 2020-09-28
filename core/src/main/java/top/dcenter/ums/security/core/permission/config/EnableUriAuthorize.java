@@ -19,6 +19,7 @@ import java.lang.annotation.Target;
  * 注意: <br>
  *     1. 两种方式是互斥关系.<br>
  *     2. 过滤器方式必须 uri 与 权限是一对一关系, 也就是说不适合 restful 风格的 API.
+ *     3. resetFul 风格的 api 适合拦截器模式, 不适用过滤器模式
  *
  * @author zyw
  * @version V1.0  Created by 2020/9/16 18:52

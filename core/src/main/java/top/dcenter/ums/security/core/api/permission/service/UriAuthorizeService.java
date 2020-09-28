@@ -2,7 +2,7 @@ package top.dcenter.ums.security.core.api.permission.service;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.util.AntPathMatcher;
-import top.dcenter.ums.security.core.permission.dto.UriResourcesDO;
+import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,11 +49,11 @@ public interface UriAuthorizeService {
 
     /**
      * 获取角色的 uri 的权限 map.<br>
-     *     返回值为: Map(role, Map(uri, UriResourcesDO))
-     * @return Map(String, Map(String, String)) 的 key 为必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), value 为 UriResourcesDO map
-     * (key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为 UriResourcesDO).
+     *     返回值为: Map(role, Map(uri, UriResourcesDTO))
+     * @return Map(String, Map(String, String)) 的 key 为必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), value 为 UriResourcesDTO map
+     * (key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为 UriResourcesDTO).
      */
-    Optional<Map<String, Map<String, UriResourcesDO>>> getRolesAuthorities();
+    Optional<Map<String, Map<String, UriResourcesDTO>>> getRolesAuthorities();
 
     /**
      * 每次修改角色的权限时, 都要更新角色的 uri 的权限 map
@@ -67,10 +67,10 @@ public interface UriAuthorizeService {
     AntPathMatcher getAntPathMatcher();
 
     /**
-     * 遍历 uriSet, 测试是否有匹配 requestUri(去除 ServletContextPath) 的 uri.
+     * 遍历 uriSet, 测试 uri 是否有匹配 requestUri(去除 ServletContextPath).<br><br>
      * @param uriSet        uriSet(可以是Ant通配符的 uri)
      * @param requestUri    requestUri
-     * @return Boolean
+     * @return 通过 {@link AntPathMatcher } 测试 uri 是否有匹配 requestUri.
      */
     Boolean isUriContainsInUriSet(Set<String> uriSet, String requestUri);
 

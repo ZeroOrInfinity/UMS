@@ -25,7 +25,7 @@ public enum ErrorCodeEnum {
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "功能还在开发中"),
     INTERNAL_SERVER_ERROR(HttpStatus.NOT_FOUND.value(), SecurityConstants.INTERNAL_SERVER_ERROR_MSG),
 
-    USERNAME_USED(900, "用户名重名"),
+    USERNAME_USED(900, "用户名已存在"),
     USER_NOT_EXIST(901, "用户不存在"),
     USERNAME_NOT_EMPTY(902, "用户名不能为空"),
     PASSWORD_NOT_EMPTY(903, "密码不能为空"),
@@ -61,6 +61,7 @@ public enum ErrorCodeEnum {
     PARAMETER_ERROR(700, "参数错误"),
 
     ADD_PERMISSION_FAILURE(710, "添加权限失败"),
+    DEL_PERMISSION_FAILURE(720, "删除权限失败"),
 
     REDIRECT_URL_PARAMETER_ILLEGAL(800, "非法的回调地址"),
     REDIRECT_URL_PARAMETER_ERROR(801, "回调地址不正确"),

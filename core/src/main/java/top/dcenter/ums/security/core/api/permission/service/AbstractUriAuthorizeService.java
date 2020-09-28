@@ -6,7 +6,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.AntPathMatcher;
-import top.dcenter.ums.security.core.permission.dto.UriResourcesDO;
+import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
 import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeService;
 import top.dcenter.ums.security.core.util.ConvertUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
@@ -43,9 +43,13 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     public static final String PERMISSION_DELIMITER = ",";
 
     /**
-     * 角色 uri 权限 Map(role, map(uri, uriResourcesDTO))
+     * 所有角色 uri 权限 Map(role, map(uri, uriResourcesDTO))
      */
-    protected Map<String, Map<String, UriResourcesDO>> rolesAuthorities;
+    protected Map<String, Map<String, UriResourcesDTO>> rolesAuthorityMap;
+    /**
+     * 所有角色 uri 权限 Map(uri, Set(authority))
+     */
+    private Map<String, Set<String>> uriAuthoritiesMap;
 
     @Getter
     protected AntPathMatcher antPathMatcher = new AntPathMatcher();
@@ -101,9 +105,9 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
          * 实现对 requestUri 的权限控制时, 要考虑纯正的 resetFul 风格的 api 是通过 GET/POST/PUT/DELETE 等来区别 curd 操作的情况;
          * 这里我们用 map(uri, Set(authority)) 来处理
          */
-        Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthorities.size());
+        Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthorityMap.size());
 
-        rolesAuthorities.entrySet()
+        rolesAuthorityMap.entrySet()
                         .stream()
                         .filter(map -> roleSet.contains(map.getKey()))
                         .map(Map.Entry::getValue)
@@ -123,14 +127,9 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
         /*
          * 实现对 requestUri 的权限控制时, 要考虑纯正的 resetFul 风格的 api 是通过 GET/POST/PUT/DELETE 等来区别 curd 操作的情况;
-         * 这里我们用 map(uri, Set(authority)) 来处理
+         * 这里我们用 map(uri, Set(authority)) 来处理, resetFul 风格的 api 适合拦截器模式, 不适用过滤器模式
          */
-        Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthorities.size());
-
-        rolesAuthorities.values()
-                        .forEach(map2mapConsumer(uriAuthoritiesMap));
-
-        return Optional.of(uriAuthoritiesMap);
+        return Optional.of(this.uriAuthoritiesMap);
     }
 
 
@@ -138,7 +137,11 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     public void updateRolesAuthorities() {
 
         synchronized (lock) {
-            rolesAuthorities = getRolesAuthorities().orElse(new HashMap<>(0));
+            Map<String, Map<String, UriResourcesDTO>> rolesAuthorityMap = getRolesAuthorities().orElse(new HashMap<>(0));
+            Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthorityMap.size());
+            rolesAuthorityMap.values().forEach(map2mapConsumer(uriAuthoritiesMap));
+            this.uriAuthoritiesMap = uriAuthoritiesMap;
+            this.rolesAuthorityMap = rolesAuthorityMap;
         }
 
     }
@@ -158,7 +161,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION")
     @NotNull
-    private Consumer<Map<String, UriResourcesDO>> map2mapConsumer(final Map<String, Set<String>> uriAuthoritiesMap) {
+    private Consumer<Map<String, UriResourcesDTO>> map2mapConsumer(final Map<String, Set<String>> uriAuthoritiesMap) {
         return map -> map.forEach(
                 (key, value) ->
                 {
