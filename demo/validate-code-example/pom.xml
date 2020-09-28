@@ -8,7 +8,6 @@
         <version>1.1.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>validate-code-example</artifactId>
     <name>validate-code-example</name>
     <description>使用用户管理脚手架(ums) core 模块基本功能: 验证码(含自定义验证码), 手机登录配置

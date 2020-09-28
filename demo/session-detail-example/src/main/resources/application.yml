@@ -104,7 +104,7 @@ security:
         - /authentication/form
       request-param-image-code-name: imageCode
 
-    # =============== login routing 功能 ===============
+    # =============== login routing 功能: 解决跳转登录成功后不能跳转原始请求的问题 ===============
 
     # 是否开启根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationUrl 和 authRedirectSuffixCondition
     open-authentication-redirect: true
