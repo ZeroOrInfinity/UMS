@@ -1,7 +1,7 @@
 package demo.test.web.async;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -34,12 +34,12 @@ public class AsyncController {
         DeferredResult<String> result = new DeferredResult<>();
         deferredResultHolder.getMap().put(orderNumber, result);
 
-//        Callable<String> result = () -> {
-//            log.info("Callable 副线程开启");
-//            TimeUnit.SECONDS.sleep(1);
-//            log.info("Callable 副线程关闭");
-//            return "success";
-//        }
+        //Callable<String> result = () -> {
+        //    log.info("Callable 副线程开启");
+        //    TimeUnit.SECONDS.sleep(1);
+        //    log.info("Callable 副线程关闭");
+        //    return "success";
+        //}
         log.info("AsyncController.order 主线程结束");
         return result;
     }

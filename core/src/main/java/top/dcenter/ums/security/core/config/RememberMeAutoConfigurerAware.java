@@ -1,7 +1,7 @@
 package top.dcenter.ums.security.core.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +33,7 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
     private final PersistentTokenRepository persistentTokenRepository;
     private final AbstractUserDetailsService abstractUserDetailsService;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public RememberMeAutoConfigurerAware(ClientProperties clientProperties,
                                          AbstractUserDetailsService abstractUserDetailsService,
                                          PersistentTokenRepository persistentTokenRepository) {

@@ -1,7 +1,7 @@
 package top.dcenter.ums.security.social.provider.weixin.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;

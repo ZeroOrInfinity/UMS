@@ -1,6 +1,6 @@
 package top.dcenter.ums.security.core.util;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -108,7 +108,7 @@ public class ConvertUtil {
         return map;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static void string2JsonMap(String kvSeparator, String[] splits, Map<String, Object> map) {
         for (String split : splits)
         {

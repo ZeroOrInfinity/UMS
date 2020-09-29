@@ -1,7 +1,7 @@
 package top.dcenter.ums.security.core.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import top.dcenter.ums.security.core.auth.filter.AjaxOrFormRequestFilter;
 import top.dcenter.ums.security.core.consts.SecurityConstants;
 
