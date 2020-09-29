@@ -70,6 +70,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
         ConvertUtil.list2Map(validateCodeProperties.getImage().getAuthUrls(), ValidateCodeType.IMAGE, authUrlMap);
         // 添加滑块验证码 urls
         ConvertUtil.list2Map(validateCodeProperties.getSlider().getAuthUrls(), ValidateCodeType.SLIDER, authUrlMap);
+        authUrlMap.put(validateCodeProperties.getSlider().getSliderCheckUrl(), ValidateCodeType.SLIDER);
         // 添加轨迹验证码 urls
         ConvertUtil.list2Map(validateCodeProperties.getTrack().getAuthUrls(), ValidateCodeType.TRACK, authUrlMap);
         // 添加选择类验证码 urls
@@ -89,9 +90,6 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
         // 验证码逻辑，当短信验证码与图片验证码 url 相同时，优先使用短信验证码逻辑。
         ValidateCodeType validateCodeType = getValidateCodeType(request);
 
-        String ip = request.getRemoteAddr();
-        String sid = request.getSession(true).getId();
-
         try {
             if (validateCodeType != null)
             {
@@ -100,13 +98,13 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
                 if (validateCodeProcessor != null)
                 {
                     validateCodeProcessor.validate(new ServletWebRequest(request, response));
-
                 } else
                 {
+                    String ip = request.getRemoteAddr();
                     log.warn("违法的验证码类型: error={}, ip={}, sid={}, type={}",
                                  ILLEGAL_VALIDATE_CODE_TYPE.getMsg(),
                              ip,
-                             sid,
+                             request.getSession(true).getId(),
                              typeName);
                     throw new ValidateCodeException(ILLEGAL_VALIDATE_CODE_TYPE, ip,
                                                     typeName);
@@ -114,11 +112,12 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
             }
 
         } catch (Exception e) {
+            String ip = request.getRemoteAddr();
             log.warn("验证码错误: error={}, ip={}, sid={}, uri={}",
                      e.getMessage(),
                      ip,
-                     sid,
-                     MvcUtil.getServletContextPath() + requestUri);
+                     request.getSession(true).getId(),
+                     requestUri);
 
             AbstractResponseJsonAuthenticationException ex;
             if (e instanceof AbstractResponseJsonAuthenticationException)

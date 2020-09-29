@@ -1,12 +1,10 @@
 package top.dcenter.ums.security.core.auth.validate.codes.sms;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
+import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
-import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 
 import javax.servlet.ServletRequest;
@@ -43,11 +41,5 @@ public class SmsCodeGenerator implements ValidateCodeGenerator<ValidateCode> {
     public String getRequestParamValidateCodeName() {
         return this.validateCodeProperties.getSms().getRequestParamSmsCodeName();
     }
-
-    @Override
-    public void validate(ServletWebRequest request)  throws ValidateCodeException {
-        defaultValidate(request);
-    }
-
 
 }

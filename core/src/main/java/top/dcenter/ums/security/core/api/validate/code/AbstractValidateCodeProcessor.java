@@ -167,12 +167,19 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     @Override
     public abstract boolean sent(ServletWebRequest request, ValidateCode validateCode);
 
+
+    /**
+     * 校验验证码
+     * @param request   {@link ServletWebRequest}
+     * @throws ValidateCodeException 验证码异常
+     */
     @Override
     public void validate(ServletWebRequest request) throws ValidateCodeException {
 
         ValidateCodeType validateCodeType = getValidateCodeType();
         ValidateCodeGenerator<?> validateCodeGenerator = getValidateCodeGenerator(validateCodeType);
-        validateCodeGenerator.validate(request);
+        defaultValidate(request, validateCodeGenerator.getRequestParamValidateCodeName());
+
     }
 
 
@@ -189,7 +196,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
      * @param type 验证码类型
      * @return 验证码生成器
      */
-    private ValidateCodeGenerator<?> getValidateCodeGenerator(ValidateCodeType type) throws ValidateCodeException {
+    protected ValidateCodeGenerator<?> getValidateCodeGenerator(ValidateCodeType type) throws ValidateCodeException {
         try
         {
             ValidateCodeGenerator<?> validateCodeGenerator = validateCodeGeneratorHolder.findValidateCodeGenerator(type);
