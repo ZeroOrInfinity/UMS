@@ -57,7 +57,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
     <dependency>
         <groupId>top.dcenter</groupId>
         <artifactId>ums-social-spring-boot-starter</artifactId>
-        <version>1.1.0-beta3</version>
+        <version>1.1.1-alpha</version>
     </dependency>
     ```
 - 2. config:  

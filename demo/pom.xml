@@ -5,15 +5,16 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>1.1.0-beta3</version>
+        <version>1.1.1-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ums-demo</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <packaging>pom</packaging>
 
     <modules>
+        <module>quickStart</module>
         <module>basic-example</module>
         <module>basic-detail-example</module>
         <module>session-detail-example</module>
