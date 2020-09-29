@@ -18,7 +18,6 @@ import org.springframework.web.util.UrlPathHelper;
 import top.dcenter.ums.security.core.api.advice.SecurityControllerExceptionHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
-import top.dcenter.ums.security.core.api.controller.BaseSecurityController;
 import top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler;
 import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
 import top.dcenter.ums.security.core.auth.controller.ClientSecurityController;
@@ -52,7 +51,7 @@ public class SecurityAutoConfiguration implements InitializingBean {
     private final ClientProperties clientProperties;
     private final ObjectMapper objectMapper;
 
-    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection", "SpringJavaInjectionPointsAutowiringInspection"})
     @Autowired
     private AbstractUserDetailsService abstractUserDetailsService;
 
@@ -74,6 +73,7 @@ public class SecurityAutoConfiguration implements InitializingBean {
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler")
+    @ConditionalOnProperty(prefix = "security.client", name = "open-authentication-redirect", havingValue = "true")
     public BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler() {
         return new ClientAuthenticationSuccessHandler(objectMapper, clientProperties);
     }
@@ -112,12 +112,6 @@ public class SecurityAutoConfiguration implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-
-        if (clientProperties.getOpenAuthenticationRedirect())
-        {
-            // 在 mvc 中做 Uri 映射等动作
-            MvcUtil.registerController("clientSecurityController", applicationContext, BaseSecurityController.class);
-        }
 
         // 给 MvcUtil.SERVLET_CONTEXT_PATH 设置 servletContextPath
         Class<MvcUtil> mvcUtilClass = MvcUtil.class;

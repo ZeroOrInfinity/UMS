@@ -64,7 +64,7 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
         permitAllMap.put(HTML, null);
         permitAllMap.put(clientProperties.getFailureUrl(), null);
         permitAllMap.put(clientProperties.getLoginPage(), null);
-        permitAllMap.put(clientProperties.getLoginUnAuthenticationUrl(), null);
+        permitAllMap.put(clientProperties.getLoginUnAuthenticationRoutingUrl(), null);
         permitAllMap.put(clientProperties.getSuccessUrl(), null);
         permitAllMap.put(clientProperties.getErrorUrl(), null);
         permitAllMap.put(clientProperties.getError4Url(), null);

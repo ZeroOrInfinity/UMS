@@ -46,10 +46,13 @@ public class ValidateCodeAutoConfigurerAware implements HttpSecurityAware {
     @Override
     public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
         final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
+        ValidateCodeProperties.SliderCodeProperties slider = validateCodeProperties.getSlider();
+
         permitAllMap.put("/code/*", null);
+        permitAllMap.put(slider.getSliderCheckUrl(), null);
         validateCodeProperties.getSms().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
         validateCodeProperties.getImage().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
-        validateCodeProperties.getSlider().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
+        slider.getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
         validateCodeProperties.getSelection().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
         validateCodeProperties.getTrack().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
         validateCodeProperties.getCustomize().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));

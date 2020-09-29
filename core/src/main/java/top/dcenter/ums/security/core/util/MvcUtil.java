@@ -2,14 +2,21 @@ package top.dcenter.ums.security.core.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.UrlPathHelper;
 import top.dcenter.ums.security.core.config.SecurityAutoConfiguration;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Map;
 
 /**
  * 功能: <br>
@@ -67,7 +74,7 @@ public class MvcUtil {
      * @param controllerBeanName    在 IOC 容器中注册的 controllerBeanName
      * @param applicationContext    applicationContext
      */
-    private static void unregisterController(String controllerBeanName, GenericApplicationContext applicationContext) {
+    private static void unregisterController(@NonNull String controllerBeanName, @NonNull GenericApplicationContext applicationContext) {
 
         final RequestMappingHandlerMapping requestMappingHandlerMapping =
                 (RequestMappingHandlerMapping) applicationContext.getBean("requestMappingHandlerMapping");
@@ -107,8 +114,8 @@ public class MvcUtil {
      * @param clz    controllerBeanName 的 class, 可以是父类的 class, 可以为 null
      * @throws Exception    Exception
      */
-    public static void registerController(String controllerBeanName, GenericApplicationContext applicationContext,
-                                          Class<?> clz) throws Exception {
+    public static void registerController(@NonNull String controllerBeanName, @NonNull GenericApplicationContext applicationContext,
+                                          @Nullable Class<?> clz) throws Exception {
         final RequestMappingHandlerMapping requestMappingHandlerMapping = (RequestMappingHandlerMapping)
                 applicationContext.getBean("requestMappingHandlerMapping");
 
@@ -136,5 +143,51 @@ public class MvcUtil {
         method.invoke(requestMappingHandlerMapping, controllerBeanName);
         log.info("{} 在 mvc 中做 Uri 映射等动作成功", controllerBeanName);
     }
+
+
+    /**
+     * 给 clz 的 methodName 方法上的 @RequestMapping 的 value 重新赋值为 requestMappingUri
+     *
+     * @param methodName            methodName
+     * @param requestMappingUri     requestMappingUri
+     * @param clz                   methodName 的 class
+     * @param parameterTypes        the parameter array
+     * @throws Exception    Exception
+     */
+    @SuppressWarnings("unchecked")
+    public static void setRequestMappingUri(@NonNull String methodName, @NonNull String requestMappingUri,
+                                            @NonNull Class<?> clz, Class<?>... parameterTypes) throws Exception {
+        Method sliderCheckMethod = clz.getDeclaredMethod(methodName, parameterTypes);
+        sliderCheckMethod.setAccessible(true);
+
+        // 获取 RequestMapping 注解
+        RequestMapping mappingAnnotation = sliderCheckMethod.getDeclaredAnnotation(RequestMapping.class);
+        if (null != mappingAnnotation) {
+            // 获取 RequestMapping 中 value 值
+            String[] paths = mappingAnnotation.value();
+            if (paths.length > 0) {
+                // 设置最终的属性值
+                paths[0] = requestMappingUri;
+                // 获取代理处理器
+                InvocationHandler invocationHandler = Proxy.getInvocationHandler(mappingAnnotation);
+                // 获取私有 memberValues 属性
+                Field memberValuesField = invocationHandler.getClass().getDeclaredField("memberValues");
+                memberValuesField.setAccessible(true);
+                // 获取实例的属性map
+                Map<String, Object> memberValuesValue = (Map<String, Object>) memberValuesField.get(invocationHandler);
+                // 修改属性值
+                memberValuesValue.put("value", paths);
+            }
+        }
+        else
+        {
+            String msg = String.format("设置 %s#%s() 方法的 requestMapping 映射值时发生错误.",
+                                       clz.getName(),
+                                       methodName);
+            log.error(msg);
+            throw new RuntimeException(msg);
+        }
+    }
+
 
 }

@@ -72,7 +72,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
     private Map<String, HttpSecurityAware> socialWebSecurityConfigurerMap;
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection", "SpringJavaInjectionPointsAutowiringInspection"})
     @Autowired(required = false)
     private AbstractUserDetailsService abstractUserDetailsService;
 
@@ -141,11 +141,11 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(new AjaxOrFormRequestFilter(objectMapper), CsrfFilter.class);
 
         // 判断是否开启根据不同的uri跳转到相对应的登录页, 假设开启
-        String loginUnAuthenticationUrl = clientProperties.getLoginUnAuthenticationUrl();
+        String loginUnAuthenticationRoutingUrl = clientProperties.getLoginUnAuthenticationRoutingUrl();
         if (!clientProperties.getOpenAuthenticationRedirect())
         {
             // 没有开启根据不同的uri跳转到相对应的登录页, 直接跳转到登录页
-            loginUnAuthenticationUrl = clientProperties.getLogoutUrl();
+            loginUnAuthenticationRoutingUrl = clientProperties.getLogoutUrl();
         }
         /* 用户密码登录的 Provider, 只是对 org.springframework.security.auth.dao.DaoAuthenticationProvider 的 copy.
          * 替换 org.springframework.security.auth.dao.DaoAuthenticationProvider 的一个原因是:
@@ -157,7 +157,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .usernameParameter(clientProperties.usernameParameter)
                 .passwordParameter(clientProperties.passwordParameter)
-                .loginPage(loginUnAuthenticationUrl)
+                .loginPage(loginUnAuthenticationRoutingUrl)
                 // uri 需要自己实现
                 .failureUrl(clientProperties.getFailureUrl())
                 .defaultSuccessUrl(clientProperties.getSuccessUrl())

@@ -18,7 +18,7 @@ public interface BaseSecurityController {
     /**
      * 当需要身份认证时，跳转到这里, 根据不同 uri(支持通配符) 跳转到不同的认证入口.<br><br>
      * 必须添加注解：<pre>
-     *     \@RequestMapping(loginUnAuthenticationUrl)
+     *     \@RequestMapping(loginUnAuthenticationRoutingUrl)
      *     public void requireAuthentication(HttpServletRequest request, HttpServletResponse response) {
      *          ...
      *     }

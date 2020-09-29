@@ -2,7 +2,9 @@ package top.dcenter.ums.security.core.auth.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -12,10 +14,10 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import top.dcenter.ums.security.core.api.controller.BaseSecurityController;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
 import top.dcenter.ums.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,7 +37,7 @@ import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
  */
 @Slf4j
 @ResponseBody
-public class ClientSecurityController implements BaseSecurityController {
+public class ClientSecurityController implements BaseSecurityController, InitializingBean {
 
     /**
      * url regex
@@ -55,6 +57,9 @@ public class ClientSecurityController implements BaseSecurityController {
      */
     private final Map<String, String> authRedirectUrls;
 
+    @Autowired
+    private GenericApplicationContext applicationContext;
+
     public ClientSecurityController(ClientProperties clientProperties) {
         this.clientProperties = clientProperties;
         this.requestCache = new HttpSessionRequestCache();
@@ -68,8 +73,7 @@ public class ClientSecurityController implements BaseSecurityController {
     }
 
     @Override
-    @RequestMapping(SecurityConstants.DEFAULT_UN_AUTHENTICATION_URL)
-    @ConditionalOnProperty(prefix = "security.client", name = "login_un_authentication_url", havingValue = SecurityConstants.DEFAULT_UN_AUTHENTICATION_URL)
+    @RequestMapping(value = {"${security.client.loginUnAuthenticationRoutingUrl}"})
     public void requireAuthentication(HttpServletRequest request, HttpServletResponse response) {
         try
         {
@@ -114,4 +118,22 @@ public class ClientSecurityController implements BaseSecurityController {
         }
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+
+        if (clientProperties.getOpenAuthenticationRedirect())
+        {
+            // 1. 动态注入 requireAuthentication() requestMapping 的映射 uri
+            String methodName = "requireAuthentication";
+
+            MvcUtil.setRequestMappingUri(methodName,
+                                         clientProperties.getLoginUnAuthenticationRoutingUrl(),
+                                         this.getClass(),
+                                         HttpServletRequest.class, HttpServletResponse.class);
+
+            // 2. 在 mvc 中做 Uri 映射等动作
+            MvcUtil.registerController("clientSecurityController", applicationContext, BaseSecurityController.class);
+        }
+
+    }
 }

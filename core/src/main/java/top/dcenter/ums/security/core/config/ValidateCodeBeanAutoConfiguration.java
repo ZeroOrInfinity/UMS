@@ -1,7 +1,7 @@
 package top.dcenter.ums.security.core.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -18,11 +18,14 @@ import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeProcessorHo
 import top.dcenter.ums.security.core.auth.validate.codes.image.DefaultImageCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageValidateCodeProcessor;
+import top.dcenter.ums.security.core.auth.validate.codes.slider.SimpleSliderCodeFactory;
+import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCodeFactory;
+import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCoderProcessor;
+import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderValidateCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.DefaultSmsCodeSender;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 /**
  * 验证码功能配置
@@ -33,7 +36,7 @@ import top.dcenter.ums.security.core.util.MvcUtil;
 @Configuration
 @AutoConfigureAfter({SecurityAutoConfiguration.class})
 @Slf4j
-public class ValidateCodeBeanAutoConfiguration implements InitializingBean {
+public class ValidateCodeBeanAutoConfiguration {
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
@@ -62,7 +65,6 @@ public class ValidateCodeBeanAutoConfiguration implements InitializingBean {
     public ImageCodeFactory imageCodeFactory(ValidateCodeProperties validateCodeProperties) {
         return new DefaultImageCodeFactory(validateCodeProperties);
     }
-
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.image.ImageValidateCodeProcessor")
     public ImageValidateCodeProcessor imageValidateCodeProcessor(ValidateCodeGeneratorHolder validateCodeGeneratorHolder) {
@@ -74,6 +76,28 @@ public class ValidateCodeBeanAutoConfiguration implements InitializingBean {
     public SmsValidateCodeProcessor smsValidateCodeProcessor(ValidateCodeGeneratorHolder validateCodeGeneratorHolder) {
         return new SmsValidateCodeProcessor(validateCodeGeneratorHolder);
     }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCodeFactory")
+    public SimpleSliderCodeFactory simpleSliderCodeFactory(ValidateCodeProperties validateCodeProperties) {
+        return new SimpleSliderCodeFactory(validateCodeProperties);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.slider.SliderValidateCodeGenerator")
+    public SliderValidateCodeGenerator sliderValidateCodeGenerator(ValidateCodeProperties validateCodeProperties,
+                                                                   SliderCodeFactory sliderCodeFactory) {
+        return new SliderValidateCodeGenerator(sliderCodeFactory, validateCodeProperties);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCoderProcessor")
+    public SliderCoderProcessor sliderCoderProcessor(ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
+                                                     ObjectMapper objectMapper,
+                                                     ValidateCodeProperties validateCodeProperties) {
+        return new SliderCoderProcessor(validateCodeGeneratorHolder, objectMapper, validateCodeProperties);
+    }
+
 
     @Bean
     public ValidateCodeProcessorHolder validateCodeProcessorHolder() {
@@ -96,14 +120,6 @@ public class ValidateCodeBeanAutoConfiguration implements InitializingBean {
                                                  BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
                                                  ValidateCodeProperties validateCodeProperties) {
         return new ValidateCodeFilter(validateCodeProcessorHolder, baseAuthenticationFailureHandler, validateCodeProperties);
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-        // 在 mvc 中做 Uri 映射等动作
-        MvcUtil.registerController("validateCodeController", applicationContext, null);
-
     }
 
 }

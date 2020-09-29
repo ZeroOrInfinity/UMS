@@ -2,7 +2,6 @@ package top.dcenter.ums.security.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -21,7 +20,6 @@ import top.dcenter.ums.security.core.api.session.strategy.EnhanceConcurrentContr
 import top.dcenter.ums.security.core.auth.controller.InvalidSessionController;
 import top.dcenter.ums.security.core.auth.session.filter.SessionEnhanceCheckFilter;
 import top.dcenter.ums.security.core.properties.ClientProperties;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import static top.dcenter.ums.security.core.util.HttpSecurityUtil.registerDelegateApplicationListener;
 
@@ -33,7 +31,7 @@ import static top.dcenter.ums.security.core.util.HttpSecurityUtil.registerDelega
 @Configuration
 @AutoConfigureAfter({PropertiesAutoConfiguration.class, SecurityAutoConfiguration.class})
 @Slf4j
-public class SecuritySessionAutoConfiguration implements InitializingBean {
+public class SecuritySessionAutoConfiguration {
 
     private final ClientProperties clientProperties;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
@@ -77,9 +75,7 @@ public class SecuritySessionAutoConfiguration implements InitializingBean {
             throw new Exception("启动失败: " + EnhanceConcurrentControlAuthenticationStrategy.class.getName());
         }
 
-        EnhanceConcurrentControlAuthenticationStrategy enhanceConcurrentControlAuthenticationStrategy
-                = new EnhanceConcurrentControlAuthenticationStrategy(sessionEnhanceCheckService, sessionRegistry, clientProperties);
-        return enhanceConcurrentControlAuthenticationStrategy;
+        return new EnhanceConcurrentControlAuthenticationStrategy(sessionEnhanceCheckService, sessionRegistry, clientProperties);
     }
 
     /**
@@ -102,14 +98,6 @@ public class SecuritySessionAutoConfiguration implements InitializingBean {
             // 根据注入的不同 sessionRepository 创建的 session 集群策略
             return new SpringSessionBackedSessionRegistry<>(sessionRepository);
         }
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-        // 在 mvc 中做 Uri 映射等动作
-        MvcUtil.registerController("invalidSessionController", applicationContext, InvalidSessionController.class);
-
     }
 
 }

@@ -20,7 +20,7 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_LOG
 import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_REMEMBER_ME_NAME;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_SESSION_INVALID_URL;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_UN_AUTHENTICATION_URL;
+import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_UN_AUTHENTICATION_ROUTING_URL;
 
 /**
  * security 客户端配置属性
@@ -121,15 +121,14 @@ public class ClientProperties {
     private Set<String>  permitUrls = new HashSet<>();
 
     /**
-     * 是否开启登录路由功能, 根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationUrl 和 authRedirectSuffixCondition
+     * 是否开启登录路由功能, 根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationRoutingUrl 和 authRedirectSuffixCondition
      */
     private Boolean openAuthenticationRedirect = false;
     /**
      * 当请求需要身份认证时，默认跳转的url, 当 openAuthenticationRedirect = true 时生效.
      * 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require. <br><br>
-     * 注意: 如果修改此 uri, 需要重新实现修改后的 uri
      */
-    private String loginUnAuthenticationUrl = DEFAULT_UN_AUTHENTICATION_URL;
+    private String loginUnAuthenticationRoutingUrl = DEFAULT_UN_AUTHENTICATION_ROUTING_URL;
     /**
      * 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空.
      * 当 openAuthenticationRedirect = true 时生效.
@@ -219,7 +218,7 @@ public class ClientProperties {
 
         /**
          * session 失效后跳转地址, loginProcessType=redirect 时有效. 默认: /session/invalid, <br><br>
-         * 注意: 如果修改此 uri, 需要重新实现修改后的 uri
+         *
          */
         private String invalidSessionUrl = DEFAULT_SESSION_INVALID_URL;
         /**
