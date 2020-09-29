@@ -29,13 +29,13 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
   - 签到功能(sign)。
   
 ### 模块功能表  
-  | 模块   | 功能                                                         |
+  | **模块**   | **功能**                                                         |
   | ------ | ------------------------------------------------------------ |
   | core   | 验证码/用户名密码登录/手机登录且自动注册/登录路由/访问权限控制/签到/简化HttpSecurity(session、remember me、crsf 等)配置/session redis 缓存/可配置的响应方式(JSON 与 REDIRECT)返回 json 或 html 数据 |
   | social | 第三方登录功能(qq,weibo,weixin,gitee)/自动注册/绑定与解绑/统一回调地址路由 |
   | demo   | basic-example/basic-detail-example/permission-example/quickStart/session-detail-example/social-simple-example/social-detail-example/validate-codi-example |
 ### demo 演示功能表  
-  | demo                   | 演示功能                                                     |
+  | **demo**                   | **演示功能**                                                     |
   | ---------------------- | ------------------------------------------------------------ |
   | basic-example          | core 模块基本功能: 最简单的配置                              |
   | basic-detail-example   | core 模块基本功能详细的配置: 含anonymous/session简单配置/rememberMe/csrf/登录路由/签到,     不包含session详细配置/验证码/手机登录/权限. |
@@ -51,18 +51,19 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>1.1.1-alpha</version>
+    <version>1.1.2-alpha</version>
 </dependency>
 <!-- 第三方登录(自动注册，绑定与解绑, redis cache), 通过统一的回调地址入口实现多回调地址的路由功能 -->
 <!-- 包含 ums-core-spring-boot-starter 依赖 -->
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-social-spring-boot-starter</artifactId>
-    <version>1.1.1-alpha</version>
+    <version>1.1.2-alpha</version>
 </dependency>
 ```
 
 ## 三、`TODO List`:
+- 完善 README
 - 第三方登录功能添加 JustAuth 工具, 支持更多的第三方登录. 
 - OAuth2 authenticate server
 
@@ -748,12 +749,12 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 ## 五、接口使用说明(`Interface instructions`):
 
 - 实现对应功能时需要实现的接口(The interface that needs to be implemented when the corresponding function is present)：    
-    1. 用户服务(user service): `必须实现(Must implemented)`
+    1. 用户服务(user service): `**必须实现**(Must implemented)`
         - 有 social 模块时: `AbstractSocialUserDetailsService`
         - 无 social 模块时: `AbstractUserDetailsService`    
     2. 图片验证码(image validate code): 如果不实现就会使用默认图片验证码, 实时产生验证码图片, 没有缓存功能
         - `ImageCodeFactory`
-    3. 短信验证码(SMS validate code): `默认空实现`
+    3. 短信验证码(SMS validate code): `**默认空实现**`
         - `SmsCodeSender`
     4. 自定义验证码(customize validate code):
         - `AbstractValidateCodeProcessor`
@@ -771,11 +772,11 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
        - 需要调用`BaseOAuth2ConnectionFactory#generateState(realAuthCallbackPath)`
          方法去设置真实的回调地址: realAuthCallbackPath(格式为：`path=myAuthCallbackPath`).
        - 自定义路由算法(Custom routing algorithm): 
-         1. 统一回调地址与真实回调地址的转换逻辑：
+         1. 统一回调地址与真实回调地址的**转换逻辑**：
              - 构建统一的回调地址: 默认实现 `SocialOAuth2AuthenticationService#buildReturnToUrl(..)`,
                自定义请实现`BaseOAuth2ConnectionFactory#buildReturnToUrl(..)`方法
              - 跳转到真实的回调地址: `SocialController#authCallbackRouter(..)`
-         2. 对 `state` 的加解密逻辑：
+         2. 对 `state` 的**加解密逻辑**：
             - 把真实回调地址加入到`state`并进行加密: `BaseOAuth2ConnectionFactory#generateState(..)`
             - 解密`state`并返回真实的回调地址: `RedirectUrlHelperService#decodeRedirectUrl(..)`
 
@@ -906,11 +907,11 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         useReferer: true
         # 设置由客户端决定认证成功要跳转的 url 的 request 参数名称, 默认为 redirectTargetUrl
         targetUrlParameter: redirectTargetUrl
-        # 是否开启根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationUrl 和 authRedirectSuffixCondition
+        # 是否开启根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationRoutingUrl 和 authRedirectSuffixCondition
         open-authentication-redirect: true
         # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require,
-        # 当 openAuthenticationRedirect = true 时生效. 注意: 如果修改此 uri, 需要重新实现修改后的 uri
-        login-un-authentication-url: /authentication/require
+        # 当 openAuthenticationRedirect = true 时生效. 
+        login-un-authentication-routing-url: /authentication/require
         # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空.
         # 当 openAuthenticationRedirect = true 时生效.
         # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
@@ -943,11 +944,11 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
     ```yaml
     security:
       client:
-        # 是否开启登录路由功能, 根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationUrl 和 authRedirectSuffixCondition
+        # 是否开启登录路由功能, 根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationRoutingUrl 和 authRedirectSuffixCondition
         open-authentication-redirect: true
         # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require,
-        # 当 openAuthenticationRedirect = true 时生效. 注意: 如果修改此 uri, 需要重新实现修改后的 uri
-        login-un-authentication-url: /authentication/require
+        # 当 openAuthenticationRedirect = true 时生效. 
+        login-un-authentication-routing-url: /authentication/require
         # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空. 
         # 当 openAuthenticationRedirect = true 时生效.
         # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
@@ -1027,7 +1028,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
           enable-session-url-rewriting: false
           # concurrent session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /
           invalid-session-of-concurrent-url: /concurrentSession.html
-          # session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /session/invalid, 注意: 如果修改此 uri, 需要重新实现修改后的 uri
+          # session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /session/invalid, 
           invalid-session-url: /session/invalid
           # session 的 cookie name, 默认为: JSESSIONID, 需要与 server.servlet.session.cookie.name 同时设置
           session-cookie-name: SID
@@ -1474,7 +1475,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
       - 类上添加: @EnableUriAuthorize(filterOrInterceptor = false),
         filterOrInterceptor=false 时为拦截器(注解方式)模式; filterOrInterceptor=true 时为过滤器模式.
       - filterOrInterceptor=true 时, 启用过滤器模式, 无需在方法上配置: 
-        注意: 过滤器模式过滤器模式"用户 uri(此 uri 不包含 servletContextPath)" 必须与"权限"是一对一关系, 不然会越权, 也就是说不适合 restful 风格的 API.
+        **注意**: 过滤器模式"用户 uri(此 uri 不包含 servletContextPath)" 必须与"权限"是**一对一关系**, 不然会越权, 也就是说不适合 restful 风格的 API.
       ```java
       package demo.permission.service.impl;
       
@@ -1797,11 +1798,11 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
       
           # =============== login routing 功能: 解决跳转登录成功后不能跳转原始请求的问题 ===============
       
-          # 是否开启根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationUrl 和 authRedirectSuffixCondition
+          # 是否开启根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationRoutingUrl 和 authRedirectSuffixCondition
           open-authentication-redirect: true
           # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require,
-          # 当 openAuthenticationRedirect = true 时生效. 注意: 如果修改此 uri, 需要重新实现修改后的 uri
-          login-un-authentication-url: /authentication/require
+          # 当 openAuthenticationRedirect = true 时生效. 
+          login-un-authentication-routing-url: /authentication/require
           # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空.
           # 当 openAuthenticationRedirect = true 时生效.
           # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
@@ -1833,11 +1834,9 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 
       ```
 
-
-
 ## 七、`注意事项(NOTE)`: 
 ### 1. 基于 RBAC 的 uri 访问权限控制
-- 更新角色权限时必须调用AbstractUriAuthorizeService#updateRolesAuthorities() 方法来刷新权限, 即可实时刷新角色权限.
+- **更新角色权限时必须调用** `AbstractUriAuthorizeService#updateRolesAuthorities()` 方法来**刷新权限**, 即可实时刷新角色权限.
 
 ### 2. HttpSecurity 配置问题：UMS 中的 HttpSecurity 配置与应用中的 HttpSecurity 配置冲突问题：
 
@@ -1853,13 +1852,31 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
     - 属性值: authorizeRequestMap<String, Set<String>>: key 为 PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED
       , FULLY_AUTHENTICATED, REMEMBER_ME 的权限类型,  value 为 uri(不包含 servletContextPath)的 set.
 
-## 八、参与贡献
+### 4. 验证码优先级: 
+    - 同一个 uri 由多种验证码同时配置, **优先级**如下:
+      `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
+
+## 八、属性配置列表
+### 基本属性列表
+- TODO
+### 签到属性列表
+- TODO
+### 手机登录属性列表
+- TODO
+### 验证码属性列表
+- TODO
+### social_userConnection redisCache属性列表
+- TODO
+### social属性列表
+- TODO
+
+## 九、参与贡献
 1. Fork 本项目
 2. 新建 Feat_xxx 分支
 3. 提交代码
 4. 新建 Pull Request
 
-## 九、`时序图(Sequence Diagram)`: 随着版本迭代会有出入
+## 十、`时序图(Sequence Diagram)`: 随着版本迭代会有出入
 ### 1. crsf
 ![crsf](doc/SequenceDiagram/crsf.png)
 ### 2. getValidateCode
