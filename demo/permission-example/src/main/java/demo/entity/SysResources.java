@@ -27,13 +27,34 @@ public class SysResources implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    /**
+     * 如: 菜单, 按钮
+     */
     private String type;
+    /**
+     * url
+     */
     private String url;
+    /**
+     * 权限
+     */
     private String permission;
+    /**
+     * 父菜单
+     */
     private Long parentId;
+    /**
+     * 排序
+     */
     private Integer sort;
+    /**
+     * 是否在新标签打开
+     */
     private Boolean external;
     private Boolean available;
+    /**
+     * 菜单图标
+     */
     private String icon;
     @Transient
     private Date createTime;

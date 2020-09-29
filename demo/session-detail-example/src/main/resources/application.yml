@@ -19,7 +19,7 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
 
-  # =============== session 详细设置 ===============
+# ===============start session 详细设置 ===============
   redis:
     host: 192.168.88.88
     port: 6379
@@ -53,7 +53,6 @@ spring:
 
 server:
   port: 9090
-  # =============== session 详细设置 ===============
   servlet:
     # tomcat session 设置
     session:
@@ -62,7 +61,7 @@ server:
         max-age: PT600S
         # session 的 cookie name, 默认为: JSESSIONID
         name: SID
-
+# ===============end session 详细设置 ===============
 
 security:
   client:

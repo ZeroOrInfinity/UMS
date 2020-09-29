@@ -25,9 +25,14 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
   - 统一回调地址路由功能(Unified callback address routing function)。
   - 访问权限控制功能(Access control function)。
   - 简化 session、remember me、crsf 等配置(Simplify session、remember me、srsf etc configuration)。
-  - 根据设置的返回方式（JSON 与 REDIRECT）返回 json 或 html 数据。
+  - 根据设置的响应方式（JSON 与 REDIRECT）返回 json 或 html 数据。
   - 签到功能(sign)。
   
+  | 模块   | 功能                                                         |
+  | ------ | ------------------------------------------------------------ |
+  | core   | 验证码/用户名密码登录/手机登录且自动注册/登录路由/访问权限控制/签到/简化HttpSecurity(session、remember me、crsf 等)配置/session redis 缓存/可配置的响应方式(JSON 与 REDIRECT)返回 json 或 html 数据 |
+  | social | 第三方登录功能(qq,weibo,weixin,gitee)/自动注册/绑定与解绑/统一回调地址路由 |
+  | demo   | basic-example/basic-detail-example/permission-example/quickStart/session-detail-example/social-simple-example/social-detail-example/validate-codi-example |
 ## 二、`maven`：
 ```xml
 <!-- 验证码, 手机登录, 访问权限控制功能, 签到, 简化session/rememberMe/csrf/anonymous配置等功能 -->
@@ -46,7 +51,6 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 ```
 
 ## 三、`TODO List`:
-- 完善 README
 - 第三方登录功能添加 JustAuth 工具, 支持更多的第三方登录. 
 - OAuth2 authenticate server
 
@@ -1451,7 +1455,8 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         app-secret:
     ```
     
-### 13. 访问权限控制功能(Access control function)
+### 13. 基于 RBAC 的访问权限控制功能(Access control function)
+- 相比于 spring security, ums 的权限控制有更加细粒度的权限控制, 如: 对菜单与按钮的权限控制, 权限控制的数据库模型: 具体可参考 `demo 模块 -> permission-example`
 - 在 core 模块: `demo 模块 -> permission-example`
   - 使用方法(Usage): 
       - 类上添加: @EnableUriAuthorize(filterOrInterceptor = false),
@@ -1820,93 +1825,11 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 
 ## 七、`注意事项(NOTE)`: 
 ### 1. 基于 RBAC 的 uri 访问权限控制
-- 必须实现 AbstractUriAuthorizeService 类中的方法getRolesAuthorities(),即可实现权限控制.
-- 相比于 RBAC 更加细粒度的权限控制, 如: 对菜单与按钮的权限控制, 权限控制的数据库模型:
-```sql
-CREATE TABLE `sys_resources` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `url` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `permission` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `parent_id` bigint(20) unsigned DEFAULT '0',
-  `sort` int(10) unsigned DEFAULT NULL,
-  `external` tinyint(3) unsigned DEFAULT NULL COMMENT '是否外部链接',
-  `available` tinyint(3) unsigned DEFAULT '0',
-  `icon` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '菜单图标',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE,
-  KEY `idx_sys_resource_parent_id` (`parent_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8;
-
-CREATE TABLE `sys_role` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '角色名',
-  `description` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `available` tinyint(1) DEFAULT '0',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
-
-CREATE TABLE `sys_role_resources` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `role_id` bigint(20) unsigned NOT NULL,
-  `resources_id` bigint(20) unsigned NOT NULL,
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=611 DEFAULT CHARSET=utf8;
-
-CREATE TABLE `sys_user` (
-  `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `username` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `password` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '登录密码',
-  `nickname` VARCHAR(30) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '昵称',
-  `mobile` VARCHAR(30) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '手机号',
-  `email` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '邮箱地址',
-  `qq` VARCHAR(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT 'QQ',
-  `birthday` DATE DEFAULT NULL COMMENT '生日',
-  `gender` SMALLINT(6) DEFAULT NULL COMMENT '性别',
-  `avatar` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '头像地址',
-  `user_type` ENUM('ROOT','ADMIN','USER') CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT 'ADMIN' COMMENT '超级管理员、管理员、普通用户',
-  `company` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '公司',
-  `blog` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '个人博客地址',
-  `location` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '地址',
-  `source` ENUM('GITHUB','GITEE','WEIBO','DINGTALK','BAIDU','CSDN','CODING','OSCHINA','TENCENT_CLOUD','ALIPAY','TAOBAO','QQ','WECHAT','GOOGLE','FACEBOOK') CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '用户来源',
-  `uuid` VARCHAR(50) DEFAULT NULL COMMENT '用户唯一表示(第三方网站)',
-  `privacy` TINYINT(4) DEFAULT NULL COMMENT '隐私（1：公开，0：不公开）',
-  `notification` TINYINT(3) UNSIGNED DEFAULT NULL COMMENT '通知：(1：通知显示消息详情，2：通知不显示详情)',
-  `score` INT(10) UNSIGNED DEFAULT '0' COMMENT '金币值',
-  `experience` INT(10) UNSIGNED DEFAULT '0' COMMENT '经验值',
-  `reg_ip` VARCHAR(30) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '注册IP',
-  `last_login_ip` VARCHAR(30) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '最近登录IP',
-  `last_login_time` DATETIME DEFAULT NULL COMMENT '最近登录时间',
-  `login_count` INT(10) UNSIGNED DEFAULT '0' COMMENT '登录次数',
-  `remark` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '用户备注',
-  `status` INT(10) UNSIGNED DEFAULT NULL COMMENT '用户状态',
-  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
-  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `idx_mobile` (`mobile`)
-) ENGINE=INNODB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
-
-CREATE TABLE `sys_user_role` (
-  `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `user_id` BIGINT(20) UNSIGNED NOT NULL,
-  `role_id` BIGINT(20) UNSIGNED NOT NULL,
-  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
-  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=INNODB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
-```
-- 当然以上数据库模型只是参考, 只要能够获取到 Map<role, Map<uri, permission>> 即可.
-
+- 更新角色权限时必须调用AbstractUriAuthorizeService#updateRolesAuthorities() 方法来刷新权限, 即可实时刷新角色权限.
 
 ### 2. HttpSecurity 配置问题：UMS 中的 HttpSecurity 配置与应用中的 HttpSecurity 配置冲突问题：
 
-1. 如果是新建应用添加 HttpSecurity 配置, 通过下面的接口即可:
+1. 如果是新建应用添加 HttpSecurity 配置, 通过下面的接口即可: 
     - `HttpSecurityAware`
 2. 如果是已存在的应用：
     - 添加 HttpSecurity 配置, 通过下面的接口即可: `HttpSecurityAware`
