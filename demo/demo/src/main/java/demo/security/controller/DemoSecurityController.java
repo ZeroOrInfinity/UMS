@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_UN_AUTHENTICATION_URL;
+import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_UN_AUTHENTICATION_ROUTING_URL;
 
 /**
  * 客户端认证 controller.<br><br> *
@@ -69,7 +69,7 @@ public class DemoSecurityController implements BaseSecurityController {
      * @param response {@link HttpServletResponse}
      */
     @Override
-    @RequestMapping(DEFAULT_UN_AUTHENTICATION_URL)
+    @RequestMapping(DEFAULT_UN_AUTHENTICATION_ROUTING_URL)
     public void requireAuthentication(HttpServletRequest request, HttpServletResponse response) {
         try
         {

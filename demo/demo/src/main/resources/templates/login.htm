@@ -4,7 +4,80 @@
     <meta charset="UTF-8">
     <title>登录</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@1.11.1/dist/jquery.min.js"></script>
+    <style>
+        .rightValidate {
+            width: 350px;
+            margin: 0px auto;
+            position: relative;
+            line-height: 33px;
+            height: 33px;
+            text-align: center;
+            z-index: 99;
+        }
 
+        .v_rightBtn {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 33px;
+            width: 40px;
+            background: #ddd;
+            cursor: pointer;
+        }
+        .imgBtn{
+            width:50px;
+            height: 50px;
+            position: absolute;
+            left: 0;
+            display: none;
+        }
+        .imgBtn img{
+            width:100%
+        }
+        .imgBg{
+            position: relative;
+            width: 350px;
+            height: 0;
+            box-shadow: 0px 4px 8px #3C5476;
+        }
+
+        .hkinnerWrap{
+            border: 1px solid #eee;
+        }
+        .green{
+            border-color:#34C6C2 !important;
+        }
+        .green .v_rightBtn{
+            background: #34C6C2;
+            color: #fff;
+        }
+        .red{
+            border-color:red !important;
+        }
+        .red .v_rightBtn{
+            background: red;
+            color: #fff;
+        }
+        .refresh{
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            right: 0;
+            top: 0;
+            font-size: 12px;
+            color: #fff;
+            text-shadow: 0px 0px 9px #333;
+            cursor: pointer;
+            display: none;
+        }
+        .notSel{
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-touch-callout: none;
+        }
+    </style>
 </head>
 <body>
 <h2>登录页面</h2>
@@ -78,6 +151,44 @@
             <td ><button id="btn-mobile" type="button">登录ajax</button></td>
             <!-- 通过 form submit 不能接收错误信息, 通过 ajax 可接收错误信息 -->
             <td ><button type="submit">登录</button></td>
+        </tr>
+    </table>
+</form>
+<h3>滑块验证码</h3>
+<!-- 通过 th:action 的方式支持 csrf 或者 添加隐藏域<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
+<form id="sli-form" th:action="@{/authentication/form}" method="post">
+    <table>
+        <tr>
+            <td>用户名：</td>
+            <td><input type="text" name="username" value="admin" ><p style="color: #ff0000"
+                                                                     id="error-name-sli"></p></td>
+        </tr>
+        <tr>
+            <td>密码：</td>
+            <td><input type="password" name="password" value="admin"></td>
+        </tr>
+        <tr>
+            <td>滑块验证码：</td>
+            <td>
+                <input type="hidden" name="sliderToken">
+                <div class="comImageValidate rightValidate">
+                    <div class="hkinnerWrap" style="height: 33px;position: relative">
+                        <span  class="v_rightBtn " th:data-uri="@{/slider/check}"><em class="notSel">→</em></span>
+                        <span class="huakuai"  style="font-size: 12px;line-height: 33px;color: #A9A9A9;">向右滑动滑块填充拼图</span>
+                        <input type = "hidden" name="sliderToken"/>
+                    </div>
+                    <span style="color: #ff0000" id="error-code-sli"></span>
+                    <div class="imgBg">
+                        <div class="imgBtn">
+                            <img />
+                        </div>
+                        <span class="refresh" id="slider-refresh" th:data-uri="@{/code/slider}">刷新</span>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td ><button id="btn-reg-sli" type="button">登录ajax</button></td>
         </tr>
     </table>
 </form>
@@ -179,6 +290,169 @@
         submitFormByAjax($("#reg-form").attr("action"), "#reg-form", "#error-name", "#error-code", ".img", true)
     )
 
+    $("#btn-reg-sli").click(
+        submitFormByAjax($("#sli-form").attr("action"), "#sli-form", "#error-name-sli", "#error-code-sli", ".img-sli", false)
+    )
+
+
+    // ===================== 滑块验证码 ========================
+
+    var tokenId = "";
+    var y = "";
+    var x = "";
+    $(".comImageValidate").ready(function () {
+        let uri = $("#slider-refresh").attr("data-uri");
+        console.log(uri);
+        validateImageInit(uri);
+        $(".refresh").click(function () {
+            let uri = $(this).attr("data-uri");
+            validateImageInit(uri);
+        })
+        $(".hkinnerWrap").mouseover(function(){
+            $(".imgBg").stop(false).animate({"height":"213px"},100,function () {
+                $(".imgBtn").css("display","block");
+                $(".refresh").css("display","block");
+            });
+        }).mouseleave(function () {
+            $(".imgBg").stop(false).animate({"height":"0"},100,function () {
+                $(".imgBtn").css("display","none");
+                $(".refresh").css("display","none");
+            });
+        });
+        $(".imgBg").mouseover(function () {
+            $(".imgBg").stop(false).animate({"height":"213px"},100,function () {
+                $(".imgBtn").css("display","block");
+                $(".refresh").css("display","block");
+            });
+        }).mouseleave(function () {
+            $(".imgBg").stop(false).animate({"height":"0"},100,function () {
+                $(".imgBtn").css("display","none");
+                $(".refresh").css("display","none");
+            });
+        })
+        $('.v_rightBtn').on({
+            mousedown: function(e) {
+                $(".huakuai").html("");
+                $(".hkinnerWrap").removeClass("red green")
+                var el = $(this);
+                var os = el.offset();
+                dx = e.pageX - os.left;
+                //$(document)
+                $(this).parents(".hkinnerWrap").off('mousemove');
+                $(this).parents(".hkinnerWrap").on('mousemove', function(e) {
+                    var newLeft=e.pageX - dx;
+                    el.offset({
+                        left: newLeft
+                    });
+                    var newL=parseInt($(".v_rightBtn").css("left"));
+                    if(newL<=0){
+                        newL=0;
+                    }else if (newL>=298){
+                        newL=306;
+                    }
+                    $(".v_rightBtn").css("left",newL+"px");
+                    $(".imgBtn").offset({
+                        left: newLeft
+                    });
+                    $(".imgBtn").css("left",newL+"px")
+                }).on('mouseup', function(e) {
+                    //$(document)
+                    $(this).off('mousemove');
+                })
+            }
+        }).on("mouseup",function () {
+            $(this).parents(".hkinnerWrap").off('mousemove');
+            var l=$(this).css("left");
+            if(l.indexOf("px")!=-1){
+                l=l.substring(0,l.length-2);
+            }
+            x = l;
+            let uri = $(this).attr("data-uri");
+            submitDate(l,y,tokenId, uri)
+        })
+
+    });
+    /*图形验证*/
+    function submitDate(x, y, tokenId, uri) {
+        $.ajax({
+            url:uri + "?x="+x+"&y="+y+"&sliderToken="+tokenId,
+            dataType:'json',
+            type: "POST",
+            success:function (data) {
+                if(data.code === 0){
+                    console.log(data);
+                    $(".hkinnerWrap").addClass("green").removeClass("red");
+                    $(".hkinnerWrap input[name='sliderToken']").val(tokenId);
+                }
+                else if (data.code === 606) {
+                    console.log("不刷新, 用户重新操作: " + data);
+                    $(".hkinnerWrap").addClass("red").removeClass("green");
+                    $(".v_rightBtn").css("left", 0);
+                    $(".imgBtn").css("left", 0);
+                } else {
+                    console.log("重新刷新: " + data);
+                    $(".hkinnerWrap").addClass("red").removeClass("green");
+                    $(".v_rightBtn").css("left", 0);
+                    $(".imgBtn").css("left", 0);
+                    let uri = $("#slider-refresh").attr("data-uri");
+                    validateImageInit(uri);
+                    // setTimeout(function(){
+                    //     $(".hkinnerWrap").removeClass("red green");
+                    //     $(".v_rightBtn").css("left",0);
+                    //     $(".imgBtn").css("left",0);
+                    // },500)
+                    //validateImageInit();
+                }
+            }
+        })
+    }
+
+    /*初始化图形验证码*/
+    function validateImageInit(uri) {
+        $.ajax({
+            url:uri,
+            dataType:'json',
+            cache:false,
+            type: "get",
+            success:function (data) {
+                console.log(data);
+                $(".huakuai").html("向右滑动滑块填充拼图");
+                $(".imgBg").css("background",'#fff url("data:image/jpg;base64,'+data.sourceImage+'")');
+                $(".imgBtn").css('top',data.locationY+'px');
+                $(".imgBtn").find("img").attr("src","data:image/png;base64,"+data.newImage)
+                tokenId=data.token;
+                y=data.locationY;
+                $(".hkinnerWrap").removeClass("red green");
+                $(".v_rightBtn").css("left",0);
+                $(".imgBtn").css("left",0);
+                $(".hkinnerWrap input[name='sliderToken']").val(tokenId);
+            },error:function(err){
+                console.log(err)
+            }
+        })
+    }
+    /**
+     * 再次进行用户拖动行为验证
+     * @returns {boolean}
+     */
+    function reValidateDeal(uri){
+        var result = false;
+        $.ajax({
+            url: uri + "?x="+x+"&y="+y+"&sliderToken="+tokenId,
+            dataType:'json',
+            cache : false,
+            async : false,
+            type: "POST",
+            success:function (data) {
+                if(data==true){
+                    result = true;
+                }else {
+                    result = false;
+                }
+            }
+        })
+        return result;
+    }
 
 </script>
 </html>
