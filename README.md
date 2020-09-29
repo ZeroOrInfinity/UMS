@@ -10,8 +10,8 @@
 ![license](https://img.shields.io/badge/license-MIT-yellow.svg)
 
 用户管理脚手架集成：验证码、手机登录、支持qq,weibo,weixin,gitee第三方登录(自动注册，绑定与解绑)、基于 RBAC 的 uri
- 访问权限控制功能、通过统一的回调地址入口实现多回调地址的路由功能、签到等功能。通过实现几个 API
- 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑。
+ 访问权限控制功能、通过统一的回调地址入口实现多回调地址的路由功能、签到等功能。
+ 通过配置与实现几个 API 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑。
 
 User management scaffolding, integration: validate code, mobile login, OAuth2(automatic registration, binding and unbinding), RBAC-based uri access control function, routing function of multiple callback addresses through a unified callback address entry, and sign etc... 
 
@@ -34,14 +34,14 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>1.1.0-beta3</version>
+    <version>1.1.1-alpha</version>
 </dependency>
 <!-- 第三方登录(自动注册，绑定与解绑, redis cache), 通过统一的回调地址入口实现多回调地址的路由功能 -->
 <!-- 包含 ums-core-spring-boot-starter 依赖 -->
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-social-spring-boot-starter</artifactId>
-    <version>1.1.0-beta3</version>
+    <version>1.1.1-alpha</version>
 </dependency>
 ```
 
@@ -81,7 +81,15 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         store-type: none
         # session 过期时间
         timeout: PT300s
-  
+    
+      # thymeleaf
+      thymeleaf:
+        encoding: utf-8
+        prefix: classpath:/templates/
+        suffix: .htm
+        servlet:
+          content-type: text/html;charset=UTF-8
+    
     # ums core
     security:
       client:
@@ -100,6 +108,9 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         # 不需要认证的静态资源 urls, 例如: /resources/**, /static/**
         ignoring-urls:
           - /static/**
+        # 不需要认证的 uri, 默认为 空 Set.
+        permit-urls:
+          - /hello
     
         # 设置登录时用户名的 request 参数名称, 默认为 username
         usernameParameter: username
@@ -121,14 +132,14 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
             - /authentication/mobile
           request-param-mobile-name: mobile
           request-param-sms-code-name: smsCode
-        # ================ 手机登录配置 ================
-        mobile:
-          login:
-            # 手机验证码登录是否开启, 默认 false，
-            # 手机验证码登录开启后 必须配置 security.codes.sms.auth-urls=/authentication/mobile
-            sms-code-login-is-open: true
-            # 手机验证码登录请求处理url, 默认 /authentication/mobile
-            login-processing-url-mobile: /authentication/mobile
+      # ================ 手机登录配置 ================
+      mobile:
+        login:
+          # 手机验证码登录是否开启, 默认 false，
+          # 手机验证码登录开启后 必须配置 security.codes.sms.auth-urls=/authentication/mobile
+          sms-code-login-is-open: true
+          # 手机验证码登录请求处理url, 默认 /authentication/mobile
+          login-processing-url-mobile: /authentication/mobile
     
       # =============== 第三方登录配置: social ===============
       social:
@@ -136,18 +147,34 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         sign-in-url: /signIn
         # 第三方登录用户授权失败跳转页面， 默认为 /signIn.html
         failure-url: /signIn
-        # 第三方登录回调的域名
-        domain: http://www.dcenter.top
-        ####### 第三方登录绑定相关
+        # 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth/callback
+        # 如果更改此 url，更改后的必须要实现 SocialController#authCallbackRouter(HttpServletRequest) 的功能
+        callback-url: /auth/callback
+        # 第三方登录回调的域名, 默认: http://127.0.0.1
+        domain: http://127.0.0.1
     
         # 从第三方服务商获取的信息
-          # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
-          # redirect-url: http://www.dcenter.top/demo/auth/callback/qq
+        # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+        # 假设 servletcontextPath=/demo
+        # redirect-url: http://127.0.0.1/demo/auth/callback/qq
         gitee:
           # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false
           enable: true
           app-id: your app id
           app-secret: your app secret
+    
+    ---
+    spring:
+      profiles: dev
+      mvc:
+        throw-exception-if-no-handler-found: true
+      thymeleaf:
+        cache: false
+    
+    debug: true
+    
+    server:
+      port: 80
     ```
 - 3. 实现(implement) AbstractUserDetailsService:
     ```java
@@ -155,21 +182,29 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
     
     import com.fasterxml.jackson.databind.DeserializationFeature;
     import com.fasterxml.jackson.databind.ObjectMapper;
+    import demo.entity.UserInfo;
     import lombok.extern.slf4j.Slf4j;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.jdbc.core.JdbcTemplate;
     import org.springframework.security.core.authority.AuthorityUtils;
     import org.springframework.security.core.userdetails.User;
-    import org.springframework.security.core.userdetails.UserCache;
     import org.springframework.security.core.userdetails.UserDetails;
     import org.springframework.security.core.userdetails.UsernameNotFoundException;
     import org.springframework.security.crypto.password.PasswordEncoder;
+    import org.springframework.social.connect.Connection;
+    import org.springframework.social.connect.web.ProviderSignInUtils;
+    import org.springframework.social.security.SocialUser;
+    import org.springframework.social.security.SocialUserDetails;
     import org.springframework.stereotype.Service;
     import org.springframework.web.context.request.ServletWebRequest;
-    import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
     import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
     import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
     import top.dcenter.ums.security.core.exception.UserNotExistException;
+    import top.dcenter.ums.security.core.util.RequestUtil;
+    import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
+    import top.dcenter.ums.security.social.api.service.SocialUserCache;
+    
+    import java.util.List;
     
     /**
      *  用户密码与手机短信登录与注册服务：<br><br>
@@ -181,7 +216,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
      */
     @Service
     @Slf4j
-    public class UserDetailsService extends AbstractUserDetailsService {
+    public class UserDetailsService extends AbstractSocialUserDetailsService {
     
         /**
          * 用户名
@@ -199,7 +234,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
     
         @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
         @Autowired(required = false)
-        private UserCache userCache;
+        private SocialUserCache userCache;
         /**
          * 用于密码加解密
          */
@@ -216,6 +251,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         @SuppressWarnings("AlibabaUndefineMagicConstant")
         @Override
         public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    
             try
             {
                 // 从缓存中查询用户信息:
@@ -327,6 +363,134 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
             return result;
         }
     
+        @Override
+        public SocialUserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
+            try
+            {
+                // 从缓存中查询用户信息
+                if (this.userCache != null)
+                {
+                    SocialUserDetails userDetails = this.userCache.getSocialUserFromCache(userId);
+                    if (userDetails != null)
+                    {
+                        return null;
+                    }
+                }
+    
+                // 根据用户名获取用户信息。
+    
+                // 获取用户信息逻辑。。。
+                // ...
+    
+                // 示例：只是从 OAuth2 用户登录日志表中提取的信息，
+                List<String> list = jdbcTemplate.queryForList("select userId from social_UserConnection " +
+                                                                      "where userId = ?",
+                                                              String.class, userId);
+                if (list.contains(userId))
+                {
+                    for (String username : list)
+                    {
+                        if (username.equals(userId))
+                        {
+                            log.info("Demo ======>: 登录用户名：{}, 登录成功", userId);
+                            return new SocialUser(username,
+                                                  "",
+                                                  true,
+                                                  true,
+                                                  true,
+                                                  true,
+                                                  AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER"));
+    
+                        }
+    
+                    }
+    
+                }
+                log.info("Demo ======>: 登录用户名：{}, 登录失败", userId);
+                return null;
+            }
+            catch (Exception e)
+            {
+                log.error(e.getMessage(), e);
+                throw new UserNotExistException(ErrorCodeEnum.QUERY_USER_INFO_ERROR, e, userId);
+            }
+        }
+    
+        @Override
+        public SocialUserDetails registerUser(ServletWebRequest request, ProviderSignInUtils providerSignInUtils) throws RegisterUserFailureException {
+            UserInfo userInfo = RequestUtil.extractRequest2Object(request.getRequest(), objectMapper, UserInfo.class);
+            String userId = null;
+            String password = "";
+            if (userInfo != null)
+            {
+                userId = userInfo.getUserId();
+                password = userInfo.getPassword();
+            }
+    
+            try
+            {
+                Connection<?> connectionFromSession = providerSignInUtils.getConnectionFromSession(request);
+                log.info("Demo ======>: connectionFromSession = {}", connectionFromSession);
+    
+                // 用户信息持久化逻辑。。。
+                // ...
+                String encodedPassword = passwordEncoder.encode(password);
+                // OAuth 信息存储
+                providerSignInUtils.doPostSignUp(userId, request);
+                log.info("Demo ======>: 第三方登录用户：{}, 注册成功", userId);
+                //noinspection all
+                SocialUser user = new SocialUser(userId,
+                                                 encodedPassword,
+                                                 true,
+                                                 true,
+                                                 true,
+                                                 true,
+                                                 AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER")
+                );
+    
+                // 把用户信息存入缓存
+                if (userCache != null)
+                {
+                    userCache.putUserInCache(user);
+                }
+    
+                return user;
+            }
+            catch (Exception e)
+            {
+                log.error(e.getMessage(), e);
+    
+                throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_FAILURE, e, userId);
+            }
+        }
+    }
+
+    ```
+    ```java
+    package demo.entity;
+    
+    import com.fasterxml.jackson.annotation.JsonAlias;
+    import lombok.AllArgsConstructor;
+    import lombok.Getter;
+    import lombok.NoArgsConstructor;
+    import lombok.Setter;
+    
+    /**
+     * @author zyw
+     * @version V1.0  Created by 2020/6/5 23:20
+     */
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public class UserInfo {
+    
+        @JsonAlias({"username"})
+        private String userId;
+        private String password;
+        private String avatarUrl;
+        private String providerId;
+        private String providerUserId;
     }
     ```
 - 4. html/htm/jsp etc :
@@ -364,7 +528,6 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
     @Controller
     @Slf4j
     @EnableUriAuthorize()
-    @EnableSign
     public class UserController {
     
         @GetMapping("/login")
@@ -561,8 +724,8 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
     </script>
     </html>
     ```
-- 5. 浏览器访问 `localhost:9090/login`, 至此集成了：登录校验，验证码、手机登录、gitee第三方登录(自动注册，绑定与解绑)、基于 RBAC 的 uri 访问权限控制功能、
-     通过统一的回调地址入口实现多回调地址的路由功能、签到等功能。实现快速开发。
+- 5. 浏览器访问 `http://127.0.0.1/login`, 至此集成了：登录校验，验证码、手机登录、gitee第三方登录(自动注册，绑定与解绑)、基于 RBAC 的 uri 访问权限控制功能、
+     通过统一的回调地址入口实现多回调地址的路由功能等功能; 实现快速开发。此 `Quick Start` 代码在 `demo 模块`,
      其他功能的详细配置说明参照: `六、Configurations` 与 `demo 模块`。
 
 
@@ -1291,277 +1454,367 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 ### 13. 访问权限控制功能(Access control function)
 - 在 core 模块: `demo 模块 -> permission-example`
   - 使用方法(Usage): 
-              - 类上添加: @EnableUriAuthorize(filterOrInterceptor = false),
-                filterOrInterceptor=false 时为拦截器(注解方式)模式; filterOrInterceptor=true 时为过滤器模式.
-              - filterOrInterceptor=true 时, 启用过滤器模式, 无需在方法上配置: 
-                注意: 过滤器模式必须 uri(此 uri 不包含 servletContextPath) 与 权限是一对一关系, 也就是说不适合 restful 风格的 API.
-              ```java
-              
-              // 例如: 给角色 ROLE_USER 的 uri=/test/permission/** 添加编辑(edit)权限,
-              public class UriPermissionService {
-                  // 此类明天更新
-                  
-                  // 注意: 此 uri 不包含 servletContextPath .
-                  public boolean addUriPermission(String role, String uri, List<PermissionSuffixType> permissionSuffixTypeList) {
+      - 类上添加: @EnableUriAuthorize(filterOrInterceptor = false),
+        filterOrInterceptor=false 时为拦截器(注解方式)模式; filterOrInterceptor=true 时为过滤器模式.
+      - filterOrInterceptor=true 时, 启用过滤器模式, 无需在方法上配置: 
+        注意: 过滤器模式过滤器模式"用户 uri(此 uri 不包含 servletContextPath)" 必须与"权限"是一对一关系, 不然会越权, 也就是说不适合 restful 风格的 API.
+      ```java
+      package demo.permission.service.impl;
+      
+      import demo.service.SysRoleService;
+      import lombok.extern.slf4j.Slf4j;
+      import org.springframework.beans.factory.annotation.Autowired;
+      import org.springframework.http.MediaType;
+      import org.springframework.stereotype.Service;
+      import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
+      import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
+      
+      import javax.servlet.http.HttpServletResponse;
+      import java.io.IOException;
+      import java.io.PrintWriter;
+      import java.util.Map;
+      import java.util.Optional;
+      
+      /**
+       * request 的 uri 访问权限控制服务.<br>
+       * @author zyw
+       * @version V1.0  Created by 2020/9/8 21:54
+       */
+      @Service
+      @Slf4j
+      public class UriAuthorizeServiceImpl extends AbstractUriAuthorizeService {
+      
+          @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+          @Autowired
+          private SysRoleService sysRoleService;
+      
+          /**
+           * 获取角色的 uri 的权限 map.<br>
+           *     返回值为: Map(role, Map(uri, UriResourcesDTO))
+           * @return Map(String, Map(String, String)) 的 key 为必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), value 为 UriResourcesDTO map
+           * (key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为 UriResourcesDTO).
+           */
+          @Override
+          public Optional<Map<String, Map<String, UriResourcesDTO>>> getRolesAuthorities() {
+      
+              // 从数据源获取 RolesAuthorities
+              Map<String, Map<String, UriResourcesDTO>> rolesAuthorities = sysRoleService.getRolesAuthorities();
+      
+              return Optional.of(rolesAuthorities);
+          }
+      
+          /**
+           * @param status   返回状态 
+           * @param response response
+           */
+          @Override
+          public void handlerError(int status, HttpServletResponse response) {
+              response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+              response.setCharacterEncoding("UTF-8");
+              response.setStatus(status);
+              try (PrintWriter writer = response.getWriter())
+              {
+                  writer.write("{\"msg\":\"demo: 您没有访问权限或未登录\"}");
+                  writer.flush();
+              }
+              catch (IOException e)
+              {
+                  log.error(e.getMessage(), e);
+              }
+          }
+      
+      }
+      
+      ```
+      - filterOrInterceptor=false 时, 拦截器方式, 在方法上添加注解 `@UriAuthorize("/test/permission:add")`即可实现权限控制. 示例:
+      ```java
+      package demo.permission.controller;
             
-                      // 1. 创建 UriResources          
-            
-                      // 添加 uri 的编辑(edit)权限. 注意: 此 uri 不包含 servletContextPath .
-                      // 这里用了 PermissionSuffixType 枚举来规范添加 uri 权限后缀, 详细信息查看 PermissionSuffixType 枚举. 
-                      // 注意: 过滤器模式必须 uri 与 权限是一对一关系
-            
-                      // 存入数据库
-            
-                      // 2. 给角色 ROLE_USER 添加 uri 权限
-                      
-                      // 存入数据库
-                  }
+      import demo.permission.service.UriPermissionService;
+      import lombok.extern.slf4j.Slf4j;
+      import org.springframework.beans.factory.annotation.Autowired;
+      import org.springframework.lang.NonNull;
+      import org.springframework.security.access.prepost.PreAuthorize;
+      import org.springframework.security.core.userdetails.UserDetails;
+      import org.springframework.web.bind.annotation.GetMapping;
+      import org.springframework.web.bind.annotation.PathVariable;
+      import org.springframework.web.bind.annotation.RestController;
+      import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
+      import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+      import top.dcenter.ums.security.core.permission.annotation.UriAuthorize;
+      import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
+      import top.dcenter.ums.security.core.permission.config.UriAuthorizeInterceptorAutoConfiguration;
+      import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
+      import top.dcenter.ums.security.core.vo.ResponseResult;
+      
+      import java.util.List;
+      
+      /**
+       * 权限测试控制器:
+       *
+       * &#64;EnableUriAuthorize(filterOrInterceptor = true) 为过滤器模式; 添加角色权限即可实现权限控制, <br>
+       * &#64;EnableUriAuthorize(filterOrInterceptor = false) 默认为拦截器模式(注解模式);<br>
+       *
+       * &#64;PreAuthorize 注解需要 @EnableGlobalMethodSecurity(prePostEnabled = true) 支持,
+       * 在 @EnableUriAuthorize 中 {@link UriAuthorizeInterceptorAutoConfiguration}已配置, 不需要再次配置. <br>
+       * &#64;UriAuthorize 注解需要 @EnableUriAuthorize(filterOrInterceptor = false) 支持.<br>
+       *
+       * 过滤器模式的注意点: <br>
+       * 1. 需要验证的 url 必须有一条角色(任何角色都可以)权限记录. <br>
+       * 2. 修改与添加权限后必须调用一下此方法, 更新一下角色的权限.
+       * <pre>
+       *     // 修改或添加权限一定要更新 ServletContext 缓存
+       *     abstractUriAuthorizeService.updateRolesAuthorities();
+       * </pre>
+       * @author zyw
+       * @version V1.0  Created by 2020/9/9 22:49
+       */
+      @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection", "DefaultAnnotationParam"})
+      @RestController
+      @Slf4j
+      @EnableUriAuthorize(filterOrInterceptor = false)
+      public class PermissionController {
+      
+          @Autowired
+          private UriPermissionService uriPermissionService;
+          @Autowired
+          private AbstractUserDetailsService userDetailsService;
+      
+      
+          /**
+           * 用户注册, 默认添加角色(admin,ROLE_USER), 权限放行,不需要登录, 默认密码: admin
+           * @param mobile    mobile
+           * @return  ResponseResult
+           */
+          @GetMapping("/addUser/{mobile}")
+          public ResponseResult addUser(@PathVariable String mobile) {
+              try {
+                  UserDetails userDetails = userDetailsService.registerUser(mobile);
+      
+                  // 测试用例, 会返回密码, 生产上禁用
+                  return ResponseResult.success(userDetails);
               }
-              // =======================================================================
-              
-              /**
-               * 权限后缀类型
-               * @author zyw
-               * @version V1.0  Created by 2020/9/17 9:33
-               */
-              public enum PermissionSuffixType {
-                  /**
-                   * 查询
-                   */
-                  LIST("GET")
-                          {
-                              @Override
-                              public String getPermissionSuffix() {
-                                  return ":list";
-                              }
-                          },
-                  /**
-                   * 添加
-                   */
-                  ADD("POST")
-                          {
-                              @Override
-                              public String getPermissionSuffix() {
-                                  return ":add";
-                              }
-                          },
-                  /**
-                   * 更新
-                   */
-                  EDIT("PUT")
-                          {
-                              @Override
-                              public String getPermissionSuffix() {
-                                  return ":edit";
-                              }
-                          },
-                  /**
-                   * 删除
-                   */
-                  DELETE("DELETE")
-                          {
-                              @Override
-                              public String getPermissionSuffix() {
-                                  return ":del";
-                              }
-                          };
-              
-                  /**
-                   * request method
-                   */
-                  @Getter
-                  private String method;
-              
-                  PermissionSuffixType(String method) {
-                      this.method = method;
-                  }
-              
-                  /**
-                   * 获取权限后缀
-                   * @return 返回权限后缀
-                   */
-                  public abstract String getPermissionSuffix();
-              
-                  /**
-                   * 根据 requestMethod 获取权限后缀
-                   * @param method    requestMethod
-                   * @return  权限后缀, 如果 method 不匹配, 返回 null
-                   */
-                  public static String getPermissionSuffix(String method) {
-                      Objects.requireNonNull(method, "method require non null");
-                      PermissionSuffixType[] types = values();
-                      for(PermissionSuffixType type: types){
-                          if (type.method.equals(method.toUpperCase()))
-                          {
-                              return type.getPermissionSuffix();
-                          }
-                      }
-                      return null;
-                  }
-                  
+              catch (Exception e) {
+                  String msg = String.format("用户注册-失败: 手机号：%s, 注册失败: %s", mobile, e.getMessage());
+                  log.error(msg, e);
+                  return ResponseResult.fail(ErrorCodeEnum.USER_REGISTER_FAILURE, mobile);
               }
-              ```
-              - filterOrInterceptor=false 时, 拦截器方式, 在方法上添加注解 `@UriAuthorize("/test/permission:add")`即可实现权限控制. 示例:
-              ```java
-              @Component
-              @Slf4j
-              public class DemoUriAuthorizeService extends AbstractUriAuthorizeService {
-              
-                  @Override
-                  public Optional<Map<String, Map<String, UriResourcesDO>>> getRolesAuthorities() {
-              
-                      // 生产环境: 从数据源获取 RolesAuthorities
-              
-                      // 示例代码
-                      Map<String, Map<String, UriResourcesDO>> rolesAuthorities = new HashMap<>(2);
-                      Map<String, UriResourcesDO> uriAuthority = new HashMap<>(1);
-                      UriResourcesDO uriResourcesDO = new UriResourcesDO();
-                      uriResourcesDO.setUrl("/test/permission/**");
-                      uriResourcesDO.setPermission("/test/permission:add");
-              
-                      uriAuthority.put("/test/permission/**", uriResourcesDO);
-                      uriAuthority.put("/test/pass/**", uriResourcesDO);
-              
-                      rolesAuthorities.put("ROLE_USER", uriAuthority);
-                      rolesAuthorities.put("ROLE_ANONYMOUS", uriAuthority);
-                      return Optional.of(rolesAuthorities);
-                  }
-              
-                  @Override
-                  public void handlerError(int status, HttpServletResponse response) {
-                      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                      response.setCharacterEncoding("UTF-8");
-                      response.setStatus(status);
-                      try (PrintWriter writer = response.getWriter())
-                      {
-                          writer.write("{\"msg\":\"demo: 您没有访问权限或未登录\"}");
-                          writer.flush();
-                      }
-                      catch (IOException e)
-                      {
-                          log.error(e.getMessage(), e);
-                      }
-                  }
-              
+          }
+      
+          /**
+           * 添加 role 的 uri 的权限, role 不存在自动创建, resources 不存在自动创建
+           * @param role          role
+           * @param uri           uri
+           * @param restfulMethod request method
+           * @return  ResponseResult
+           */
+          @GetMapping("/addPermissionData/{role}")
+          public ResponseResult addPermissionData(@PathVariable String role, @NonNull String uri, @NonNull String
+     restfulMethod) {
+              PermissionSuffixType permissionType = PermissionSuffixType.getPermissionType(restfulMethod);
+              if (permissionType == null)
+              {
+                  return ResponseResult.fail(ErrorCodeEnum.PARAMETER_ERROR, restfulMethod);
               }
-              ```
-              ```java
-              @Configuration
-              public class UriAuthorizeConfigurerAware implements HttpSecurityAware {
-              
-                  @Override
-                  public void postConfigure(HttpSecurity http)  {
-                      // dto nothing
-                  }
-              
-                  @Override
-                  public void preConfigure(HttpSecurity http)  {
-                      // dto nothing
-                  }
-              
-                  @Override
-                  public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
-              
-                       // 也可以在 application.yml 中配置, 不用硬编码
-                       // security:
-                       //   client:
-                       //     # 不需要认证的 uri, 默认为 空 Set.
-                       //     permit-urls:
-                       //       - /**/*.html
-                       //       - /testSign
-                       //       - /testSignOfLastSevenDays/**
-                      
-                      final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
-                      // 放行要测试 permission 的链接, 以免干扰 permission 测试.
-                      permitAllMap.put("/test/permission/**", null);
-                      permitAllMap.put("/test/deny/**", null);
-                      permitAllMap.put("/test/pass/**", null);
-              
-                      Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
-              
-                      resultMap.put(HttpSecurityAware.permitAll, permitAllMap);
-              
-                      return resultMap;
-                  }
-              
+              boolean result = uriPermissionService.addUriPermission(role, uri, List.of(permissionType));
+              if (!result)
+              {
+                  return ResponseResult.fail(ErrorCodeEnum.ADD_PERMISSION_FAILURE);
               }
-              ```
-              ```java
-              /**
-               * &#64;PreAuthorize 注解需要 @EnableGlobalMethodSecurity(prePostEnabled = true) 支持, 在 @EnableUriAuthorize 中
-               * {@link UriAuthorizeInterceptorAutoConfiguration}已配置, 不需要再次配置. <br>
-               * &#64;UriAuthorize 注解需要 @EnableUriAuthorize 支持
-               * @author zyw
-               * @version V1.0  Created by 2020/9/9 22:49
-               */
-              @SuppressWarnings("JavadocReference")@RestController
-              @Slf4j
-              // filterOrInterceptor=false 时为拦截器(注解方式)模式; filterOrInterceptor=true 时为过滤器模式.
-              @EnableUriAuthorize(filterOrInterceptor = false)
-              public class PermissionController {
-                  /**
-                   * 此 uri 已经设置 permitAll, 不用登录验证
-                   * 测试有 /test/permission:add 权限, 放行
-                   */
-                  @UriAuthorize("/test/permission:add")
-                  @GetMapping("/test/permission/{id}")
-                  public String testPermission(@PathVariable("id") String id) {
-                      return "test permission: " + id;
-                  }
-              
-              
-                  /**
-                   * 此 uri 已经设置 permitAll, 不用登录验证
-                   * 测试不匹配 /test/deny:add 权限, 禁止访问
-                   */
-                  @UriAuthorize("/test/deny:add")
-                  @GetMapping("/test/deny/{id}")
-                  public String testDeny(@PathVariable("id") String id) {
-                      return "test deny: " + id;
-                  }
-              
-                  /**
-                   * 此 uri 已经设置 permitAll, 不用登录验证
-                   * 没有注解 @UriAuthorize 直接放行
-                   */
-                  @GetMapping("/test/pass/{id}")
-                  public String testPass(@PathVariable("id") String id) {
-                      return "test pass: " + id;
-                  }
-              
-                  /**
-                   * 需要登录验证, 用户的 AuthorityList("admin, ROLE_USER")
-                   * 有注解 @PreAuthorize("hasRole('admin')") 没有 admin role, 禁止访问
-                   */
-                  @PreAuthorize("hasRole('admin')")
-                  @GetMapping("/test/role/{id}")
-                  public String testRole(@PathVariable("id") String id) {
-                      return "test role: " + id;
-                  }
-              
-                  /**
-                   * 需要登录验证, 用户的 AuthorityList("admin, ROLE_USER")
-                   * 有注解 @PreAuthorize("hasRole('USER')"), 有 USER role, 直接放行
-                   */
-                  @PreAuthorize("hasRole('USER')")
-                  @GetMapping("/test/role2/{id}")
-                  public String testRole2(@PathVariable("id") String id) {
-                      return "test role2: " + id;
-                  }
-              
-                  /**
-                   * 需要登录验证, 用户的 AuthorityList("admin, ROLE_USER")
-                   * 有注解 @PreAuthorize("hasAuthority('admin')"), 有 admin authority, 直接放行
-                   */
-                  @PreAuthorize("hasAuthority('admin')")
-                  @GetMapping("/test/role3/{id}")
-                  public String testRole3(@PathVariable("id") String id) {
-                      return "test role3: " + id;
-                  }
-              
+      
+              return ResponseResult.success();
+          }
+      
+          /**
+           * 删除 role 的 uri 的权限, role 不存在自动创建, resources 不存在自动创建.<br>
+           * @param role          role
+           * @param uri           uri
+           * @param restfulMethod request method
+           * @return  ResponseResult
+           */
+          @GetMapping("/delPermissionData/{role}")
+          public ResponseResult delPermissionData(@PathVariable String role, @NonNull String uri,
+                                                @NonNull String restfulMethod) {
+              PermissionSuffixType permissionType = PermissionSuffixType.getPermissionType(restfulMethod);
+              if (permissionType == null)
+              {
+                  return ResponseResult.fail(ErrorCodeEnum.PARAMETER_ERROR, restfulMethod);
               }
-              ```
+              boolean result = uriPermissionService.delUriPermission(role, uri, List.of(permissionType));
+              if (!result)
+              {
+                  return ResponseResult.fail(ErrorCodeEnum.DEL_PERMISSION_FAILURE);
+              }
+      
+              return ResponseResult.success();
+          }
+      
+          /**
+           * 测试有 /test/permission:add 权限, 放行. <br>
+           * 过滤器模式时, 注解是失效的, 但不影响权限过滤器的权限控制, 有权限 /test/permission/:add, 过滤器模式 可以访问.
+           */
+          @UriAuthorize("/test/permission/**:add")
+          @GetMapping("/test/permission/{id}")
+          public String testPermission(@PathVariable("id") String id) {
+              return "test permission: " + id;
+          }
+      
+      
+          /**
+           * 测试不匹配 /test/deny:add 权限, 禁止访问. <br>
+           * 过滤器模式时, 注解是失效的, 但不影响权限过滤器的权限控制, 过滤器模式, 禁止访问
+           */
+          @UriAuthorize("/test/deny/**:add")
+          @GetMapping("/test/deny/{id}")
+          public String testDeny(@PathVariable("id") String id) {
+              return "test deny: " + id;
+          }
+      
+          /**
+           * 此 uri 已经设置 PERMIT_ALL, 不用登录验证,
+           * 没有注解 @UriAuthorize 直接放行. <br>
+           * 过滤器模式时, 直接放行
+           */
+          @GetMapping("/test/pass/{id}")
+          public String testPass(@PathVariable("id") String id) {
+              return "test pass: " + id;
+          }
+      
+          /**
+           * 用户的 AuthorityList("admin, ROLE_USER"),
+           * 有注解 @PreAuthorize("HAS_ROLE('admin')") 没有 admin role, 禁止访问. <br>
+           * 过滤器模式时, 注解是失效的, 但不影响权限过滤器的权限控制, 有权限 /test/role/admin/:list, 过滤器模式 可以访问.
+           */
+          @PreAuthorize("hasRole('admin')")
+          @GetMapping("/test/role/admin/{id}")
+          public String testRoleAdmin(@PathVariable("id") String id) {
+              return "test role admin: " + id;
+          }
+      
+          /**
+           * 用户的 AuthorityList("admin, ROLE_USER"),
+           * 有注解 @PreAuthorize("HAS_ROLE('USER')"), 有 USER role, 直接放行. <br>
+           * 过滤器模式时, 注解是失效的, 但不影响权限过滤器的权限控制, 有权限 /test/role/user/:list, 过滤器模式 可以访问.
+           */
+          @PreAuthorize("hasRole('USER')")
+          @GetMapping("/test/role/user/{id}")
+          public String testRoleUser(@PathVariable("id") String id) {
+              return "test role user: " + id;
+          }
+      
+          /**
+           * 用户的 AuthorityList("admin, ROLE_USER"),
+           * 有注解 @PreAuthorize("HAS_AUTHORITY('admin')"), 有 admin authority, 直接放行. <br>
+           * 过滤器模式时, 注解是失效的, 但不影响权限过滤器的权限控制, 没有设置权限, 过滤器模式 可以禁止访问.
+           */
+          @PreAuthorize("hasAuthority('admin')")
+          @GetMapping("/test/auth/admin/{id}")
+          public String testRoleAuthAdmin(@PathVariable("id") String id) {
+              return "test role admin: " + id;
+          }
+      
+      }
+
+      ```
+      ```yaml
+      # 此配置其实与权限设置无关. 只是 permission-example 示例用到了 jpa, 在这里配置了一下 
     
+      server:
+        port: 9090
+      
+      spring:
+        profiles:
+          active: dev
+        # mysql
+        datasource:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://127.0.0.1:3306/ums?useSSL=false&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+          username: root
+          password: 123456
+        # thymeleaf
+        thymeleaf:
+          encoding: utf-8
+          prefix: classpath:/templates/
+          suffix: .htm
+          servlet:
+            content-type: text/html;charset=UTF-8
+        # jackson
+        jackson:
+          date-format: yyyy-MM-dd HH:mm:ss
+          time-zone: GMT+8
+      
+        # session 简单配置
+        session:
+          # session 存储模式设置, 要导入相应的 spring-session 类的依赖, 默认为 none, 分布式服务应用把 session 放入 redis 等中间件
+          store-type: none
+          # session 过期时间
+          timeout: PT1000s
+      
+        # 权限功能: jpa 配置
+        jpa:
+          generate-ddl: false
+          show-sql: false
+      
+      
+      
+      security:
+        client:
+          # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
+          login-process-type: redirect
+          # 登录页
+          login-page: /login
+          # 登录失败页
+          failure-url: /login
+          # 登录成功页
+          success-url: /
+          # 设置登出 url, 默认为 /logout
+          logout-url: /logout
+          # 设置登出后跳转的 url, 默认为 /login
+          logout-success-url: /login
+          # 不需要认证的静态资源 urls, 例如: /resources/**, /static/**
+          ignoring-urls:
+            - /static/**
+          permit-urls:
+            - /test/pass/**
+            - /addUser/**
+      
+          # =============== login routing 功能: 解决跳转登录成功后不能跳转原始请求的问题 ===============
+      
+          # 是否开启根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationUrl 和 authRedirectSuffixCondition
+          open-authentication-redirect: true
+          # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require,
+          # 当 openAuthenticationRedirect = true 时生效. 注意: 如果修改此 uri, 需要重新实现修改后的 uri
+          login-un-authentication-url: /authentication/require
+          # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空.
+          # 当 openAuthenticationRedirect = true 时生效.
+          # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
+          # 规则具体看 AntPathMatcher.match(pattern, path)
+          auth-redirect-suffix-condition:
+            - '/hello=/login2'
+            - '/user/**=/login'
+            - '/order/**=/login'
+            - '/file/**=/login'
+            - '/social/**=/signIn.html'
+      
+      ---
+      spring:
+        profiles: dev
+        mvc:
+          throw-exception-if-no-handler-found: true
+        # 权限功能: jpa 配置
+        jpa:
+          generate-ddl: true
+          show-sql: true
+          database: mysql
+      
+      
+      debug: true
+      
+      server:
+        servlet:
+          context-path: /demo
+
+      ```
 
 
 
