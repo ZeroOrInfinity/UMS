@@ -56,8 +56,15 @@ public class ClientAuthenticationFailureHandler extends BaseAuthenticationFailur
         {
             AjaxOrFormRequestFilter.AjaxOrFormRequest ajaxOrFormRequest = ((AjaxOrFormRequestFilter.AjaxOrFormRequest) request);
             Map<String, Object> formMap = ajaxOrFormRequest.getFormMap();
-            formMap.computeIfPresent(clientProperties.passwordParameter, (k, v) -> v = "PROTECTED");
-            reqData = formMap.toString();
+            if (formMap != null)
+            {
+                formMap.computeIfPresent(clientProperties.passwordParameter, (k, v) -> v = "PROTECTED");
+                reqData = formMap.toString();
+            }
+            else
+            {
+                reqData = request.getQueryString();
+            }
         }
         else
         {
