@@ -1876,7 +1876,12 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 3. 提交代码
 4. 新建 Pull Request
 
-## 十、`时序图(Sequence Diagram)`: 随着版本迭代会有出入
+## 十、`流程图(Flow)`: 随着版本迭代会有出入
+### 1. 滑块验证码(sliderValidateCode)
+![sliderValidateCode](doc/sliderFlow.png)
+
+
+## 十一、`时序图(Sequence Diagram)`: 随着版本迭代会有出入
 ### 1. crsf
 ![crsf](doc/SequenceDiagram/crsf.png)
 ### 2. getValidateCode
