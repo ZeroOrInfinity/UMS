@@ -14,6 +14,7 @@ import top.dcenter.ums.security.core.util.AuthenticationUtil;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * 滑块验证码处理器
  * @author zyw
  * @version V1.0  Created by 2020/9/21 23:05
  */

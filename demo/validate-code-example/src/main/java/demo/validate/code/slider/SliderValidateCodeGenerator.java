@@ -1,7 +1,7 @@
 package demo.validate.code.slider;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
@@ -19,6 +19,7 @@ import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_FA
 import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EMPTY;
 
 /**
+ * 滑块验证码生成器
  * @author zyw
  * @version V1.0  Created by 2020/9/21 12:32
  */
@@ -30,7 +31,7 @@ public class SliderValidateCodeGenerator implements ValidateCodeGenerator<Slider
     /**
      * request token param name
      */
-    public static final String TOKEN_PARAM_NAME = "token";
+    public static final String TOKEN_PARAM_NAME = "sliderToken";
 
     /**
      * request X param name
@@ -71,7 +72,16 @@ public class SliderValidateCodeGenerator implements ValidateCodeGenerator<Slider
         // 前端把第一次验证通过后的 token 设置到请求参数名称为 sliderToken 上.
         return validateCodeProperties.getSlider().getRequestParamName();
     }
-
+    /**
+     * 注意: 当时为了自定义滑块验证码示例, 在 1.1.1-alpha 版本的 {@link ValidateCodeGenerator} 添加了 validate(..) 接口 与 defaultValidate
+     * (request), 在 1.1.2-alpha 删除了 validate(..) 接口, defaultValidate(request)默认实现移动到了
+     * {@link top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessor }.<br><br>
+     * 在 v1.1.2-alpha 删除了, 直接实现 {@link top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessor } 即可.<br><br>
+     *
+     * 校验验证码
+     * @param request   {@link ServletWebRequest}
+     * @throws ValidateCodeException 验证码异常
+     */
     @SuppressWarnings({"ConstantConditions", "AlibabaLowerCamelCaseVariableNaming"})
     @Override
     public void validate(ServletWebRequest request) throws ValidateCodeException {

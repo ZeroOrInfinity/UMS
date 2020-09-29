@@ -18,61 +18,33 @@ import java.util.Random;
 /**
  * 滑块验证工具类<br>
  *
- * @author : https://blog.csdn.net/adidas74891496/article/details/106281363
+ * @author : LeonardozzZ223 https://blog.csdn.net/adidas74891496/article/details/106281363
  * @version : Created in 10:57 2018/6/25
  */
 @Slf4j
 public class SliderCodeUtil {
 
-
-    /**
-     * 源文件宽度
-     */
-    private static final int ORI_WIDTH = 350;
-    /**
-     * 源文件高度
-     */
-    private static final int ORI_HEIGHT = 213;
-    /**
-     * 模板图宽度
-     */
-    private static final int CUT_WIDTH = 50;
-    /**
-     * 模板图高度
-     */
-    private static final int CUT_HEIGHT = 50;
-    /**
-     * 抠图凸起圆心
-     */
-    private static final int CIRCLE_R = 5;
-    /**
-     * 抠图内部矩形填充大小
-     */
-    private static final int RECTANGLE_PADDING = 8;
-    /**
-     * 抠图的边框宽度
-     */
-    private static final int SLIDER_IMG_OUT_PADDING = 1;
-
-
-
     /**
      * 根据传入的路径生成指定验证码图片
      *
-     * @param filePath      文件路径
-     * @param cutWidth      模板图宽度
-     * @param cutHeight     模板图高度
-     * @param expireIn      滑块验证码默认过期时间, 单位: 秒
+     * @param filePath              文件路径
+     * @param cutWidth              模板图宽度
+     * @param cutHeight             模板图高度
+     * @param circleR               抠图凸起圆心
+     * @param expireIn              滑块验证码默认过期时间, 单位: 秒
+     * @param rectanglePadding      抠图内部矩形填充大小
+     * @param sliderImgOutPadding   抠图的边框宽度
      * @return  sliderCode
      * @throws IOException  IOException
      */
-    public static SliderCode getSliderCodeImage(String filePath, int cutWidth, int cutHeight, int expireIn) throws IOException {
+    public static SliderCode getSliderCodeImage(String filePath, int cutWidth, int cutHeight, int circleR,
+                                                int rectanglePadding, int sliderImgOutPadding, int expireIn) throws IOException {
         BufferedImage srcImage = ImageIO.read(new File(filePath));
 
         int locationX = cutWidth + new Random().nextInt(srcImage.getWidth() - cutWidth * 3);
         int locationY = cutHeight + new Random().nextInt(srcImage.getHeight() - cutHeight) / 2;
         BufferedImage markImage = new BufferedImage(cutWidth, cutHeight, BufferedImage.TYPE_4BYTE_ABGR);
-        int[][] data = getBlockData(cutWidth, cutHeight);
+        int[][] data = getBlockData(cutWidth, cutHeight, circleR, rectanglePadding, sliderImgOutPadding);
         cutImgByTemplate(srcImage, markImage, data, locationX, locationY, cutWidth, cutHeight);
         return new SliderCode(null, expireIn, null, getImageBASE64(markImage), getImageBASE64(srcImage), locationX, locationY,
                               srcImage.getWidth(), srcImage.getHeight());
@@ -85,37 +57,41 @@ public class SliderCodeUtil {
      * 0 透明像素
      * 1 滑块像素
      * 2 阴影像素
-     * @param cutWidth      模板图宽度
-     * @param cutHeight     模板图高度
+     * @param cutWidth              模板图宽度
+     * @param cutHeight             模板图高度
+     * @param circleR               抠图凸起圆心
+     * @param rectanglePadding      抠图内部矩形填充大小
+     * @param sliderImgOutPadding   抠图的边框宽度
      * @return int[][]
      */
-    @SuppressWarnings({"AlibabaAvoidComplexCondition", "ConstantConditions", "AlibabaMethodTooLong", "AlibabaLowerCamelCaseVariableNaming"})
-    private static int[][] getBlockData(int cutWidth, int cutHeight) {
+    @SuppressWarnings({"AlibabaAvoidComplexCondition", "AlibabaMethodTooLong", "AlibabaLowerCamelCaseVariableNaming"})
+    private static int[][] getBlockData(int cutWidth, int cutHeight, int circleR,
+                                        int rectanglePadding, int sliderImgOutPadding) {
         int[][] data = new int[cutWidth][cutHeight];
         Random random = new Random();
         //(x-a)²+(y-b)²=r²
         //x中心位置左右5像素随机
-        double x1 = RECTANGLE_PADDING + (cutWidth - 2 * RECTANGLE_PADDING) / 2.0 - 5 + random.nextInt(10);
+        double x1 = rectanglePadding + (cutWidth - 2 * rectanglePadding) / 2.0 - 5 + random.nextInt(10);
         //y 矩形上边界半径-1像素移动
-        double y1_top = RECTANGLE_PADDING - random.nextInt(3);
-        double y1_bottom = cutHeight - RECTANGLE_PADDING + random.nextInt(3);
+        double y1_top = rectanglePadding - random.nextInt(3);
+        double y1_bottom = cutHeight - rectanglePadding + random.nextInt(3);
         double y1 = random.nextInt(2) == 1 ? y1_top : y1_bottom;
 
 
-        double x2_right = cutWidth - RECTANGLE_PADDING - CIRCLE_R + random.nextInt(2 * CIRCLE_R - 4);
-        double x2_left = RECTANGLE_PADDING + CIRCLE_R - 2 - random.nextInt(2 * CIRCLE_R - 4);
+        double x2_right = cutWidth - rectanglePadding - circleR + random.nextInt(2 * circleR - 4);
+        double x2_left = rectanglePadding + circleR - 2 - random.nextInt(2 * circleR - 4);
         double x2 = random.nextInt(2) == 1 ? x2_right : x2_left;
-        double y2 = RECTANGLE_PADDING + (cutHeight - 2 * RECTANGLE_PADDING) / 2.0 - 4 + random.nextInt(10);
+        double y2 = rectanglePadding + (cutHeight - 2 * rectanglePadding) / 2.0 - 4 + random.nextInt(10);
 
-        double po = Math.pow(CIRCLE_R, 2);
+        double po = Math.pow(circleR, 2);
         for (int i = 0; i < cutWidth; i++)
         {
             for (int j = 0; j < cutHeight; j++)
             {
                 //矩形区域
                 boolean fill;
-                if ((i >= RECTANGLE_PADDING && i < cutWidth - RECTANGLE_PADDING)
-                        && (j >= RECTANGLE_PADDING && j < cutHeight - RECTANGLE_PADDING))
+                if ((i >= rectanglePadding && i < cutWidth - rectanglePadding)
+                        && (j >= rectanglePadding && j < cutHeight - rectanglePadding))
                 {
                     data[i][j] = 1;
                     fill = true;
@@ -152,24 +128,24 @@ public class SliderCodeUtil {
             for (int j = 0; j < cutHeight; j++)
             {
                 //四个正方形边角处理
-                for (int k = 1; k <= SLIDER_IMG_OUT_PADDING; k++)
+                for (int k = 1; k <= sliderImgOutPadding; k++)
                 {
                     //左上、右上
-                    if (i >= RECTANGLE_PADDING - k && i < RECTANGLE_PADDING
-                            && ((j >= RECTANGLE_PADDING - k && j < RECTANGLE_PADDING)
-                            || (j >= cutHeight - RECTANGLE_PADDING - k && j < cutHeight - RECTANGLE_PADDING + 1)))
+                    if (i >= rectanglePadding - k && i < rectanglePadding
+                            && ((j >= rectanglePadding - k && j < rectanglePadding)
+                            || (j >= cutHeight - rectanglePadding - k && j < cutHeight - rectanglePadding + 1)))
                     {
                         data[i][j] = 2;
                     }
 
                     //左下、右下
-                    if (i >= cutWidth - RECTANGLE_PADDING + k - 1 && i < cutWidth - RECTANGLE_PADDING + 1)
+                    if (i >= cutWidth - rectanglePadding + k - 1 && i < cutWidth - rectanglePadding + 1)
                     {
-                        for (int n = 1; n <= SLIDER_IMG_OUT_PADDING; n++)
+                        for (int n = 1; n <= sliderImgOutPadding; n++)
                         {
                             //noinspection IfStatementMissingBreakInLoop
-                            if (((j >= RECTANGLE_PADDING - n && j < RECTANGLE_PADDING)
-                                    || (j >= cutHeight - RECTANGLE_PADDING - n && j <= cutHeight - RECTANGLE_PADDING)))
+                            if (((j >= rectanglePadding - n && j < rectanglePadding)
+                                    || (j >= cutHeight - rectanglePadding - n && j <= cutHeight - rectanglePadding)))
                             {
                                 data[i][j] = 2;
                             }
@@ -177,21 +153,21 @@ public class SliderCodeUtil {
                     }
                 }
 
-                if (data[i][j] == 1 && j - SLIDER_IMG_OUT_PADDING > 0 && data[i][j - SLIDER_IMG_OUT_PADDING] == 0)
+                if (data[i][j] == 1 && j - sliderImgOutPadding > 0 && data[i][j - sliderImgOutPadding] == 0)
                 {
-                    data[i][j - SLIDER_IMG_OUT_PADDING] = 2;
+                    data[i][j - sliderImgOutPadding] = 2;
                 }
-                if (data[i][j] == 1 && j + SLIDER_IMG_OUT_PADDING > 0 && j + SLIDER_IMG_OUT_PADDING < cutHeight && data[i][j + SLIDER_IMG_OUT_PADDING] == 0)
+                if (data[i][j] == 1 && j + sliderImgOutPadding > 0 && j + sliderImgOutPadding < cutHeight && data[i][j + sliderImgOutPadding] == 0)
                 {
-                    data[i][j + SLIDER_IMG_OUT_PADDING] = 2;
+                    data[i][j + sliderImgOutPadding] = 2;
                 }
-                if (data[i][j] == 1 && i - SLIDER_IMG_OUT_PADDING > 0 && data[i - SLIDER_IMG_OUT_PADDING][j] == 0)
+                if (data[i][j] == 1 && i - sliderImgOutPadding > 0 && data[i - sliderImgOutPadding][j] == 0)
                 {
-                    data[i - SLIDER_IMG_OUT_PADDING][j] = 2;
+                    data[i - sliderImgOutPadding][j] = 2;
                 }
-                if (data[i][j] == 1 && i + SLIDER_IMG_OUT_PADDING > 0 && i + SLIDER_IMG_OUT_PADDING < cutWidth && data[i + SLIDER_IMG_OUT_PADDING][j] == 0)
+                if (data[i][j] == 1 && i + sliderImgOutPadding > 0 && i + sliderImgOutPadding < cutWidth && data[i + sliderImgOutPadding][j] == 0)
                 {
-                    data[i + SLIDER_IMG_OUT_PADDING][j] = 2;
+                    data[i + sliderImgOutPadding][j] = 2;
                 }
             }
         }

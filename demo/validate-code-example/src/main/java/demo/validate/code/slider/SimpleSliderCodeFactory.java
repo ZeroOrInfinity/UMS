@@ -21,6 +21,18 @@ import java.util.concurrent.ThreadLocalRandom;
 public class SimpleSliderCodeFactory implements SliderCodeFactory {
 
     /**
+     * 抠图凸起圆心, 默认: 5
+     */
+    private static final int CIRCLE_R = 5;
+    /**
+     * 抠图内部矩形填充大小, 默认: 8
+     */
+    private static final int RECTANGLE_PADDING = 8;
+    /**
+     * 抠图的边框宽度, 默认: 1
+     */
+    private static final int SLIDER_IMG_OUT_PADDING = 1;
+    /**
      * 模板图宽度
      */
     private static final int CUT_WIDTH = 50;
@@ -44,11 +56,16 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
         try
         {
             // 生产环境先生成好的验证码图片源, 在从缓存池中获取.
-            SliderCode sliderCode = SliderCodeUtil.getSliderCodeImage(getRandomAbsPath(), CUT_WIDTH, CUT_HEIGHT, SLIDER_IMG_SLIDER_IMG_EXPIRE_IN);
+            SliderCode sliderCode = SliderCodeUtil.getSliderCodeImage(getRandomAbsPath(RELATIVE_PATH),
+                                                                      CUT_WIDTH,
+                                                                      CUT_HEIGHT,
+                                                                      CIRCLE_R,
+                                                                      RECTANGLE_PADDING,
+                                                                      SLIDER_IMG_OUT_PADDING,
+                                                                      SLIDER_IMG_SLIDER_IMG_EXPIRE_IN);
 
             sliderCode.setToken(ValidateCodeUtil.getUUID());
 
-            sliderCode.setExpireTime(SLIDER_IMG_SLIDER_IMG_EXPIRE_IN);
             return sliderCode;
         }
         catch (Exception e)
@@ -58,12 +75,12 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
         }
     }
 
-    private String getRandomAbsPath() {
+    private String getRandomAbsPath(String originalImageDirectory) {
 
         File dirFile;
         try
         {
-            dirFile = ResourceUtils.getFile("classpath:" + RELATIVE_PATH);
+            dirFile = ResourceUtils.getFile("classpath:" + originalImageDirectory);
             String[] fileNames;
             if (dirFile.isDirectory())
             {
@@ -77,11 +94,11 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
         }
         catch (FileNotFoundException e)
         {
-            log.info(String.format( "生产 slider 验证码图片时找不到图片源, 图片源相对路径: %s", RELATIVE_PATH), e);
+            log.info(String.format( "产生 slider 验证码图片时找不到图片源, 图片源相对路径: %s", originalImageDirectory), e);
         }
 
-        log.info("生产 slider 验证码图片时找不到图片源, 图片源相对路径: {}", RELATIVE_PATH);
-        throw new RuntimeException("找不到图片源, 图片源相对路径: " + RELATIVE_PATH);
+        log.info("产生 slider 验证码图片时找不到图片源, 图片源相对路径: {}", originalImageDirectory);
+        throw new RuntimeException("找不到图片源, 图片源相对路径: " + originalImageDirectory);
 
     }
 
