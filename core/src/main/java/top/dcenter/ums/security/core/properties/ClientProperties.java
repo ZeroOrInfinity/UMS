@@ -108,7 +108,15 @@ public class ClientProperties {
 
     /**
      * 不需要认证的 uri, 默认为 空 Set.<br>
-     *     支持通配符 规则具体看 AntPathMatcher.match(pattern, path)
+     *     支持通配符 规则具体看 AntPathMatcher.match(pattern, path) <br><br>
+     *     httpSecurity.authorizeRequests().antMatchers(permitAllArray).permitAll()
+     * Example Usage:
+     *
+     * <pre>
+     * String[] permitAllArray = new String[]{&quot;/hello&quot;, &quot;/index&quot;, &quot;/down/**&quot;};
+     * httpSecurity.authorizeRequests()
+     *      .antMatchers(permitAllArray).permitAll();
+     * </pre>
      */
     private Set<String>  permitUrls = new HashSet<>();
 

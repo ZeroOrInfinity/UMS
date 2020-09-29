@@ -27,6 +27,12 @@ public class UriAuthorizeServiceImpl extends AbstractUriAuthorizeService {
     @Autowired
     private SysRoleService sysRoleService;
 
+    /**
+     * 获取角色的 uri 的权限 map.<br>
+     *     返回值为: Map(role, Map(uri, UriResourcesDTO))
+     * @return Map(String, Map(String, String)) 的 key 为必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), value 为 UriResourcesDTO map
+     * (key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为 UriResourcesDTO).
+     */
     @Override
     public Optional<Map<String, Map<String, UriResourcesDTO>>> getRolesAuthorities() {
 
@@ -36,6 +42,10 @@ public class UriAuthorizeServiceImpl extends AbstractUriAuthorizeService {
         return Optional.of(rolesAuthorities);
     }
 
+    /**
+     * @param status   返回状态
+     * @param response response
+     */
     @Override
     public void handlerError(int status, HttpServletResponse response) {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

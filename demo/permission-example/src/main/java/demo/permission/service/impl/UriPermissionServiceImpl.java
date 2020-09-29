@@ -120,6 +120,12 @@ public class UriPermissionServiceImpl implements UriPermissionService {
         return true;
     }
 
+    /**
+     * @param role                     角色
+     * @param uri                      注意: 此 uri 不包含 servletContextPath .
+     * @param permissionSuffixTypeList 权限后缀类型列表
+     * @return  是否成功
+     */
     @Transactional(rollbackFor = {Error.class, Exception.class})
     @Override
     public boolean delUriPermission(String role, String uri, List<PermissionSuffixType> permissionSuffixTypeList) {
