@@ -29,7 +29,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import top.dcenter.ums.security.core.properties.ClientProperties;
 import top.dcenter.ums.security.core.util.MvcUtil;
-import top.dcenter.ums.security.social.api.banding.IBandingController;
 import top.dcenter.ums.security.social.api.banding.ShowConnectViewService;
 import top.dcenter.ums.security.social.api.banding.ShowConnectionStatusViewService;
 import top.dcenter.ums.security.social.api.repository.UsersConnectionRepositoryFactory;
@@ -225,10 +224,6 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"OBL_UNSATISFIED_OBLIGATION", "ODR_OPEN_DATABASE_RESOURCE"})
     @Override
     public void afterPropertiesSet() throws Exception {
-
-        // 在 mvc 中做 Uri 映射等动作
-        MvcUtil.registerController("socialController", applicationContext, null);
-        MvcUtil.registerController("connectController", applicationContext, IBandingController.class);
 
         // ====== 给 this.connectionSignUp 赋值 ======
         try {

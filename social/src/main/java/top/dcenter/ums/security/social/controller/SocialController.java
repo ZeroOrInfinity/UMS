@@ -2,12 +2,16 @@ package top.dcenter.ums.security.social.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.view.RedirectView;
 import top.dcenter.ums.security.core.exception.ParameterErrorException;
+import top.dcenter.ums.security.core.util.MvcUtil;
 import top.dcenter.ums.security.social.callback.RedirectUrlHelperServiceImpl;
+import top.dcenter.ums.security.social.properties.SocialProperties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -29,10 +33,14 @@ import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.TAMPER_WITH_REDI
  */
 @Slf4j
 @ResponseBody
-public class SocialController {
+public class SocialController implements InitializingBean {
 
 
     private final RedirectUrlHelperServiceImpl redirectUrlHelper;
+    @Autowired
+    private GenericApplicationContext applicationContext;
+    @Autowired
+    private SocialProperties socialProperties;
 
     public SocialController(RedirectUrlHelperServiceImpl redirectUrlHelper) {
         this.redirectUrlHelper = redirectUrlHelper;
@@ -44,8 +52,7 @@ public class SocialController {
      * @param request   {@link HttpServletRequest}
      * @return {@link RedirectView}
      */
-    @GetMapping("/auth/callback")
-    @ConditionalOnProperty(prefix = "security.social", name = "filter-processes-url", havingValue = "/auth/callback")
+    @RequestMapping(value = "${security.social.filterProcessesUrl}")
     public RedirectView authCallbackRouter(HttpServletRequest request) {
 
         String state = request.getParameter(URL_PARAMETER_STATE);
@@ -101,4 +108,17 @@ public class SocialController {
 
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+
+        // 1. 动态注入 requireAuthentication() requestMapping 的映射 uri
+        String methodName = "authCallbackRouter";
+        MvcUtil.setRequestMappingUri(methodName,
+                                     socialProperties.getCallbackUrl(),
+                                     this.getClass(),
+                                     HttpServletRequest.class);
+
+        // 2. 在 mvc 中做 Uri 映射等动作
+        MvcUtil.registerController("socialController", applicationContext, null);
+    }
 }

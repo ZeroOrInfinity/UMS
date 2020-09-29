@@ -20,6 +20,8 @@ import lombok.Setter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionFactory;
@@ -45,6 +47,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UrlPathHelper;
+import top.dcenter.ums.security.core.util.MvcUtil;
 import top.dcenter.ums.security.social.api.banding.IBandingController;
 import top.dcenter.ums.security.social.banding.BandingConnectSupport;
 import top.dcenter.ums.security.social.properties.SocialProperties;
@@ -98,6 +101,10 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 	 * 绑定后的状态视图后缀
 	 */
 	public static final String BIND_SUFFIX = "Connected";
+
+	@SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+	@Autowired
+	private GenericApplicationContext applicationContext;
 
 	private final ConnectionFactoryLocator connectionFactoryLocator;
 	
@@ -420,9 +427,18 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 		return new RedirectView(path, true);
 	}
 	
-	// From InitializingBean
+
+	/**
+	 * 子类覆盖此方法, 最好先调用此方法, 以便在 mvc 中做 Uri 映射等动作, 当然也可以自己自定义.
+	 * @throws Exception Exception
+	 */
 	@Override
 	public void afterPropertiesSet() throws Exception {
+
+		// 在 mvc 中做 Uri 映射等动作
+		MvcUtil.registerController("connectController", applicationContext, IBandingController.class);
+
+
 		this.connectSupport = new BandingConnectSupport(sessionStrategy);
 		if (this.callbackUrl != null)
 		{
@@ -431,6 +447,7 @@ public class BandingConnectController implements InitializingBean, IBandingContr
 		if (applicationUrl != null) {
 			this.connectSupport.setApplicationUrl(applicationUrl);
 		}
+
 	}
 
 	// internal helpers
