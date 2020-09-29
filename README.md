@@ -28,11 +28,23 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
   - 根据设置的响应方式（JSON 与 REDIRECT）返回 json 或 html 数据。
   - 签到功能(sign)。
   
+### 模块功能表  
   | 模块   | 功能                                                         |
   | ------ | ------------------------------------------------------------ |
   | core   | 验证码/用户名密码登录/手机登录且自动注册/登录路由/访问权限控制/签到/简化HttpSecurity(session、remember me、crsf 等)配置/session redis 缓存/可配置的响应方式(JSON 与 REDIRECT)返回 json 或 html 数据 |
   | social | 第三方登录功能(qq,weibo,weixin,gitee)/自动注册/绑定与解绑/统一回调地址路由 |
   | demo   | basic-example/basic-detail-example/permission-example/quickStart/session-detail-example/social-simple-example/social-detail-example/validate-codi-example |
+### demo 演示功能表  
+  | demo                   | 演示功能                                                     |
+  | ---------------------- | ------------------------------------------------------------ |
+  | basic-example          | core 模块基本功能: 最简单的配置                              |
+  | basic-detail-example   | core 模块基本功能详细的配置: 含anonymous/session简单配置/rememberMe/csrf/登录路由/签到,     不包含session详细配置/验证码/手机登录/权限. |
+  | permission-example     | core 模块: 基于 RBAC 的权限功能设置                          |
+  | quickStart             | 快速开始示例                                                 |
+  | session-detail-example | core 模块: session 与 session 缓存详细配置                   |
+  | social-simple-example  | social 模块基本功能: 简单的配置(第三方登录自动注册默认打开)  |
+  | social-detail-example  | social 模块功能详细配置: 第三方授权登录注册功能, 统一回调地址路由配置, 第三方登录绑定配置, 第三方授权登录用户信息表自定义与 redis 缓存设置 |
+  | validate-codi-example  | core 模块基本功能: 验证码(含自定义滑块验证码), 手机登录配置  |
 ## 二、`maven`：
 ```xml
 <!-- 验证码, 手机登录, 访问权限控制功能, 签到, 简化session/rememberMe/csrf/anonymous配置等功能 -->
@@ -79,7 +91,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
         username: root
         password: 123456
     
-      # session 简单配置
+      # session 简单配置:
       session:
         # session 存储模式设置, 要导入相应的 spring-session 类的依赖, 默认为 none, 分布式服务应用把 session 放入 redis 等中间件
         store-type: none
