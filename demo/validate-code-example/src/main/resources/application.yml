@@ -95,12 +95,12 @@ security:
       request-para-width-name: width
       request-param-image-code-name: imageCode
     # 自定义滑块验证码
-    slider:
+    customize:
       # 设置需要短信验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “，”号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
       auth-urls:
         - /authentication/form
-        - /slider/check
-      # 提交验证码请求时，请求中带的验证码变量名，默认 sliderCode
+        - /slider/check2
+      # 提交验证码请求时，请求中带的验证码变量名，
       request-param-name: sliderToken
 
     # 短信验证码

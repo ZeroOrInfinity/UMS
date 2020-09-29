@@ -15,6 +15,7 @@ import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.AuthenticationUtil;
+import top.dcenter.ums.security.core.util.ValidateCodeUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +30,7 @@ import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_NO
  * @author zyw
  * @version V1.0  Created by 2020/9/21 23:05
  */
-@Component
+@Component("demoSliderCoderProcessor")
 @Slf4j
 public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
 
@@ -84,7 +85,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
 
     @Override
     public ValidateCodeType getValidateCodeType() {
-        return ValidateCodeType.SLIDER;
+        return ValidateCodeType.CUSTOMIZE;
     }
 
     @SuppressWarnings({"ConstantConditions", "AlibabaLowerCamelCaseVariableNaming"})
@@ -92,7 +93,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
     public void validate(ServletWebRequest request) throws ValidateCodeException {
         // 获取 session 中的 SliderCode
         HttpServletRequest req = request.getRequest();
-        ValidateCodeType sliderType = ValidateCodeType.SLIDER;
+        ValidateCodeType sliderType = ValidateCodeType.CUSTOMIZE;
         String sessionKey = sliderType.getSessionKey();
         HttpSession session = req.getSession();
         SliderCode sliderCodeInSession = (SliderCode) session.getAttribute(sessionKey);
@@ -142,7 +143,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         // 更新 session 中的验证码信息, 以便于第二次校验
         sliderCodeInSession.setSecondCheck(true);
         // 方便二次校验时, 调用 ValidateCodeGenerator.defaultValidate 方法.
-        sliderCodeInSession.setCode(sliderCodeInSession.getToken());
+        sliderCodeInSession.setCode(ValidateCodeUtil.getUUID());
         // 这里第一次校验通过, 第二次校验不需要使用复用功能, 不然第二次校验时不会清除 session 中的验证码缓存
         sliderCodeInSession.setReuse(false);
 

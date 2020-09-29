@@ -174,7 +174,7 @@
                 <input type="hidden" name="sliderToken">
                 <div class="comImageValidate rightValidate">
                     <div class="hkinnerWrap" style="height: 33px;position: relative">
-                        <span  class="v_rightBtn " th:data-uri="@{/slider/check}"><em class="notSel">→</em></span>
+                        <span  class="v_rightBtn " th:data-uri="@{/slider/check2}"><em class="notSel">→</em></span>
                         <span class="huakuai"  style="font-size: 12px;line-height: 33px;color: #A9A9A9;">向右滑动滑块填充拼图</span>
                         <input type = "hidden" name="sliderToken"/>
                     </div>
@@ -380,7 +380,7 @@
                 if(data.code === 0){
                     console.log(data);
                     $(".hkinnerWrap").addClass("green").removeClass("red");
-                    $(".hkinnerWrap input[name='sliderToken']").val(tokenId);
+                    $(".hkinnerWrap input[name='sliderToken']").val(data.data);
                 }
                 else if (data.code === 606) {
                     console.log("不刷新, 用户重新操作: " + data);

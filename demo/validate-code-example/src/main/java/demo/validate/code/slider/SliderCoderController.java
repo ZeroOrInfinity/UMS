@@ -5,7 +5,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
 import top.dcenter.ums.security.core.vo.ResponseResult;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -27,10 +30,11 @@ public class SliderCoderController {
      *
      * @return  ResponseResult
      */
-    @RequestMapping(value = "check",method = RequestMethod.POST)
+    @RequestMapping(value = "check2",method = RequestMethod.POST)
     @ResponseBody
-    public ResponseResult check() {
-        return ResponseResult.success();
+    public ResponseResult check(HttpServletRequest request) {
+        SliderCode sliderCode = (SliderCode) request.getSession().getAttribute(ValidateCodeType.CUSTOMIZE.getSessionKey());
+        return ResponseResult.success(null, sliderCode.getCode());
     }
 
 }

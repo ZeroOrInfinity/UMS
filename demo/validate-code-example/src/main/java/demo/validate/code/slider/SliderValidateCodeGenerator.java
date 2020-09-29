@@ -13,7 +13,7 @@ import javax.servlet.ServletRequest;
  * @author zyw
  * @version V1.0  Created by 2020/9/21 12:32
  */
-@Component
+@Component("demoSliderValidateCodeGenerator")
 @Slf4j
 public class SliderValidateCodeGenerator implements ValidateCodeGenerator<SliderCode> {
 
@@ -38,13 +38,13 @@ public class SliderValidateCodeGenerator implements ValidateCodeGenerator<Slider
 
     @Override
     public String getValidateCodeType() {
-        return ValidateCodeType.SLIDER.name().toLowerCase();
+        return ValidateCodeType.CUSTOMIZE.name().toLowerCase();
     }
 
     @Override
     public String getRequestParamValidateCodeName() {
         // 前端把第一次验证通过后的 token 设置到请求参数名称为 sliderToken 上.
-        return validateCodeProperties.getSlider().getRequestParamName();
+        return validateCodeProperties.getCustomize().getRequestParamName();
     }
 
 }

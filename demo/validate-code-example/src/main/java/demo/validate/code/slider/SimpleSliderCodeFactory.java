@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author zyw
  * @version V1.0  Created by 2020/9/21 21:58
  */
-@Component
+@Component("demoSimpleSliderCodeFactory")
 @Slf4j
 public class SimpleSliderCodeFactory implements SliderCodeFactory {
 

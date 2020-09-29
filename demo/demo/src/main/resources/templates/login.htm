@@ -382,7 +382,7 @@
                 if(data.code === 0){
                     console.log(data);
                     $(".hkinnerWrap").addClass("green").removeClass("red");
-                    $(".hkinnerWrap input[name='sliderToken']").val(tokenId);
+                    $(".hkinnerWrap input[name='sliderToken']").val(data.data);
                 }
                 else if (data.code === 606) {
                     console.log("不刷新, 用户重新操作: " + data);

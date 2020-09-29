@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessor;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeProcessorHolder;
+import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
+import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCode;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.exception.ValidateCodeProcessException;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
@@ -87,8 +89,9 @@ public class ValidateCodeController implements InitializingBean {
      * @return  ResponseResult
      */
     @RequestMapping(value = {"${security.codes.slider.sliderCheckUrl}"}, method = RequestMethod.POST)
-    public ResponseResult sliderCheck() {
-        return ResponseResult.success();
+    public ResponseResult sliderCheck(HttpServletRequest request) {
+        SliderCode sliderCode = (SliderCode) request.getSession().getAttribute(ValidateCodeType.SLIDER.getSessionKey());
+        return ResponseResult.success(null, sliderCode.getCode());
     }
 
 
@@ -103,7 +106,8 @@ public class ValidateCodeController implements InitializingBean {
         String methodName = "sliderCheck";
         MvcUtil.setRequestMappingUri(methodName,
                                      validateCodeProperties.getSlider().getSliderCheckUrl(),
-                                     this.getClass());
+                                     this.getClass(),
+                                     HttpServletRequest.class);
 
         // 3. 在 mvc 中做 Uri 映射等动作
         MvcUtil.registerController("validateCodeController", applicationContext, null);
