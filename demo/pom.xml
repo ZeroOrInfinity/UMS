@@ -22,6 +22,7 @@
         <module>social-detail-example</module>
         <module>validate-code-example</module>
         <module>permission-example</module>
+        <module>demo</module>
     </modules>
 
 

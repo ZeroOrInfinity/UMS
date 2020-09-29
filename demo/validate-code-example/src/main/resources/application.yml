@@ -102,6 +102,7 @@ security:
         - /slider/check
       # 提交验证码请求时，请求中带的验证码变量名，默认 sliderCode
       request-param-name: sliderToken
+
     # 短信验证码
     sms:
       # 设置需要短信验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “，”号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form

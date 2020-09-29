@@ -189,9 +189,39 @@ security:
 
     # 滑块验证码
     slider:
+      # 设置需要验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 空
       auth-urls:
         - /authentication/form
+      # 设置滑块验证码二次校验证的 uri(此 uri 不需要实现, 在 ValidateCodeFilter 校验), 默认: /slider/check
       slider-check-url: /slider/check
+      # 提交验证码请求时，请求中带的验证码变量名，默认 sliderCode.
+      # 与 tokenRequestParamName, xRequestParamName, yRequestParamName 互斥关系;
+      # 当使用此参数时, 把另外三个参数(kv键值对形式, 键值对之间用逗号风隔) 组装到此参数.
+      # 注意: 默认传递参数是用另外的三个参数实现验证码校验, 如要使用此参数, 请重新实现 ValidateCodeProcessor#validate(ServletWebRequest)
+      request-param-name: sliderCode
+      # request token param name, 默认: sliderToken. 与 requestParamName 互斥关系.
+      token-request-param-name: sliderToken
+      # request X param name, 默认: x. 与 requestParamName 互斥关系.
+      x-request-param-name: x
+      # request Y param name, 默认: y. 与 requestParamName 互斥关系.
+      y-request-param-name: y
+      # 抠图凸起圆心, 默认: 5
+      circle-r: 5
+      # 滑块图宽度, 默认: 50
+      cut-width: 50
+      # 滑块图高度, 默认: 50
+      cut-height: 50
+      # 抠图内部矩形填充大小, 默认: 8
+      rectangle-padding:
+      # 抠图的边框宽度, 默认:
+      slider-img-out-padding:
+      # 滑块验证码默认过期时间, 180 秒
+      expire: 180
+      # 原始图片目录，默认 static/image/validate/original
+      original-image-directory: static/image/validate/original
+      # 根据原始图片生成的滑块图片目录，用于自定义缓存滑块图片的存储目录, 默认 static/image/validate/template
+      template-image-directory: static/image/validate/template
+
 
   # 手机登录配置
   mobile:
