@@ -19,7 +19,7 @@ import top.dcenter.ums.security.core.auth.validate.codes.image.DefaultImageCodeF
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageValidateCodeProcessor;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SimpleSliderCodeFactory;
-import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCodeFactory;
+import top.dcenter.ums.security.core.api.validate.code.slider.SliderCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCoderProcessor;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderValidateCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.DefaultSmsCodeSender;
@@ -78,7 +78,7 @@ public class ValidateCodeBeanAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCodeFactory")
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.validate.code.slider.SliderCodeFactory")
     public SimpleSliderCodeFactory simpleSliderCodeFactory(ValidateCodeProperties validateCodeProperties) {
         return new SimpleSliderCodeFactory(validateCodeProperties);
     }

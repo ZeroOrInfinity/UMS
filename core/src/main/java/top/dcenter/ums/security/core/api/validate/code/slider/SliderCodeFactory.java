@@ -1,5 +1,6 @@
-package top.dcenter.ums.security.core.auth.validate.codes.slider;
+package top.dcenter.ums.security.core.api.validate.code.slider;
 
+import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCode;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 
 /**
