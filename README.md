@@ -16,7 +16,7 @@
 User management scaffolding, integration: validate code, mobile login, OAuth2(automatic registration, binding and unbinding), RBAC-based uri access control function, routing function of multiple callback addresses through a unified callback address entry, and sign etc... 
 
 ![ums-arch](doc/ums-arch.png)
-
+------
 ## 一、`UMS 功能列表(UMS feature list)`：
   - 验证码（图片，短信）校验功能(validate code (image, SMS) verification function)。
   - 手机登录功能，登录后自动注册(Mobile login function, automatic registration after login)。
@@ -31,7 +31,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 ### 模块功能 
   | **模块**   | **功能**                                                         |
   | ------ | ------------------------------------------------------------ |
-  | [core](https://github.com/ZeroOrInfinity/UMS/tree/master/core)   | 验证码/用户名密码登录/手机登录且自动注册/登录路由/访问权限控制/签到/简化HttpSecurity(session、remember me、crsf 等)配置/session redis 缓存/可配置的响应方式(JSON 与 REDIRECT)返回 json 或 html 数据 |
+  | [core](https://github.com/ZeroOrInfinity/UMS/tree/master/core)   | 验证码/用户名密码登录/手机登录且自动注册/登录路由/访问权限控制/签到/简化HttpSecurity(session、remember me、csrf 等)配置/session redis 缓存/可配置的响应方式(JSON 与 REDIRECT)返回 json 或 html 数据 |
   | [social](https://github.com/ZeroOrInfinity/UMS/tree/master/social) | 第三方登录功能(qq,weibo,weixin,gitee)/自动注册/绑定与解绑/统一回调地址路由 |
   | [demo](https://github.com/ZeroOrInfinity/UMS/tree/master/demo)   | basic-example/basic-detail-example/permission-example/quickStart/session-detail-example/social-simple-example/social-detail-example/validate-codi-example |
 ### demo 演示功能  
@@ -45,6 +45,10 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
   | [social-simple-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/social-simple-example)  | social 模块基本功能: 简单的配置(第三方登录自动注册默认打开)  |
   | [social-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/social-detail-example)  | social 模块功能详细配置: 第三方授权登录注册功能, 统一回调地址路由配置, 第三方登录绑定配置, 第三方授权登录用户信息表自定义与 redis 缓存设置 |
   | [validate-code-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/validate-code-example)  | core 模块基本功能: 验证码(含自定义滑块验证码), 手机登录配置  |
+
+### [更新日志(Changelog)](https://github.com/ZeroOrInfinity/UMS/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97%EF%BC%88Changelog%EF%BC%89)
+
+------
 ## 二、`maven`：
 ```xml
 <!-- 验证码, 手机登录, 访问权限控制功能, 签到, 简化session/rememberMe/csrf/anonymous配置等功能 -->
@@ -61,12 +65,12 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
     <version>1.1.3-alpha</version>
 </dependency>
 ```
-
+------
 ## 三、`TODO List`:
 - 完善 README
 - 第三方登录功能添加 JustAuth 工具, 支持更多的第三方登录. 
 - OAuth2 authenticate server
-
+------
 ## 四、`快速开始(Quick Start)`：
 ### 1. 添加依赖(Add Dependency):
 ```xml
@@ -755,7 +759,7 @@ public class UserController {
 ### 5. 访问前端页面
 - 浏览器访问 `http://127.0.0.1/login`, 至此集成了：登录校验，验证码、手机登录、gitee第三方登录(自动注册，绑定与解绑)、基于 RBAC 的 uri 访问权限控制功能、 通过统一的回调地址入口实现多回调地址的路由功能等功能; 实现快速开发。
 - 此 `Quick Start` 代码在 `demo 模块` -> [quickStart](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/quickStart), 其他功能的详细配置说明参照: [Configurations](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-1%E3%80%81%E5%9F%BA%E6%9C%AC%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE)。
-
+------
 ## 五、接口使用说明(`Interface instructions`):
 
 ### 实现对应功能时需要实现的接口(The interface that needs to be implemented when the corresponding function is present)：    
@@ -794,7 +798,7 @@ public class UserController {
         - 解密`state`并返回真实的回调地址: [RedirectUrlHelperService](https://github.com/ZeroOrInfinity/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/callback/RedirectUrlHelperService.java)`#decodeRedirectUrl(..)`
 
 
-
+------
 ## 六、Configurations:
 | **功能(Features)**                                                     | **模块(model)**                                                 | **demo模块--简单配置(Simple Configuration)**                                       | **demo模块--详细配置(detail Configuration)**                                       |
 | ------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -812,7 +816,7 @@ public class UserController {
 | 12. [签到](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-11%E3%80%81%E7%AD%BE%E5%88%B0%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
 | 13. [基于 RBAC 的访问权限控制功能](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-13%E3%80%81%E5%9F%BA%E4%BA%8E-RBAC-%E7%9A%84%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6%E5%8A%9F%E8%83%BD%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [permission-example](https://github.com/ZeroOrInfinity/tree/master/demo/permission-example/src/main/resources/application.yml) |
 
-
+------
 ## 七、[注意事项(NOTE)](https://github.com/ZeroOrInfinity/UMS/wiki/%E4%B8%83%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9): 
 ### 1. 基于 RBAC 的 uri 访问权限控制
 - **更新角色权限时必须调用** [AbstractUriAuthorizeService](https://github.com/ZeroOrInfinity/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java)`#updateRolesAuthorities()` 方法来**刷新权限**, 即可实时刷新角色权限.
@@ -820,7 +824,7 @@ public class UserController {
 ### 2. HttpSecurity 配置问题：UMS 中的 [HttpSecurityAware](https://github.com/ZeroOrInfinity/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java) 配置与应用中的 HttpSecurity 配置冲突问题：
 
 1. 如果是新建应用添加 HttpSecurity 配置, 通过下面的接口即可: 
-    - `HttpSecurityAware`
+    - [HttpSecurityAware](https://github.com/ZeroOrInfinity/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java)
 2. 如果是已存在的应用：
     - 添加 HttpSecurity 配置, 通过下面的接口即可: `HttpSecurityAware`
     - 已有的 HttpSecurity 配置, 让原有的 HttpSecurity 配置实现此接口进行配置: `top.dcenter.security.core.api.config.HttpSecurityAware`
@@ -837,7 +841,7 @@ public class UserController {
 ### 5. 验证码优先级(Verification code Priority): 
 - 同一个 uri 由多种验证码同时配置, **优先级**如下:P
   `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
-
+------
 ## 八、[Properties Configurations](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8)
 | **属性配置列表(Properties Configurations)**                                             |
 | ------------------------------------------------------------ |
@@ -847,22 +851,22 @@ public class UserController {
 | [验证码属性(Validate Code Properties)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8) |
 | [social_userConnection redis Cache 属性(Properties)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8) |
 | [Social 属性(Properties)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8) |
-
+------
 ## 九、参与贡献(Participate in contribution)
 1. Fork 本项目
 2. 新建 Feat_xxx 分支
 3. 提交代码
 4. 新建 Pull Request
-
+------
 ## 十、[流程图(Flow chart)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%8D%81%E3%80%81%E6%B5%81%E7%A8%8B%E5%9B%BE:-%E9%9A%8F%E7%9D%80%E7%89%88%E6%9C%AC%E8%BF%AD%E4%BB%A3%E4%BC%9A%E6%9C%89%E5%87%BA%E5%85%A5): 随着版本迭代会有出入
 ### 1. 滑块验证码(sliderValidateCode)
 ![sliderValidateCode](doc/sliderFlow.png)
 
-
+------
 ## 十一、[时序图(Sequence Diagram)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%8D%81%E4%B8%80%E3%80%81%E6%97%B6%E5%BA%8F%E5%9B%BE:-%E9%9A%8F%E7%9D%80%E7%89%88%E6%9C%AC%E8%BF%AD%E4%BB%A3%E4%BC%9A%E6%9C%89%E5%87%BA%E5%85%A5): 随着版本迭代会有出入
 | **时序图**                                                   |
 | ------------------------------------------------------------ |
-| [crsf](doc/SequenceDiagram/crsf.png)                         |
+| [csrf](doc/SequenceDiagram/crsf.png)                         |
 | [获取验证码逻辑](doc/SequenceDiagram/getValidateCode.png)    |
 | [图片验证码逻辑](doc/SequenceDiagram/ImageValidateCodeLogin.png) |
 | [logout](doc/SequenceDiagram/logout.png)                     |
