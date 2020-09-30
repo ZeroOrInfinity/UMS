@@ -21,7 +21,7 @@
   - 登录路由功能
   - 统一回调地址路由功能。
   - 访问权限控制功能。
-  - 简化 session、remember me、crsf 等配置。
+  - 简化 session、remember me、csrf 等配置。
   - 根据设置的响应方式（JSON 与 REDIRECT）返回 json 或 html 数据。
   - 签到功能。
   
@@ -71,7 +71,7 @@
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-social-spring-boot-starter</artifactId>
-    <version>1.1.1-alpha</version>
+    <version>1.1.3-alpha</version>
 </dependency>
 ```
 ### 2. config:  
@@ -824,17 +824,17 @@ public class UserController {
     - 已有的 HttpSecurity 配置, 让原有的 HttpSecurity 配置实现此接口进行配置: `top.dcenter.security.core.api.config.HttpSecurityAware`
 
 ### 3. 在 ServletContext 中存储的属性: 
-    - 属性名称: SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY
-    - 属性值: authorizeRequestMap<String, Set<String>>: key 为 PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED
-      , FULLY_AUTHENTICATED, REMEMBER_ME 的权限类型,  value 为 uri(不包含 servletContextPath)的 set.
+- 属性名称: SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY
+- 属性值: authorizeRequestMap<String, Set<String>>: key 为 PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED
+  , FULLY_AUTHENTICATED, REMEMBER_ME 的权限类型,  value 为 uri(不包含 servletContextPath)的 set.
       
 ### 4. servletContextPath 的值存储在 [MvcUtil](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/util/MvcUtil.java)`.servletContextPath` : 
-    - 通过静态方法获取 `MvcUtil.getServletContextPath()`
-    - `MvcUtil.servletContextPath` 的值是通过: [SecurityAutoConfiguration](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/config/SecurityAutoConfiguration.java)`#afterPropertiesSet()` 接口注入
+- 通过静态方法获取 `MvcUtil.getServletContextPath()`
+- `MvcUtil.servletContextPath` 的值是通过: [SecurityAutoConfiguration](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/config/SecurityAutoConfiguration.java)`#afterPropertiesSet()` 接口注入
     
 ### 5. 验证码优先级: 
-    - 同一个 uri 由多种验证码同时配置, **优先级**如下:
-      `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
+- 同一个 uri 由多种验证码同时配置, **优先级**如下:
+  `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
 
 ## 八、[属性配置列表](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926468&doc_id=984605)
 | **属性配置列表**                                             |
