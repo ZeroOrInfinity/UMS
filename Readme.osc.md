@@ -755,40 +755,39 @@ public class UserController {
 
 ## 五、接口使用说明:
 
-- 实现对应功能时需要实现的接口(The interface that needs to be implemented when the corresponding function is present)：    
-    1. 用户服务(user service): `必须实现(Must implemented)`
-        - 有 social 模块时: `AbstractSocialUserDetailsService`
-        - 无 social 模块时: `AbstractUserDetailsService`    
-    2. 图片验证码(image validate code): 如果不实现就会使用默认图片验证码, 实时产生验证码图片, 没有缓存功能
-        - `ImageCodeFactory`
-    3. 短信验证码(SMS validate code): `默认空实现`
-        - `SmsCodeSender`
-    4. 滑块验证码(Slider validate code): 如果不实现就会使用默认滑块验证码, 实时产生验证码图片, 没有缓存功能
-        - `SimpleSliderCodeFactory` 
-    5. 自定义验证码(customize validate code):
-        - `AbstractValidateCodeProcessor`
-        - `ValidateCodeGenerator`
-    6. 访问权限控制功能(Access control function): 基于 RBAC 的访问权限控制, 增加了更加细粒度的权限控制, 如: 对菜单与按钮的权限控制
-        - `AbstractUriAuthorizeService`:
+- 实现对应功能时需要实现的接口：    
+    1. 用户服务: `必须实现`
+        - 有 social 模块时: [AbstractSocialUserDetailsService](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/service/AbstractSocialUserDetailsService.java)
+        - 无 social 模块时: [AbstractUserDetailsService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/service/AbstractUserDetailsService.java)    
+    2. 图片验证码: 如果不实现就会使用默认图片验证码, 实时产生验证码图片, 没有缓存功能
+        - [ImageCodeFactory](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/image/ImageCodeFactory.java)
+    3. 短信验证码: `默认空实现`
+        - [SmsCodeSender](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/sms/SmsCodeSender.java)
+    4. 滑块验证码: 如果不实现就会使用默认滑块验证码, 实时产生验证码图片, 没有缓存功能
+        - [SimpleSliderCodeFactory](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/slider/SliderCodeFactory.java) 
+    5. 自定义验证码:
+        - [AbstractValidateCodeProcessor](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/AbstractValidateCodeProcessor.java)
+        - [ValidateCodeGenerator](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/ValidateCodeGenerator.java)
+    6. 访问权限控制功能: 基于 RBAC 的访问权限控制, 增加了更加细粒度的权限控制, 如: 对菜单与按钮的权限控制
+        - [AbstractUriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java):
             - `AbstractUriAuthorizeService` 类中的方法`getRolesAuthorities()`;
               `getRolesAuthorities()`返回值: Map<`role`, Map<`uri`, `UriResourcesDTO`>> 中`UriResourcesDTO`字段 `uri` 
               与 `permission` 必须有值. 
-    7. 绑定与解绑视图(Bind and unbind views): 用户绑定与解绑成功后会自动跳转到对应回显页面, 默认返回 json 信息
-        - 绑定状态信息回显: `ShowConnectionStatusViewService`
-        - 绑定与解绑信息回显: `ShowConnectViewService`
+    7. 绑定与解绑视图: 用户绑定与解绑成功后会自动跳转到对应回显页面, 默认返回 json 信息
+        - 绑定状态信息回显: [ShowConnectionStatusViewService](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/banding/ShowConnectionStatusViewService.java)
+        - 绑定与解绑信息回显: [ShowConnectViewService](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/banding/ShowConnectViewService.java)
         
-    8. 统一的回调地址的路由(Unified callback address routing): 方便对于多个回调地址进行路由管理(Convenient for routing management of multiple
-     callback addresses)
-       - 需要调用`BaseOAuth2ConnectionFactory#generateState(realAuthCallbackPath)`
+    8. 统一的回调地址的路由: 方便对于多个回调地址进行路由管理
+       - 需要调用[BaseOAuth2ConnectionFactory](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/callback/BaseOAuth2ConnectionFactory.java)`#generateState(realAuthCallbackPath)`
          方法去设置真实的回调地址: realAuthCallbackPath(格式为：`path=myAuthCallbackPath`).
-       - 自定义路由算法(Custom routing algorithm): 
+       - 自定义路由算法: 
          1. 统一回调地址与真实回调地址的**转换逻辑**：
-             - 构建统一的回调地址: 默认实现 `SocialOAuth2AuthenticationService#buildReturnToUrl(..)`,
-               自定义请实现`BaseOAuth2ConnectionFactory#buildReturnToUrl(..)`方法
-             - 跳转到真实的回调地址: `SocialController#authCallbackRouter(..)`
+             - 构建统一的回调地址: 默认实现 [SocialOAuth2AuthenticationService](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/callback/SocialOAuth2AuthenticationService.java)`#buildReturnToUrl(..)`,
+               自定义请实现[BaseOAuth2ConnectionFactory](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/callback/BaseOAuth2ConnectionFactory.java)`#buildReturnToUrl(..)`方法
+             - 跳转到真实的回调地址: [SocialController](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/controller/SocialController.java)`#authCallbackRouter(..)`
          2. 对 `state` 的**加解密逻辑**：
-            - 把真实回调地址加入到`state`并进行加密: `BaseOAuth2ConnectionFactory#generateState(..)`
-            - 解密`state`并返回真实的回调地址: `RedirectUrlHelperService#decodeRedirectUrl(..)`
+            - 把真实回调地址加入到`state`并进行加密: [BaseOAuth2ConnectionFactory](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/callback/BaseOAuth2ConnectionFactory.java)`#generateState(..)`
+            - 解密`state`并返回真实的回调地址: [RedirectUrlHelperService](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/callback/RedirectUrlHelperService.java)`#decodeRedirectUrl(..)`
 
 
 
