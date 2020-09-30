@@ -860,3 +860,18 @@ public class UserController {
 
 
 ## 十一、[时序图](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926484&doc_id=984605): 随着版本迭代会有出入
+| **时序图**                                                   |
+| ------------------------------------------------------------ |
+| [crsf](doc/SequenceDiagram/crsf.png)                         |
+| [获取验证码逻辑](doc/SequenceDiagram/getValidateCode.png)    |
+| [图片验证码逻辑](doc/SequenceDiagram/ImageValidateCodeLogin.png) |
+| [logout](doc/SequenceDiagram/logout.png)                     |
+| [第三方绑定与解绑](doc/SequenceDiagram/OAuth2Banding.png)    |
+| [第三方授权登录](doc/SequenceDiagram/OAuth2Login.png)        |
+| [第三方授权登录注册](doc/SequenceDiagram/OAuth2SignUp.png)   |
+| [rememberMe](doc/SequenceDiagram/rememberMe.png)             |
+| [核心配置逻辑](doc/SequenceDiagram/securityConfigurer.png)   |
+| [登录路由](doc/SequenceDiagram/securityRouter.png)           |
+| [session](doc/SequenceDiagram/session.png)                   |
+| [手机登录](doc/SequenceDiagram/SmsCodeLogin.png)             |
+| [权限控制](doc/SequenceDiagram/uriAuthorize.png)             |
