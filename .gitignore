@@ -60,5 +60,4 @@ session/target/
 
 dependency-reduced-pom.xml
 /social/dependency-reduced-pom.xml
-!/Readme.osc.md
-/Readme.osc.md
+
