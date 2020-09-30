@@ -13,7 +13,7 @@
 通过配置与实现两三个 API 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑。
 
 ![ums-arch](doc/ums-arch.png)
-
+------
 ## 一、`UMS 功能列表`：
   - 验证码（图片，短信）校验功能。
   - 手机登录功能，登录后自动注册。
@@ -28,7 +28,7 @@
 ### 模块功能 
   | **模块**   | **功能**                                                         |
   | ------ | ------------------------------------------------------------ |
-  | [core](https://gitee.com/pcore/UMS/tree/master/core)   | 验证码/用户名密码登录/手机登录且自动注册/登录路由/访问权限控制/签到/简化HttpSecurity(session、remember me、crsf 等)配置/session redis 缓存/可配置的响应方式(JSON 与 REDIRECT)返回 json 或 html 数据 |
+  | [core](https://gitee.com/pcore/UMS/tree/master/core)   | 验证码/用户名密码登录/手机登录且自动注册/登录路由/访问权限控制/签到/简化HttpSecurity(session、remember me、csrf 等)配置/session redis 缓存/可配置的响应方式(JSON 与 REDIRECT)返回 json 或 html 数据 |
   | [social](https://gitee.com/pcore/UMS/tree/master/social) | 第三方登录功能(qq,weibo,weixin,gitee)/自动注册/绑定与解绑/统一回调地址路由 |
   | [demo](https://gitee.com/pcore/UMS/tree/master/demo)   | basic-example/basic-detail-example/permission-example/quickStart/session-detail-example/social-simple-example/social-detail-example/validate-codi-example |
 ### demo 演示功能  
@@ -42,6 +42,9 @@
   | [social-simple-example](https://gitee.com/pcore/UMS/tree/master/demo/social-simple-example)  | social 模块基本功能: 简单的配置(第三方登录自动注册默认打开)  |
   | [social-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/social-detail-example)  | social 模块功能详细配置: 第三方授权登录注册功能, 统一回调地址路由配置, 第三方登录绑定配置, 第三方授权登录用户信息表自定义与 redis 缓存设置 |
   | [validate-code-example](https://gitee.com/pcore/UMS/tree/master/demo/validate-code-example)  | core 模块基本功能: 验证码(含自定义滑块验证码), 手机登录配置  |
+
+### [更新日志](https://gitee.com/pcore/UMS/wikis/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97?sort_id=2927596)
+------
 ## 二、`maven`：
 ```xml
 <!-- 验证码, 手机登录, 访问权限控制功能, 签到, 简化session/rememberMe/csrf/anonymous配置等功能 -->
@@ -58,12 +61,12 @@
     <version>1.1.3-alpha</version>
 </dependency>
 ```
-
+------
 ## 三、`TODO List`:
 - 完善 README
 - 第三方登录功能添加 JustAuth 工具, 支持更多的第三方登录. 
 - OAuth2 authenticate server
-
+------
 ## 四、`快速开始`：
 ### 1. 添加依赖:
 ```xml
@@ -752,7 +755,7 @@ public class UserController {
 ### 5. 访问前端页面
 - 浏览器访问 `http://127.0.0.1/login`, 至此集成了：登录校验，验证码、手机登录、gitee第三方登录(自动注册，绑定与解绑)、基于 RBAC 的 uri 访问权限控制功能、 通过统一的回调地址入口实现多回调地址的路由功能等功能; 实现快速开发。
 - 此 `Quick Start` 代码在 `demo 模块` -> [quickStart](https://gitee.com/pcore/UMS/tree/master/demo/quickStart), 其他功能的详细配置说明参照: [Configurations](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926340&doc_id=984605)。
-
+------
 ## 五、接口使用说明:
 
 ### 实现对应功能时需要实现的接口：    
@@ -789,9 +792,7 @@ public class UserController {
         - 把真实回调地址加入到`state`并进行加密: [BaseOAuth2ConnectionFactory](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/callback/BaseOAuth2ConnectionFactory.java)`#generateState(..)`
         - 解密`state`并返回真实的回调地址: [RedirectUrlHelperService](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/callback/RedirectUrlHelperService.java)`#decodeRedirectUrl(..)`
 
-
-
-
+------
 ## 六、Configurations:
 | **功能**                                                     | **模块**                                                 | **demo模块--简单配置**                                       | **demo模块--详细配置**                                       |
 | ------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -810,7 +811,7 @@ public class UserController {
 | 13. [基于 RBAC 的访问权限控制功能](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926442&doc_id=984605) | [core](https://gitee.com/pcore/UMS/tree/master/core)     |                                                              | [permission-example](https://gitee.com/pcore/UMS/tree/master/demo/permission-example/src/main/resources/application.yml) |
 
 
-
+------
 ## 七、[注意事项](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926456&doc_id=984605): 
 ### 1. 基于 RBAC 的 uri 访问权限控制
 - **更新角色权限时必须调用** [AbstractUriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java)`#updateRolesAuthorities()` 方法来**刷新权限**, 即可实时刷新角色权限.
@@ -818,7 +819,7 @@ public class UserController {
 ### 2. HttpSecurity 配置问题：UMS 中的 [HttpSecurityAware](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java) 配置与应用中的 HttpSecurity 配置冲突问题：
 
 1. 如果是新建应用添加 HttpSecurity 配置, 通过下面的接口即可: 
-    - `HttpSecurityAware`
+    - [HttpSecurityAware](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java)
 2. 如果是已存在的应用：
     - 添加 HttpSecurity 配置, 通过下面的接口即可: `HttpSecurityAware`
     - 已有的 HttpSecurity 配置, 让原有的 HttpSecurity 配置实现此接口进行配置: `top.dcenter.security.core.api.config.HttpSecurityAware`
@@ -835,7 +836,7 @@ public class UserController {
 ### 5. 验证码优先级: 
 - 同一个 uri 由多种验证码同时配置, **优先级**如下:
   `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
-
+------
 ## 八、[属性配置列表](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926468&doc_id=984605)
 | **属性配置列表**                                             |
 | ------------------------------------------------------------ |
@@ -846,23 +847,23 @@ public class UserController {
 | [social_userConnection redisCache属性](https://gitee.com/pcore/UMS/wikis/social_userConnection%20redisCache%E5%B1%9E%E6%80%A7?sort_id=2927093) |
 | [social属性](https://gitee.com/pcore/UMS/wikis/social%E5%B1%9E%E6%80%A7?sort_id=2927094) |
 
-
+------
 
 ## 九、参与贡献
 1. Fork 本项目
 2. 新建 Feat_xxx 分支
 3. 提交代码
 4. 新建 Pull Request
-
+------
 ## 十、[流程图](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926470&doc_id=984605): 随着版本迭代会有出入
 ### 1. 滑块验证码(sliderValidateCode)
 ![sliderValidateCode](doc/sliderFlow.png)
 
-
+------
 ## 十一、[时序图](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926484&doc_id=984605): 随着版本迭代会有出入
 | **时序图**                                                   |
 | ------------------------------------------------------------ |
-| [crsf](doc/SequenceDiagram/crsf.png)                         |
+| [csrf](doc/SequenceDiagram/crsf.png)                         |
 | [获取验证码逻辑](doc/SequenceDiagram/getValidateCode.png)    |
 | [图片验证码逻辑](doc/SequenceDiagram/ImageValidateCodeLogin.png) |
 | [logout](doc/SequenceDiagram/logout.png)                     |

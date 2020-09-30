@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * 签到配置属性
  * @author zyw
@@ -27,7 +29,7 @@ public class SignProperties {
     /**
      * redis key(String) 转 byte[] 转换时所用的 charset
      */
-    private String charset = "UTF-8";
+    private String charset = StandardCharsets.UTF_8.name();
     /**
      * 获取最近几天的签到情况, 不能大于 28 天, 默认为 7 天
      */

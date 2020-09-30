@@ -137,7 +137,7 @@ public class ClientProperties {
     private List<String> authRedirectSuffixCondition;
 
     /**
-     * 设置默认登录后为 返回 JSON
+     * 设置登录后返回格式, 默认: JSON
      */
     private LoginProcessType loginProcessType = LoginProcessType.JSON;
 
@@ -166,7 +166,7 @@ public class ClientProperties {
      */
     public Boolean useReferer = Boolean.TRUE;
     /**
-     * 允许来自同一来源(如: example.com)的请求, 默认为: false
+     * 允许来自同一来源(如: example.com)的 X-Frame-Options headers 请求, 默认为: false
      */
     public Boolean sameOrigin = Boolean.FALSE;
 
@@ -196,7 +196,7 @@ public class ClientProperties {
          * 默认为 1。
          * 如要此选项生效，sessionNumberControl 必须为 true
          */
-        private int maximumSessions = 1;
+        private Integer maximumSessions = 1;
         /**
          * 同个用户达到最大 maximumSession 后，当为 true 时自动拒绝用户再登录，当为 false 时自动踢掉上一次的登录状态, 默认为 false。
          * 如要此选项生效，sessionNumberControl 必须为 true
@@ -226,7 +226,7 @@ public class ClientProperties {
          */
         private String invalidSessionOfConcurrentUrl = "/";
         /**
-         * session 的 cookie name, 默认为: JSESSIONID, , 需要与 server.servlet.session.cookie.name 同时设置
+         * session 的 cookie name, 默认为: JSESSIONID, 需要与 server.servlet.session.cookie.name 同时设置
          */
         private String sessionCookieName = "JSESSIONID";
 
