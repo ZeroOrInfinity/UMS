@@ -838,12 +838,16 @@ public class UserController {
       `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
 
 ## 八、[属性配置列表](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926468&doc_id=984605)
-### 基本属性列表
-### 签到属性列表
-### 手机登录属性列表
-### 验证码属性列表
-### social_userConnection redisCache属性列表
-### social属性列表
+| **属性配置列表**                                             |
+| ------------------------------------------------------------ |
+| [基本属性](https://gitee.com/pcore/UMS/wikis/%E5%9F%BA%E6%9C%AC%E5%B1%9E%E6%80%A7?sort_id=2927088) |
+| [签到属性](https://gitee.com/pcore/UMS/wikis/%E7%AD%BE%E5%88%B0%E5%B1%9E%E6%80%A7?sort_id=2927090) |
+| [手机登录属性](https://gitee.com/pcore/UMS/wikis/%E6%89%8B%E6%9C%BA%E7%99%BB%E5%BD%95%E5%B1%9E%E6%80%A7?sort_id=2927091) |
+| [验证码属性](https://gitee.com/pcore/UMS/wikis/%E9%AA%8C%E8%AF%81%E7%A0%81%E5%B1%9E%E6%80%A7?sort_id=2927092) |
+| [social_userConnection redisCache属性](https://gitee.com/pcore/UMS/wikis/social_userConnection%20redisCache%E5%B1%9E%E6%80%A7?sort_id=2927093) |
+| [social属性](https://gitee.com/pcore/UMS/wikis/social%E5%B1%9E%E6%80%A7?sort_id=2927094) |
+
+
 
 ## 九、参与贡献
 1. Fork 本项目
