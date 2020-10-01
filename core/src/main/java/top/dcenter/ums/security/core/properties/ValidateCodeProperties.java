@@ -158,7 +158,7 @@ public class ValidateCodeProperties {
          */
         private List<String> authUrls;
         /**
-         * 设置滑块验证码二次校验证的 uri(此 uri 不需要实现, 在 ValidateCodeFilter 校验), 默认: /slider/check
+         * 设置滑块验证码校验证的 uri, 默认: /slider/check
          */
         private String sliderCheckUrl = "/slider/check";
         /**

@@ -52,7 +52,7 @@ public class SocialController implements InitializingBean {
      * @param request   {@link HttpServletRequest}
      * @return {@link RedirectView}
      */
-    @RequestMapping(value = "${security.social.filterProcessesUrl}")
+    @RequestMapping(value = "${ums.social.filterProcessesUrl}")
     public RedirectView authCallbackRouter(HttpServletRequest request) {
 
         String state = request.getParameter(URL_PARAMETER_STATE);

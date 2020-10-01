@@ -17,7 +17,7 @@ import java.util.Set;
 @SuppressWarnings("jol")
 @Getter
 @Setter
-@ConfigurationProperties("redis")
+@ConfigurationProperties("ums.redis")
 public class RedisCacheProperties {
 
     @NestedConfigurationProperty

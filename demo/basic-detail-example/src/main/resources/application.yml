@@ -49,7 +49,7 @@ spring:
         min-idle: 1
 
 
-security:
+ums:
   client:
     # 登录页
     login-page: /login

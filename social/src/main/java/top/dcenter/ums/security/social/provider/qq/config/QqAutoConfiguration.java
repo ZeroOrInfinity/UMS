@@ -35,7 +35,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @AutoConfigureAfter({SocialAutoConfiguration.class})
-@ConditionalOnProperty(prefix = "security.social.qq", name = "enable", havingValue = "true")
+@ConditionalOnProperty(prefix = "ums.social.qq", name = "enable", havingValue = "true")
 public class QqAutoConfiguration extends BaseSocialConfigurerAdapter implements InitializingBean {
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")

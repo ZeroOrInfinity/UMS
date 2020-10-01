@@ -29,7 +29,7 @@ spring:
     # session 过期时间
     timeout: PT300s
 
-security:
+ums:
   client:
     # 登录页
     login-page: /login
@@ -61,6 +61,8 @@ security:
       - /**/*.html
 
   # 验证码配置
+  # 同一个 uri 由多种验证码同时配置, **优先级**如下:
+  #  `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
   codes:
     # 图片验证码
     image:
@@ -113,7 +115,7 @@ security:
       enable: false
       app-id:
       app-secret:
-      # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+      # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(ums.social.[qq/wechat/gitee/weibo])组成
       # redirect-url: http://www.dcenter.top/demo/auth/callback/qq
     gitee:
       # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false

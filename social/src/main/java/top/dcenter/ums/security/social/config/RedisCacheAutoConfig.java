@@ -48,7 +48,7 @@ import java.util.Set;
  */
 @Configuration
 @EnableConfigurationProperties({RedisCacheProperties.class})
-@ConditionalOnProperty(prefix = "redis", name = "open", havingValue = "true")
+@ConditionalOnProperty(prefix = "ums.redis", name = "open", havingValue = "true")
 @EnableCaching
 public class RedisCacheAutoConfig {
 

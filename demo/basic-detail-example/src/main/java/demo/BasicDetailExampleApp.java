@@ -9,7 +9,7 @@ import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
 import top.dcenter.ums.security.core.sign.config.EnableSign;
 
 /**
- * ums security:client 详细配置
+ * ums ums.client 详细配置
  * @author zyw
  * @version V1.0  Created by 2020/9/20 11:20
  */

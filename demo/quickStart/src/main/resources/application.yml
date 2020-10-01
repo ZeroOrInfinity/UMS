@@ -27,7 +27,7 @@ spring:
       content-type: text/html;charset=UTF-8
 
 # ums core
-security:
+ums:
   client:
     # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
     login-process-type: redirect
@@ -54,6 +54,8 @@ security:
     passwordParameter: password
 
   # 验证码配置
+  # 同一个 uri 由多种验证码同时配置, **优先级**如下:
+  #  `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
   codes:
     # 图片验证码
     image:
@@ -72,7 +74,7 @@ security:
   mobile:
     login:
       # 手机验证码登录是否开启, 默认 false，
-      # 手机验证码登录开启后 必须配置 security.codes.sms.auth-urls=/authentication/mobile
+      # 手机验证码登录开启后 必须配置 ums.codes.sms.auth-urls=/authentication/mobile
       sms-code-login-is-open: true
       # 手机验证码登录请求处理url, 默认 /authentication/mobile
       login-processing-url-mobile: /authentication/mobile
@@ -87,10 +89,10 @@ security:
     # 如果更改此 url，更改后的必须要实现 SocialController#authCallbackRouter(HttpServletRequest) 的功能
     callback-url: /auth/callback
     # 第三方登录回调的域名, 默认: http://127.0.0.1
-    domain: http://www.dcenter.top
+    domain: http://127.0.0.1
 
     # 从第三方服务商获取的信息
-    # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+    # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(ums.social.[qq/wechat/gitee/weibo])组成
     # redirect-url: http://www.dcenter.top/demo/auth/callback/qq
     gitee:
       # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false

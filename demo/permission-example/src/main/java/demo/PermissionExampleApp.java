@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * ums security:client 简单配置.<br>
+ * ums ums.client 简单配置.<br>
  * @author zyw
  * @version V1.0  Created by 2020/9/20 11:20
  */

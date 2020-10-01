@@ -173,6 +173,6 @@ note over SocialOAuth2AuthenticationService: 对 OAuth2AuthenticationService 的
 同时覆写 RedirectUrlHelper.decodeRedirectUrl(state)功能：从state解密出正式回调地址
 note over BaseConnectionSignUp: 第三方授权登录时自动注册处理器接口。\n\
  接口方法execute(Connection)功能：第三方登录自动注册时\n 从第三方的 connection\
- 中获取用户唯一标识。\n 当实现 BaseConnectionSignUp 接口且\n security.social.autoSignIn=true \n则第三方授权登录时自动注册. 注意：要替换此类，实现\n\
+ 中获取用户唯一标识。\n 当实现 BaseConnectionSignUp 接口且\n ums.social.autoSignIn=true \n则第三方授权登录时自动注册. 注意：要替换此类，实现\n\
  BaseConnectionSignUp 接口且注册 IOC 容器
 @enduml

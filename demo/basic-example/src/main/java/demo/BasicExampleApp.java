@@ -6,17 +6,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
-import top.dcenter.ums.security.core.sign.config.EnableSign;
 
 /**
- * ums security:client 简单配置
+ * ums ums.client 简单配置
  * @author zyw
  * @version V1.0  Created by 2020/9/20 11:20
  */
 @SpringBootApplication
 @Controller
 @EnableUriAuthorize()
-@EnableSign
 public class BasicExampleApp {
 
     public static void main(String[] args) {

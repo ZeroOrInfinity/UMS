@@ -23,7 +23,7 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.URL_SEPARAT
 @SuppressWarnings("jol")
 @Getter
 @Setter
-@ConfigurationProperties("security.social")
+@ConfigurationProperties("ums.social")
 public class SocialProperties {
 
     @NestedConfigurationProperty

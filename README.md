@@ -112,7 +112,7 @@ spring:
       content-type: text/html;charset=UTF-8
 
 # ums core
-security:
+ums:
   client:
     # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
     login-process-type: redirect
@@ -157,7 +157,7 @@ security:
   mobile:
     login:
       # 手机验证码登录是否开启, 默认 false，
-      # 手机验证码登录开启后 必须配置 security.codes.sms.auth-urls=/authentication/mobile
+      # 手机验证码登录开启后 必须配置 ums.codes.sms.auth-urls=/authentication/mobile
       sms-code-login-is-open: true
       # 手机验证码登录请求处理url, 默认 /authentication/mobile
       login-processing-url-mobile: /authentication/mobile
@@ -175,7 +175,7 @@ security:
     domain: http://127.0.0.1
 
     # 从第三方服务商获取的信息
-    # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+    # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(ums.social.[qq/wechat/gitee/weibo])组成
     # 假设 servletcontextPath=/demo
     # redirect-url: http://127.0.0.1/demo/auth/callback/qq
     gitee:
@@ -223,8 +223,8 @@ import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
 import top.dcenter.ums.security.core.util.RequestUtil;
-import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
-import top.dcenter.ums.security.social.api.service.SocialUserCache;
+import top.dcenter.ums.ums.social.api.service.AbstractSocialUserDetailsService;
+import top.dcenter.ums.ums.social.api.service.SocialUserCache;
 
 import java.util.List;
 
@@ -839,7 +839,7 @@ public class UserController {
 - `MvcUtil.servletContextPath` 的值是通过: [SecurityAutoConfiguration](https://github.com/ZeroOrInfinity/blob/master/core/src/main/java/top/dcenter/ums/security/core/config/SecurityAutoConfiguration.java)`#afterPropertiesSet()` 接口注入
     
 ### 5. 验证码优先级(Verification code Priority): 
-- 同一个 uri 由多种验证码同时配置, **优先级**如下:P
+- 同一个 uri 由多种验证码同时配置, **优先级**如下:
   `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
 ------
 ## 八、[Properties Configurations](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8)

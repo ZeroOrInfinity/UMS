@@ -18,7 +18,7 @@ import java.util.Set;
  * @version V1.0  Created by 2020/5/15 22:22
  */
 @Configuration
-@ConditionalOnProperty(prefix = "security.social", name = "social-sign-up-is-open", havingValue = "true")
+@ConditionalOnProperty(prefix = "ums.social", name = "social-sign-up-is-open", havingValue = "true")
 @AutoConfigureAfter({SocialAuthenticationSignUpAutoConfig.class})
 @Slf4j
 public class SocialAuthenticationSignUpAutoConfigurerAware implements HttpSecurityAware {

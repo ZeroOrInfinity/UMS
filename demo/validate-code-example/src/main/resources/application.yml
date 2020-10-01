@@ -29,7 +29,7 @@ spring:
     # session 过期时间
     timeout: PT300s
 
-security:
+ums:
   client:
     # 登录页
     login-page: /login
@@ -80,6 +80,8 @@ security:
 
   # 验证码配置
   codes:
+    # 获取验证码的 url 的前缀, 默认: /code
+    get-validate-code-url-prefix: /code
     # 图片验证码
     image:
       # 设置需要图片验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
@@ -108,7 +110,7 @@ security:
     #  # 设置需要验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 空
     #  auth-urls:
     #    - /authentication/form
-    #  # 设置滑块验证码二次校验证的 uri(此 uri 不需要实现, 在 ValidateCodeFilter 校验), 默认: /slider/check
+    #  # 设置滑块验证码校验证的 uri, 默认: /slider/check, 默认: /slider/check
     #  slider-check-url: /slider/check
     #  # 提交验证码请求时，请求中带的验证码变量名，默认 sliderCode.
     #  # 与 tokenRequestParamName, xRequestParamName, yRequestParamName 互斥关系;
@@ -152,7 +154,7 @@ security:
     mobile:
       login:
         # 手机验证码登录是否开启, 默认 false，
-        # 手机验证码登录开启后 必须配置 security.codes.sms.auth-urls=/authentication/mobile
+        # 手机验证码登录开启后 必须配置 ums.codes.sms.auth-urls=/authentication/mobile
         sms-code-login-is-open: true
         # 手机验证码登录请求处理url, 默认 /authentication/mobile
         login-processing-url-mobile: /authentication/mobile

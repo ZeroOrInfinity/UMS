@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
  */
 @Getter
 @Setter
-@ConfigurationProperties("security.sign")
+@ConfigurationProperties("ums.sign")
 public class SignProperties {
 
     /**

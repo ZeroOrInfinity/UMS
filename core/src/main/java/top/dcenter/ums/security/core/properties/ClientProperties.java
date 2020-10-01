@@ -31,7 +31,7 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_UN_
 @SuppressWarnings("jol")
 @Getter
 @Setter
-@ConfigurationProperties("security.client")
+@ConfigurationProperties("ums.client")
 public class ClientProperties {
 
     @NestedConfigurationProperty

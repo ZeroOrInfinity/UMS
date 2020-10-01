@@ -108,7 +108,7 @@ spring:
       content-type: text/html;charset=UTF-8
 
 # ums core
-security:
+ums:
   client:
     # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
     login-process-type: redirect
@@ -153,7 +153,7 @@ security:
   mobile:
     login:
       # 手机验证码登录是否开启, 默认 false，
-      # 手机验证码登录开启后 必须配置 security.codes.sms.auth-urls=/authentication/mobile
+      # 手机验证码登录开启后 必须配置 ums.codes.sms.auth-urls=/authentication/mobile
       sms-code-login-is-open: true
       # 手机验证码登录请求处理url, 默认 /authentication/mobile
       login-processing-url-mobile: /authentication/mobile
@@ -171,7 +171,7 @@ security:
     domain: http://127.0.0.1
 
     # 从第三方服务商获取的信息
-    # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+    # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(ums.social.[qq/wechat/gitee/weibo])组成
     # 假设 servletcontextPath=/demo
     # redirect-url: http://127.0.0.1/demo/auth/callback/qq
     gitee:

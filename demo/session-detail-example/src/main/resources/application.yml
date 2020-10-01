@@ -63,7 +63,7 @@ server:
         name: SID
 # ===============end session 详细设置 ===============
 
-security:
+ums:
   client:
     # 登录页
     login-page: /login
@@ -94,7 +94,30 @@ security:
     permit-urls:
       - /**/*.html
 
+    # =============== session 详细设置 ===============
+    # session 设置
+    session:
+      session-creation-policy: always
+      # 当为 false 时允许单个用户拥有任意数量的 session（不同设备或不同浏览器），默认为 false。 当设置 true 时，同时请设置一下选项：maximumSessions 和 maxSessionsPreventsLogin
+      session-number-control: false
+      # 当设置为 1 时，maxSessionsPreventsLogin 为 false 时，同个用户登录会自动踢掉上一次的登录状态。 当设置为 1 时，maxSessionsPreventsLogin 为 true 时，同个用户登录会自动自动拒绝用户再登录。 默认为 1。 如要此选项生效，sessionNumberControl 必须为 true
+      maximum-sessions: 1
+      # 同个用户达到最大 maximumSession 后，当为 true 时自动拒绝用户再登录，当为 false 时自动踢掉上一次的登录状态, 默认为 false。 如要此选项生效，sessionNumberControl 必须为 true
+      max-sessions-prevents-login: false
+      # 如果设置为true，则允许HTTP会话在网址中使用HttpServletResponse.encodeRedirectURL（String）或HttpServletResponse.encodeURL（字符串）时被改写，被包含在URL，
+      # 否则不允许HTTP会话。 这可以防止信息泄漏到外部域, 默认为: false
+      enable-session-url-rewriting: false
+      # concurrent session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /
+      invalid-session-of-concurrent-url: /concurrentSession.html
+      # session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /session/invalid,
+      invalid-session-url: /session/invalid
+      # session 的 cookie name, 默认为: JSESSIONID, 需要与 server.servlet.session.cookie.name 同时设置
+      session-cookie-name: SID
+
+
   # 验证码配置
+  # 同一个 uri 由多种验证码同时配置, **优先级**如下:
+  #  `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
   codes:
     # 图片验证码
     image:
@@ -120,26 +143,6 @@ security:
       - '/order/**=/login'
       - '/file/**=/login'
       - '/social/**=/signIn.html'
-
-    # =============== session 详细设置 ===============
-    # session 设置
-    session:
-      session-creation-policy: always
-      # 当为 false 时允许单个用户拥有任意数量的 session（不同设备或不同浏览器），默认为 false。 当设置 true 时，同时请设置一下选项：maximumSessions 和 maxSessionsPreventsLogin
-      session-number-control: false
-      # 当设置为 1 时，maxSessionsPreventsLogin 为 false 时，同个用户登录会自动踢掉上一次的登录状态。 当设置为 1 时，maxSessionsPreventsLogin 为 true 时，同个用户登录会自动自动拒绝用户再登录。 默认为 1。 如要此选项生效，sessionNumberControl 必须为 true
-      maximum-sessions: 1
-      # 同个用户达到最大 maximumSession 后，当为 true 时自动拒绝用户再登录，当为 false 时自动踢掉上一次的登录状态, 默认为 false。 如要此选项生效，sessionNumberControl 必须为 true
-      max-sessions-prevents-login: false
-      # 如果设置为true，则允许HTTP会话在网址中使用HttpServletResponse.encodeRedirectURL（String）或HttpServletResponse.encodeURL（字符串）时被改写，被包含在URL，
-      # 否则不允许HTTP会话。 这可以防止信息泄漏到外部域, 默认为: false
-      enable-session-url-rewriting: false
-      # concurrent session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /
-      invalid-session-of-concurrent-url: /concurrentSession.html
-      # session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /session/invalid,
-      invalid-session-url: /session/invalid
-      # session 的 cookie name, 默认为: JSESSIONID, 需要与 server.servlet.session.cookie.name 同时设置
-      session-cookie-name: SID
 
 
 ---

@@ -27,7 +27,7 @@ public interface UsersConnectionRepositoryFactory {
      *                         {@link ConnectionSignUp#execute(Connection)} 从第三方的 connection 中获取用户唯一标识。<br><br>
      *
      * @param autoSignIn     当传 false 时关闭自动注册，当为 true 且 connectionSignUp 不为 null 时开启自动注册功能，<br><br>
-     *                       通过配置 security.social.{providerId}.autoSignIn=true，默认为 false，可以从socialProperties获取。
+     *                       通过配置 ums.social.{providerId}.autoSignIn=true，默认为 false，可以从socialProperties获取。
      * @return
      */
     UsersConnectionRepository getUsersConnectionRepository(DataSource dataSource,

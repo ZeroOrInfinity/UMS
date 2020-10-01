@@ -73,7 +73,7 @@ public class ClientSecurityController implements BaseSecurityController, Initial
     }
 
     @Override
-    @RequestMapping(value = {"${security.client.loginUnAuthenticationRoutingUrl}"})
+    @RequestMapping(value = {"${ums.client.loginUnAuthenticationRoutingUrl}"})
     public void requireAuthentication(HttpServletRequest request, HttpServletResponse response) {
         try
         {

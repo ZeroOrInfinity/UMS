@@ -43,22 +43,7 @@ spring:
         max-wait: PT10S
         max-idle: 8
         min-idle: 1
-
-# redisCacheManager 设置
-redis:
-  # 是否开启缓存, 默认 false
-  open: true
-  # 是否使用 spring IOC 容器中的 RedisConnectionFactory， 默认： false
-  # 如果使用 spring IOC 容器中的 RedisConnectionFactory，则要注意 cache.database-index 要与 spring.redis.database 一样。
-  use-ioc-redis-connection-factory: true
-  cache:
-    database-index: 1
-    default-expire-time: PT200S
-    entry-ttl: PT180S
-    cache-names:
-      - cacheName
   # =============== end: 第三方登录时用的数据库表 social_UserConnection 添加 redis cache ===============
-
 
   # session 简单配置
   session:
@@ -67,7 +52,22 @@ redis:
     # session 过期时间
     timeout: PT300s
 
-security:
+ums:
+  # =============== start: 第三方登录时用的数据库表 social_UserConnection 添加 redis cache ===============
+  # redisCacheManager 设置
+  redis:
+    # 是否开启缓存, 默认 false
+    open: true
+    # 是否使用 spring IOC 容器中的 RedisConnectionFactory， 默认： false
+    # 如果使用 spring IOC 容器中的 RedisConnectionFactory，则要注意 cache.database-index 要与 spring.redis.database 一样。
+    use-ioc-redis-connection-factory: true
+    cache:
+      database-index: 1
+      default-expire-time: PT200S
+      entry-ttl: PT180S
+      cache-names:
+        - cacheName
+  # =============== end: 第三方登录时用的数据库表 social_UserConnection 添加 redis cache ===============
   client:
     # 登录页
     login-page: /login
@@ -144,7 +144,7 @@ security:
       enable: false
       app-id:
       app-secret:
-      # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+      # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(ums.social.[qq/wechat/gitee/weibo])组成
       # redirect-url: http://www.dcenter.top/demo/auth/callback/qq
     gitee:
       # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false
@@ -164,7 +164,7 @@ security:
 
 
     # ConnectionSignUp 非常有用的扩展接口, 调用时机：在第三方服务商回调 redirectUrl 接口时，
-    # 在确认数据库用户表(security.social.table-name)中没有用户记录调用且 autoSignIn 为 true 时，调用此接口。
+    # 在确认数据库用户表(ums.social.table-name)中没有用户记录调用且 autoSignIn 为 true 时，调用此接口。
     # 第三方登录时是否自动注册：当为 true 且实现 ConnectionSignUp 接口，则开启自动注册，此时 signUpUrl 失效，否则不会开始自动注册，默认为 true
     auto-sign-in: false
 
@@ -187,7 +187,7 @@ security:
     # 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth/callback
     # 如果更改此 url，更改后的必须要实现 SocialController#authCallbackRouter(HttpServletRequest) 的功能
     callback-url: /auth/callback
-    # redirectUrl 直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+    # redirectUrl 直接由 domain/servletContextPath/callbackUrl/providerId(ums.social.[qq/wechat/gitee/weibo])组成
     # 第三方登录回调的域名
     domain: http://www.dcenter.top
 
@@ -228,6 +228,8 @@ security:
 
 
   # 验证码配置
+  # 同一个 uri 由多种验证码同时配置, **优先级**如下:
+  #  `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
   codes:
     # 图片验证码
     image:

@@ -7,7 +7,7 @@ security:
       enable: false
       app-id:
       app-secret:
-      # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+      # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(ums.social.[qq/wechat/gitee/weibo])组成
       # redirect-url: http://www.dcenter.top/demo/auth/callback/qq
     gitee:
       # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false
@@ -54,19 +54,20 @@ spring:
   cache:
     type: redis
 
-# social_UserConnection 缓存为 Redis
-redis:
-  # 是否开启缓存, 默认 false
-  open: true
-  # 是否使用 spring IOC 容器中的 RedisConnectionFactory， 默认： false
-  # 如果使用 spring IOC 容器中的 RedisConnectionFactory，则要注意 cache.database-index 要与 spring.redis.database 一样。
-  use-ioc-redis-connection-factory: true
-  cache:
-    database-index: 1
-    default-expire-time: PT200S
-    entry-ttl: PT180S
-    cache-names:
-      - cacheName
+ums:
+  # social_UserConnection 缓存为 Redis
+  redis:
+    # 是否开启缓存, 默认 false
+    open: true
+    # 是否使用 spring IOC 容器中的 RedisConnectionFactory， 默认： false
+    # 如果使用 spring IOC 容器中的 RedisConnectionFactory，则要注意 cache.database-index 要与 spring.redis.database 一样。
+    use-ioc-redis-connection-factory: true
+    cache:
+      database-index: 1
+      default-expire-time: PT200S
+      entry-ttl: PT180S
+      cache-names:
+        - cacheName
 
 server:
   port: 9090

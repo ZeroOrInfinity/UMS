@@ -62,7 +62,7 @@ import java.util.Map;
 
 /**
  * 相对于 {@link org.springframework.social.connect.web.ConnectController} 修改了回调地址的逻辑, 删除了 OAuth1 逻辑。把默认为
- * /connect/providerId 回调地址改为 security.social.callbackUrl 的地址。<br><br>
+ * /connect/providerId 回调地址改为 ums.social.callbackUrl 的地址。<br><br>
  * 可以通过实现 {@link ConnectInterceptor} 与 {@link DisconnectInterceptor} 来实现绑定与解绑的时添加个性化功能。<br><br>
  * 注意拦截器调用时机：<br><br>
  *     绑定时：{@link #connect(String, NativeWebRequest)} 中

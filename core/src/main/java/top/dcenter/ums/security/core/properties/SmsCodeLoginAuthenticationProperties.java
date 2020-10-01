@@ -14,7 +14,7 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_LOG
  */
 @Getter
 @Setter
-@ConfigurationProperties("security.mobile.login")
+@ConfigurationProperties("ums.mobile.login")
 public class SmsCodeLoginAuthenticationProperties {
     /**
      * 手机验证码登录请求处理url, 默认 /authentication/mobile

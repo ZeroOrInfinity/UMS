@@ -34,7 +34,7 @@ import java.util.UUID;
  */
 @SuppressWarnings("jol")
 @Configuration
-@ConditionalOnProperty(prefix = "security.mobile.login", name = "sms-code-login-is-open", havingValue = "true")
+@ConditionalOnProperty(prefix = "ums.mobile.login", name = "sms-code-login-is-open", havingValue = "true")
 @AutoConfigureAfter({SecurityAutoConfiguration.class})
 public class SmsCodeLoginAutoAuthenticationConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 

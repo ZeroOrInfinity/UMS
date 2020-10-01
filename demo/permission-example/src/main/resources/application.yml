@@ -36,7 +36,7 @@ spring:
 
 
 
-security:
+ums:
   client:
     # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
     login-process-type: redirect
