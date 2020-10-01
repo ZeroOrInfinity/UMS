@@ -129,6 +129,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
         String[] authenticatedArray = set2ArrayByType(authorizeRequestMap, AUTHENTICATED);
         String[] fullyAuthenticatedArray = set2ArrayByType(authorizeRequestMap, FULLY_AUTHENTICATED);
         String[] rememberMeArray = set2ArrayByType(authorizeRequestMap, REMEMBER_ME);
+        String[] accessArray = set2ArrayByType(authorizeRequestMap, ACCESS);
 
         // 将 AuthorizeRequestUriMap<String, Set<String>> 转换为对应的 Map<uri, role[]>
         Map<String, String[]> hasRoleMap = toMapPlusByType(authorizeRequestMapPlus, HAS_ROLE);
@@ -172,8 +173,9 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
 
         // 配置 uri 验证与授权信息
         urlAuthorizationConfigurer(http, permitAllArray, denyAllArray, anonymousArray, authenticatedArray,
-                                   fullyAuthenticatedArray, rememberMeArray, hasRoleMap, hasAnyRoleMap,
+                                   fullyAuthenticatedArray, rememberMeArray, accessArray, hasRoleMap, hasAnyRoleMap,
                                    hasAuthorityMap, hasAnyAuthorityMap, hasIpAddressMap);
+
 
         // logout
         logoutConfigurer(http);
@@ -220,7 +222,13 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                 .invalidateHttpSession(true);
     }
 
-    private void urlAuthorizationConfigurer(HttpSecurity http, String[] permitAllArray, String[] denyAllArray, String[] anonymousArray, String[] authenticatedArray, String[] fullyAuthenticatedArray, String[] rememberMeArray, Map<String, String[]> hasRoleMap, Map<String, String[]> hasAnyRoleMap, Map<String, String[]> hasAuthorityMap, Map<String, String[]> hasAnyAuthorityMap, Map<String, String[]> hasIpAddressMap) throws Exception {
+    private void urlAuthorizationConfigurer(HttpSecurity http, String[] permitAllArray,
+                                            String[] denyAllArray, String[] anonymousArray,
+                                            String[] authenticatedArray, String[] fullyAuthenticatedArray,
+                                            String[] rememberMeArray, String[] accessArray, Map<String, String[]> hasRoleMap,
+                                            Map<String, String[]> hasAnyRoleMap, Map<String, String[]> hasAuthorityMap,
+                                            Map<String, String[]> hasAnyAuthorityMap, Map<String, String[]> hasIpAddressMap) throws Exception {
+
         final ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry = http.authorizeRequests();
         expressionInterceptUrlRegistry
             .antMatchers(permitAllArray).permitAll()
@@ -230,8 +238,15 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
             .antMatchers(fullyAuthenticatedArray).fullyAuthenticated()
             .antMatchers(rememberMeArray).rememberMe();
 
-        hasRoleMap.forEach((uri, roleArr) -> expressionInterceptUrlRegistry.antMatchers(uri).hasRole(roleArr[0]));
+        hasRoleMap.forEach((uri, roleArr) -> {
+                    for (String role : roleArr)
+                    {
+                        expressionInterceptUrlRegistry.antMatchers(uri).hasRole(role);
+                    }
+                });
+
         hasAnyRoleMap.forEach((uri, roleArr) -> expressionInterceptUrlRegistry.antMatchers(uri).hasAnyRole(roleArr));
+
         hasAuthorityMap.forEach(
                 (uri, authorityArr) -> {
                     for (String s : authorityArr)
@@ -239,7 +254,9 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                         expressionInterceptUrlRegistry.antMatchers(uri).hasAuthority(s);
                     }
                 });
+
         hasAnyAuthorityMap.forEach((uri, authorityArr) -> expressionInterceptUrlRegistry.antMatchers(uri).hasAnyAuthority(authorityArr));
+
         hasIpAddressMap.forEach(
                 (uri, ipArr) -> {
                     for (String s : ipArr)
@@ -247,9 +264,21 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                         expressionInterceptUrlRegistry.antMatchers(uri).hasIpAddress(s);
                     }
                 });
-        expressionInterceptUrlRegistry
-            .anyRequest()
-            .authenticated();
+
+        if (accessArray.length > 0)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (String access : accessArray)
+            {
+                sb.append(access).append(" and ");
+            }
+            sb.setLength(sb.length() - 5);
+            expressionInterceptUrlRegistry.anyRequest().access(sb.toString());
+        }
+
+        expressionInterceptUrlRegistry.anyRequest().authenticated();
+
+
     }
 
 
