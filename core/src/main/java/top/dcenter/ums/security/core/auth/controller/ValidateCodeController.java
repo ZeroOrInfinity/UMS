@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,6 +22,7 @@ import top.dcenter.ums.security.core.vo.ResponseResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static top.dcenter.ums.security.core.consts.SecurityConstants.URL_SEPARATOR;
 import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE;
 import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_CODE_TYPE;
 
@@ -50,7 +50,7 @@ public class ValidateCodeController implements InitializingBean {
      * @param request request 中的 width 的值如果小于 height * 45 / 10, 则 width = height * 45 / 10
      * @param response  {@link HttpServletResponse}
      */
-    @GetMapping("/code/{type}")
+    @RequestMapping("/code/{type}")
     public void createCode(@PathVariable("type") String type,
                                      HttpServletRequest request, HttpServletResponse response) {
 
@@ -88,7 +88,7 @@ public class ValidateCodeController implements InitializingBean {
      *
      * @return  ResponseResult
      */
-    @RequestMapping(value = {"${security.codes.slider.sliderCheckUrl}"}, method = RequestMethod.POST)
+    @RequestMapping(value = {"${ums.codes.slider.sliderCheckUrl}"}, method = RequestMethod.POST)
     public ResponseResult sliderCheck(HttpServletRequest request) {
         SliderCode sliderCode = (SliderCode) request.getSession().getAttribute(ValidateCodeType.SLIDER.getSessionKey());
         return ResponseResult.success(null, sliderCode.getCode());
@@ -102,14 +102,21 @@ public class ValidateCodeController implements InitializingBean {
         // 1. 解决循环应用问题
         this.validateCodeProcessorHolder = applicationContext.getBean(ValidateCodeProcessorHolder.class);
 
-        // 2. 动态注入 sliderCheck() PostMapping 的映射 uri
+        // 2. 动态注入 sliderCheck() RequestMapping 的映射 uri
         String methodName = "sliderCheck";
         MvcUtil.setRequestMappingUri(methodName,
                                      validateCodeProperties.getSlider().getSliderCheckUrl(),
                                      this.getClass(),
                                      HttpServletRequest.class);
 
-        // 3. 在 mvc 中做 Uri 映射等动作
+        // 3. 动态注入 createCode() RequestMapping 的映射 uri
+        methodName = "createCode";
+        MvcUtil.setRequestMappingUri(methodName,
+                                     validateCodeProperties.getGetValidateCodeUrlPrefix() + URL_SEPARATOR + "{type}",
+                                     this.getClass(),
+                                     String.class, HttpServletRequest.class, HttpServletResponse.class);
+
+        // 4. 在 mvc 中做 Uri 映射等动作
         MvcUtil.registerController("validateCodeController", applicationContext, null);
 
 

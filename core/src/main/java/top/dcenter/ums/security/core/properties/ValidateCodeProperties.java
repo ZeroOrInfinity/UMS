@@ -25,7 +25,7 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_REQ
  * @version V1.0  Created by 2020/5/3 19:52
  */
 @Getter
-@ConfigurationProperties("security.codes")
+@ConfigurationProperties("ums.codes")
 public class ValidateCodeProperties {
 
     @NestedConfigurationProperty
@@ -40,6 +40,11 @@ public class ValidateCodeProperties {
     private final SelectionCodeProperties selection = new SelectionCodeProperties();
     @NestedConfigurationProperty
     private final CustomizeCodeProperties customize = new CustomizeCodeProperties();
+
+    /**
+     * 获取验证码的 url 的前缀, 默认: /code
+     */
+    private String getValidateCodeUrlPrefix = "/code";
 
     /**
      * 图片验证码属性
