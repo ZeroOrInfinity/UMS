@@ -73,7 +73,6 @@ public class SecurityAutoConfiguration implements InitializingBean {
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler")
-    @ConditionalOnProperty(prefix = "security.client", name = "open-authentication-redirect", havingValue = "true")
     public BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler() {
         return new ClientAuthenticationSuccessHandler(objectMapper, clientProperties);
     }
@@ -105,7 +104,7 @@ public class SecurityAutoConfiguration implements InitializingBean {
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.controller.BaseSecurityController")
-    @ConditionalOnProperty(prefix = "security.client", name = "open-authentication-redirect", havingValue = "true")
+    @ConditionalOnProperty(prefix = "ums.client", name = "open-authentication-redirect", havingValue = "true")
     public ClientSecurityController clientSecurityController() {
         return new ClientSecurityController(this.clientProperties);
     }
