@@ -1,4 +1,4 @@
-# UMS (user manage scaffolding) 用户管理脚手架: [github](https://github.com/ZeroOrInfinity/UMS) [gitee](https://gitee.com/pcore/UMS)
+# UMS (user manage scaffolding) 用户管理脚手架: 
 ![JDK](https://img.shields.io/badge/JDK-11-green.svg)
 ![Maven](https://img.shields.io/badge/Maven-3.6.3-green.svg)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7.27-green.svg)
@@ -55,19 +55,19 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.5</version>
 </dependency>
 <!-- 第三方登录(自动注册，绑定与解绑, redis cache), 通过统一的回调地址入口实现多回调地址的路由功能 -->
 <!-- 包含 ums-core-spring-boot-starter 依赖 -->
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-social-spring-boot-starter</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.5</version>
 </dependency>
 ```
 ------
 ## 三、`TODO List`:
-- 完善 README
+
 - 第三方登录功能添加 JustAuth 工具, 支持更多的第三方登录. 
 - OAuth2 authenticate server
 ------
@@ -78,7 +78,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-social-spring-boot-starter</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.5</version>
 </dependency>
 ```
 ### 2. config:  
