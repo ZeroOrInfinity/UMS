@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ums-demo</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>1.1.2</version>
+        <version>1.1.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
 
     <name>demo</name>
-    <description>用户管理脚手架(ums) demo: 杂七杂八</description>
+    <description>用户管理脚手架(ums) demo: 一锅烩</description>
 
     <dependencies>
         <dependency>

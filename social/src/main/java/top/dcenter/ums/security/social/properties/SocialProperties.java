@@ -42,18 +42,18 @@ public class SocialProperties {
      */
     private Boolean socialSignUpIsOpen = false;
     /**
-     * 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /authentication/social 进行处理，由 Social 处理，不需要用户实现
+     * 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /authentication/social 进行处理，由 Social 处理，不需要用户实现, 更改 url,需自己实现处理逻辑
      */
     private String socialUserRegisterUrl = DEFAULT_SIGN_UP_PROCESSING_URL_SOCIAL;
 
     /**
-     * 第三方登录用户授权成功且未注册，则跳转的注册页面， 默认为 /signUp.html，
+     * 第三方登录用户授权成功且未注册，则跳转的注册页面(必须自己实现)， 默认为 /signUp.html，
      * autoSignIn=true 且实现 BaseConnectionSignUp 接口则自动登录时 signUpUrl 会失效
      */
     private String signUpUrl = "/signUp.html";
 
     /**
-     * 第三方登录页面， 默认为 /signIn.html
+     * 第三方登录页面(必须自己实现)， 默认为 /signIn.html
      */
     private String signInUrl = "/signIn.html";
 
@@ -67,7 +67,7 @@ public class SocialProperties {
     // ================= 第三方登录绑定相关功能 =================
 
     /**
-     * 第三方登录绑定页面， 默认为 /banding.html
+     * 第三方登录绑定页面(必须自己实现)， 默认为 /banding.html
      */
     private String bandingUrl = "/banding.html";
     /**
@@ -120,12 +120,12 @@ public class SocialProperties {
     }
     /**
      * 第三方登录回调的域名, 例如：https://localhost 默认为 "http://127.0.0.1"，
-     * redirectUrl 直接由 domain/servletContextPath/callbackUrl/providerId(security.social.[qq/wechat/gitee/weibo])组成
+     * redirectUrl 直接由 domain/servletContextPath/callbackUrl/providerId(ums.social.[qq/wechat/gitee/weibo])组成
      */
     private String domain = "http://127.0.0.1";
 
     /**
-     * 第三方登录用户授权失败跳转页面， 默认为 "/signIn.html"
+     * 第三方登录用户授权失败跳转页面(必须自己实现)， 默认为 "/signIn.html"
      */
     private String failureUrl = "/signIn.html";
 

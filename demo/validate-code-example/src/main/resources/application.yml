@@ -104,7 +104,7 @@ ums:
         - /slider/check2
       # 提交验证码请求时，请求中带的验证码变量名，
       request-param-name: sliderToken
-
+::
     # 滑块验证码, v1.1.2-alph 版本已经内置
     #slider:
     #  # 设置需要验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 空

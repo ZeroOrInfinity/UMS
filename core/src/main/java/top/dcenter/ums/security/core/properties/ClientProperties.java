@@ -44,7 +44,7 @@ public class ClientProperties {
     private final AnonymousProperties anonymous = new AnonymousProperties();
 
     /**
-     * 设置登录页，用户没有配置则默认为 /login
+     * 设置登录页(必须自己实现)，用户没有配置则默认为 /login
      */
     private String loginPage = DEFAULT_LOGIN_PAGE_URL;
     /**
@@ -52,7 +52,7 @@ public class ClientProperties {
      */
     private String loginProcessingUrl = DEFAULT_LOGIN_PROCESSING_URL_FORM;
     /**
-     * 设置认证失败默认跳转页面
+     * 设置认证失败默认跳转页面(必须自己实现)
      */
     private String failureUrl = this.loginPage;
     /**
@@ -60,15 +60,15 @@ public class ClientProperties {
      */
     private String errorUrl = "/error";
     /**
-     * 4xx 错误页面
+     * 4xx 错误页面(必须自己实现)
      */
     private String error4Url = "/4*.html";
     /**
-     * 5xx 错误页面
+     * 5xx 错误页面(必须自己实现)
      */
     private String error5Url = "/5*.html";
     /**
-     * 设置认证成功默认跳转页面
+     * 设置认证成功默认跳转页面(必须自己实现)
      */
     private String successUrl = "/";
 
@@ -146,7 +146,7 @@ public class ClientProperties {
      */
     public String logoutUrl = "/logout";
     /**
-     * 设置登出后跳转的 url, 默认为 /login
+     * 设置登出后跳转的 url(必须自己实现), 默认为 /login
      */
     public String logoutSuccessUrl = "/login";
     /**
@@ -217,7 +217,7 @@ public class ClientProperties {
         private SessionCreationPolicy sessionCreationPolicy = SessionCreationPolicy.ALWAYS;
 
         /**
-         * session 失效后跳转地址, loginProcessType=redirect 时有效. 默认: /session/invalid, <br><br>
+         * session 失效后跳转地址(必须自己实现), loginProcessType=redirect 时有效. 默认: /session/invalid, <br><br>
          *
          */
         private String invalidSessionUrl = DEFAULT_SESSION_INVALID_URL;

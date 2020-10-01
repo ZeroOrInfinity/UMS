@@ -51,19 +51,19 @@ spring:
 
 ums:
   client:
-    # 登录页
+    # 登录页(必须自己实现)
     login-page: /login
-    # 登录失败页
+    # 登录失败页(必须自己实现)
     failure-url: /login
     # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
     login-process-type: redirect
     # 设置处理登录表单的 uri，不需要用户实现此 uri，由 Spring security 自动实现， 默认为 /authentication/form
     login-processing-url: /authentication/form
-    # 登录成功页
+    # 登录成功页(必须自己实现)
     success-url: /
     # 设置登出 url, 默认为 /logout
     logout-url: /logout
-    # 设置登出后跳转的 url, 默认为 /login
+    # 设置登出后跳转的 url(必须自己实现), 默认为 /login
     logout-success-url: /login
     # 设置登录时用户名的 request 参数名称, 默认为 username
     usernameParameter: username

@@ -5,15 +5,15 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>1.1.3-alpha</version>
+        <version>1.1.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ums-demo</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.4</version>
     <packaging>pom</packaging>
 
-    <modules>
+    <!--<modules>
         <module>quickStart</module>
         <module>basic-example</module>
         <module>basic-detail-example</module>
@@ -23,7 +23,7 @@
         <module>validate-code-example</module>
         <module>permission-example</module>
         <module>demo</module>
-    </modules>
+    </modules>-->
 
 
     <url>https://github.com/ZeroOrInfinity/UMS/tree/master/demo</url>

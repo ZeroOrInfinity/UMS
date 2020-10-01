@@ -42,18 +42,19 @@ server:
 
 ums:
   client:
+    # 登录页(必须自己实现)
     login-page: /login
-    # 登录失败页
+    # 登录失败页(必须自己实现)
     failure-url: /login
     # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
     login-process-type: redirect
     # 设置处理登录表单的 uri，不需要用户实现此 uri，由 Spring security 自动实现， 默认为 /authentication/form
     login-processing-url: /authentication/form
-    # 登录成功页
+    # 登录成功页(必须自己实现)
     success-url: /
     # 设置登出 url, 默认为 /logout
     logout-url: /logout
-    # 设置登出后跳转的 url, 默认为 /login
+    # 设置登出后跳转的 url(必须自己实现), 默认为 /login
     logout-success-url: /login
     # 设置登录时用户名的 request 参数名称, 默认为 username
     usernameParameter: username
@@ -111,7 +112,7 @@ ums:
       # 如果设置为true，则允许HTTP会话在网址中使用HttpServletResponse.encodeRedirectURL（String）或HttpServletResponse.encodeURL（字符串）时被改写，被包含在URL，
       # 否则不允许HTTP会话。 这可以防止信息泄漏到外部域, 默认为: false
       enable-session-url-rewriting: false
-      # concurrent session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /
+      # concurrent session 失效后跳转地址(必须自己实现), login-process-type=redirect 时有效. 默认: /
       invalid-session-of-concurrent-url: /concurrentSession.html
       # session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /session/invalid,
       invalid-session-url: /session/invalid
@@ -254,16 +255,16 @@ ums:
     # ============== 以下配置依赖 social-sign-up-is-open=true 时才有效 ==============
 
     # autoSignIn=true 且实现 BaseConnectionSignUp 接口则自动登录，而且 signUpUrl 会失效
-    # 第三方登录用户授权成功跳转页面，默认为 /signUp.html， 用户必需设置
+    # 第三方登录用户授权成功跳转页面(必须自己实现)，默认为 /signUp.html， 用户必需设置
     sign-up-url: /signUp
     # 第三方登录用户从 signUpUrl 提交的用户信息表单，默认由 /authentication/social 进行处理，由 Social 处理，不需要用户实现
     social-user-register-url: /authentication/social
 
     # ============== 以上配置依赖 social-sign-up-is-open=true 时才有效 ==============
 
-    # 第三方登录页面， 默认为 /signIn.html
+    # 第三方登录页面(必须自己实现)， 默认为 /signIn.html
     sign-in-url: /signIn.html
-    # 第三方登录用户授权失败跳转页面， 默认为 /signIn.html
+    # 第三方登录用户授权失败跳转页面(必须自己实现)， 默认为 /signIn.html
     failure-url: /signIn.html
     # 第三方登录用户注册时: 用户唯一 ID 字段名称， 默认为 userId
     user-id-param-name: userId
@@ -276,7 +277,7 @@ ums:
     # 第三方登录用户头像 avatarUrl 字段名称， 默认为 avatarUrl
     avatar-url-param-name: avatarUrl
     ####### 第三方登录绑定相关
-    # 第三方登录绑定页面， 默认为 /banding.html
+    # 第三方登录绑定页面(必须自己实现)， 默认为 /banding.html
     banding-url: /banding
     # 用户绑定第三方账号的 List 的参数名称, 默认: connections
     banding-provider-connection-list-name: connections

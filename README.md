@@ -55,14 +55,14 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>1.1.3-alpha</version>
+    <version>1.1.4</version>
 </dependency>
 <!-- 第三方登录(自动注册，绑定与解绑, redis cache), 通过统一的回调地址入口实现多回调地址的路由功能 -->
 <!-- 包含 ums-core-spring-boot-starter 依赖 -->
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-social-spring-boot-starter</artifactId>
-    <version>1.1.3-alpha</version>
+    <version>1.1.4</version>
 </dependency>
 ```
 ------
@@ -78,7 +78,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-social-spring-boot-starter</artifactId>
-    <version>1.1.3-alpha</version>
+    <version>1.1.4</version>
 </dependency>
 ```
 ### 2. config:  
@@ -116,15 +116,15 @@ ums:
   client:
     # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
     login-process-type: redirect
-    # 登录页
+    # 登录页(必须自己实现)
     login-page: /login
-    # 登录失败页
+    # 登录失败页(必须自己实现)
     failure-url: /login
-    # 登录成功页
+    # 登录成功页(必须自己实现)
     success-url: /
     # 设置登出 url, 默认为 /logout
     logout-url: /logout
-    # 设置登出后跳转的 url, 默认为 /login
+    # 设置登出后跳转的 url(必须自己实现), 默认为 /login
     logout-success-url: /login
     # 不需要认证的静态资源 urls, 例如: /resources/**, /static/**
     ignoring-urls:
@@ -164,9 +164,9 @@ ums:
 
   # =============== 第三方登录配置: social ===============
   social:
-    # 第三方登录页面， 默认为 /signIn.html
+    # 第三方登录页面(必须自己实现)， 默认为 /signIn.html
     sign-in-url: /signIn
-    # 第三方登录用户授权失败跳转页面， 默认为 /signIn.html
+    # 第三方登录用户授权失败跳转页面(必须自己实现)， 默认为 /signIn.html
     failure-url: /signIn
     # 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth/callback
     # 如果更改此 url，更改后的必须要实现 SocialController#authCallbackRouter(HttpServletRequest) 的功能
