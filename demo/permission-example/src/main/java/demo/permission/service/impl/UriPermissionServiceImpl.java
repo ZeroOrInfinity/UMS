@@ -7,13 +7,18 @@ import demo.permission.service.UriPermissionService;
 import demo.service.SysResourcesService;
 import demo.service.SysRoleResourcesService;
 import demo.service.SysRoleService;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
 import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
 import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
+import top.dcenter.ums.security.core.permission.event.UpdateRolesAuthoritiesEvent;
 import top.dcenter.ums.security.core.util.ConvertUtil;
 
 import java.util.ArrayList;
@@ -23,13 +28,22 @@ import java.util.Set;
 import static top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService.PERMISSION_DELIMITER;
 
 /**
- * uri 权限服务
+ * uri 权限服务.<br><br>
+ * 注意：<br>
+ * <pre>
+ *     // 修改或添加权限一定要更新 updateRolesAuthorities 缓存, 有两种方式：一种发布事件，另一种是直接调用服务；推荐用发布事件(异步执行)。
+ *     // 1. 推荐用发布事件(异步执行)
+ *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
+ *     // 2. 直接调用服务
+ *     abstractUriAuthorizeService.updateRolesAuthorities();
+ * </pre>
+ *
  * @author zyw
  * @version V1.0  Created by 2020-09-26 22:41
  */
 @Service
 @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
-public class UriPermissionServiceImpl implements UriPermissionService {
+public class UriPermissionServiceImpl implements UriPermissionService, ApplicationContextAware {
 
     @Autowired
     private SysRoleService sysRoleService;
@@ -38,8 +52,12 @@ public class UriPermissionServiceImpl implements UriPermissionService {
     @Autowired
     private SysRoleResourcesService sysRoleResourcesService;
 
-    @Autowired
-    private AbstractUriAuthorizeService abstractUriAuthorizeService;
+    private ApplicationContext applicationContext;
+
+    @Override
+    public void setApplicationContext(@NotNull ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 
     /**
      * 给角色添加权限
@@ -48,7 +66,7 @@ public class UriPermissionServiceImpl implements UriPermissionService {
      * @param permissionSuffixTypeList  权限后缀类型列表
      * @return  是否添加成功
      */
-    @Transactional(rollbackFor = {Error.class, Exception.class})
+    @Transactional(rollbackFor = {Error.class, Exception.class}, propagation = Propagation.REQUIRED)
     @Override
     public boolean addUriPermission(@NonNull String role, @NonNull String uri,
                                     @NonNull List<PermissionSuffixType> permissionSuffixTypeList) {
@@ -67,7 +85,7 @@ public class UriPermissionServiceImpl implements UriPermissionService {
             newRole.setAvailable(true);
             newRole.setName(role);
             newRole.setDescription(role);
-            // 保存角色
+            // 新增角色
             sysRole = sysRoleService.save(newRole);
         }
 
@@ -99,7 +117,6 @@ public class UriPermissionServiceImpl implements UriPermissionService {
 
 
         }
-
         // 4. 更新权限资源
         else
         {
@@ -114,8 +131,8 @@ public class UriPermissionServiceImpl implements UriPermissionService {
             sysResourcesService.batchUpdateBySysResources(sysResourcesList);
         }
 
-        // 5. 修改或添加权限一定要更新 ServletContext 缓存
-        abstractUriAuthorizeService.updateRolesAuthorities();
+        // 5. 修改或添加权限一定要更新 updateRolesAuthorities 缓存
+        applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
 
         return true;
     }
@@ -126,7 +143,7 @@ public class UriPermissionServiceImpl implements UriPermissionService {
      * @param permissionSuffixTypeList 权限后缀类型列表
      * @return  是否成功
      */
-    @Transactional(rollbackFor = {Error.class, Exception.class})
+    @Transactional(rollbackFor = {Error.class, Exception.class}, propagation = Propagation.REQUIRED)
     @Override
     public boolean delUriPermission(String role, String uri, List<PermissionSuffixType> permissionSuffixTypeList) {
 
@@ -152,12 +169,11 @@ public class UriPermissionServiceImpl implements UriPermissionService {
         {
             roleResourcesIds.add(uriResourcesDTO.getRoleResourcesId());
         }
-
         // 删除角色与资源的关联
         sysRoleResourcesService.batchDeleteByIds(roleResourcesIds);
 
-        // 4. 修改或添加权限一定要更新 ServletContext 缓存
-        abstractUriAuthorizeService.updateRolesAuthorities();
+        // 4. 修改或添加权限一定要更新 updateRolesAuthorities 缓存
+        applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
 
         return true;
 

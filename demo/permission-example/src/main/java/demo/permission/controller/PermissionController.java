@@ -29,11 +29,14 @@ import java.util.List;
  * 在 @EnableUriAuthorize 中 {@link UriAuthorizeInterceptorAutoConfiguration}已配置, 不需要再次配置. <br>
  * &#64;UriAuthorize 注解需要 @EnableUriAuthorize(filterOrInterceptor = false) 支持.<br>
  *
- * 过滤器模式的注意点: <br>
- * 1. 需要验证的 url 必须有一条角色(任何角色都可以)权限记录. <br>
- * 2. 修改与添加权限后必须调用一下此方法, 更新一下角色的权限.
+ * 注意点: <br>
+ * 1. 过滤器模式需要验证的 url 必须有一条角色(任何角色都可以)权限记录. <br>
+ * 2. 修改与添加权限后更新一下角色的权限:<br>
  * <pre>
- *     // 修改或添加权限一定要更新 ServletContext 缓存
+ *     // 修改或添加权限一定要更新 updateRolesAuthorities 缓存, 有两种方式：一种发布事件，另一种是直接调用服务；推荐用发布事件(异步执行)。
+ *     // 1. 推荐用发布事件(异步执行)
+ *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
+ *     // 2. 直接调用服务
  *     abstractUriAuthorizeService.updateRolesAuthorities();
  * </pre>
  * @author zyw

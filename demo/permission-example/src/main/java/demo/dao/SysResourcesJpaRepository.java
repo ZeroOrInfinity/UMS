@@ -66,4 +66,5 @@ public interface SysResourcesJpaRepository extends CrudRepository<SysResources, 
     @Modifying
     @Query("update SysResources set permission = :p where id = :id")
     void updatePermissionById(@Param("p") String permission, @Param("id") Long id);
+
 }

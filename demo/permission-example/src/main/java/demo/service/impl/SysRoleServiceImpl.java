@@ -5,6 +5,8 @@ import demo.entity.SysRole;
 import demo.service.SysRoleService;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
 
 import java.util.HashMap;
@@ -27,12 +29,14 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRole, Long> implement
     }
 
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public SysRole findByName(@NonNull String roleName) {
 
         return repository.findByName(roleName);
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public Map<String, Map<String, UriResourcesDTO>> getRolesAuthorities() {
         // 获取所有角色的 uri 的权限

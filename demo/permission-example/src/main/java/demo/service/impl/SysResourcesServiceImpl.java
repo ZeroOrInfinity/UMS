@@ -5,6 +5,7 @@ import demo.entity.SysResources;
 import demo.service.SysResourcesService;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
 
@@ -32,6 +33,7 @@ public class SysResourcesServiceImpl extends BaseServiceImpl<SysResources, Long>
     }
 
     @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public UriResourcesDTO findUriResourcesDtoByUrl(@NonNull String url) {
         List<String[]> list = repository.findSysResourcesByUrl(url);
@@ -49,17 +51,19 @@ public class SysResourcesServiceImpl extends BaseServiceImpl<SysResources, Long>
         return uriResourcesDO;
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public SysResources findByUrl(@NonNull String url) {
         return repository.findByUrl(url);
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public List<SysResources> findByRoleIdAndUrl(Long roleId, String url) {
         return repository.findByRoleIdAndUrl(roleId, url);
     }
 
-    @Transactional(rollbackFor = {Error.class, Exception.class})
+    @Transactional(rollbackFor = {Error.class, Exception.class}, propagation = Propagation.REQUIRED)
     @Override
     public void batchUpdateBySysResources(List<SysResources> resourcesList) {
 
@@ -76,9 +80,9 @@ public class SysResourcesServiceImpl extends BaseServiceImpl<SysResources, Long>
         }
         entityManager.flush();
         entityManager.clear();
-
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public List<UriResourcesDTO> findUriResourcesDtoByRoleIdAndUrl(Long roleId, String url) {
         List<String[]> list = repository.findUriResourcesDtoByRoleIdAndUrl(roleId, url);

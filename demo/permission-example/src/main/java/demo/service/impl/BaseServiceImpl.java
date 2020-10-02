@@ -3,6 +3,7 @@ package demo.service.impl;
 import demo.service.BaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
@@ -22,61 +23,66 @@ public abstract class BaseServiceImpl<T, ID extends Serializable> implements Bas
     }
 
 
-    @Transactional(rollbackFor = {Exception.class, Error.class})
+    @Transactional(rollbackFor = {Exception.class, Error.class}, propagation = Propagation.REQUIRED)
     @Override
     public <S extends T> S save(S entity) {
         return repository.save(entity);
     }
 
-    @Transactional(rollbackFor = {Exception.class, Error.class})
+    @Transactional(rollbackFor = {Exception.class, Error.class}, propagation = Propagation.REQUIRED)
     @Override
     public <S extends T> Iterable<S> saveAll(Iterable<S> entities) {
         return repository.saveAll(entities);
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public Optional<T> findById(ID id) {
         return repository.findById(id);
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public boolean existsById(ID id) {
         return repository.existsById(id);
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public Iterable<T> findAll() {
         return repository.findAll();
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public Iterable<T> findAllById(Iterable<ID> ids) {
         return repository.findAllById(ids);
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public long count() {
         return repository.count();
     }
 
-    @Transactional(rollbackFor = {Exception.class, Error.class})
+    @Transactional(rollbackFor = {Exception.class, Error.class}, propagation = Propagation.REQUIRED)
     @Override
     public void deleteById(ID id) {
         repository.deleteById(id);
     }
 
-    @Transactional(rollbackFor = {Exception.class, Error.class})
+    @Transactional(rollbackFor = {Exception.class, Error.class}, propagation = Propagation.REQUIRED)
     @Override
     public void delete(T entity) {
         repository.delete(entity);
     }
 
-    @Transactional(rollbackFor = {Exception.class, Error.class})
+    @Transactional(rollbackFor = {Exception.class, Error.class}, propagation = Propagation.REQUIRED)
     @Override
     public void deleteAll(Iterable<? extends T> entities) {
         repository.deleteAll(entities);
     }
-
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public void deleteAll() {
         repository.deleteAll();

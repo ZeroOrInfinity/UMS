@@ -1,11 +1,13 @@
 package demo.service.impl;
 
-import demo.polo.UserDO;
 import demo.dao.SysUserJpaRepository;
 import demo.entity.SysUser;
+import demo.polo.UserDO;
 import demo.service.SysUserService;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,6 +25,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUser, Long> implement
         this.repository = repository;
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public UserDO findByUsername(@NonNull String username) {
         List<String[]> list = repository.findByUsername(username);
