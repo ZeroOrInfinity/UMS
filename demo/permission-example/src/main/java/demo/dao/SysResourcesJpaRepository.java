@@ -54,7 +54,7 @@ public interface SysResourcesJpaRepository extends CrudRepository<SysResources, 
      */
     @Query(value = "select * " +
             "from sys_resources " +
-            "where url = :url and in (select resources_id from sys_role_resources where role_id = :roleId) "
+            "where url = :url and id in (select resources_id from sys_role_resources where role_id = :roleId) "
             , nativeQuery = true)
     List<SysResources> findByRoleIdAndUrl(@Param("roleId") Long roleId, @Param("url") String url);
 
