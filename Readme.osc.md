@@ -815,7 +815,11 @@ public class UserController {
 ## 七、[注意事项](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926456&doc_id=984605): 
 ### 1. 基于 RBAC 的 uri 访问权限控制
 - **更新角色权限时必须调用** [AbstractUriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java)`#updateRolesAuthorities()` 方法来**刷新权限**, 即可实时刷新角色权限.
-
+    - **刷新权限**有两种方式：一种发布事件，另一种是直接调用服务；推荐用发布事件(异步执行)。
+      1. 推荐用发布事件(异步执行)
+         `applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));`
+      2. 直接调用服务
+         `abstractUriAuthorizeService.updateRolesAuthorities();`
 ### 2. HttpSecurity 配置问题：UMS 中的 [HttpSecurityAware](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java) 配置与应用中的 HttpSecurity 配置冲突问题：
 
 1. 如果是新建应用添加 HttpSecurity 配置, 通过下面的接口即可: 

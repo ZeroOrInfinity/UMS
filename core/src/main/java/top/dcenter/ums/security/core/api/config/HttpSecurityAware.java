@@ -68,34 +68,34 @@ public interface HttpSecurityAware {
      *     .antMatchers(fullyAuthenticatedArray).fullyAuthenticated()
      *     .antMatchers(rememberMeArray).rememberMe();
      *
-     * hasRoleMap.forEach((uri, roleArr) -> {
+     * hasRoleMap.forEach((uri, roleArr) &#45;&#62; {
      *             for (String role : roleArr)
      *             {
      *                 expressionInterceptUrlRegistry.antMatchers(uri).hasRole(role);
      *             }
      *         });
      *
-     * hasAnyRoleMap.forEach((uri, roleArr) -> expressionInterceptUrlRegistry.antMatchers(uri).hasAnyRole(roleArr));
+     * hasAnyRoleMap.forEach((uri, roleArr) &#45;&#62; expressionInterceptUrlRegistry.antMatchers(uri).hasAnyRole(roleArr));
      *
      * hasAuthorityMap.forEach(
-     *         (uri, authorityArr) -> {
+     *         (uri, authorityArr) &#45;&#62; {
      *             for (String s : authorityArr)
      *             {
      *                 expressionInterceptUrlRegistry.antMatchers(uri).hasAuthority(s);
      *             }
      *         });
      *
-     * hasAnyAuthorityMap.forEach((uri, authorityArr) -> expressionInterceptUrlRegistry.antMatchers(uri).hasAnyAuthority(authorityArr));
+     * hasAnyAuthorityMap.forEach((uri, authorityArr) &#45;&#62; expressionInterceptUrlRegistry.antMatchers(uri).hasAnyAuthority(authorityArr));
      *
      * hasIpAddressMap.forEach(
-     *         (uri, ipArr) -> {
+     *         (uri, ipArr) &#45;&#62; {
      *             for (String s : ipArr)
      *             {
      *                 expressionInterceptUrlRegistry.antMatchers(uri).hasIpAddress(s);
      *             }
      *         });
      *
-     * if (accessArray.length > 0)
+     * if (accessArray.length &#62; 0)
      * {
      *     StringBuilder sb = new StringBuilder();
      *     for (String access : accessArray)
