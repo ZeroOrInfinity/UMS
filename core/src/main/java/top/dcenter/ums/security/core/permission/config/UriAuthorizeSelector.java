@@ -29,7 +29,8 @@ final class UriAuthorizeSelector implements ImportSelector {
 
         boolean filterOrInterceptor = attributes.getBoolean("filterOrInterceptor");
 
-        List<String> classNames = new ArrayList<>(2);
+        List<String> classNames = new ArrayList<>(3);
+        classNames.add(UpdateRolesAuthoritiesListenerAutoConfiguration.class.getName());
         if (filterOrInterceptor)
         {
             classNames.add(UriAuthorizeFilterAutoConfiguration.class.getName());
