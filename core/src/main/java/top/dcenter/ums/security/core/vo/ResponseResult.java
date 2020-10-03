@@ -34,35 +34,26 @@ public class ResponseResult {
 
     /**
      * 默认成功返回 code = 0
-     * @return
+     * @return  ResponseResult
      */
     public static ResponseResult success() {
         return ResponseResult.success(null);
     }
 
     /**
-     * 默认成功返回 code = 0
-     * @param data
-     * @return
-     */
-    public static ResponseResult success(Object data) {
-        return ResponseResult.success(null, data);
-    }
-
-    /**
-     * 默认成功返回 code = 0
-     * @param msg
-     * @return
+     * 默认成功返回 code = 0 与 msg
+     * @param msg   msg
+     * @return  ResponseResult
      */
     public static ResponseResult success(String msg) {
         return ResponseResult.success(msg, null);
     }
 
     /**
-     * 默认成功返回 code = 0
-     * @param msg
-     * @param data
-     * @return
+     * 默认成功返回 code = 0, msg, data
+     * @param msg   msg
+     * @param data  data
+     * @return  ResponseResult
      */
     public static ResponseResult success(String msg, Object data) {
         ResponseResult responseResult = new ResponseResult(0);
@@ -72,36 +63,36 @@ public class ResponseResult {
     }
 
     /**
-     * @param errorCodeEnum
-     * @return
+     * @param errorCodeEnum errorCodeEnum
+     * @return  ResponseResult
      */
     public static ResponseResult fail(ErrorCodeEnum errorCodeEnum) {
         return ResponseResult.fail(errorCodeEnum, null);
     }
 
     /**
-     * @param errorCodeEnum
-     * @param data
-     * @return
+     * @param errorCodeEnum errorCodeEnum
+     * @param data          data
+     * @return  ResponseResult
      */
     public static ResponseResult fail(ErrorCodeEnum errorCodeEnum, Object data) {
         return new ResponseResult(errorCodeEnum.getCode(), errorCodeEnum.getMsg(), data);
     }
 
     /**
-     * @param errorMsg
-     * @param errorCodeEnum
-     * @return
+     * @param errorMsg          errorMsg
+     * @param errorCodeEnum     errorCodeEnum
+     * @return  ResponseResult
      */
     public static ResponseResult fail(String errorMsg, ErrorCodeEnum errorCodeEnum) {
         return new ResponseResult(errorCodeEnum.getCode(), errorMsg, null);
     }
 
     /**
-     * @param errorMsg
-     * @param errorCodeEnum
-     * @param data
-     * @return
+     * @param errorMsg      errorMsg
+     * @param errorCodeEnum errorCodeEnum
+     * @param data          data
+     * @return  ResponseResult
      */
     public static ResponseResult fail(String errorMsg, ErrorCodeEnum errorCodeEnum, Object data) {
         return new ResponseResult(errorCodeEnum.getCode(), errorMsg, data);

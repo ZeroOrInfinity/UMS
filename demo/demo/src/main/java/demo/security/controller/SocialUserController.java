@@ -75,7 +75,7 @@ public class SocialUserController {
         }
 
         log.info("Demo ========>: 用户注册成功：{}", user);
-        return ResponseResult.success(user);
+        return ResponseResult.success(null, user);
     }
 
     @GetMapping("/me")
@@ -102,7 +102,7 @@ public class SocialUserController {
         userInfo.setUserId(connection.getDisplayName());
         userInfo.setAvatarUrl(connection.getImageUrl());
         log.info("用户注册成功：{}", userInfo);
-        return ResponseResult.success(userInfo);
+        return ResponseResult.success(null, userInfo);
     }
 
     @GetMapping(value = "")

@@ -85,7 +85,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
             {
                 clearAuthenticationAttributes(request);
                 responseWithJson(response, HttpStatus.OK.value(),
-                                 objectMapper.writeValueAsString(ResponseResult.success(userInfoJsonVo)));
+                                 objectMapper.writeValueAsString(ResponseResult.success(null, userInfoJsonVo)));
                 return;
             }
 
@@ -95,7 +95,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
             {
                 clearAuthenticationAttributes(request);
                 responseWithJson(response, HttpStatus.OK.value(),
-                                 objectMapper.writeValueAsString(ResponseResult.success(userInfoJsonVo)));
+                                 objectMapper.writeValueAsString(ResponseResult.success(null, userInfoJsonVo)));
                 return;
             }
         }
