@@ -3,6 +3,7 @@ package top.dcenter.ums.security.core.config;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.ApplicationContext;
@@ -24,6 +25,7 @@ import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticati
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler;
+import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.filter.AjaxOrFormRequestFilter;
 import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
@@ -35,6 +37,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -75,6 +78,10 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection", "SpringJavaInjectionPointsAutowiringInspection"})
     @Autowired(required = false)
     private UmsUserDetailsService umsUserDetailsService;
+
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
+    @Autowired(required = false)
+    private UriAuthorizeService uriAuthorizeService;
 
     public SecurityCoreAutoConfigurer(ClientProperties clientProperties,
                                       BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
@@ -222,6 +229,12 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                 .invalidateHttpSession(true);
     }
 
+    private void urlAuthorizationConfigurer(HttpSecurity http) throws Exception {
+        Optional<Map<String, Set<String>>> uriAuthoritiesOfAllRole = uriAuthorizeService.getUriAuthoritiesOfAllRole();
+        ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry urlRegistry = http.authorizeRequests();
+
+    }
+
     private void urlAuthorizationConfigurer(HttpSecurity http, String[] permitAllArray,
                                             String[] denyAllArray, String[] anonymousArray,
                                             String[] authenticatedArray, String[] fullyAuthenticatedArray,
@@ -265,19 +278,27 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                     }
                 });
 
+
         if (accessArray.length > 0)
         {
             StringBuilder sb = new StringBuilder();
             for (String access : accessArray)
             {
-                sb.append(access).append(" and ");
+                if (StringUtils.isNotBlank(access))
+                {
+                    sb.append(access).append(" and ");
+                }
             }
-            sb.setLength(sb.length() - 5);
-            expressionInterceptUrlRegistry.anyRequest().access(sb.toString());
+            int interceptLen = 5;
+            if (sb.length() > interceptLen)
+            {
+                sb.setLength(sb.length() - interceptLen);
+                expressionInterceptUrlRegistry.anyRequest().access(sb.toString());
+                return;
+            }
         }
 
         expressionInterceptUrlRegistry.anyRequest().authenticated();
-
 
     }
 
@@ -362,6 +383,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                 groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, AUTHENTICATED);
                 groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, FULLY_AUTHENTICATED);
                 groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, REMEMBER_ME);
+                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, ACCESS);
 
                 groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, HAS_ROLE);
                 groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, HAS_ANY_ROLE);

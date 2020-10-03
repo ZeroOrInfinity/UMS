@@ -1,12 +1,16 @@
 package top.dcenter.ums.security.core.api.permission.service;
 
 import lombok.Getter;
+import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
+import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
 import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeService;
 import top.dcenter.ums.security.core.util.ConvertUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
@@ -58,13 +62,67 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
 
     @Override
-    public boolean hasPermission(HttpServletRequest request, Authentication authentication, String uriAuthorize) {
+    public boolean match(String pattern, String requestUri) {
+        return antPathMatcher.match(pattern, requestUri);
+    }
 
-        // Map(uri, Set(authority))
-        Map<String, Set<String>> uriAuthorityMap = getUriAuthoritiesOfUserRole(authentication).orElse(new HashMap<>(0));
+
+    @Override
+    public boolean hasPermission(HttpServletRequest request, Authentication authentication, String uriAuthority) {
 
         // 去除 ServletContextPath 的 uri
         final String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
+
+        return hasPermission(authentication, requestUri, uriAuthority);
+
+    }
+
+    @Override
+    public boolean hasPermission(Authentication authentication, HttpServletRequest request) {
+
+        String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
+
+        // 基于用户 role 的 Map(uri, Set(authority))
+        final Map<String, Set<String>> uriAuthorityOfUserRoleMap =
+                getUriAuthoritiesOfUserRole(authentication).orElse(new HashMap<>(0));
+
+        final String method = request.getMethod();
+
+        // 用户有权限的 uri 集合
+        Set<String> userUriSet = uriAuthorityOfUserRoleMap.keySet();
+
+        // 匹配 requestUri 的用户权限集合
+        Set<String> userAuthoritySet;
+
+        // 精确匹配 requestUri 并检查是否有权限
+        if (userUriSet.contains(requestUri))
+        {
+            // 用户持有 requestUri 的权限集合
+            userAuthoritySet = uriAuthorityOfUserRoleMap.get(requestUri);
+            // 检查是否有匹配的权限
+            boolean isMatchByMethod = isMatchByMethod(method, userAuthoritySet);
+            if (isMatchByMethod)
+            {
+                return true;
+            }
+        }
+
+        // antPathMatcher 匹配 requestUri 并获取匹配的用户权限集合
+        userAuthoritySet = userUriSet.stream()
+                .filter(uri -> match(uri, requestUri))
+                .flatMap(uri -> uriAuthorityOfUserRoleMap.get(uri).stream())
+                .collect(Collectors.toSet());
+
+        // 检查是否有匹配的权限
+        return isMatchByMethod(method, userAuthoritySet);
+
+    }
+
+    @Override
+    public boolean hasPermission(Authentication authentication, String requestUri, String uriAuthority) {
+
+        // Map(uri, Set(authority))
+        Map<String, Set<String>> uriAuthorityMap = getUriAuthoritiesOfUserRole(authentication).orElse(new HashMap<>(0));
 
         Set<String> uriSet = uriAuthorityMap.keySet();
 
@@ -73,7 +131,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         {
             return uriAuthorityMap.values().stream()
                                   // 权限是否匹配
-                                  .anyMatch(authoritySet -> authoritySet.contains(uriAuthorize));
+                                  .anyMatch(authoritySet -> authoritySet.contains(uriAuthority));
         }
 
         return false;
@@ -175,6 +233,31 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
                         return v;
                     });
                 });
+    }
+
+    /**
+     * 检查 userAuthoritySet 中的权限后缀是否与 requestMethod 相匹配.
+     * @param requestMethod     requestMethod
+     * @param userAuthoritySet  userAuthoritySet
+     * @return  是否匹配
+     */
+    private boolean isMatchByMethod(@NonNull String requestMethod, @Nullable Set<String> userAuthoritySet) {
+        if (CollectionUtils.isEmpty(userAuthoritySet))
+        {
+            return false;
+        }
+
+        String permissionSuffix = PermissionSuffixType.getPermissionSuffix(requestMethod);
+        if (permissionSuffix == null)
+        {
+            return false;
+        }
+
+        return userAuthoritySet.stream()
+                .anyMatch(authority ->
+                          {
+                              return authority.endsWith(permissionSuffix);
+                          });
     }
 
 }

@@ -7,7 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
+import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
 import top.dcenter.ums.security.core.permission.annotation.UriAuthorize;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,15 +16,22 @@ import java.time.Instant;
 
 /**
  * 针对在方法上注解有 {@link UriAuthorize} 的访问权限拦截器,
+ * 注意: <br>
+ *     1. 拦截器模式也可以使用
+ *     <pre>
+ *         &#64;PreAuthorize("hasPermission('/users', '/users:list')")
+ *         // equivalent to
+ *         &#64;UriAuthorize("/users:list")
+ *     </pre>
  * @author zyw
  * @version V1.0  Created by 2020/9/9 20:52
  */
 @Slf4j
 public class UriAuthorizationAnnotationInterceptor implements HandlerInterceptor {
 
-    private AbstractUriAuthorizeService uriAuthorizeService;
+    private UriAuthorizeService uriAuthorizeService;
 
-    public UriAuthorizationAnnotationInterceptor(AbstractUriAuthorizeService uriAuthorizeService) {
+    public UriAuthorizationAnnotationInterceptor(UriAuthorizeService uriAuthorizeService) {
         this.uriAuthorizeService = uriAuthorizeService;
     }
 

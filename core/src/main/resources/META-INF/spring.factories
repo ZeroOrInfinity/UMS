@@ -13,4 +13,5 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   top.dcenter.ums.security.core.config.RememberMeAutoConfigurerAware,\
   top.dcenter.ums.security.core.config.SecurityCsrfAutoConfiguration,\
   top.dcenter.ums.security.core.config.CsrfAutoConfigurerAware,\
+  top.dcenter.ums.security.core.config.UriAuthorizeAutoConfigurerAware,\
   top.dcenter.ums.security.core.config.SecurityCoreAutoConfigurer

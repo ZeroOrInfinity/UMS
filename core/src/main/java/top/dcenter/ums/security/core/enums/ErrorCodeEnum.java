@@ -62,6 +62,8 @@ public enum ErrorCodeEnum {
 
     ADD_PERMISSION_FAILURE(710, "添加权限失败"),
     DEL_PERMISSION_FAILURE(720, "删除权限失败"),
+    PERMISSION_DENY(730, "您没有访问权限或未登录"),
+
 
     REDIRECT_URL_PARAMETER_ILLEGAL(800, "非法的回调地址"),
     REDIRECT_URL_PARAMETER_ERROR(801, "回调地址不正确"),
