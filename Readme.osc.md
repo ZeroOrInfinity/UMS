@@ -63,9 +63,10 @@
 ```
 ------
 ## 三、`TODO List`:
-
-- 第三方登录功能添加 JustAuth 工具, 支持更多的第三方登录. 
-- OAuth2 authenticate server
+- 更新到 spring-security:5.4.0
+- 1. 权限控制可以增加 HttpMethod 类型，感觉权限控制可以更细粒度的控制。
+- 2. spring-security, 把 OAuth2 集成了，准备用 spring-security 添加 JWT, OAuth2 authenticate server
+- 3. 把第三方登录功能添加 JustAuth 工具添加到 spring-security 里, 替代 social 模块. 
 ------
 ## 四、`快速开始`：
 ### 1. 添加依赖:
