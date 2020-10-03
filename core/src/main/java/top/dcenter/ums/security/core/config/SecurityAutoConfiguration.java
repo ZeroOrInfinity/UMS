@@ -11,7 +11,7 @@ import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebSe
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.util.UrlPathHelper;
@@ -67,8 +67,8 @@ public class SecurityAutoConfiguration implements InitializingBean {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // BCryptPasswordEncoder 的实现了添加随机 salt 算法，并且能从hash后的字符串中获取 salt 进行原始密码与hash后的密码的对比
-        return new BCryptPasswordEncoder();
+        // 默认为 BCryptPasswordEncoder 的实现了添加随机 salt 算法，并且能从hash后的字符串中获取 salt 进行原始密码与hash后的密码的对比
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
