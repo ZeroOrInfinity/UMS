@@ -24,7 +24,7 @@ import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticati
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler;
-import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.filter.AjaxOrFormRequestFilter;
 import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
 import top.dcenter.ums.security.core.consts.SecurityConstants;
@@ -74,7 +74,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
     private Map<String, HttpSecurityAware> socialWebSecurityConfigurerMap;
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection", "SpringJavaInjectionPointsAutowiringInspection"})
     @Autowired(required = false)
-    private AbstractUserDetailsService abstractUserDetailsService;
+    private UmsUserDetailsService umsUserDetailsService;
 
     public SecurityCoreAutoConfigurer(ClientProperties clientProperties,
                                       BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
@@ -100,11 +100,11 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        if (abstractUserDetailsService == null)
+        if (umsUserDetailsService == null)
         {
-            throw new RuntimeException("必须实现 AbstractUserDetailsService 或 top.dcenter.security.social.api.service.AbstractSocialUserDetailsService 抽象类");
+            throw new RuntimeException("必须实现 UmsUserDetailsService 或 top.dcenter.security.social.api.service.UmsSocialUserDetailsService 抽象类");
         }
-        auth.userDetailsService(abstractUserDetailsService).passwordEncoder(passwordEncoder);
+        auth.userDetailsService(umsUserDetailsService).passwordEncoder(passwordEncoder);
     }
 
     @Override

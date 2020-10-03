@@ -9,6 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  * @author zyw
  * @version V1.0  Created by 2020/5/16 11:48
  */
-public abstract class AbstractUserDetailsService implements UserDetailsService, UserDetailsRegisterService {
+public interface UmsUserDetailsService extends UserDetailsService, UserDetailsRegisterService {
 
 }

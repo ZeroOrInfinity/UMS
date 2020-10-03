@@ -194,7 +194,7 @@ debug: true
 server:
   port: 80
 ```
-### 3. 实现 AbstractUserDetailsService 接口等:
+### 3. 实现 UmsUserDetailsService 接口等:
 #### UserDetailsService.java
 ```java
 package demo.service;
@@ -220,7 +220,7 @@ import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
 import top.dcenter.ums.security.core.util.RequestUtil;
-import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
+import top.dcenter.ums.security.social.api.service.UmsSocialUserDetailsService;
 import top.dcenter.ums.security.social.api.service.SocialUserCache;
 
 import java.util.List;
@@ -235,7 +235,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class UserDetailsService extends AbstractSocialUserDetailsService {
+public class UserDetailsService implements UmsSocialUserDetailsService {
 
     /**
      * 用户名
@@ -761,8 +761,8 @@ public class UserController {
 
 ### 实现对应功能时需要实现的接口：    
 1. 用户服务: `必须实现`
-    - 有 social 模块时: [AbstractSocialUserDetailsService](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/service/AbstractSocialUserDetailsService.java)
-    - 无 social 模块时: [AbstractUserDetailsService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/service/AbstractUserDetailsService.java)    
+    - 有 social 模块时: [UmsSocialUserDetailsService](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/service/UmsSocialUserDetailsService.java)
+    - 无 social 模块时: [UmsUserDetailsService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/service/UmsUserDetailsService.java)    
 2. 图片验证码: 如果不实现就会使用默认图片验证码, 实时产生验证码图片, 没有缓存功能
     - [ImageCodeFactory](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/image/ImageCodeFactory.java)
 3. 短信验证码: `默认空实现`

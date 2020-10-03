@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
-import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.api.session.SessionEnhanceCheckService;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationFilter;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationProvider;
@@ -43,7 +43,7 @@ public class SmsCodeLoginAutoAuthenticationConfigurer extends SecurityConfigurer
     private final BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
-    private AbstractUserDetailsService userDetailsService;
+    private UmsUserDetailsService userDetailsService;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
     private SessionRegistry sessionRegistry;

@@ -4,7 +4,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 
 /**
  * 短信登录 Provider
@@ -14,9 +14,9 @@ import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
  */
 public class SmsCodeLoginAuthenticationProvider implements AuthenticationProvider {
 
-    private AbstractUserDetailsService userDetailsService;
+    private UmsUserDetailsService userDetailsService;
 
-    public SmsCodeLoginAuthenticationProvider(AbstractUserDetailsService userDetailsService) {
+    public SmsCodeLoginAuthenticationProvider(UmsUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 

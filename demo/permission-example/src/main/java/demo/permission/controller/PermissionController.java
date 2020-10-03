@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.permission.annotation.UriAuthorize;
 import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
@@ -51,7 +51,7 @@ public class PermissionController {
     @Autowired
     private UriPermissionService uriPermissionService;
     @Autowired
-    private AbstractUserDetailsService userDetailsService;
+    private UmsUserDetailsService userDetailsService;
 
 
     /**

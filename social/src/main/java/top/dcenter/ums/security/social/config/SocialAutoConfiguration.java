@@ -32,7 +32,7 @@ import top.dcenter.ums.security.core.util.MvcUtil;
 import top.dcenter.ums.security.social.api.banding.ShowConnectViewService;
 import top.dcenter.ums.security.social.api.banding.ShowConnectionStatusViewService;
 import top.dcenter.ums.security.social.api.repository.UsersConnectionRepositoryFactory;
-import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
+import top.dcenter.ums.security.social.api.service.UmsSocialUserDetailsService;
 import top.dcenter.ums.security.social.api.signup.BaseConnectionSignUp;
 import top.dcenter.ums.security.social.banding.DefaultShowConnectViewServiceImpl;
 import top.dcenter.ums.security.social.banding.DefaultShowConnectionStatusViewServiceImpl;
@@ -72,7 +72,7 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
     private final SocialProperties socialProperties;
     private final List<ConnectInterceptor<?>> connectInterceptors;
     private final List<DisconnectInterceptor<?>> disconnectInterceptors;
-    private final AbstractSocialUserDetailsService userDetailService;
+    private final UmsSocialUserDetailsService userDetailService;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private GenericApplicationContext applicationContext;
@@ -86,7 +86,7 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
                                    ObjectProvider<List<DisconnectInterceptor<?>>> disconnectInterceptorsProvider,
                                    DataSource dataSource,
                                    SocialProperties socialProperties,
-                                   AbstractSocialUserDetailsService userDetailService) {
+                                   UmsSocialUserDetailsService userDetailService) {
         this.dataSource = dataSource;
         this.socialProperties = socialProperties;
         this.userDetailService = userDetailService;

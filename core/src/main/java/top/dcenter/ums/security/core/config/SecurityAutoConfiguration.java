@@ -19,7 +19,7 @@ import top.dcenter.ums.security.core.api.advice.SecurityControllerExceptionHandl
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler;
-import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.controller.ClientSecurityController;
 import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationSuccessHandler;
@@ -53,7 +53,7 @@ public class SecurityAutoConfiguration implements InitializingBean {
 
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection", "SpringJavaInjectionPointsAutowiringInspection"})
     @Autowired
-    private AbstractUserDetailsService abstractUserDetailsService;
+    private UmsUserDetailsService umsUserDetailsService;
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
@@ -92,7 +92,7 @@ public class SecurityAutoConfiguration implements InitializingBean {
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider")
     public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider(PasswordEncoder passwordEncoder) {
-        return new UsernamePasswordAuthenticationProvider(passwordEncoder, abstractUserDetailsService);
+        return new UsernamePasswordAuthenticationProvider(passwordEncoder, umsUserDetailsService);
     }
 
     @Bean

@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
@@ -35,7 +35,7 @@ import top.dcenter.ums.security.core.properties.ClientProperties;
  */
 @Service
 @Slf4j
-public class UserDetailsServiceImpl extends AbstractUserDetailsService {
+public class UserDetailsServiceImpl implements UmsUserDetailsService {
 
     private final ObjectMapper objectMapper;
 

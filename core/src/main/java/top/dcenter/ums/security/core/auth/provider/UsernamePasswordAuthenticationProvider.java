@@ -16,7 +16,7 @@ import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
-import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 
 /**
  * 用户密码登录的 Provider, 只是对 {@link org.springframework.security.authentication.dao.DaoAuthenticationProvider} 的 copy.
@@ -57,7 +57,7 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
      */
     private volatile String userNotFoundEncodedPassword;
 
-    private AbstractUserDetailsService userDetailsService;
+    private UmsUserDetailsService userDetailsService;
 
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
@@ -70,9 +70,9 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
 
 
     public UsernamePasswordAuthenticationProvider(PasswordEncoder passwordEncoder,
-                                                  AbstractUserDetailsService abstractUserDetailsService) {
+                                                  UmsUserDetailsService umsUserDetailsService) {
         setPasswordEncoder(passwordEncoder);
-        this.userDetailsService = abstractUserDetailsService;
+        this.userDetailsService = umsUserDetailsService;
     }
 
     @Override
@@ -101,7 +101,7 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         prepareTimingAttackProtection();
         try {
-            UserDetails loadedUser = this.getAbstractUserDetailsService().loadUserByUsername(username);
+            UserDetails loadedUser = this.getUmsUserDetailsService().loadUserByUsername(username);
             if (loadedUser == null) {
                 throw new InternalAuthenticationServiceException(
                         "UserDetailsService returned null, which is an interface contract violation");
@@ -168,11 +168,11 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
         return passwordEncoder;
     }
 
-    public void setAbstractUserDetailsService(AbstractUserDetailsService userDetailsService) {
+    public void setUmsUserDetailsService(UmsUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
-    protected AbstractUserDetailsService getAbstractUserDetailsService() {
+    protected UmsUserDetailsService getUmsUserDetailsService() {
         return userDetailsService;
     }
 

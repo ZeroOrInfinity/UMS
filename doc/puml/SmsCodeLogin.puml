@@ -59,9 +59,9 @@ activate JdbcTokenRepositoryImpl
 JdbcTokenRepositoryImpl --> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.7\n 返回
 deactivate JdbcTokenRepositoryImpl
 PersistentTokenBasedRememberMeServices -> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.8\n addCookie(newToken, \n request, response)
-participant AbstractUserDetailsService #ff9800
-PersistentTokenBasedRememberMeServices -> AbstractUserDetailsService: 1.4.2.1.2.0.9\n loadUserByUsername(..)
-AbstractUserDetailsService --> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.10\n 返回 userDetails
+participant UmsUserDetailsService #ff9800
+PersistentTokenBasedRememberMeServices -> UmsUserDetailsService: 1.4.2.1.2.0.9\n loadUserByUsername(..)
+UmsUserDetailsService --> PersistentTokenBasedRememberMeServices: 1.4.2.1.2.0.10\n 返回 userDetails
 deactivate PersistentTokenBasedRememberMeServices
 PersistentTokenBasedRememberMeServices --> RememberMeAuthenticationFilter: 1.4.2.1.2.0.11\n 返回认证的 authentication
 end
@@ -81,17 +81,17 @@ SmsCodeLoginAuthenticationProvider --> ProviderManager: 1.4.2.1.2.2\n 校验成�
 else 未授权
 SmsCodeLoginAuthenticationProvider -> SmsCodeLoginAuthenticationProvider: 1.4.2.1.2.2.0.1\n 校验失败
 end
-SmsCodeLoginAuthenticationProvider -> AbstractUserDetailsService: 1.4.2.1.2.2.1\n getUserDetailsService()
+SmsCodeLoginAuthenticationProvider -> UmsUserDetailsService: 1.4.2.1.2.2.1\n getUserDetailsService()
 
-activate AbstractUserDetailsService
-AbstractUserDetailsService --> AbstractUserDetailsService: 1.4.2.1.2.2.1.1\n loadUserByUsername\n(username)
+activate UmsUserDetailsService
+UmsUserDetailsService --> UmsUserDetailsService: 1.4.2.1.2.2.1.1\n loadUserByUsername\n(username)
 alt user已注册
-AbstractUserDetailsService --> AbstractUserDetailsService: 1.4.2.1.2.2.1.2\n 如果返回 user, 用户已注册
+UmsUserDetailsService --> UmsUserDetailsService: 1.4.2.1.2.2.1.2\n 如果返回 user, 用户已注册
 else user为注册，自动注册
-AbstractUserDetailsService --> AbstractUserDetailsService: 1.4.2.1.2.2.1.2\n 如果返回 null, 用户未注册
-AbstractUserDetailsService --> AbstractUserDetailsService: 1.4.2.1.2.2.1.3\n registerUser()，自动注册
+UmsUserDetailsService --> UmsUserDetailsService: 1.4.2.1.2.2.1.2\n 如果返回 null, 用户未注册
+UmsUserDetailsService --> UmsUserDetailsService: 1.4.2.1.2.2.1.3\n registerUser()，自动注册
 end
-AbstractUserDetailsService --> SmsCodeLoginAuthenticationProvider: 1.4.2.1.2.2.1\n 如果返回 user 或\n 自动注册后返回 user
+UmsUserDetailsService --> SmsCodeLoginAuthenticationProvider: 1.4.2.1.2.2.1\n 如果返回 user 或\n 自动注册后返回 user
 SmsCodeLoginAuthenticationProvider --> ProviderManager: 1.4.2.1.2.2\n 校验成功，\n返回 Authentication
 ProviderManager --> RememberMeAuthenticationFilter: 1.4.2.1.2.2.1\n 校验成功，\n返回 Authentication
 RememberMeAuthenticationFilter --> SmsCodeLoginAuthenticationFilter: 1.4.2.1.3\n 校验成功，\n返回 Authentication
@@ -100,8 +100,8 @@ AbstractValidateCodeProcessor --> ValidateCodeFilter: 1.4.3 校验成功，\n返
 ValidateCodeFilter --> client: 1.4.4.1 返回 RedirectUrl \n或 DefaultSuccessUrl
 
 else 登录失败
-AbstractUserDetailsService --> SmsCodeLoginAuthenticationProvider: 1.4.2.1.2.2.1\n 抛出异常
-deactivate AbstractUserDetailsService
+UmsUserDetailsService --> SmsCodeLoginAuthenticationProvider: 1.4.2.1.2.2.1\n 抛出异常
+deactivate UmsUserDetailsService
 deactivate SmsCodeLoginAuthenticationProvider
 SmsCodeLoginAuthenticationProvider --> ProviderManager: 1.4.2.1.2.2\n 校验失败，抛出异常
 deactivate SmsCodeLoginAuthenticationProvider
@@ -121,6 +121,6 @@ client --> client: 手机短信验证码登录流程结束
 note over AbstractValidateCodeProcessor: api 可以根据\n自己的需求自定义\n如saveSession()\n validate()\n generate()\n sent()
 note over ClientAuthenticationFailureHandler: api 可以根据自己的需求自定义\n继承此类并注入 IOC容器即可
 note over BasedRememberMeTokenRepositoryFactory: api 可以根据\n自己的需求自定义\n如把token放入redis等
-note over AbstractUserDetailsService: api 可以根据自己的需求自定义\n此Service实现了\nRegisterUserDetailsService\n带有注册服务
+note over UmsUserDetailsService: api 可以根据自己的需求自定义\n此Service实现了\nRegisterUserDetailsService\n带有注册服务
 
 @enduml
