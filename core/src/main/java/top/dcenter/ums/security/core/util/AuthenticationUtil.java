@@ -2,14 +2,17 @@ package top.dcenter.ums.security.core.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.enums.LoginProcessType;
@@ -25,7 +28,6 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import static java.util.Objects.requireNonNullElse;
@@ -62,25 +64,42 @@ public class AuthenticationUtil {
 
 
     /**
-     * 是否是 permitUri
-     * @param requestUri    去除 ServletContextPath uri
+     * 是否是 permitUri 且 HttpMethod 也对应
+     * @param request       request
      * @param session       session
      * @param matcher       AntPathMatcher
      * @return  boolean
      */
-    public static boolean isPermitUri(String requestUri, HttpSession session, AntPathMatcher matcher) {
+    public static boolean isPermitUri(@NonNull HttpServletRequest request, @NonNull HttpSession session,
+                                      @NonNull AntPathMatcher matcher) {
         // authorizeRequestMap 通过 SecurityCoreAutoConfigurer.groupingAuthorizeRequestUris(..) 注入 ServletContext,
 
         // noinspection unchecked
-        Map<String, Set<String>> authorizeRequestMap = (Map<String, Set<String>>) session.getServletContext().getAttribute(SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY);
-        authorizeRequestMap = Objects.requireNonNullElse(authorizeRequestMap, new HashMap<>(0));
-        Set<String> permitSet =
-                Objects.requireNonNullElse(authorizeRequestMap.get(HttpSecurityAware.PERMIT_ALL), new HashSet<>(0));
-        for (String permitUri : permitSet)
+        Map<String, Set<UriHttpMethodTuple>> authorizeRequestMap = (Map<String, Set<UriHttpMethodTuple>>) session.getServletContext().getAttribute(SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY);
+        authorizeRequestMap = requireNonNullElse(authorizeRequestMap, new HashMap<>(0));
+        Set<UriHttpMethodTuple> permitSet =
+                requireNonNullElse(authorizeRequestMap.get(HttpSecurityAware.PERMIT_ALL), new HashSet<>(0));
+
+        String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
+        String method = request.getMethod();
+        for (UriHttpMethodTuple tuple : permitSet)
         {
-            if (matcher.match(permitUri, requestUri))
+            // uri 匹配
+            if (matcher.match(tuple.getUri(), requestUri))
             {
-                return true;
+                HttpMethod httpMethod = tuple.getMethod();
+                // 没有 HttpMethod 类型, 只需要 uri 匹配
+                if (httpMethod == null)
+                {
+                    return true;
+                }
+
+                // 有 HttpMethod 类型, 还休要 method 匹配
+                String name = httpMethod.name();
+                if (StringUtils.equalsIgnoreCase(name, method))
+                {
+                    return true;
+                }
             }
         }
         return false;
@@ -187,9 +206,53 @@ public class AuthenticationUtil {
                                                             RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum,
                                                             String redirectUrl) throws IOException {
 
-        String referer = Objects.requireNonNullElse(request.getHeader(SecurityConstants.HEADER_REFERER), redirectUrl);
+        String referer = requireNonNullElse(request.getHeader(SecurityConstants.HEADER_REFERER), redirectUrl);
 
         redirectProcessing(request, response, clientProperties, objectMapper, redirectStrategy, errorCodeEnum, referer);
+    }
+
+    /**
+     * determine redirectUrl
+     * @param request           request
+     * @param response          response
+     * @param destinationUrl    destinationUrl
+     * @param matcher           matcher
+     * @param requestCache      requestCache
+     * @return  determine redirectUrl
+     */
+    public static String determineRedirectUrl(HttpServletRequest request, HttpServletResponse response,
+                                         String destinationUrl,
+                                  AntPathMatcher matcher, RequestCache requestCache) {
+        HttpSession session = request.getSession();
+        String redirectUrl = destinationUrl;
+
+        String originalUrl = null;
+        // 是否为 permitAll url
+        if (isPermitUri(request, session, matcher))
+        {
+            // 设置跳转目标 url 为自己, 重新刷新 session
+            redirectUrl = request.getRequestURL().toString() + request.getQueryString();
+        }
+        else
+        {
+            // 获取原始请求的 url
+            SavedRequest savedRequest = requestCache.getRequest(request, response);
+            originalUrl = request.getRequestURL().toString() + request.getQueryString();
+            if (savedRequest != null)
+            {
+                originalUrl = requireNonNullElse(savedRequest.getRedirectUrl(), originalUrl);
+            }
+        }
+
+        session = request.getSession();
+        session.removeAttribute(SecurityConstants.SESSION_ENHANCE_CHECK_KEY);
+
+        if (originalUrl != null)
+        {
+            // 保存原始请求到 session, 已备成功登录时跳转.
+            session.setAttribute(SESSION_REDIRECT_URL_KEY, originalUrl);
+        }
+        return redirectUrl;
     }
 
     /**

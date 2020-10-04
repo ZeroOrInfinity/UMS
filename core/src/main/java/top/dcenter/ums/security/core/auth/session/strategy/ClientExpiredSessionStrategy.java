@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
+import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.ExpiredSessionDetectedException;
 import top.dcenter.ums.security.core.properties.ClientProperties;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,6 +20,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_ENHANCE_CHECK_KEY;
+import static top.dcenter.ums.security.core.util.AuthenticationUtil.determineRedirectUrl;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.redirectProcessingByLoginProcessType;
 
 /**
@@ -32,22 +35,20 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
     private final RedirectStrategy redirectStrategy;
     private ClientProperties clientProperties;
     private ObjectMapper objectMapper;
+    private RequestCache requestCache;
+    private final AntPathMatcher matcher;
 
     public ClientExpiredSessionStrategy(ClientProperties clientProperties, ObjectMapper objectMapper) {
         this.clientProperties = clientProperties;
         this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.matcher = new AntPathMatcher();
         this.redirectStrategy = new DefaultRedirectStrategy();
+        this.requestCache = new HttpSessionRequestCache();
     }
 
     @SuppressWarnings("RedundantThrows")
     @Override
     public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException {
-
-        if (log.isDebugEnabled())
-        {
-            log.debug("concurrent login session expired, Redirecting to {}",
-                      MvcUtil.getServletContextPath() + clientProperties.getSession().getInvalidSessionUrl());
-        }
 
         HttpServletRequest request = event.getRequest();
         HttpServletResponse response = event.getResponse();
@@ -58,14 +59,22 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
             // 清楚缓存
             session.removeAttribute(SESSION_ENHANCE_CHECK_KEY);
 
+            String redirectUrl = determineRedirectUrl(request, response,
+                                                                         clientProperties.getLoginPage(), matcher,
+                                 requestCache);
+            if (log.isDebugEnabled())
+            {
+                log.debug("Session expired, starting new session and redirecting to '{}'", redirectUrl);
+            }
+
             redirectProcessingByLoginProcessType(request, response, clientProperties, objectMapper,
                                                  redirectStrategy, ErrorCodeEnum.EXPIRED_SESSION,
-                                                 clientProperties.getLoginPage());
+                                                 redirectUrl);
         }
         catch (Exception e)
         {
             log.error(String.format("SESSION过期处理失败: error=%s, ip=%s, sid=%s, uri=%s",
-                                    e.getMessage(), request.getRemoteAddr(), session.getId(), MvcUtil.getServletContextPath() + request.getRequestURI()), e);
+                                    e.getMessage(), request.getRemoteAddr(), session.getId(), request.getRequestURI()), e);
             throw new ExpiredSessionDetectedException(ErrorCodeEnum.SERVER_ERROR, session.getId());
         }
     }

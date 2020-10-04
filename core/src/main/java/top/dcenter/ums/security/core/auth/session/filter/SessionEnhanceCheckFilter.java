@@ -23,8 +23,6 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.HEADER_USER
 import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_ENHANCE_CHECK_KEY;
 import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.SESSION_ENHANCE_CHECK;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.isPermitUri;
-import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
-import static top.dcenter.ums.security.core.util.MvcUtil.getUrlPathHelper;
 
 /**
  * session 增强检测, 如对客户端特征码检测, 增强对 session 攻击的防御. <br>
@@ -58,9 +56,7 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        // 去除 ServletContextPath 的 uri
-        String requestUri = getUrlPathHelper().getPathWithinApplication(request);
-        if (this.sessionEnhanceCheckService != null && session != null && !isPermitUri(requestUri, session, pathMatcher))
+        if (this.sessionEnhanceCheckService != null && session != null && !isPermitUri(request, session, pathMatcher))
         {
             // 用户 client 的特征值
             String checkValue = (String) session.getAttribute(SESSION_ENHANCE_CHECK_KEY);
@@ -71,7 +67,7 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
                          request.getRemoteAddr(),
                          request.getHeader(HEADER_USER_AGENT),
                          session.getId(),
-                         getServletContextPath() + requestUri,
+                         request.getRequestURI(),
                          checkValue);
                 this.baseAuthenticationFailureHandler.onAuthenticationFailure(request, response,
                                                                               new SessionEnhanceCheckException(SESSION_ENHANCE_CHECK, session.getId(), checkValue));
