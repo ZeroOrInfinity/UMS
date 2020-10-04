@@ -21,7 +21,7 @@ import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
 import top.dcenter.ums.security.core.util.RequestUtil;
-import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
+import top.dcenter.ums.security.social.api.service.UmsSocialUserDetailsService;
 import top.dcenter.ums.security.social.api.service.SocialUserCache;
 
 import java.util.List;
@@ -36,7 +36,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class UserDetailsService extends AbstractSocialUserDetailsService {
+public class UserDetailsService implements UmsSocialUserDetailsService {
 
     /**
      * 用户名

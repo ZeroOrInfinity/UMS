@@ -6,7 +6,7 @@ import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Component;
-import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
+import top.dcenter.ums.security.social.api.service.UmsSocialUserDetailsService;
 
 /**
  * social 第三方登录：从第三方的 connection 中获取用户唯一标识。<br><br>
@@ -21,7 +21,7 @@ import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsServ
 public class DemoConnectionSignUp implements ConnectionSignUp {
 
     @Autowired
-    private AbstractSocialUserDetailsService userDetailsService;
+    private UmsSocialUserDetailsService userDetailsService;
 
     public DemoConnectionSignUp() {
     }

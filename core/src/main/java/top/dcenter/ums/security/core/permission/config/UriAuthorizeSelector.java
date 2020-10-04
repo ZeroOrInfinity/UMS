@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 根据 {@link EnableUriAuthorize} 的配置选项去动态添加 uri 权限控制方式(filter 或 interceptor(方法添加注解)).
+ * 根据 {@link EnableUriAuthorize} 的配置加载器.
  * @author zyw
  * @version V1.0  Created by 2020/9/17 10:42
  */
@@ -27,19 +27,10 @@ final class UriAuthorizeSelector implements ImportSelector {
                 annoType.getSimpleName(), importingClassMetadata.getClassName()));
 
 
-        boolean filterOrInterceptor = attributes.getBoolean("filterOrInterceptor");
+        List<String> classNames = new ArrayList<>(2);
 
-        List<String> classNames = new ArrayList<>(3);
-        classNames.add(UpdateRolesAuthoritiesListenerAutoConfiguration.class.getName());
-        if (filterOrInterceptor)
-        {
-            classNames.add(UriAuthorizeFilterAutoConfiguration.class.getName());
-        }
-        else
-        {
-            classNames.add(UriAuthorizeInterceptorAutoConfiguration.class.getName());
-            classNames.add(UriAuthorizeWebMvcAutoConfigurer.class.getName());
-        }
+        classNames.add(UriAuthorizeInterceptorAutoConfiguration.class.getName());
+        classNames.add(UriAuthorizeWebMvcAutoConfigurer.class.getName());
 
         return classNames.toArray(new String[0]);
     }

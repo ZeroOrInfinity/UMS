@@ -5,9 +5,12 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.boot.convert.DurationUnit;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import top.dcenter.ums.security.core.enums.CsrfTokenRepositoryType;
 import top.dcenter.ums.security.core.enums.LoginProcessType;
+import top.dcenter.ums.security.core.permission.evaluator.UriAuthoritiesPermissionEvaluator;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -107,18 +110,35 @@ public class ClientProperties {
     private String[] ignoringUrls;
 
     /**
-     * 不需要认证的 uri, 默认为 空 Set.<br>
+     * 不需要认证的 uri(可以带 HttpMethod 后缀; 用:隔开), 例如: /user/** 或 /user/**:post, 默认为 空 Set.<br>
      *     支持通配符 规则具体看 AntPathMatcher.match(pattern, path) <br><br>
-     *     httpSecurity.authorizeRequests().antMatchers(permitAllArray).permitAll()
-     * Example Usage:
-     *
+     * Example Usage:<br>
      * <pre>
-     * String[] permitAllArray = new String[]{&quot;/hello&quot;, &quot;/index&quot;, &quot;/down/**&quot;};
-     * httpSecurity.authorizeRequests()
-     *      .antMatchers(permitAllArray).permitAll();
+     * Set&#60;String&#62; permitUrls = Set.of("/user/**:post");
+     * //equivalent to :
+     * httpSecurity.authorizeRequests().antMatchers(HttpMethod.POST, "/user/**").permitAll();
+     * // 如果没有带 HttpMethod 后缀:
+     * Set&#60;String&#62; permitUrls = Set.of("/user/**");
+     * //equivalent to :
+     * httpSecurity.authorizeRequests().antMatchers("/user/**").permitAll();
      * </pre>
      */
     private Set<String>  permitUrls = new HashSet<>();
+
+
+    /**
+     * 权限表达式, 默认为 hasPermission(request, authentication).<br>
+     * hasPermission 方法默认实现为 {@link UriAuthoritiesPermissionEvaluator}, 想自定义逻辑, 实现 {@link PermissionEvaluator} 即可替换.<br>
+     * 注意: 当开启注解 {@link EnableGlobalMethodSecurity} 时, 此配置失效.<br>
+     * 此配置等效于:
+     * <pre>
+     * String accessExp = "hasPermission(request, authentication)";
+     * // or
+     * accessExp = "@yourService.hasPermission(request, authentication)";
+     * httpSecurity.authorizeRequests().anyRequest().access(accessExp);
+     * </pre>
+     */
+    public String accessExp = "hasPermission(request, authentication)";
 
     /**
      * 是否开启登录路由功能, 根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationRoutingUrl 和 authRedirectSuffixCondition
@@ -169,6 +189,7 @@ public class ClientProperties {
      * 允许来自同一来源(如: example.com)的 X-Frame-Options headers 请求, 默认为: false
      */
     public Boolean sameOrigin = Boolean.FALSE;
+
 
 
 

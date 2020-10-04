@@ -7,7 +7,7 @@ import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 
 /**
  * OAuth 登录的用户注册接口.<br><br>
- * 推荐通过继承来实现 {@link AbstractSocialUserDetailsService} 此接口的功能
+ * 推荐通过继承来实现 {@link UmsSocialUserDetailsService} 此接口的功能
  * @author zyw
  * @version V1.0
  * Created by 2020/5/16 10:48

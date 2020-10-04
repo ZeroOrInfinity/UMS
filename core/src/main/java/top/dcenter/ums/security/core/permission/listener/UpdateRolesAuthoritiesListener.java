@@ -2,7 +2,7 @@ package top.dcenter.ums.security.core.permission.listener;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
-import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
+import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
 import top.dcenter.ums.security.core.permission.event.UpdateRolesAuthoritiesEvent;
 
 /**
@@ -12,10 +12,10 @@ import top.dcenter.ums.security.core.permission.event.UpdateRolesAuthoritiesEven
  */
 public class UpdateRolesAuthoritiesListener implements ApplicationListener<UpdateRolesAuthoritiesEvent> {
 
-    private final AbstractUriAuthorizeService abstractUriAuthorizeService;
+    private final UriAuthorizeService uriAuthorizeService;
 
-    public UpdateRolesAuthoritiesListener(AbstractUriAuthorizeService abstractUriAuthorizeService) {
-        this.abstractUriAuthorizeService = abstractUriAuthorizeService;
+    public UpdateRolesAuthoritiesListener(UriAuthorizeService uriAuthorizeService) {
+        this.uriAuthorizeService = uriAuthorizeService;
     }
 
     @Async
@@ -27,7 +27,7 @@ public class UpdateRolesAuthoritiesListener implements ApplicationListener<Updat
             Boolean isUpdate = ((Boolean) source);
             if (isUpdate)
             {
-                abstractUriAuthorizeService.updateRolesAuthorities();
+                uriAuthorizeService.updateRolesAuthorities();
             }
         }
     }

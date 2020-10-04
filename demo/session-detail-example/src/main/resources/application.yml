@@ -90,9 +90,28 @@ ums:
     # 不需要认证的静态资源 urls, 例如: /resources/**, /static/**
     ignoring-urls:
       - /static/**
-    # 不需要认证的 uri, 默认为 空 Set.
+    # 不需要认证的 uri(可以带 HttpMethod 后缀; 用:隔开), 例如: /user/** 或 /user/**:post, 默认为 空 Set.
     permit-urls:
-      - /**/*.html
+      - /**/*.html:GET
+      - /login2:GET
+
+    # =============== login routing 功能: 解决跳转登录成功后不能跳转原始请求的问题 ===============
+
+    # 是否开启根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationRoutingUrl 和 authRedirectSuffixCondition
+    open-authentication-redirect: true
+    # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require,
+    # 当 openAuthenticationRedirect = true 时生效.
+    login-un-authentication-routing-url: /authentication/require
+    # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空.
+    # 当 openAuthenticationRedirect = true 时生效.
+    # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
+    # 规则具体看 AntPathMatcher.match(pattern, path)
+    auth-redirect-suffix-condition:
+      - '/hello=/login2'
+      - '/user/**=/login'
+      - '/order/**=/login'
+      - '/file/**=/login'
+      - '/social/**=/signIn.html'
 
     # =============== session 详细设置 ===============
     # session 设置
@@ -125,24 +144,6 @@ ums:
       auth-urls:
         - /authentication/form
       request-param-image-code-name: imageCode
-
-    # =============== login routing 功能: 解决跳转登录成功后不能跳转原始请求的问题 ===============
-
-    # 是否开启根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationRoutingUrl 和 authRedirectSuffixCondition
-    open-authentication-redirect: true
-    # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require,
-    # 当 openAuthenticationRedirect = true 时生效.
-    login-un-authentication-routing-url: /authentication/require
-    # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空.
-    # 当 openAuthenticationRedirect = true 时生效.
-    # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
-    # 规则具体看 AntPathMatcher.match(pattern, path)
-    auth-redirect-suffix-condition:
-      - '/hello=/login2'
-      - '/user/**=/login'
-      - '/order/**=/login'
-      - '/file/**=/login'
-      - '/social/**=/signIn.html'
 
 
 ---

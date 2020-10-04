@@ -1,6 +1,11 @@
 package top.dcenter.ums.security.core.consts;
 
-import top.dcenter.ums.security.core.auth.session.filter.SessionEnhanceCheckFilter;
+import org.springframework.util.AntPathMatcher;
+import top.dcenter.ums.security.core.util.AuthenticationUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.Set;
 
 /**
  * social 常量
@@ -60,9 +65,10 @@ public class SecurityConstants {
     public static final String SESSION_ENHANCE_CHECK_KEY = "SESSION_ENHANCE_CHECK_KEY";
 
     /**
-     * authorizeRequestsMap: 把权限作为 key 与之相对应的 uriSet 作为 value, 分类放入 authorizeRequestsMap, 此 map 存储在 servletContext
+     * authorizeRequestsMap(String, Set(UriHttpMethodTuple)): 把权限类型作为 key 与之相对应的 UriHttpMethodTupleSet 作为 value, 分类放入
+     * authorizeRequestsMap, 此 map 存储在 servletContext
      * 时所用的 key. <br>
-     *     主要用于 {@link SessionEnhanceCheckFilter}
+     *     主要用于 {@link AuthenticationUtil#isPermitUri(HttpServletRequest, HttpSession, AntPathMatcher)}
      */
     public static final String SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY = "SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY";
 
@@ -142,6 +148,12 @@ public class SecurityConstants {
 
     // =============== url 相关 ===============
 
+
+    /**
+     * uri 与 method 的分隔符. 用于 {@link top.dcenter.ums.security.core.properties.ClientProperties#setPermitUrls(Set)}
+     */
+    public static final String URI_METHOD_SEPARATOR = ":";
+
     /**
      * ajax dataType json
      */
@@ -157,7 +169,8 @@ public class SecurityConstants {
     /**
      * request POST Method
      */
-    public static final String POST_METHOD = "POST";/**
+    public static final String POST_METHOD = "POST";
+    /**
      * request put Method
      */
     public static final String PUT_METHOD = "PUT";
@@ -233,7 +246,5 @@ public class SecurityConstants {
      * 查询数据库名称
      */
     public static final String QUERY_DATABASE_NAME_SQL = "select database();";
-
-
 
 }

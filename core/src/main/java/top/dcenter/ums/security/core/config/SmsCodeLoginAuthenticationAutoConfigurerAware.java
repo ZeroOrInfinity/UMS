@@ -7,11 +7,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.properties.SmsCodeLoginAuthenticationProperties;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static org.springframework.http.HttpMethod.POST;
+import static top.dcenter.ums.security.core.bean.UriHttpMethodTuple.tuple;
 
 /**
  * 手机登录配置
@@ -29,7 +33,6 @@ public class SmsCodeLoginAuthenticationAutoConfigurerAware implements HttpSecuri
     private SmsCodeLoginAutoAuthenticationConfigurer smsCodeLoginAutoAuthenticationConfigurer;
     private final SmsCodeLoginAuthenticationProperties smsCodeLoginAuthenticationProperties;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public SmsCodeLoginAuthenticationAutoConfigurerAware(SmsCodeLoginAuthenticationProperties smsCodeLoginAuthenticationProperties) {
         this.smsCodeLoginAuthenticationProperties = smsCodeLoginAuthenticationProperties;
     }
@@ -49,12 +52,12 @@ public class SmsCodeLoginAuthenticationAutoConfigurerAware implements HttpSecuri
     }
 
     @Override
-    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
-        final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
+    public Map<String, Map<UriHttpMethodTuple, Set<String>>> getAuthorizeRequestMap() {
+        final Map<UriHttpMethodTuple, Set<String>> permitAllMap = new HashMap<>(16);
 
-        permitAllMap.put(smsCodeLoginAuthenticationProperties.getLoginProcessingUrlMobile(), null);
+        permitAllMap.put(tuple(POST, smsCodeLoginAuthenticationProperties.getLoginProcessingUrlMobile()), null);
 
-        Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
+        Map<String, Map<UriHttpMethodTuple, Set<String>>> resultMap = new HashMap<>(1);
 
         resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
 

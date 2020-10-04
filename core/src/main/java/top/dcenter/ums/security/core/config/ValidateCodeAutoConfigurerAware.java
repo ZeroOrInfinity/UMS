@@ -7,11 +7,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeFilter;
+import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+import static top.dcenter.ums.security.core.bean.UriHttpMethodTuple.tuple;
 
 /**
  * 验证码相关配置
@@ -44,19 +49,22 @@ public class ValidateCodeAutoConfigurerAware implements HttpSecurityAware {
     }
 
     @Override
-    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
-        final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
+    public Map<String, Map<UriHttpMethodTuple, Set<String>>> getAuthorizeRequestMap() {
+        final Map<UriHttpMethodTuple, Set<String>> permitAllMap = new HashMap<>(16);
         ValidateCodeProperties.SliderCodeProperties slider = validateCodeProperties.getSlider();
 
-        permitAllMap.put(validateCodeProperties.getGetValidateCodeUrlPrefix() + "/*", null);
-        permitAllMap.put(slider.getSliderCheckUrl(), null);
-        validateCodeProperties.getSms().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
-        validateCodeProperties.getImage().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
-        slider.getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
-        validateCodeProperties.getSelection().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
-        validateCodeProperties.getTrack().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
-        validateCodeProperties.getCustomize().getAuthUrls().forEach(uri -> permitAllMap.put(uri, null));
-        Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
+        permitAllMap.put(tuple(GET, validateCodeProperties.getGetValidateCodeUrlPrefix() + "/**"), null);
+        permitAllMap.put(tuple(POST, slider.getSliderCheckUrl()), null);
+
+        validateCodeProperties.getSms().getAuthUrls().forEach(uri -> permitAllMap.put(tuple(POST, uri), null));
+        validateCodeProperties.getImage().getAuthUrls().forEach(uri -> permitAllMap.put(tuple(POST, uri), null));
+        slider.getAuthUrls().forEach(uri -> permitAllMap.put(tuple(POST, uri), null));
+        validateCodeProperties.getSelection().getAuthUrls().forEach(uri -> permitAllMap.put(tuple(POST, uri), null));
+        validateCodeProperties.getTrack().getAuthUrls().forEach(uri -> permitAllMap.put(tuple(POST, uri), null));
+        validateCodeProperties.getCustomize().getAuthUrls().forEach(uri -> permitAllMap.put(tuple(POST, uri), null));
+
+
+        Map<String, Map<UriHttpMethodTuple, Set<String>>> resultMap = new HashMap<>(1);
 
         resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
 

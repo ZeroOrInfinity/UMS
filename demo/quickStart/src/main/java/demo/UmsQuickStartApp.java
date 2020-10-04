@@ -22,7 +22,6 @@ public class UmsQuickStartApp {
     @RequestMapping("/hello")
     @ResponseBody
     public String hello() {
-//        "https://gitee.com/oauth/authorize?client_id=6308c00c5ace21417d6f5069a4f110909f2de2c281266262588abc541381f61e&response_type=code&redirect_uri=http://localhost:9090/demo/auth/callback&state=95C3E939341A4FE98FF2cGF0aD0vYXV0aC9jYWxsYmFjay9naXRlZQ=="
         return "hello world!";
     }
 }

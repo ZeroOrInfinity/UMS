@@ -1,9 +1,13 @@
 package top.dcenter.ums.security.core.permission.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
+import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
+import top.dcenter.ums.security.core.vo.ResponseResult;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -23,9 +27,14 @@ public class DefaultUriAuthorizeService extends AbstractUriAuthorizeService {
 
     private AntPathMatcher matcher = new AntPathMatcher();
 
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Override
     public Optional<Map<String, Map<String, UriResourcesDTO>>> getRolesAuthorities() {
-        // do nothing
+
+        log.warn("AbstractUriAuthorizeService 抽象类未实现, 使用权限服务必须实现此抽象类.");
         return Optional.empty();
     }
 
@@ -34,7 +43,7 @@ public class DefaultUriAuthorizeService extends AbstractUriAuthorizeService {
 
         try
         {
-            responseWithJson(response, status, "{\"msg\":\"您没有访问权限或未登录\"}");
+            responseWithJson(response, status, objectMapper.writeValueAsString(ResponseResult.fail(ErrorCodeEnum.PERMISSION_DENY)));
         }
         catch (IOException e)
         {

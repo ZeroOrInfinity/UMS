@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.security.SocialUserDetails;
-import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
+import top.dcenter.ums.security.social.api.service.UmsSocialUserDetailsService;
 import top.dcenter.ums.security.social.api.signup.BaseConnectionSignUp;
 
 /**
@@ -19,9 +19,9 @@ import top.dcenter.ums.security.social.api.signup.BaseConnectionSignUp;
 @Slf4j
 public class DefaultConnectionSignUp implements BaseConnectionSignUp {
 
-    private final AbstractSocialUserDetailsService userDetailsService;
+    private final UmsSocialUserDetailsService userDetailsService;
 
-    public DefaultConnectionSignUp(AbstractSocialUserDetailsService userDetailsService) {
+    public DefaultConnectionSignUp(UmsSocialUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 

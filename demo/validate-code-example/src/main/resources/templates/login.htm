@@ -156,6 +156,8 @@
 </form>
 <br>
 <h3>滑块验证码</h3>
+<h5>滑块验证码因与图片验证码对同一个链接进行验证, 滑块验证码优先级高于图片验证码, 图片验证码会失效: 在配置中注释滑块验证码 auth-urls: 可以使图片验证码生效; 注意验证码优先级.
+</h5>
 <!-- 通过 th:action 的方式支持 csrf 或者 添加隐藏域<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
 <form id="sli-form" th:action="@{/authentication/form}" method="post">
     <table>

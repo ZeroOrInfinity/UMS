@@ -39,11 +39,11 @@ UsernamePasswordAuthenticationProvider --> UsernamePasswordAuthenticationProvide
 UsernamePasswordAuthenticationProvider --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2.1\n retrieveUser()
 activate UsernamePasswordAuthenticationProvider
 deactivate UsernamePasswordAuthenticationProvider
-participant AbstractUserDetailsService #ff9800
-UsernamePasswordAuthenticationProvider -> AbstractUserDetailsService: 1.4.2.1.2.2.1.1\n getUserDetailsService()
-AbstractUserDetailsService --> AbstractUserDetailsService: 1.4.2.1.2.2.1.2\n loadUserByUsername(username)
-activate AbstractUserDetailsService
-AbstractUserDetailsService --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2.1.2\n 校验成功，返回 user
+participant UmsUserDetailsService #ff9800
+UsernamePasswordAuthenticationProvider -> UmsUserDetailsService: 1.4.2.1.2.2.1.1\n getUserDetailsService()
+UmsUserDetailsService --> UmsUserDetailsService: 1.4.2.1.2.2.1.2\n loadUserByUsername(username)
+activate UmsUserDetailsService
+UmsUserDetailsService --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2.1.2\n 校验成功，返回 user
 UsernamePasswordAuthenticationProvider --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2.1.3\n createSuccessAuthentication\n\
 (principalToReturn, authentication, user)
 activate UsernamePasswordAuthenticationProvider
@@ -132,8 +132,8 @@ UsernamePasswordAuthenticationFilter --> ValidateCodeFilter: 1.4.3 校验成功�
 
 ValidateCodeFilter --> client: 1.4.4.1 返回 RedirectUrl\n 或 DefaultSuccessUrl
 else 1.4.2.1.2.3 用户名与密码验证成功校验失败
-AbstractUserDetailsService --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2.1.3\n 校验失败，抛出异常
-deactivate AbstractUserDetailsService
+UmsUserDetailsService --> UsernamePasswordAuthenticationProvider: 1.4.2.1.2.2.1.3\n 校验失败，抛出异常
+deactivate UmsUserDetailsService
 UsernamePasswordAuthenticationProvider --> AuthenticationManager: 1.4.2.1.2.3\n 校验失败，抛出异常
 deactivate UsernamePasswordAuthenticationProvider
 AuthenticationManager --> UsernamePasswordAuthenticationFilter: 1.4.2.1.3\n 校验失败，抛出异常
@@ -179,8 +179,8 @@ client --> client: 密码登录图片验证码校验流程结束
 note over AbstractValidateCodeProcessor: 可以根据\n自己的需求自定义
 note over ClientAuthenticationFailureHandler: 可以根据\n自己的需求自定义\n继承BaseAuthenticationFailureHandler\n向 IOC 容器注册自己来实现自定义功能。
 note over ClientAuthenticationSuccessHandler: 可以根据\n自己的需求自定义\n继承BaseAuthenticationSuccessHandler\n向 IOC 容器注册自己来实现自定义功能。
-note over AbstractUserDetailsService: 可以根据\n自己的需求自定义
-note over AbstractUserDetailsService: 此Service实现了\nRegisterUserDetailsService\n带有注册服务
+note over UmsUserDetailsService: 可以根据\n自己的需求自定义
+note over UmsUserDetailsService: 此Service实现了\nRegisterUserDetailsService\n带有注册服务
 note over UserDetailsPasswordService: 如果要对前端传过来的密码进行解密,\n则请实现 UserDetailsPasswordService
 note over PersistentTokenRepository: RememberMeToken持久化 Repository,\n\
              通过实现\n\

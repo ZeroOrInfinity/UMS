@@ -48,6 +48,46 @@ public enum PermissionSuffixType {
                 public String getPermissionSuffix() {
                     return ":del";
                 }
+            },
+    /**
+     * HEAD
+     */
+    HEAD("HEAD")
+            {
+                @Override
+                public String getPermissionSuffix() {
+                    return ":head";
+                }
+            },
+    /**
+     * PATCH
+     */
+    PATCH("PATCH")
+            {
+                @Override
+                public String getPermissionSuffix() {
+                    return ":patch";
+                }
+            },
+    /**
+     * OPTIONS
+     */
+    OPTIONS("OPTIONS")
+            {
+                @Override
+                public String getPermissionSuffix() {
+                    return ":options";
+                }
+            },
+    /**
+     * TRACE
+     */
+    TRACE("TRACE")
+            {
+                @Override
+                public String getPermissionSuffix() {
+                    return ":trace";
+                }
             };
 
     /**

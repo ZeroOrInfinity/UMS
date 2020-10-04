@@ -31,6 +31,8 @@ public class SliderValidateCodeGenerator implements ValidateCodeGenerator<Slider
     public SliderCode generate(ServletRequest request) {
 
         SliderCode sliderCode = sliderCodeFactory.getSliderCode();
+        // 验证失败,不刷新验证码
+        sliderCode.setReuse(true);
         log.info("Demo =====>: {} = {}", getValidateCodeType(),
                   sliderCode);
         return sliderCode;

@@ -20,7 +20,8 @@ http://localhost:9090/demo/delPermissionData/ROLE_USER?uri=/test/permission/**&r
 http://localhost:9090/demo/delPermissionData/ROLE_USER?uri=/test/role/admin/**&restfulMethod=get
 http://localhost:9090/demo/delPermissionData/ROLE_USER?uri=/test/role/user/**&restfulMethod=get
 ## 测试权限控制
-### 过滤器模式: PermissionController: @EnableUriAuthorize(filterOrInterceptor = true)
+
+### 拦截器(注解)模式: PermissionController: @EnableUriAuthorize
 http://localhost:9090/demo/test/permission/1
 http://localhost:9090/demo/test/deny/1
 http://localhost:9090/demo/test/pass/1
@@ -28,11 +29,9 @@ http://localhost:9090/demo/test/role/admin/1
 http://localhost:9090/demo/test/role/user/1
 http://localhost:9090/demo/test/auth/admin/1
 
-
-### 拦截器(注解)模式: PermissionController: @EnableUriAuthorize(filterOrInterceptor = false)
-http://localhost:9090/demo/test/permission/1
+### 测试 ClientProperties.accessExp="hasPermission(request, authentication)"
+#### 取消 @EnableUriAuthorize 注释, 添加权限
+http://localhost:9090/demo/addPermissionData/ROLE_USER?uri=/test/deny/**&restfulMethod=get
+#### 访问 url
 http://localhost:9090/demo/test/deny/1
 http://localhost:9090/demo/test/pass/1
-http://localhost:9090/demo/test/role/admin/1
-http://localhost:9090/demo/test/role/user/1
-http://localhost:9090/demo/test/auth/admin/1

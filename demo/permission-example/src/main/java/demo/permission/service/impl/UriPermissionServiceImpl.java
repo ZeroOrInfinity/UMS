@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import static top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService.PERMISSION_DELIMITER;
+import static top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService.getPermission;
 
 /**
  * uri 权限服务.<br><br>
@@ -63,18 +64,13 @@ public class UriPermissionServiceImpl implements UriPermissionService, Applicati
      * 给角色添加权限
      * @param role                      角色
      * @param uri                       注意: 此 uri 不包含 servletContextPath .
-     * @param permissionSuffixTypeList  权限后缀类型列表
+     * @param permissionSuffixType      权限后缀类型列表
      * @return  是否添加成功
      */
     @Transactional(rollbackFor = {Error.class, Exception.class}, propagation = Propagation.REQUIRED)
     @Override
     public boolean addUriPermission(@NonNull String role, @NonNull String uri,
-                                    @NonNull List<PermissionSuffixType> permissionSuffixTypeList) {
-
-        if (permissionSuffixTypeList.size() < 1)
-        {
-            return false;
-        }
+                                    @NonNull PermissionSuffixType permissionSuffixType) {
 
         // 1. 获取角色
         SysRole sysRole = sysRoleService.findByName(role);
@@ -93,13 +89,12 @@ public class UriPermissionServiceImpl implements UriPermissionService, Applicati
         List<SysResources> sysResourcesList = sysResourcesService.findByRoleIdAndUrl(sysRole.getId(), uri);
 
         // 3. 新增权限资源
+        String newPermission = getPermission(uri, permissionSuffixType);
         if (sysResourcesList.size() < 1)
         {
 
             SysResources sysResources = new SysResources();
-            sysResources.setPermission(String.format("%s%s",
-                                                     uri,
-                                                     permissionSuffixTypeList.get(0).getPermissionSuffix()));
+            sysResources.setPermission(newPermission);
             sysResources.setUrl(uri);
             sysResources.setAvailable(true);
             // ...
@@ -124,7 +119,7 @@ public class UriPermissionServiceImpl implements UriPermissionService, Applicati
             {
                 String permission = sysResources.getPermission();
                 Set<String> permissions = ConvertUtil.string2Set(permission, PERMISSION_DELIMITER);
-                permissions.add(String.format("%s%s", uri, permissionSuffixTypeList.get(0).getPermissionSuffix()));
+                permissions.add(newPermission);
                 permission = String.join(PERMISSION_DELIMITER, permissions);
                 sysResources.setPermission(permission);
             }
@@ -140,12 +135,12 @@ public class UriPermissionServiceImpl implements UriPermissionService, Applicati
     /**
      * @param role                     角色
      * @param uri                      注意: 此 uri 不包含 servletContextPath .
-     * @param permissionSuffixTypeList 权限后缀类型列表
+     * @param permissionSuffixType     权限后缀类型列表
      * @return  是否成功
      */
     @Transactional(rollbackFor = {Error.class, Exception.class}, propagation = Propagation.REQUIRED)
     @Override
-    public boolean delUriPermission(String role, String uri, List<PermissionSuffixType> permissionSuffixTypeList) {
+    public boolean delUriPermission(String role, String uri, PermissionSuffixType permissionSuffixType) {
 
         // 1. 获取角色
         SysRole sysRole = sysRoleService.findByName(role);
@@ -167,7 +162,10 @@ public class UriPermissionServiceImpl implements UriPermissionService, Applicati
         List<Long> roleResourcesIds = new ArrayList<>();
         for (UriResourcesDTO uriResourcesDTO : uriResourcesDTOList)
         {
-            roleResourcesIds.add(uriResourcesDTO.getRoleResourcesId());
+            if (uriResourcesDTO.getPermission().endsWith(permissionSuffixType.getPermissionSuffix()))
+            {
+                roleResourcesIds.add(uriResourcesDTO.getRoleResourcesId());
+            }
         }
         // 删除角色与资源的关联
         sysRoleResourcesService.batchDeleteByIds(roleResourcesIds);

@@ -76,12 +76,13 @@ ums:
     # 不需要认证的静态资源 urls, 例如: /resources/**, /static/**
     ignoring-urls:
       - /static/**
-    # 不需要认证的 uri, 默认为 空 Set.
+    # 不需要认证的 uri(可以带 HttpMethod 后缀; 用:隔开), 例如: /user/** 或 /user/**:post, 默认为 空 Set.
     permit-urls:
-      - /**/*.html
-      - /testSign
-      - /testSignOfLastSevenDays/**
-      - /testDelOfCurrentMonth
+      - /**/*.html:GET
+      - /testSign:GET
+      - /testSignOfLastSevenDays/**:GET
+      - /testDelOfCurrentMonth:GET
+      - /login2:GET
 
     # =============== login routing 功能: 解决跳转登录成功后不能跳转原始请求的问题 ===============
 

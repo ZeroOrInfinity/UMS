@@ -58,15 +58,14 @@
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-social-spring-boot-starter</artifactId>
-    <version>1.1.5</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 ------
 ## 三、`TODO List`:
 - 更新到 spring-security:5.4.0
-- 1. 权限控制可以增加 HttpMethod 类型，感觉权限控制可以更细粒度的控制。
-- 2. spring-security, 把 OAuth2 集成了，准备用 spring-security 添加 JWT, OAuth2 authenticate server
-- 3. 把第三方登录功能添加 JustAuth 工具添加到 spring-security 里, 替代 social 模块. 
+- 1. spring-security, 把 OAuth2 集成了，准备用 spring-security 添加 JWT, OAuth2 authenticate server
+- 2. 把第三方登录功能添加 JustAuth 工具添加到 spring-security 里, 替代 social 模块. 
 ------
 ## 四、`快速开始`：
 ### 1. 添加依赖:
@@ -75,7 +74,7 @@
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-social-spring-boot-starter</artifactId>
-    <version>1.1.5</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 ### 2. config:  
@@ -126,9 +125,9 @@ ums:
     # 不需要认证的静态资源 urls, 例如: /resources/**, /static/**
     ignoring-urls:
       - /static/**
-    # 不需要认证的 uri, 默认为 空 Set.
+    # 不需要认证的 uri(可以带 HttpMethod 后缀; 用:隔开), 例如: /user/** 或 /user/**:post, 默认为 空 Set.
     permit-urls:
-      - /hello
+      - /hello:GET
 
     # 设置登录时用户名的 request 参数名称, 默认为 username
     usernameParameter: username
@@ -194,7 +193,7 @@ debug: true
 server:
   port: 80
 ```
-### 3. 实现 AbstractUserDetailsService 接口等:
+### 3. 实现 UmsUserDetailsService 接口等:
 #### UserDetailsService.java
 ```java
 package demo.service;
@@ -220,7 +219,7 @@ import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
 import top.dcenter.ums.security.core.util.RequestUtil;
-import top.dcenter.ums.security.social.api.service.AbstractSocialUserDetailsService;
+import top.dcenter.ums.security.social.api.service.UmsSocialUserDetailsService;
 import top.dcenter.ums.security.social.api.service.SocialUserCache;
 
 import java.util.List;
@@ -235,7 +234,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class UserDetailsService extends AbstractSocialUserDetailsService {
+public class UserDetailsService implements UmsSocialUserDetailsService {
 
     /**
      * 用户名
@@ -761,8 +760,8 @@ public class UserController {
 
 ### 实现对应功能时需要实现的接口：    
 1. 用户服务: `必须实现`
-    - 有 social 模块时: [AbstractSocialUserDetailsService](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/service/AbstractSocialUserDetailsService.java)
-    - 无 social 模块时: [AbstractUserDetailsService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/service/AbstractUserDetailsService.java)    
+    - 有 social 模块时: [UmsSocialUserDetailsService](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/service/UmsSocialUserDetailsService.java)
+    - 无 social 模块时: [UmsUserDetailsService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/service/UmsUserDetailsService.java)    
 2. 图片验证码: 如果不实现就会使用默认图片验证码, 实时产生验证码图片, 没有缓存功能
     - [ImageCodeFactory](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/image/ImageCodeFactory.java)
 3. 短信验证码: `默认空实现`
@@ -772,11 +771,15 @@ public class UserController {
 5. 自定义验证码:
     - [AbstractValidateCodeProcessor](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/AbstractValidateCodeProcessor.java)
     - [ValidateCodeGenerator](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/ValidateCodeGenerator.java)
-6. 访问权限控制功能: 基于 RBAC 的访问权限控制, 增加了更加细粒度的权限控制, 如: 对菜单与按钮的权限控制
+6. 访问权限控制功能: 基于 RBAC 的访问权限控制, 增加了更加细粒度的权限控制, 支持 restfulApi; 如: 对菜单与按钮的权限控制
     - [AbstractUriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java):
         - `AbstractUriAuthorizeService` 类中的方法`getRolesAuthorities()`;
           `getRolesAuthorities()`返回值: Map<`role`, Map<`uri`, `UriResourcesDTO`>> 中`UriResourcesDTO`字段 `uri` 
           与 `permission` 必须有值. 
+        - 默认实现了 `hasPermission(..)` 表达式, 实现 `AbstractUriAuthorizeService` 即生效,
+          1. 默认启用 httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication)"); 方式. 
+          2. 如果开启注解方式( @UriAuthorize 或 @EnableGlobalMethodSecurity(prePostEnabled = true) ): 则通过注解 @PerAuthority
+          ("hasPermission('/users/**', '/users/**:list')") 方式生效.
 7. 绑定与解绑视图: 用户绑定与解绑成功后会自动跳转到对应回显页面, 默认返回 json 信息
     - 绑定状态信息回显: [ShowConnectionStatusViewService](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/banding/ShowConnectionStatusViewService.java)
     - 绑定与解绑信息回显: [ShowConnectViewService](https://gitee.com/pcore/UMS/blob/master/social/src/main/java/top/dcenter/ums/security/social/api/banding/ShowConnectViewService.java)
@@ -831,8 +834,8 @@ public class UserController {
 
 ### 3. 在 ServletContext 中存储的属性: 
 - 属性名称: SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY
-- 属性值: authorizeRequestMap<String, Set<String>>: key 为 PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED
-  , FULLY_AUTHENTICATED, REMEMBER_ME 的权限类型,  value 为 uri(不包含 servletContextPath)的 set.
+- 属性值: authorizeRequestMap<String, Set<UriHttpMethodTuple>>: key 为 PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED
+  , FULLY_AUTHENTICATED, REMEMBER_ME 的权限类型,  value 为 UriHttpMethodTuple(uri不包含 servletContextPath)的 set.
       
 ### 4. servletContextPath 的值存储在 [MvcUtil](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/util/MvcUtil.java)`.servletContextPath` : 
 - 通过静态方法获取 `MvcUtil.getServletContextPath()`

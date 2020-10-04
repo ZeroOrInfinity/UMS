@@ -9,7 +9,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
-import top.dcenter.ums.security.core.api.service.AbstractUserDetailsService;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
+import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.properties.ClientProperties;
 
@@ -31,15 +32,15 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
 
     private final ClientProperties clientProperties;
     private final PersistentTokenRepository persistentTokenRepository;
-    private final AbstractUserDetailsService abstractUserDetailsService;
+    private final UmsUserDetailsService umsUserDetailsService;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public RememberMeAutoConfigurerAware(ClientProperties clientProperties,
-                                         AbstractUserDetailsService abstractUserDetailsService,
+                                         UmsUserDetailsService umsUserDetailsService,
                                          PersistentTokenRepository persistentTokenRepository) {
         this.clientProperties = clientProperties;
         this.persistentTokenRepository = persistentTokenRepository;
-        this.abstractUserDetailsService = abstractUserDetailsService;
+        this.umsUserDetailsService = umsUserDetailsService;
     }
 
     @Override
@@ -56,12 +57,12 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
                 .rememberMeCookieName(clientProperties.getRememberMe().getRememberMeCookieName())
                 .tokenRepository(persistentTokenRepository)
                 .tokenValiditySeconds(Integer.parseInt(String.valueOf(clientProperties.getRememberMe().getRememberMeTimeout().getSeconds())))
-                .userDetailsService(abstractUserDetailsService)
+                .userDetailsService(umsUserDetailsService)
                 .useSecureCookie(clientProperties.getRememberMe().getUseSecureCookie());
     }
 
     @Override
-    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
+    public Map<String, Map<UriHttpMethodTuple, Set<String>>> getAuthorizeRequestMap() {
         return null;
     }
 
