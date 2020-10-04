@@ -1,6 +1,7 @@
 package top.dcenter.ums.security.core.api.authentication.handler;
 
 import lombok.Getter;
+import org.springframework.lang.NonNull;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
 import java.util.Set;
@@ -18,5 +19,11 @@ public abstract class BaseAuthenticationSuccessHandler extends SavedRequestAware
     @Getter
     protected Set<String> loginUrls;
 
-
+    /**
+     * 添加 loginUrl
+     * @param loginUrl  loginUrl
+     */
+    public void addLoginUrl(@NonNull String loginUrl) {
+        loginUrls.add(loginUrl);
+    }
 }

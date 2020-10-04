@@ -3,17 +3,20 @@ package top.dcenter.ums.security.core.auth.handler;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.util.UrlUtils;
+import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.consts.SecurityConstants;
 import top.dcenter.ums.security.core.enums.LoginProcessType;
 import top.dcenter.ums.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.core.util.MvcUtil;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 import top.dcenter.ums.security.core.vo.UserInfoJsonVo;
 
@@ -23,9 +26,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.getOriginalUrl;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
-import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
+import static top.dcenter.ums.security.core.util.RequestUtil.getRequestUri;
 
 /**
  * 客户端认证成功处理器, 默认简单实现，需自己去实现.<br><br>
@@ -40,9 +44,11 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
     protected final ClientProperties clientProperties;
     protected final ObjectMapper objectMapper;
     protected final RequestCache requestCache;
+    private final AntPathMatcher matcher;
 
     public ClientAuthenticationSuccessHandler(ObjectMapper objectMapper, ClientProperties clientProperties) {
         this.objectMapper = objectMapper;
+        this.matcher = new AntPathMatcher();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.requestCache = new HttpSessionRequestCache();
         this.clientProperties = clientProperties;
@@ -76,8 +82,11 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
                                                 null,
                                                 token.getAuthorities());
             // 设置跳转的 url
-            String targetUrl = getOriginalUrl(requestCache, request, response, getServletContextPath() + getDefaultTargetUrl());
-
+            String targetUrl = determineTargetUrl(request, response);
+            if (!UrlUtils.isAbsoluteUrl(targetUrl))
+            {
+                targetUrl = MvcUtil.getServletContextPath() + targetUrl;
+            }
 
             // 判断是否返回 json 类型
             userInfoJsonVo.setUrl(targetUrl);
@@ -91,7 +100,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
 
             // 判断 accept 是否要求返回 json
             String acceptHeader = request.getHeader(SecurityConstants.HEADER_ACCEPT);
-            if (StringUtils.isNotBlank(acceptHeader) && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
+            if (isNotBlank(acceptHeader) && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {
                 clearAuthenticationAttributes(request);
                 responseWithJson(response, HttpStatus.OK.value(),
@@ -116,9 +125,14 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
     protected String determineTargetUrl(HttpServletRequest request,
                                         HttpServletResponse response) {
         String defaultTargetUrl = getDefaultTargetUrl();
-
         if (isAlwaysUseDefaultTargetUrl()) {
             return defaultTargetUrl;
+        }
+
+        SavedRequest savedRequest = requestCache.getRequest(request, response);
+        if (savedRequest != null)
+        {
+            return savedRequest.getRedirectUrl();
         }
 
         // Check for the parameter and use that if available
@@ -133,17 +147,21 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
             }
         }
 
-
-        if (useReferer && !org.springframework.util.StringUtils.hasLength(targetUrl)) {
-            targetUrl = request.getHeader("Referer");
-            // 当 targetUrl 为 登录 url 时, 设置为 defaultTargetUrl
-            if (StringUtils.isNotBlank(targetUrl) && isLoginUrl(targetUrl))
+        if (useReferer) {
+            String referer = request.getHeader("Referer");
+            if (isNotBlank(referer))
             {
-                targetUrl = defaultTargetUrl;
+                targetUrl = referer;
             }
         }
 
-        if (!org.springframework.util.StringUtils.hasText(targetUrl)) {
+        // 当 targetUrl 为 登录 url 时, 设置为 defaultTargetUrl
+        if (isNotBlank(targetUrl) && isLoginUrl(targetUrl))
+        {
+            targetUrl = defaultTargetUrl;
+        }
+
+        if (isBlank(targetUrl)) {
             targetUrl = defaultTargetUrl;
         }
 
@@ -162,6 +180,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
      * @return boolean
      */
     private boolean isLoginUrl(final String targetUrl) {
-        return loginUrls.stream().anyMatch(targetUrl::contains);
+        String url = getRequestUri(targetUrl);
+        return loginUrls.stream().anyMatch(url::contains);
     }
 }

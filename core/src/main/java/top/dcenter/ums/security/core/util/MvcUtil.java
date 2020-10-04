@@ -1,9 +1,14 @@
 package top.dcenter.ums.security.core.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.GenericApplicationListenerAdapter;
+import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -189,5 +194,20 @@ public class MvcUtil {
         }
     }
 
+    /**
+     * 注册 {@link ApplicationListener} 到 {@link DelegatingApplicationListener}
+     * @param applicationContext  {@link ApplicationContext}
+     * @param delegate  {@link ApplicationListener}
+     */
+    public static void registerDelegateApplicationListener(ApplicationContext applicationContext,
+                                                           ApplicationListener<?> delegate) {
+
+        if (applicationContext.getBeansOfType(DelegatingApplicationListener.class).isEmpty()) {
+            return;
+        }
+        DelegatingApplicationListener delegating = applicationContext.getBean(DelegatingApplicationListener.class);
+        SmartApplicationListener smartListener = new GenericApplicationListenerAdapter(delegate);
+        delegating.addListener(smartListener);
+    }
 
 }

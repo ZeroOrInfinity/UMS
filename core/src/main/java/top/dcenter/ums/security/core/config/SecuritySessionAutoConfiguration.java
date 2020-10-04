@@ -21,7 +21,7 @@ import top.dcenter.ums.security.core.auth.controller.InvalidSessionController;
 import top.dcenter.ums.security.core.auth.session.filter.SessionEnhanceCheckFilter;
 import top.dcenter.ums.security.core.properties.ClientProperties;
 
-import static top.dcenter.ums.security.core.util.HttpSecurityUtil.registerDelegateApplicationListener;
+import static top.dcenter.ums.security.core.util.MvcUtil.registerDelegateApplicationListener;
 
 /**
  * spring session 相关配置

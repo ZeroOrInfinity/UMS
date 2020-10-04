@@ -72,6 +72,22 @@ public class AuthenticationUtil {
      */
     public static boolean isPermitUri(@NonNull HttpServletRequest request, @NonNull HttpSession session,
                                       @NonNull AntPathMatcher matcher) {
+        String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
+        String method = request.getMethod();
+
+        return isPermitUri(requestUri, method, session, matcher);
+    }
+
+    /**
+     * 是否是 permitUri 且 HttpMethod 也对应
+     * @param requestUri    requestUri
+     * @param method        httpMethod
+     * @param session       session
+     * @param matcher       AntPathMatcher
+     * @return  boolean
+     */
+    private static boolean isPermitUri(@NonNull String requestUri, String method, @NonNull HttpSession session,
+                                      @NonNull AntPathMatcher matcher) {
         // authorizeRequestMap 通过 SecurityCoreAutoConfigurer.groupingAuthorizeRequestUris(..) 注入 ServletContext,
 
         // noinspection unchecked
@@ -80,8 +96,6 @@ public class AuthenticationUtil {
         Set<UriHttpMethodTuple> permitSet =
                 requireNonNullElse(authorizeRequestMap.get(HttpSecurityAware.PERMIT_ALL), new HashSet<>(0));
 
-        String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
-        String method = request.getMethod();
         for (UriHttpMethodTuple tuple : permitSet)
         {
             // uri 匹配
@@ -89,12 +103,12 @@ public class AuthenticationUtil {
             {
                 HttpMethod httpMethod = tuple.getMethod();
                 // 没有 HttpMethod 类型, 只需要 uri 匹配
-                if (httpMethod == null)
+                if (httpMethod == null || StringUtils.isBlank(method))
                 {
                     return true;
                 }
 
-                // 有 HttpMethod 类型, 还休要 method 匹配
+                // 有 HttpMethod 类型, 还需要 method 匹配
                 String name = httpMethod.name();
                 if (StringUtils.equalsIgnoreCase(name, method))
                 {
@@ -221,8 +235,7 @@ public class AuthenticationUtil {
      * @return  determine redirectUrl
      */
     public static String determineRedirectUrl(HttpServletRequest request, HttpServletResponse response,
-                                         String destinationUrl,
-                                  AntPathMatcher matcher, RequestCache requestCache) {
+                                         String destinationUrl, AntPathMatcher matcher, RequestCache requestCache) {
         HttpSession session = request.getSession();
         String redirectUrl = destinationUrl;
 
@@ -231,13 +244,13 @@ public class AuthenticationUtil {
         if (isPermitUri(request, session, matcher))
         {
             // 设置跳转目标 url 为自己, 重新刷新 session
-            redirectUrl = request.getRequestURL().toString() + request.getQueryString();
+            redirectUrl = request.getRequestURL().toString() + requireNonNullElse(request.getQueryString(), "");
         }
         else
         {
             // 获取原始请求的 url
             SavedRequest savedRequest = requestCache.getRequest(request, response);
-            originalUrl = request.getRequestURL().toString() + request.getQueryString();
+            originalUrl = request.getRequestURL().toString() + requireNonNullElse(request.getQueryString(), "");
             if (savedRequest != null)
             {
                 originalUrl = requireNonNullElse(savedRequest.getRedirectUrl(), originalUrl);
@@ -249,7 +262,7 @@ public class AuthenticationUtil {
 
         if (originalUrl != null)
         {
-            // 保存原始请求到 session, 已备成功登录时跳转.
+            // 保存原始请求到 session, 准备成功登录时跳转.
             session.setAttribute(SESSION_REDIRECT_URL_KEY, originalUrl);
         }
         return redirectUrl;

@@ -56,12 +56,10 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
 
         try
         {
-            // 清楚缓存
+            // 清除缓存
             session.removeAttribute(SESSION_ENHANCE_CHECK_KEY);
 
-            String redirectUrl = determineRedirectUrl(request, response,
-                                                                         clientProperties.getLoginPage(), matcher,
-                                 requestCache);
+            String redirectUrl = determineRedirectUrl(request, response, clientProperties.getLoginPage(), matcher, requestCache);
             if (log.isDebugEnabled())
             {
                 log.debug("Session expired, starting new session and redirecting to '{}'", redirectUrl);

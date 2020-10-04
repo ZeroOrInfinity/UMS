@@ -2,6 +2,7 @@ package top.dcenter.ums.security.core.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.web.util.UrlUtils;
 import top.dcenter.ums.security.core.auth.filter.AjaxOrFormRequestFilter;
 import top.dcenter.ums.security.core.consts.SecurityConstants;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static top.dcenter.ums.security.core.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
+import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 
 /**
  * request 工具
@@ -87,5 +89,37 @@ public class RequestUtil {
         }
     }
 
+    /**
+     * 从完整 url 中获取去除 ServletContextPath 后的 requestUri
+     * @param url   完整 url
+     * @return  去除 ServletContextPath 后的 requestUri
+     */
+    public static String getRequestUri(String url) {
+        if (UrlUtils.isAbsoluteUrl(url))
+        {
+            url = url.replaceFirst("\\A[a-z0-9.+-]+://", "");
+
+            url = url.substring(url.indexOf("/"));
+        }
+
+        int endIndex = url.indexOf("?");
+        if (endIndex > 0)
+        {
+            url = url.substring(0, endIndex);
+        }
+
+        endIndex = url.indexOf("#");
+        if (endIndex > 0)
+        {
+            url = url.substring(0, endIndex);
+        }
+
+        String servletContextPath = getServletContextPath();
+        if (url.startsWith(servletContextPath))
+        {
+            url = url.substring(servletContextPath.length());
+        }
+        return url;
+    }
 }
 
