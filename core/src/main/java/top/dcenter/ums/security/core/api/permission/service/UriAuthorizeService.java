@@ -3,6 +3,7 @@ package top.dcenter.ums.security.core.api.permission.service;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
+import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -99,5 +100,15 @@ public interface UriAuthorizeService {
      * @return 通过 {@link AntPathMatcher } 测试 uri 是否有匹配 requestUri.
      */
     Boolean isUriContainsInUriSet(Set<String> uriSet, String requestUri);
+
+    /**
+     * 根据 uri 与 type 生成 uri 的权限字符串
+     * @param uri   去除 ServletContextPath 的 uri
+     * @param type  PermissionSuffixType
+     * @return  uri 的权限字符串
+     */
+    static String getPermission(String uri, PermissionSuffixType type) {
+        return String.format("%s%s", uri, type.getPermissionSuffix());
+    }
 
 }
