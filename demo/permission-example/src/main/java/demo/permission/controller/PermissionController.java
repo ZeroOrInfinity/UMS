@@ -17,17 +17,14 @@ import top.dcenter.ums.security.core.permission.config.UriAuthorizeInterceptorAu
 import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 
-import java.util.List;
-
 /**
- * 权限测试控制器: &#64;EnableUriAuthorize 拦截器模式;<br>
+ * 权限测试控制器: <br>
  *
  * &#64;PreAuthorize 注解需要 @EnableGlobalMethodSecurity(prePostEnabled = true) 支持,
  * 在 @EnableUriAuthorize 中 {@link UriAuthorizeInterceptorAutoConfiguration}已配置, 不需要再次配置. <br>
  * &#64;UriAuthorize 注解需要 @EnableUriAuthorize 支持.<br>
  *
  * 注意: <br>
- *     1. 拦截器模式也可以使用
  *     <pre>
  *         &#64;PreAuthorize("hasPermission('/users', '/users:list')")
  *         // equivalent to
@@ -95,7 +92,7 @@ public class PermissionController {
         {
             return ResponseResult.fail(ErrorCodeEnum.PARAMETER_ERROR, restfulMethod);
         }
-        boolean result = uriPermissionService.addUriPermission(role, uri, List.of(permissionType));
+        boolean result = uriPermissionService.addUriPermission(role, uri, permissionType);
         if (!result)
         {
             return ResponseResult.fail(ErrorCodeEnum.ADD_PERMISSION_FAILURE);
@@ -119,7 +116,7 @@ public class PermissionController {
         {
             return ResponseResult.fail(ErrorCodeEnum.PARAMETER_ERROR, restfulMethod);
         }
-        boolean result = uriPermissionService.delUriPermission(role, uri, List.of(permissionType));
+        boolean result = uriPermissionService.delUriPermission(role, uri, permissionType);
         if (!result)
         {
             return ResponseResult.fail(ErrorCodeEnum.DEL_PERMISSION_FAILURE);

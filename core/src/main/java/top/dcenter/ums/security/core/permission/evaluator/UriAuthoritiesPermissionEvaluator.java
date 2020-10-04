@@ -10,7 +10,11 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * uri 权限控制 hasPermission 表达式处理器
+ * uri 权限控制 hasPermission 表达式处理器, <br>
+ * 默认启用: <br>
+ *     1. 默认启用 <code>httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication)"); </code> 方式. <br>
+ *     2. 如果开启注解方式(<code> &#64;UriAuthorize 或 &#64;EnableGlobalMethodSecurity(prePostEnabled = true) </code>): 则通过注解 <code>
+ *         &#64;PerAuthority("hasPermission('/users/**', '/users/**:list')") </code> 方式生效,
  * @author zyw
  * @version V1.0  Created by 2020/10/3 14:41
  */

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.properties.ClientProperties;
 
 import java.util.Map;
@@ -25,6 +26,7 @@ public class CsrfAutoConfigurerAware implements HttpSecurityAware {
         this.clientProperties = clientProperties;
     }
 
+    @SuppressWarnings("RedundantThrows")
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
         // dto nothing
@@ -52,7 +54,7 @@ public class CsrfAutoConfigurerAware implements HttpSecurityAware {
     }
 
     @Override
-    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
+    public Map<String, Map<UriHttpMethodTuple, Set<String>>> getAuthorizeRequestMap() {
         return null;
     }
 }

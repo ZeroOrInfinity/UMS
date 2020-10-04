@@ -5,11 +5,16 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.social.properties.SocialProperties;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+import static top.dcenter.ums.security.core.bean.UriHttpMethodTuple.tuple;
 
 /**
  * 把 social 第三方授权登录相关配置添加到 HttpSecurity 中。
@@ -45,16 +50,16 @@ public class SocialSecurityAutoConfigurerAware implements HttpSecurityAware {
     }
 
     @Override
-    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
-        final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
+    public Map<String, Map<UriHttpMethodTuple, Set<String>>> getAuthorizeRequestMap() {
+        final Map<UriHttpMethodTuple, Set<String>> permitAllMap = new HashMap<>(16);
 
-        permitAllMap.put(socialProperties.getCallbackUrl(), null);
-        permitAllMap.put(socialProperties.getCallbackUrl() + "/*", null);
-        permitAllMap.put(socialProperties.getSocialUserRegisterUrl(), null);
-        permitAllMap.put(socialProperties.getSignUpUrl(), null);
-        permitAllMap.put(socialProperties.getFailureUrl(), null);
+        permitAllMap.put(tuple(GET, socialProperties.getCallbackUrl()), null);
+        permitAllMap.put(tuple(GET, socialProperties.getCallbackUrl() + "/*"), null);
+        permitAllMap.put(tuple(POST, socialProperties.getSocialUserRegisterUrl()), null);
+        permitAllMap.put(tuple(GET, socialProperties.getSignUpUrl()), null);
+        permitAllMap.put(tuple(GET, socialProperties.getFailureUrl()), null);
 
-        Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
+        Map<String, Map<UriHttpMethodTuple, Set<String>>> resultMap = new HashMap<>(1);
 
         resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
 

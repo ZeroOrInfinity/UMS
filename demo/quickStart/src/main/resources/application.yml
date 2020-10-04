@@ -44,9 +44,9 @@ ums:
     # 不需要认证的静态资源 urls, 例如: /resources/**, /static/**
     ignoring-urls:
       - /static/**
-    # 不需要认证的 uri, 默认为 空 Set.
+    # 不需要认证的 uri(可以带 HttpMethod 后缀; 用:隔开), 例如: /user/** 或 /user/**:post, 默认为 空 Set.
     permit-urls:
-      - /hello
+      - /hello:GET
 
     # 设置登录时用户名的 request 参数名称, 默认为 username
     usernameParameter: username

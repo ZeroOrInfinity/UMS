@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.properties.ClientProperties;
 
 import java.util.HashMap;
@@ -40,13 +41,13 @@ public class UriAuthorizeAutoConfigurerAware implements HttpSecurityAware {
     }
 
     @Override
-    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
+    public Map<String, Map<UriHttpMethodTuple, Set<String>>> getAuthorizeRequestMap() {
 
-        final Map<String, Set<String>> accessMap = new HashMap<>(16);
+        final Map<UriHttpMethodTuple, Set<String>> accessMap = new HashMap<>(16);
         String accessExp = clientProperties.getAccessExp();
-        accessMap.put(accessExp, null);
+        accessMap.put(UriHttpMethodTuple.tuple(null, accessExp), null);
 
-        Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
+        Map<String, Map<UriHttpMethodTuple, Set<String>>> resultMap = new HashMap<>(1);
 
         resultMap.put(HttpSecurityAware.ACCESS, accessMap);
 

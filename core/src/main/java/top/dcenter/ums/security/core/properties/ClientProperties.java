@@ -110,15 +110,17 @@ public class ClientProperties {
     private String[] ignoringUrls;
 
     /**
-     * 不需要认证的 uri, 默认为 空 Set.<br>
+     * 不需要认证的 uri(可以带 HttpMethod 后缀; 用:隔开), 例如: /user/** 或 /user/**:post, 默认为 空 Set.<br>
      *     支持通配符 规则具体看 AntPathMatcher.match(pattern, path) <br><br>
-     *     httpSecurity.authorizeRequests().antMatchers(permitAllArray).permitAll()
-     * equivalent to Example Usage:
-     *
+     * Example Usage:<br>
      * <pre>
-     * String[] permitAllArray = new String[]{&quot;/hello&quot;, &quot;/index&quot;, &quot;/down/**&quot;};
-     * httpSecurity.authorizeRequests()
-     *      .antMatchers(permitAllArray).permitAll();
+     * Set&#60;String&#62; permitUrls = Set.of("/user/**:post");
+     * //equivalent to :
+     * httpSecurity.authorizeRequests().antMatchers(HttpMethod.POST, "/user/**").permitAll();
+     * // 如果没有带 HttpMethod 后缀:
+     * Set&#60;String&#62; permitUrls = Set.of("/user/**");
+     * //equivalent to :
+     * httpSecurity.authorizeRequests().antMatchers("/user/**").permitAll();
      * </pre>
      */
     private Set<String>  permitUrls = new HashSet<>();

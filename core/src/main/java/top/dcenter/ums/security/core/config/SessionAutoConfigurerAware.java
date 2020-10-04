@@ -12,11 +12,15 @@ import top.dcenter.ums.security.core.api.session.strategy.DefaultRedirectInvalid
 import top.dcenter.ums.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.ums.security.core.auth.session.filter.SessionEnhanceCheckFilter;
 import top.dcenter.ums.security.core.auth.session.strategy.ClientExpiredSessionStrategy;
+import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.properties.ClientProperties;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static org.springframework.http.HttpMethod.GET;
+import static top.dcenter.ums.security.core.bean.UriHttpMethodTuple.tuple;
 
 /**
  * spring session 相关配置
@@ -85,14 +89,14 @@ public class SessionAutoConfigurerAware implements HttpSecurityAware {
     }
 
     @Override
-    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
+    public Map<String, Map<UriHttpMethodTuple, Set<String>>> getAuthorizeRequestMap() {
 
-        final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
+        final Map<UriHttpMethodTuple, Set<String>> permitAllMap = new HashMap<>(16);
 
-        permitAllMap.put(clientProperties.getSession().getInvalidSessionUrl(), null);
-        permitAllMap.put(clientProperties.getSession().getInvalidSessionOfConcurrentUrl(), null);
+        permitAllMap.put(tuple(GET, clientProperties.getSession().getInvalidSessionUrl()), null);
+        permitAllMap.put(tuple(GET, clientProperties.getSession().getInvalidSessionOfConcurrentUrl()), null);
 
-        Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
+        Map<String, Map<UriHttpMethodTuple, Set<String>>> resultMap = new HashMap<>(1);
 
         resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
 

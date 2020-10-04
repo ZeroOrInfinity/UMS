@@ -3,10 +3,14 @@ package demo.security.permission;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static org.springframework.http.HttpMethod.GET;
+import static top.dcenter.ums.security.core.bean.UriHttpMethodTuple.tuple;
 
 /**
  * spring session 相关配置
@@ -27,24 +31,24 @@ public class UriAuthorizeConfigurerAware implements HttpSecurityAware {
     }
 
     @Override
-    public Map<String, Map<String, Set<String>>> getAuthorizeRequestMap() {
+    public Map<String, Map<UriHttpMethodTuple, Set<String>>> getAuthorizeRequestMap() {
 
          // 也可以在 application.yml 中配置, 不用硬编码
          // security:
          //   client:
-         //     # 不需要认证的 uri, 默认为 空 Set.
+         //     # 不需要认证的 uri(可以带 HttpMethod 后缀; 用:隔开), 例如: /user/** 或 /user/**:post, 默认为 空 Set.
          //     permit-urls:
-         //       - /**/*.html
-         //       - /testSign
-         //       - /testSignOfLastSevenDays/**
+         //       - /**/*.html:GET
+         //       - /testSign:GET
+         //       - /testSignOfLastSevenDays/**:GET
 
-        final Map<String, Set<String>> permitAllMap = new HashMap<>(16);
+        final Map<UriHttpMethodTuple, Set<String>> permitAllMap = new HashMap<>(16);
         // 放行要测试 permission 的链接, 以免干扰 permission 测试.
-        permitAllMap.put("/test/permission/**", null);
-        permitAllMap.put("/test/deny/**", null);
-        permitAllMap.put("/test/pass/**", null);
+        permitAllMap.put(tuple(GET, "/test/permission/**"), null);
+        permitAllMap.put(tuple(GET, "/test/deny/**"), null);
+        permitAllMap.put(tuple(GET, "/test/pass/**"), null);
 
-        Map<String, Map<String, Set<String>>> resultMap = new HashMap<>(1);
+        Map<String, Map<UriHttpMethodTuple, Set<String>>> resultMap = new HashMap<>(1);
 
         resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
 

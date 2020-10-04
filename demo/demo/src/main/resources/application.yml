@@ -82,12 +82,13 @@ ums:
     # 不需要认证的静态资源 urls, 例如: /resources/**, /static/**
     ignoring-urls:
       - /static/**
-    # 不需要认证的 uri, 默认为 空 Set.
+    # 不需要认证的 uri(可以带 HttpMethod 后缀; 用:隔开), 例如: /user/** 或 /user/**:post, 默认为 空 Set.
     permit-urls:
-      - /**/*.html
-      - /testSign
-      - /testSignOfLastSevenDays/**
-      - /testDelOfCurrentMonth
+      - /login2:GET
+      - /**/*.html:GET
+      - /testSign:GET
+      - /testSignOfLastSevenDays/**:GET
+      - /testDelOfCurrentMonth:GET
 
     # ============= remember-me =============
     # 设置记住我功能的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
