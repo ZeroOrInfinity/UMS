@@ -130,7 +130,7 @@ public class ClientProperties {
      * 权限表达式, 默认为 hasPermission(request, authentication).<br>
      * hasPermission 方法默认实现为 {@link UriAuthoritiesPermissionEvaluator}, 想自定义逻辑, 实现 {@link PermissionEvaluator} 即可替换.<br>
      * 注意: 当开启注解 {@link EnableGlobalMethodSecurity} 时, 此配置失效.<br>
-     * equivalent to:
+     * 此配置等效于:
      * <pre>
      * String accessExp = "hasPermission(request, authentication)";
      * // or

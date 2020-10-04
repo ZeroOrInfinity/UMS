@@ -34,7 +34,7 @@ import top.dcenter.ums.security.core.vo.ResponseResult;
  *     <pre>
  *         &#64;EnableGlobalMethodSecurity(prePostEnabled = true)
  *     </pre>
- *     即可.
+ *     即可.<br>
  *     2. 修改与添加权限后一定要更新一下角色的权限:
  *     <pre>
  *         // 修改或添加权限一定要更新 updateRolesAuthorities 缓存, 有两种方式：一种发布事件，另一种是直接调用服务；推荐用发布事件(异步执行)。
