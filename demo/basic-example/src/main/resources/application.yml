@@ -71,14 +71,15 @@ ums:
         - /authentication/mobile
       request-param-mobile-name: mobile
       request-param-sms-code-name: smsCode
-    # ================ 手机登录配置 ================
-    mobile:
-      login:
-        # 手机验证码登录是否开启, 默认 false，
-        # 手机验证码登录开启后 必须配置 ums.codes.sms.auth-urls=/authentication/mobile
-        sms-code-login-is-open: true
-        # 手机验证码登录请求处理url, 默认 /authentication/mobile
-        login-processing-url-mobile: /authentication/mobile
+
+  # ================ 手机登录配置 ================
+  mobile:
+    login:
+      # 手机验证码登录是否开启, 默认 false，
+      # 手机验证码登录开启后 必须配置 ums.codes.sms.auth-urls=/authentication/mobile
+      sms-code-login-is-open: true
+      # 手机验证码登录请求处理url, 默认 /authentication/mobile
+      login-processing-url-mobile: /authentication/mobile
 
 ---
 spring:

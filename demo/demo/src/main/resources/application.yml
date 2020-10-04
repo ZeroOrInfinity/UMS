@@ -197,7 +197,7 @@ ums:
     slider:
       # 设置需要验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 空
       auth-urls:
-#        - /authentication/form
+        - /authentication/form
       # 设置滑块验证码校验证的 uri, 默认: /slider/check, 默认: /slider/check
       slider-check-url: /slider/check
       # 提交验证码请求时，请求中带的验证码变量名，默认 sliderCode.

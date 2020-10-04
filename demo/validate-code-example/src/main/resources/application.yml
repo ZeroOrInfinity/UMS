@@ -105,7 +105,7 @@ ums:
         - /slider/check2
       # 提交验证码请求时，请求中带的验证码变量名，
       request-param-name: sliderToken
-::
+
     # 滑块验证码, v1.1.2-alph 版本已经内置
     #slider:
     #  # 设置需要验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 空
@@ -151,14 +151,14 @@ ums:
       expire: 120
       request-param-mobile-name: mobile
       request-param-sms-code-name: smsCode
-    # ================ 手机登录配置 ================
-    mobile:
-      login:
-        # 手机验证码登录是否开启, 默认 false，
-        # 手机验证码登录开启后 必须配置 ums.codes.sms.auth-urls=/authentication/mobile
-        sms-code-login-is-open: true
-        # 手机验证码登录请求处理url, 默认 /authentication/mobile
-        login-processing-url-mobile: /authentication/mobile
+  # ================ 手机登录配置 ================
+  mobile:
+    login:
+      # 手机验证码登录是否开启, 默认 false，
+      # 手机验证码登录开启后 必须配置 ums.codes.sms.auth-urls=/authentication/mobile
+      sms-code-login-is-open: true
+      # 手机验证码登录请求处理url, 默认 /authentication/mobile
+      login-processing-url-mobile: /authentication/mobile
 
 ---
 spring:
