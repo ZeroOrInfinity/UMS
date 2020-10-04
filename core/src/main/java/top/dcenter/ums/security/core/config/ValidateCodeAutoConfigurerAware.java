@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 import static top.dcenter.ums.security.core.bean.UriHttpMethodTuple.tuple;
 
 /**
@@ -52,8 +53,16 @@ public class ValidateCodeAutoConfigurerAware implements HttpSecurityAware {
         final Map<UriHttpMethodTuple, Set<String>> permitAllMap = new HashMap<>(16);
         ValidateCodeProperties.SliderCodeProperties slider = validateCodeProperties.getSlider();
 
-        permitAllMap.put(tuple(GET, validateCodeProperties.getGetValidateCodeUrlPrefix() + "/*"), null);
-        permitAllMap.put(tuple(GET, slider.getSliderCheckUrl()), null);
+        permitAllMap.put(tuple(GET, validateCodeProperties.getGetValidateCodeUrlPrefix() + "/**"), null);
+        permitAllMap.put(tuple(POST, slider.getSliderCheckUrl()), null);
+
+        validateCodeProperties.getSms().getAuthUrls().forEach(uri -> permitAllMap.put(tuple(POST, uri), null));
+        validateCodeProperties.getImage().getAuthUrls().forEach(uri -> permitAllMap.put(tuple(POST, uri), null));
+        slider.getAuthUrls().forEach(uri -> permitAllMap.put(tuple(POST, uri), null));
+        validateCodeProperties.getSelection().getAuthUrls().forEach(uri -> permitAllMap.put(tuple(POST, uri), null));
+        validateCodeProperties.getTrack().getAuthUrls().forEach(uri -> permitAllMap.put(tuple(POST, uri), null));
+        validateCodeProperties.getCustomize().getAuthUrls().forEach(uri -> permitAllMap.put(tuple(POST, uri), null));
+
 
         Map<String, Map<UriHttpMethodTuple, Set<String>>> resultMap = new HashMap<>(1);
 

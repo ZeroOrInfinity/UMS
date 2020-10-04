@@ -25,8 +25,10 @@ public class SliderValidateCodeGenerator implements ValidateCodeGenerator<Slider
 
     @Override
     public SliderCode generate(ServletRequest request) {
-
-        return sliderCodeFactory.getSliderCode();
+        SliderCode sliderCode = sliderCodeFactory.getSliderCode();
+        // 验证失败,不刷新验证码
+        sliderCode.setReuse(true);
+        return sliderCode;
     }
 
     @Override
