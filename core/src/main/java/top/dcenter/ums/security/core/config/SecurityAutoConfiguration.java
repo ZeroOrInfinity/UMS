@@ -15,7 +15,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.context.support.GenericWebApplicationContext;
-import org.springframework.web.util.UrlPathHelper;
 import top.dcenter.ums.security.core.api.advice.SecurityControllerExceptionHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
@@ -35,7 +34,6 @@ import top.dcenter.ums.security.core.util.MvcUtil;
 import java.lang.reflect.Field;
 import java.util.Objects;
 
-import static top.dcenter.ums.security.core.consts.SecurityConstants.MVC_URL_PATH_HELPER_PARAM_NAME;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.SERVLET_CONTEXT_PATH_PARAM_NAME;
 
 /**
@@ -44,15 +42,10 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.SERVLET_CON
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 19:59
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableAsync
 @AutoConfigureAfter({PropertiesAutoConfiguration.class})
 public class SecurityAutoConfiguration implements InitializingBean {
-
-    /**
-     * {@link UrlPathHelper} 的 beanName
-     */
-    private static final String URL_PATH_HELPER_BEAN_NAME = "mvcUrlPathHelper";
 
     private final ClientProperties clientProperties;
     private final ObjectMapper objectMapper;
@@ -70,7 +63,6 @@ public class SecurityAutoConfiguration implements InitializingBean {
         this.objectMapper = objectMapper;
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
-
 
     @Bean
     public UpdateRolesAuthoritiesListener updateRolesAuthoritiesListener(UriAuthorizeService uriAuthorizeService) {
@@ -154,11 +146,7 @@ public class SecurityAutoConfiguration implements InitializingBean {
                 }
                 field.set(null, contextPath);
             }
-            else if (Objects.equals(field.getName(), MVC_URL_PATH_HELPER_PARAM_NAME))
-            {
-                UrlPathHelper mvcUrlPathHelper = applicationContext.getBean(URL_PATH_HELPER_BEAN_NAME, UrlPathHelper.class);
-                field.set(null, mvcUrlPathHelper);
-            }
+
         }
 
 

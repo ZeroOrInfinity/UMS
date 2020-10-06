@@ -41,7 +41,7 @@ public class MvcUtil {
     private static String servletContextPath = "";
 
     /**
-     * {@link UrlPathHelper}, 在应用启动时通过 {@link SecurityAutoConfiguration} 自动注入.
+     * {@link UrlPathHelper}
      */
     private static UrlPathHelper urlPathHelper = null;
 
