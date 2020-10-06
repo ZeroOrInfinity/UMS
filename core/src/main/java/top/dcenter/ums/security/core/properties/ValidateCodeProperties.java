@@ -3,7 +3,6 @@ package top.dcenter.ums.security.core.properties;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.web.context.request.ServletWebRequest;
 
 import java.util.ArrayList;
@@ -28,17 +27,11 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_REQ
 @ConfigurationProperties("ums.codes")
 public class ValidateCodeProperties {
 
-    @NestedConfigurationProperty
     private final ImageCodeProperties image = new ImageCodeProperties();
-    @NestedConfigurationProperty
     private final SmsCodeProperties sms = new SmsCodeProperties();
-    @NestedConfigurationProperty
     private final SliderCodeProperties slider = new SliderCodeProperties();
-    @NestedConfigurationProperty
     private final TrackCodeProperties track = new TrackCodeProperties();
-    @NestedConfigurationProperty
     private final SelectionCodeProperties selection = new SelectionCodeProperties();
-    @NestedConfigurationProperty
     private final CustomizeCodeProperties customize = new CustomizeCodeProperties();
 
     /**

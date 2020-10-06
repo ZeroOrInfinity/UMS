@@ -3,7 +3,6 @@ package top.dcenter.ums.security.core.properties;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.boot.convert.DurationUnit;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -37,13 +36,9 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.DEFAULT_UN_
 @ConfigurationProperties("ums.client")
 public class ClientProperties {
 
-    @NestedConfigurationProperty
     private final SessionProperties session = new SessionProperties();
-    @NestedConfigurationProperty
     private final RememberMeProperties rememberMe = new RememberMeProperties();
-    @NestedConfigurationProperty
     private final CsrfProperties csrf = new CsrfProperties();
-    @NestedConfigurationProperty
     private final AnonymousProperties anonymous = new AnonymousProperties();
 
     /**
