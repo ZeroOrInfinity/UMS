@@ -1,14 +1,20 @@
 package top.dcenter.ums.security.core.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.properties.ClientProperties;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static org.springframework.http.HttpMethod.GET;
@@ -43,8 +49,32 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
 
     private final ClientProperties clientProperties;
 
-    public ClientAutoConfigurerAware(ClientProperties clientProperties) {
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection", "SpringJavaInjectionPointsAutowiringInspection"})
+    @Autowired(required = false)
+    private UmsUserDetailsService umsUserDetailsService;
+
+    private final PasswordEncoder passwordEncoder;
+
+    public ClientAutoConfigurerAware(ClientProperties clientProperties, PasswordEncoder passwordEncoder) {
         this.clientProperties = clientProperties;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public void configure(WebSecurity web) {
+        String[] ignoringUrls = clientProperties.getIgnoringUrls();
+        web.ignoring()
+                .antMatchers(Objects.requireNonNullElseGet(ignoringUrls, () -> new String[0]));
+    }
+
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        if (umsUserDetailsService == null)
+        {
+            throw new RuntimeException("必须实现 UmsUserDetailsService 或 top.dcenter.security.social.api.service.UmsSocialUserDetailsService 抽象类");
+        }
+        auth.userDetailsService(umsUserDetailsService).passwordEncoder(passwordEncoder);
+        auth.eraseCredentials(true);
     }
 
     @Override
@@ -71,7 +101,6 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
         permitAllMap.put(tuple(GET, clientProperties.getLoginPage()), null);
         permitAllMap.put(tuple(GET, clientProperties.getLoginUnAuthenticationRoutingUrl()), null);
         permitAllMap.put(tuple(POST, clientProperties.getLoginProcessingUrl()), null);
-        permitAllMap.put(tuple(GET, clientProperties.getSuccessUrl()), null);
         permitAllMap.put(tuple(GET, clientProperties.getErrorUrl()), null);
         permitAllMap.put(tuple(GET, clientProperties.getError4Url()), null);
         permitAllMap.put(tuple(GET, clientProperties.getError5Url()), null);

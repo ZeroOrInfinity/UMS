@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.session.SessionManagementFilter;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
@@ -52,6 +54,17 @@ public class SessionAutoConfigurerAware implements HttpSecurityAware {
         this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         this.enhanceConcurrentControlAuthenticationStrategy = enhanceConcurrentControlAuthenticationStrategy;
+    }
+
+    @Override
+    public void configure(WebSecurity web) {
+        // dto nothing
+    }
+
+    @SuppressWarnings("RedundantThrows")
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        // dto nothing
     }
 
     @Override

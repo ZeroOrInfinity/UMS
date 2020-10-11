@@ -3,7 +3,9 @@ package top.dcenter.ums.security.core.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeFilter;
@@ -35,6 +37,17 @@ public class ValidateCodeAutoConfigurerAware implements HttpSecurityAware {
                                            ValidateCodeFilter validateCodeFilter) {
         this.validateCodeProperties = validateCodeProperties;
         this.validateCodeFilter = validateCodeFilter;
+    }
+
+    @Override
+    public void configure(WebSecurity web) {
+        // dto nothing
+    }
+
+    @SuppressWarnings("RedundantThrows")
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        // dto nothing
     }
 
     @Override

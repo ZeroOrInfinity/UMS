@@ -5,7 +5,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
@@ -41,6 +43,17 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
         this.clientProperties = clientProperties;
         this.persistentTokenRepository = persistentTokenRepository;
         this.umsUserDetailsService = umsUserDetailsService;
+    }
+
+    @Override
+    public void configure(WebSecurity web) {
+        // dto nothing
+    }
+
+    @SuppressWarnings("RedundantThrows")
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        // dto nothing
     }
 
     @Override

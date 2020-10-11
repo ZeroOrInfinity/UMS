@@ -2,7 +2,9 @@ package top.dcenter.ums.security.core.config;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
@@ -26,11 +28,21 @@ public class CsrfAutoConfigurerAware implements HttpSecurityAware {
         this.clientProperties = clientProperties;
     }
 
+    @Override
+    public void configure(WebSecurity web) {
+        // dto nothing
+    }
+
+    @SuppressWarnings("RedundantThrows")
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        // dto nothing
+    }
+
     @SuppressWarnings("RedundantThrows")
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
         // dto nothing
-
     }
 
     @Override
