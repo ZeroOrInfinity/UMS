@@ -49,11 +49,11 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     /**
      * 所有角色 uri 权限 Map(role, map(uri, uriResourcesDTO))
      */
-    protected Map<String, Map<String, UriResourcesDTO>> rolesAuthorityMap;
+    protected volatile Map<String, Map<String, UriResourcesDTO>> rolesAuthorityMap;
     /**
      * 所有角色 uri 权限 Map(uri, Set(authority))
      */
-    private Map<String, Set<String>> uriAuthoritiesMap;
+    private volatile Map<String, Set<String>> uriAuthoritiesMap;
 
     @Getter
     protected AntPathMatcher antPathMatcher = new AntPathMatcher();
@@ -221,18 +221,15 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     @NotNull
     private Consumer<Map<String, UriResourcesDTO>> map2mapConsumer(final Map<String, Set<String>> uriAuthoritiesMap) {
         return map -> map.forEach(
-                (key, value) ->
-                {
-                    uriAuthoritiesMap.compute(key, (k, v) ->
-                    {
-                        if (v == null)
+                (key, value) -> uriAuthoritiesMap.compute(key, (k, v) ->
                         {
-                            v = new HashSet<>();
-                        }
-                        v.addAll(ConvertUtil.string2Set(value.getPermission(), PERMISSION_DELIMITER));
-                        return v;
-                    });
-                });
+                            if (v == null)
+                            {
+                                v = new HashSet<>();
+                            }
+                            v.addAll(ConvertUtil.string2Set(value.getPermission(), PERMISSION_DELIMITER));
+                            return v;
+                        }));
     }
 
     /**
@@ -254,10 +251,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         }
 
         return userAuthoritySet.stream()
-                .anyMatch(authority ->
-                          {
-                              return authority.endsWith(permissionSuffix);
-                          });
+                .anyMatch(authority -> authority.endsWith(permissionSuffix));
     }
 
 }
