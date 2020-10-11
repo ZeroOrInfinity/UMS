@@ -30,8 +30,10 @@ public class UserController {
         return "login2";
     }
 
-    @GetMapping("/index")
-    public String index() {
+    @GetMapping("/")
+    public String index(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        model.addAttribute("username", userDetails.getUsername());
+        model.addAttribute("roles", userDetails.getAuthorities());
         return "index";
     }
 

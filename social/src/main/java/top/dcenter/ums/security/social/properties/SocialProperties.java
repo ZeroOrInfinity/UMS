@@ -239,7 +239,7 @@ public class SocialProperties {
 
     /**
      * 第三方登录用户数据库用户表查询 userIds 的查询语句。 <br><br>
-     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br><br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应, %s按顺序会用对应的 :<br><br>
      * databaseName、<br><br>
      * tableName
      */
@@ -249,7 +249,7 @@ public class SocialProperties {
 
     /**
      * 第三方登录用户数据库用户表查询 userIds 的查询语句。 <br><br>
-     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br><br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应, %s按顺序会用对应的 :<br><br>
      * userIdColumnName、<br><br>
      * tableName、<br><br>
      * providerIdColumnName、<br><br>
@@ -259,7 +259,7 @@ public class SocialProperties {
 
     /**
      * 通过第三方服务提供商提供的 providerId 与 providerUserIds 从数据库用户表查询 userIds 的查询语句。 <br><br>
-     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br><br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应, %s按顺序会用对应的 :<br><br>
      * userIdColumnName、<br><br>
      * tableName、<br><br>
      * providerIdColumnName、<br><br>
@@ -269,7 +269,7 @@ public class SocialProperties {
 
     /**
      * 通过第三方服务提供商提供的 providerId 与 providerUserIds 从数据库用户表查询 userIds 的查询语句。 <br><br>
-     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br><br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应, %s按顺序会用对应的 :<br><br>
      * userIdColumnName、<br><br>
      * providerIdColumnName、<br><br>
      * providerUserIdColumnName、<br><br>
@@ -286,7 +286,7 @@ public class SocialProperties {
 
     /**
      * 第三方登录用户数据库用户表更新语句。 <br><br>
-     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br><br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应, %s按顺序会用对应的 :<br><br>
      * tableName、<br><br>
      * displayNameColumnName、<br><br>
      * profileUrlColumnName、<br><br>
@@ -313,7 +313,7 @@ public class SocialProperties {
 
     /**
      * 第三方登录用户数据库用户表添加用户语句。 <br><br>
-     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br><br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应, %s按顺序会用对应的 :<br><br>
      * tableName、<br><br>
      * userIdColumnName、<br><br>
      * providerIdColumnName、<br><br>
@@ -332,7 +332,7 @@ public class SocialProperties {
 
     /**
      * 第三方登录用户数据库用户表查询添加用户时的所需 rank 的值。 <br><br>
-     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br><br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应, %s按顺序会用对应的 :<br><br>
      * rankColumnName、<br><br>
      * rankColumnName、<br><br>
      * tableName、<br><br>
@@ -343,7 +343,7 @@ public class SocialProperties {
 
     /**
      * 第三方登录用户数据库用户表根据 userId 与 providerId 删除多个用户。 <br><br>
-     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br><br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应, %s按顺序会用对应的 :<br><br>
      * tableName、<br><br>
      * userIdColumnName、<br><br>
      * providerIdColumnName
@@ -351,7 +351,7 @@ public class SocialProperties {
     private String removeConnectionsSql = "delete from %s where %s = ? and %s = ?";
     /**
      * 第三方登录用户数据库用户表根据 userId、providerId、providerUserId 删除一个用户。 <br><br>
-     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应,%s按顺序会用对应的 :<br><br>
+     * 注意： sql 语句中的 %s 必须写上，问号必须与指定的 %s 相对应, %s按顺序会用对应的 :<br><br>
      * tableName、<br><br>
      * userIdColumnName、<br><br>
      * providerIdColumnName、<br><br>

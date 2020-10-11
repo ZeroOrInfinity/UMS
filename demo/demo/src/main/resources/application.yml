@@ -298,15 +298,15 @@ ums:
     profile-url-column-name: profileUrl
     image-url-column-name: imageUrl
     access-token-column-name: accessToken
-    secret-column-name: secret
+    token-id-column-name: tokenId
     refresh-token-column-name: refreshToken
     expire-time-column-name: expireTime
     # 第三方登录用户数据库用户表创建语句。 修改第三方登录用户数据库用户表创建语句时，
     # 要注意：修改字段名称可以直接修改上面的字段名称即可，不用修改建表语句; 不可以减少字段，但可以另外增加字段。
     # 主键必须是 userIdColumnName，唯一索引必须是（userIdColumnName、  providerIdColumnName、  rankColumnName）。
     # sql 语句中的 %s 必须写上，且 %s 的顺序必须与后面的字段名称所对应的含义对应 : tableName、  userIdColumnName、 providerIdColumnName、
-    # providerUserIdColumnName、  rankColumnName、  displayNameColumnName、  profileUrlColumnName、  imageUrlColumnName、  accessTokenColumnName、  secretColumnName、  refreshTokenColumnName、  expireTimeColumnName、  userIdColumnName、  providerIdColumnName、  providerUserIdColumnName、  userIdColumnName、  providerIdColumnName、  rankColumnName
-    creat-user-connection-table-sql: create table %s (%s varchar(255) not null, %s varchar(255) not null, %s varchar(255), %s int not null, %s varchar(255), %s varchar(512), %s varchar(512), %s varchar(512) not null, %s varchar(512), %s varchar(512), %s bigint, primary key (%s, %s, %s), unique index UserConnectionRank(%s, %s, %s));
+    # providerUserIdColumnName、  rankColumnName、  displayNameColumnName、  profileUrlColumnName、  imageUrlColumnName、  accessTokenColumnName、  tokenIdColumnName、  refreshTokenColumnName、  expireTimeColumnName、  userIdColumnName、  providerIdColumnName、  providerUserIdColumnName、  userIdColumnName、  providerIdColumnName、  rankColumnName、  providerIdColumnName、  providerUserIdColumnName、  rankColumnName
+    creat-user-connection-table-sql: CREATE TABLE %s (%s varchar(255) NOT NULL, %s varchar(255) NOT NULL, %s varchar(255) NOT NULL, %s int NOT NULL, %s varchar(255), %s varchar(512), %s varchar(512), %s varchar(512) NOT NULL, %s varchar(512), %s varchar(512), %s bigint,PRIMARY KEY (%s, %s, %s),unique KEY `idx_userId_providerId_rank`(%s, %s, %s),KEY `idx_providerId_providerUserId_rank` (%s, %s, %s)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     # 用户需要对第三方登录的用户表与 curd 的 sql 语句结构进行更改时（curd 语句通过配置文件修改暂时未实现），
     # 请实现 UsersConnectionRepositoryFactory，可以参考 OAuth2UsersConnectionRepositoryFactory、OAuthJdbcUsersConnectionRepository、JdbcConnectionRepository
 

@@ -1,6 +1,8 @@
 package demo.security.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.stereotype.Controller;
@@ -40,8 +42,10 @@ public class UserController {
         return "banding";
     }
 
-    @GetMapping("/index")
-    public String index() {
+    @GetMapping("/")
+    public String index(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        model.addAttribute("username", userDetails.getUsername());
+        model.addAttribute("roles", userDetails.getAuthorities());
         return "index";
     }
 
