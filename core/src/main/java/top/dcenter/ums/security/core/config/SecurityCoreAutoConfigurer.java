@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -19,14 +20,12 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.context.WebApplicationContext;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler;
-import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.filter.AjaxOrFormRequestFilter;
 import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
 import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
@@ -52,6 +51,7 @@ import static top.dcenter.ums.security.core.api.config.HttpSecurityAware.*;
  */
 @SuppressWarnings("jol")
 @Configuration
+@Order(99)
 @EnableWebSecurity
 @AutoConfigureAfter({
         SecurityAutoConfiguration.class,
@@ -70,44 +70,47 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
     private final ObjectMapper objectMapper;
     private final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
     private final DefaultLogoutSuccessHandler defaultLogoutSuccessHandler;
-    private final PasswordEncoder passwordEncoder;
 
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
     private Map<String, HttpSecurityAware> webSecurityConfigurerMap;
-    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection", "SpringJavaInjectionPointsAutowiringInspection"})
-    @Autowired(required = false)
-    private UmsUserDetailsService umsUserDetailsService;
 
     public SecurityCoreAutoConfigurer(ClientProperties clientProperties,
                                       BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
                                       BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
                                       ObjectMapper objectMapper,
-                                      UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider, DefaultLogoutSuccessHandler defaultLogoutSuccessHandler, PasswordEncoder passwordEncoder) {
+                                      UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider,
+                                      DefaultLogoutSuccessHandler defaultLogoutSuccessHandler) {
         this.clientProperties = clientProperties;
         this.baseAuthenticationSuccessHandler = baseAuthenticationSuccessHandler;
         this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
         this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.usernamePasswordAuthenticationProvider = usernamePasswordAuthenticationProvider;
         this.defaultLogoutSuccessHandler = defaultLogoutSuccessHandler;
-        this.passwordEncoder = passwordEncoder;
     }
 
 
     @Override
     public void configure(WebSecurity web) {
-        String[] ignoringUrls = clientProperties.getIgnoringUrls();
-        web.ignoring()
-                .antMatchers(Objects.requireNonNullElseGet(ignoringUrls, () -> new String[0]));
+        if (webSecurityConfigurerMap != null)
+        {
+            for (HttpSecurityAware postConfigurer : webSecurityConfigurerMap.values())
+            {
+                postConfigurer.configure(web);
+            }
+        }
     }
+
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        if (umsUserDetailsService == null)
+        if (webSecurityConfigurerMap != null)
         {
-            throw new RuntimeException("必须实现 UmsUserDetailsService 或 top.dcenter.security.social.api.service.UmsSocialUserDetailsService 抽象类");
+            for (HttpSecurityAware postConfigurer : webSecurityConfigurerMap.values())
+            {
+                postConfigurer.configure(auth);
+            }
         }
-        auth.userDetailsService(umsUserDetailsService).passwordEncoder(passwordEncoder);
     }
 
     @Override
@@ -222,7 +225,8 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                 .deleteCookies(clientProperties.getRememberMe().getRememberMeCookieName(),
                            clientProperties.getSession().getSessionCookieName())
                 .clearAuthentication(true)
-                .invalidateHttpSession(true);
+                .invalidateHttpSession(true)
+                .permitAll();
     }
 
     private void urlAuthorizationConfigurer(HttpSecurity http, UriHttpMethodTuple[] permitAllArray,

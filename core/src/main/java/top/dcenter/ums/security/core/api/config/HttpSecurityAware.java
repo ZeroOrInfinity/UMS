@@ -3,7 +3,13 @@ package top.dcenter.ums.security.core.api.config;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.SecurityContextConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.config.SecurityCoreAutoConfigurer;
 
@@ -13,7 +19,8 @@ import java.util.Set;
 import static top.dcenter.ums.security.core.consts.SecurityConstants.URI_METHOD_SEPARATOR;
 
 /**
- * 对 WebSecurityConfigurerAdapter 的扩展，使其能跨模块的灵活的添加 HttpSecurity 配置。<br><br>
+ * 对 WebSecurityConfigurerAdapter 的扩展，使其能跨模块的灵活的添加 {@link HttpSecurity} 配置, {@link WebSecurity} 配置,
+ * {@link AuthenticationManagerBuilder} 配置.<br><br>
  * 注意：<br><br>
  *      1. 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在最后处理的配置。实现
  *         {@link HttpSecurityAware#postConfigure(HttpSecurity http) } 方法。<br><br>
@@ -43,6 +50,67 @@ public interface HttpSecurityAware {
     String HAS_AUTHORITY = "hasAuthority";
     String HAS_ANY_AUTHORITY = "hasAnyAuthority";
     String HAS_IP_ADDRESS = "hasIpAddress";
+
+    /**
+     * Override this method to configure {@link WebSecurity}. For example, if you wish to
+     * ignore certain requests.
+     *
+     * Endpoints specified in this method will be ignored by Spring Security, meaning it
+     * will not protect them from CSRF, XSS, Clickjacking, and so on.
+     *
+     * Instead, if you want to protect endpoints against common vulnerabilities, then see
+     * {@link WebSecurityConfigurerAdapter}{@code #configure(HttpSecurity)} and the
+     * {@link HttpSecurity#authorizeRequests}
+     * configuration method.
+     * @param web the {@link WebSecurity} to use
+     */
+    void configure(WebSecurity web);
+
+
+    /**
+     * Used by the default implementation of {@link WebSecurityConfigurerAdapter}{@code #authenticationManager()} to attempt
+     * to obtain an {@link AuthenticationManager}. If overridden, the
+     * {@link AuthenticationManagerBuilder} should be used to specify the
+     * {@link AuthenticationManager}.
+     *
+     * <p>
+     * The {@link WebSecurityConfigurerAdapter}{@code #authenticationManagerBean()} method can be used to expose the resulting
+     * {@link AuthenticationManager} as a Bean. The {@link WebSecurityConfigurerAdapter}{@code #userDetailsServiceBean()} can
+     * be used to expose the last populated {@link UserDetailsService} that is created
+     * with the {@link AuthenticationManagerBuilder} as a Bean. The
+     * {@link UserDetailsService} will also automatically be populated on
+     * {@link HttpSecurity#getSharedObject(Class)} for use with other
+     * {@link SecurityContextConfigurer} (i.e. RememberMeConfigurer )
+     * </p>
+     *
+     * <p>
+     * For example, the following configuration could be used to register in memory
+     * authentication that exposes an in memory {@link UserDetailsService}:
+     * </p>
+     *
+     * <pre>
+     * &#064;Override
+     * protected void configure(AuthenticationManagerBuilder auth) {
+     * 	auth
+     * 	// enable in memory based authentication with a user named
+     * 	// &quot;user&quot; and &quot;admin&quot;
+     * 	.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;).and()
+     * 			.withUser(&quot;admin&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;, &quot;ADMIN&quot;);
+     * }
+     *
+     * // Expose the UserDetailsService as a Bean
+     * &#064;Bean
+     * &#064;Override
+     * public UserDetailsService userDetailsServiceBean() throws Exception {
+     * 	return super.userDetailsServiceBean();
+     * }
+     *
+     * </pre>
+     * @param auth the {@link AuthenticationManagerBuilder} to use
+     * @throws Exception Exception
+     */
+    void configure(AuthenticationManagerBuilder auth) throws Exception;
+
 
     /**
      * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在前面处理的配置。<br><br>
