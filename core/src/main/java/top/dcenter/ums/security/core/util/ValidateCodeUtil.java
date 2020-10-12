@@ -1,7 +1,10 @@
 package top.dcenter.ums.security.core.util;
 
+import org.springframework.lang.NonNull;
+
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 验证码工具
@@ -10,9 +13,19 @@ import java.util.UUID;
  */
 public class ValidateCodeUtil {
 
-    public static final String VERIFY_CODES = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
-    public static final String NUMBER_VERIFY_CODES = "0123456789";
-
+    private final static byte[] DIGITS = {
+            '0', '1', '2', '3', '4', '5',
+            '6', '7', '8', '9', 'a', 'b',
+            'c', 'd', 'e', 'f', 'g', 'h',
+            'i', 'j', 'k', 'l', 'm', 'n',
+            'o', 'p', 'q', 'r', 's', 't',
+            'u', 'v', 'w', 'x', 'y', 'z',
+            'A', 'B', 'C', 'D', 'E', 'F',
+            'G', 'H', 'I', 'J', 'K', 'L',
+            'M', 'N', 'O', 'P', 'Q', 'R',
+            'S', 'T', 'U', 'V', 'W', 'X',
+            'Y', 'Z'
+    };
 
     /**
      * 不带 - 的 uuid
@@ -24,45 +37,48 @@ public class ValidateCodeUtil {
 
 
     /**
-     * 使用系统默认字符源生成验证码
+     * 使用默认字符源(2-9a-zA-Z)生成验证码
      *
-     * @param verifySize
-     *            验证码长度
+     * @param verifySize 验证码长度, not null
      * @return  验证码字符串
      */
-    public static String generateVerifyCode(int verifySize) {
-        return generateVerifyCode(verifySize, VERIFY_CODES);
+    public static String generateVerifyCode(@NonNull Integer verifySize) {
+        return generateVerifyCode(verifySize, false);
     }
 
     /**
-     * 使用数字生成验证码
+     * 使用数字(0-9)生成验证码
      *
-     * @param verifySize
-     *            验证码长度
+     * @param verifySize 验证码长度, not null
      * @return  验证码字符串
      */
-    public static String generateNumberVerifyCode(int verifySize) {
-        return generateVerifyCode(verifySize, NUMBER_VERIFY_CODES);
+    public static String generateNumberVerifyCode(@NonNull Integer verifySize) {
+        return generateVerifyCode(verifySize, true);
     }
 
     /**
      * 使用指定源生成验证码
      *
-     * @param verifySize
-     *            验证码长度
-     * @param sources
-     *            验证码字符源
+     * @param verifySize    验证码长度
+     * @param isNumber      是否数字验证码, 用于非数字验证码时去除 0 和 1 两个数字
      * @return  验证码字符串
      */
-    public static String generateVerifyCode(int verifySize, String sources) {
-        if (sources == null || sources.length() == 0) {
-            sources = VERIFY_CODES;
-        }
-        int codeLen = sources.length();
-        Random rand = new Random(System.currentTimeMillis());
+    private static String generateVerifyCode(int verifySize, boolean isNumber) {
+        Random rand = ThreadLocalRandom.current();
+        int length = DIGITS.length;
         StringBuilder verifyCode = new StringBuilder(verifySize);
-        for (int i = 0; i < verifySize; i++) {
-            verifyCode.append(sources.charAt(rand.nextInt(codeLen - 1)));
+        for (int i = 0; i < verifySize; i++)
+        {
+            if (isNumber)
+            {
+                // 纯数字
+                verifyCode.append((char) DIGITS[rand.nextInt(10)]);
+            }
+            else
+            {
+                // 去除 0 和 1 两个数字
+                verifyCode.append((char) DIGITS[Math.abs(rand.nextInt(length - 2) + 2)]);
+            }
         }
         return verifyCode.toString();
     }

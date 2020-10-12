@@ -2,6 +2,7 @@ package top.dcenter.ums.security.core.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.lang.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -13,18 +14,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.net.URLDecoder.decode;
 
 /**
- * 类型转换工具栏
+ * 类转换工具栏
  * @author zyw
  * @version V1.0  Created by 2020/5/6 13:59
  */
 public class ConvertUtil {
 
+    /**
+     * 特殊字符正则，sql特殊字符和空白符
+     */
+    private final static Pattern SPECIAL_CHARS_REGEX = Pattern.compile("[`'\"|/,;()-+*%#·•�　\\s]");
+
+    /**
+     * 清理字符串，清理出某些不可见字符和一些sql特殊字符
+     *
+     * @param txt 文本
+     * @return {String}
+     */
+    @Nullable
+    public static String cleanText(@Nullable String txt) {
+        if (txt == null) {
+            return null;
+        }
+        return SPECIAL_CHARS_REGEX.matcher(txt).replaceAll("");
+    }
 
     /**
      * 字符转换为 Set 类型，比如：name,age,job

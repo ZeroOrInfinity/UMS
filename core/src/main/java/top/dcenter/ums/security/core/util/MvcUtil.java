@@ -43,7 +43,7 @@ public class MvcUtil {
     /**
      * {@link UrlPathHelper}
      */
-    private static UrlPathHelper urlPathHelper = null;
+    private volatile static UrlPathHelper urlPathHelper = null;
 
     /**
      * 获取 {@link UrlPathHelper}
