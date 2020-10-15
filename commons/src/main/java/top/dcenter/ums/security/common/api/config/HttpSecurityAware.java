@@ -1,6 +1,5 @@
-package top.dcenter.ums.security.core.api.config;
+package top.dcenter.ums.security.common.api.config;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,13 +9,14 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.SecurityContextConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
-import top.dcenter.ums.security.core.config.SecurityCoreAutoConfigurer;
+import org.springframework.util.StringUtils;
+import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
+import top.dcenter.ums.security.common.config.SecurityCoreAutoConfigurer;
+import top.dcenter.ums.security.common.consts.SecurityConstants;
 
 import java.util.Map;
 import java.util.Set;
 
-import static top.dcenter.ums.security.core.consts.SecurityConstants.URI_METHOD_SEPARATOR;
 
 /**
  * 对 WebSecurityConfigurerAdapter 的扩展，使其能跨模块的灵活的添加 {@link HttpSecurity} 配置, {@link WebSecurity} 配置,
@@ -30,7 +30,6 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.URI_METHOD_
  *         authorizeRequests().anyRequest().authenticate 放到最后，不然在之后配置的都不会生效。实现
  *         {@link HttpSecurityAware#getAuthorizeRequestMap() } 方法。<br><br>
  * 最终在：{@link SecurityCoreAutoConfigurer} 中配置. <br><br>
- *
  *
  * @author zyw
  * @version V1.0
@@ -149,8 +148,9 @@ public interface HttpSecurityAware {
      * @param permitUrls    permitUrls 在 application.yml 配置文件上的 url(带 HttpMethod 后缀; 用 : 分隔)
      * @param permitAllMap  permitAllMap
      */
+    @SuppressWarnings("unused")
     default void permitUrlsFillingPermitAllMap(@NonNull Set<String> permitUrls,
-                                                    @NonNull final Map<UriHttpMethodTuple, Set<String>> permitAllMap) {
+                                               @NonNull final Map<UriHttpMethodTuple, Set<String>> permitAllMap) {
         permitUrls.forEach(uri -> permitUrlFillingPermitAllMap(uri, permitAllMap));
     }
 
@@ -162,7 +162,11 @@ public interface HttpSecurityAware {
     default void permitUrlFillingPermitAllMap(@NonNull String permitUrl,
                                                     @NonNull final Map<UriHttpMethodTuple, Set<String>> permitAllMap) {
         UriHttpMethodTuple tuple = null;
-        String[] split = StringUtils.splitByWholeSeparator(permitUrl, URI_METHOD_SEPARATOR);
+        String[] split = StringUtils.split(permitUrl, SecurityConstants.URI_METHOD_SEPARATOR);
+        if (null == split)
+        {
+            return;
+        }
         switch (split.length)
         {
             case 1:

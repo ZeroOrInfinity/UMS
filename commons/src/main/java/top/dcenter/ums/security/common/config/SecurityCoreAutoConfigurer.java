@@ -1,11 +1,6 @@
-package top.dcenter.ums.security.core.config;
+package top.dcenter.ums.security.common.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,17 +15,11 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
-import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.WebApplicationContext;
-import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
-import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
-import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
-import top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler;
-import top.dcenter.ums.security.core.auth.filter.AjaxOrFormRequestFilter;
-import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
-import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
-import top.dcenter.ums.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
+import top.dcenter.ums.security.common.consts.SecurityConstants;
+import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,7 +29,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static top.dcenter.ums.security.core.api.config.HttpSecurityAware.*;
+import static top.dcenter.ums.security.common.api.config.HttpSecurityAware.*;
 
 /**
  * 核心 HttpSecurity 安全相关配置
@@ -49,46 +38,14 @@ import static top.dcenter.ums.security.core.api.config.HttpSecurityAware.*;
  * @version V1.0  Created by 2020/5/3 13:14
  * @author zyw
  */
-@SuppressWarnings("jol")
 @Configuration
 @Order(99)
 @EnableWebSecurity
-@AutoConfigureAfter({
-        SecurityAutoConfiguration.class,
-        SmsCodeLoginAuthenticationAutoConfigurerAware.class,
-        ClientAutoConfigurerAware.class,
-        CsrfAutoConfigurerAware.class,
-        RememberMeAutoConfigurerAware.class,
-        SessionAutoConfigurerAware.class,
-        ValidateCodeAutoConfigurerAware.class})
-@Slf4j
 public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
-
-    private final ClientProperties clientProperties;
-    private final BaseAuthenticationSuccessHandler  baseAuthenticationSuccessHandler;
-    private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
-    private final ObjectMapper objectMapper;
-    private final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
-    private final DefaultLogoutSuccessHandler defaultLogoutSuccessHandler;
 
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
     private Map<String, HttpSecurityAware> webSecurityConfigurerMap;
-
-    public SecurityCoreAutoConfigurer(ClientProperties clientProperties,
-                                      BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
-                                      BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
-                                      ObjectMapper objectMapper,
-                                      UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider,
-                                      DefaultLogoutSuccessHandler defaultLogoutSuccessHandler) {
-        this.clientProperties = clientProperties;
-        this.baseAuthenticationSuccessHandler = baseAuthenticationSuccessHandler;
-        this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
-        this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        this.usernamePasswordAuthenticationProvider = usernamePasswordAuthenticationProvider;
-        this.defaultLogoutSuccessHandler = defaultLogoutSuccessHandler;
-    }
-
 
     @Override
     public void configure(WebSecurity web) {
@@ -100,7 +57,6 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
             }
         }
     }
-
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -126,7 +82,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
          * 把权限类型: PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED, FULLY_AUTHENTICATED, REMEMBER_ME 放入 authorizeRequestMap
          * 把权限类型: HAS_ROLE, HAS_ANY_ROLE, HAS_AUTHORITY, HAS_ANY_AUTHORITY, HAS_IP_ADDRESS 放入 authorizeRequestMapPlus
          */
-        groupingAuthorizeRequestUris(http, authorizeRequestMap, authorizeRequestMapPlus);
+        groupingAuthorizeRequestUris(authorizeRequestMap, authorizeRequestMapPlus);
 
         // 将 AuthorizeRequestUriSet 转换为对应的 array
         UriHttpMethodTuple[] permitAllArray = set2ArrayByType(authorizeRequestMap, PERMIT_ALL);
@@ -144,54 +100,21 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
         Map<UriHttpMethodTuple, String[]> hasAnyAuthorityMap = toMapPlusByType(authorizeRequestMapPlus, HAS_ANY_AUTHORITY);
         Map<UriHttpMethodTuple, String[]> hasIpAddressMap = toMapPlusByType(authorizeRequestMapPlus, HAS_IP_ADDRESS);
 
-        // 添加 AjaxOrFormRequestFilter 增加对 Ajax 格式与 form 格式的解析,
-        http.addFilterBefore(new AjaxOrFormRequestFilter(objectMapper), CsrfFilter.class);
-
-        // 判断是否开启根据不同的uri跳转到相对应的登录页, 假设开启
-        String loginUnAuthenticationRoutingUrl = clientProperties.getLoginUnAuthenticationRoutingUrl();
-        if (!clientProperties.getOpenAuthenticationRedirect())
+        // 处理 preConfigure
+        if (webSecurityConfigurerMap != null)
         {
-            // 没有开启根据不同的uri跳转到相对应的登录页, 直接跳转到登录页
-            loginUnAuthenticationRoutingUrl = clientProperties.getLogoutUrl();
+            for (HttpSecurityAware postConfigurer : webSecurityConfigurerMap.values())
+            {
+                postConfigurer.preConfigure(http);
+            }
         }
-        /* 用户密码登录的 Provider, 只是对 org.springframework.security.auth.dao.DaoAuthenticationProvider 的 copy.
-         * 替换 org.springframework.security.auth.dao.DaoAuthenticationProvider 的一个原因是:
-         * 当有 IOC 容器中有多个 UserDetailsService 时, org.springframework.security.auth.dao
-         * .DaoAuthenticationProvider 会失效.
-         * 如果要对前端传过来的密码进行解密,则请实现 UserDetailsPasswordService
-         */
-        http.authenticationProvider(usernamePasswordAuthenticationProvider)
-                .formLogin()
-                .usernameParameter(clientProperties.usernameParameter)
-                .passwordParameter(clientProperties.passwordParameter)
-                .loginPage(loginUnAuthenticationRoutingUrl)
-                // uri 需要自己实现
-                .failureUrl(clientProperties.getFailureUrl())
-                .defaultSuccessUrl(clientProperties.getSuccessUrl())
-                // 由 Spring Security 接管，不用任何处理
-                .loginProcessingUrl(clientProperties.getLoginProcessingUrl())
-                // 语句位置更重要, 放在 failureUrl()与defaultSuccessUrl()之前会失效
-                .successHandler(baseAuthenticationSuccessHandler)
-                .failureHandler(baseAuthenticationFailureHandler);
 
-        // 匿名用户配置
-        anonymousConfigurer(http);
-
-        // 配置 uri 验证与授权信息
+        // 配置 权限 验证 授权 信息
         urlAuthorizationConfigurer(http, permitAllArray, denyAllArray, anonymousArray, authenticatedArray,
                                    fullyAuthenticatedArray, rememberMeArray, accessArray, hasRoleMap, hasAnyRoleMap,
                                    hasAuthorityMap, hasAnyAuthorityMap, hasIpAddressMap);
 
-
-        // logout
-        logoutConfigurer(http);
-
-        // 允许来自同一来源(如: example.com)的请求
-        if (clientProperties.getSameOrigin())
-        {
-            http.headers().frameOptions().sameOrigin();
-        }
-
+        // 处理 postConfigure
         if (webSecurityConfigurerMap != null)
         {
             for (HttpSecurityAware postConfigurer : webSecurityConfigurerMap.values())
@@ -199,34 +122,6 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                 postConfigurer.postConfigure(http);
             }
         }
-    }
-
-    private void anonymousConfigurer(HttpSecurity http) throws Exception {
-        ClientProperties.AnonymousProperties anonymous = clientProperties.getAnonymous();
-        String[] authorities = new String[anonymous.getAuthorities().size()];
-        anonymous.getAuthorities().toArray(authorities);
-        if (anonymous.getAnonymousIsOpen())
-        {
-            http.anonymous()
-                .principal(anonymous.getPrincipal())
-                .authorities(authorities);
-        }
-        else
-        {
-            http.anonymous().disable();
-        }
-    }
-
-    private void logoutConfigurer(HttpSecurity http) throws Exception {
-        http.logout()
-                .logoutUrl(clientProperties.getLogoutUrl())
-                .logoutSuccessHandler(defaultLogoutSuccessHandler)
-                .logoutSuccessUrl(clientProperties.getLogoutSuccessUrl())
-                .deleteCookies(clientProperties.getRememberMe().getRememberMeCookieName(),
-                           clientProperties.getSession().getSessionCookieName())
-                .clearAuthentication(true)
-                .invalidateHttpSession(true)
-                .permitAll();
     }
 
     private void urlAuthorizationConfigurer(HttpSecurity http, UriHttpMethodTuple[] permitAllArray,
@@ -257,7 +152,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
             StringBuilder sb = new StringBuilder();
             for (UriHttpMethodTuple tuple : accessArray)
             {
-                if (tuple != null && StringUtils.isNotBlank(tuple.getUri()))
+                if (tuple != null && StringUtils.hasText(tuple.getUri()))
                 {
                     sb.append(tuple).append(" and ");
                 }
@@ -362,7 +257,6 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                 break;
             default:
                 String msg = String.format("权限类型 %s 错误", authorizeRequestType);
-                log.error(msg);
                 throw new RuntimeException(msg);
         }
     }
@@ -458,7 +352,6 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                 break;
             default:
                 String msg = String.format("权限类型 %s 错误", authorizeRequestType);
-                log.error(msg);
                 throw new RuntimeException(msg);
         }
     }
@@ -482,10 +375,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
         {
             UriHttpMethodTuple[] uriArray = new UriHttpMethodTuple[set.size()];
             set.toArray(uriArray);
-            if (log.isDebugEnabled())
-            {
-                log.debug("{} = {}", authorizeRequestType, Arrays.toString(uriArray));
-            }
+
             return uriArray;
 
         }
@@ -524,22 +414,17 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
     /**
      * 对 HttpSecurity进行前置配置, 再把从 {@link HttpSecurityAware#getAuthorizeRequestMap()} 获取的 Map 根据权限分类进行合并,
      * 把权限作为 key 与之相对应的 uriSet 作为 value, 分类放入 map, 此 map 存储在 applicationContent 时所用的 key 传入参数都不能为 null.
-     * @param http  HttpSecurity
      * @param targetAuthorizeRequestMap  用于存储 PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED, FULLY_AUTHENTICATED,
      *                                   REMEMBER_ME 的权限类型.
      * @param targetAuthorizeRequestMapPlus  用于存储 HAS_ROLE, HAS_ANY_ROLE, HAS_AUTHORITY, HAS_ANY_AUTHORITY, HAS_IP_ADDRESS
      *                                       的权限类型.
-     * @throws Exception  Exception
      */
-    private void groupingAuthorizeRequestUris(@NonNull HttpSecurity http,
-                                              @NonNull Map<String, Set<UriHttpMethodTuple>> targetAuthorizeRequestMap,
-                                              @NonNull Map<String, Map<UriHttpMethodTuple, Set<String>>> targetAuthorizeRequestMapPlus) throws Exception {
+    private void groupingAuthorizeRequestUris(@NonNull Map<String, Set<UriHttpMethodTuple>> targetAuthorizeRequestMap,
+                                              @NonNull Map<String, Map<UriHttpMethodTuple, Set<String>>> targetAuthorizeRequestMapPlus) {
         if (this.webSecurityConfigurerMap != null)
         {
             for (HttpSecurityAware configurer : this.webSecurityConfigurerMap.values())
             {
-                configurer.preConfigure(http);
-
                 Map<String, Map<UriHttpMethodTuple, Set<String>>> authorizeRequestMap = configurer.getAuthorizeRequestMap();
                 groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, PERMIT_ALL);
                 groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, DENY_ALL);
@@ -558,7 +443,6 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
 
             ApplicationContext applicationContext = getApplicationContext();
             WebApplicationContext servletContext = (WebApplicationContext) applicationContext;
-
             // 把 targetAuthorizeRequestMap 添加到 ServletContext, 主要用于 AuthenticationUtil.isPermitAll(..)
             Objects.requireNonNull(servletContext.getServletContext())
                     .setAttribute(SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY, targetAuthorizeRequestMap);
