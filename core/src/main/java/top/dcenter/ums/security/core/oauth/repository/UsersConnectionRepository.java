@@ -1,0 +1,174 @@
+package top.dcenter.ums.security.core.oauth.repository;
+
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.util.MultiValueMap;
+import top.dcenter.ums.security.core.oauth.repository.exception.DuplicateConnectionException;
+import top.dcenter.ums.security.core.oauth.repository.exception.NoSuchConnectionException;
+import top.dcenter.ums.security.core.oauth.repository.exception.NotConnectedException;
+import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.ConnectionData;
+import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.ConnectionKey;
+
+import java.util.List;
+import java.util.Set;
+
+/**
+ * A data access interface for managing a global store of users connections to service providers.
+ * Provides data access operations.
+ * @author Keith Donald
+ * @author zyw
+ * @version V2.0  Created by 2020-10-08 20:10
+ */
+@SuppressWarnings({"unused", "UnusedReturnValue"})
+public interface UsersConnectionRepository {
+
+	/**
+	 * 根据 providerId 与 providerUserId 获取 ConnectionData list.
+	 * @param providerId        第三方服务商, 如: qq, github
+	 * @param providerUserId    第三方用户 Id
+	 * @return  connection data list
+	 */
+	List<ConnectionData> findConnectionByProviderIdAndProviderUserId(String providerId, String providerUserId);
+
+	/**
+	 * Find the ids of the users who are connected to the specific provider user accounts.
+	 * @param providerId        第三方服务商, 如: qq, github
+	 * @param providerUserIds   the set of provider user ids e.g. ("987665", "435796", "584444").
+	 * @return the set of user ids connected to those service provider users, or empty if none.
+	 */
+	Set<String> findUserIdsConnectedTo(String providerId, Set<String> providerUserIds);
+
+	/**
+	 * Find all connections the current user has across all providers.
+	 * The returned map contains an entry for each provider the user is connected to.
+	 * The key for each entry is the providerId, and the value is the list of {@link ConnectionData}s that exist between the user and that provider.
+	 * For example, if the user is connected once to Facebook and twice to Twitter, the returned map would contain two entries with the following structure:
+	 * <pre>
+	 * {
+	 *     "qq" -&gt; Connection("Jack") ,
+	 *     "github"  -&gt; Connection("Tomas"), Connection("Jessica")
+	 * }
+	 * </pre>
+	 * The returned map is sorted by providerId and entry values are ordered by rank.
+	 * Returns an empty map if the user has no connections.
+	 * @param userId the userId
+	 * @return all connections the current user has across all providers.
+	 */
+	MultiValueMap<String, ConnectionData> findAllConnections(String userId);
+
+	/**
+	 * Find the connections the current user has to the provider registered by the given id e.g. 'qq'.
+	 * The returned list is ordered by connection rank.
+	 * Returns an empty list if the user has no connections to the provider.
+	 * @param userId        本地账户用户 Id
+	 * @param providerId    the provider id e.g. "qq"
+	 * @return the connections the user has to the provider, or an empty list if none
+	 */
+	List<ConnectionData> findConnections(String userId, String providerId);
+
+	/**
+	 * Find the connections the current user has to the given provider users.
+	 * The providerUsers parameter accepts a map containing an entry for each provider the caller is interested in.
+	 * The key for each entry is the providerId e.g. "qq", and the value is a list of provider user ids to fetch
+	 * connections to e.g. ("987665", "435796", "584444").
+	 * The returned map has the same structure and order, except the provider userId values have been replaced by Connection instances.
+	 * If no connection exists between the current user and a given provider user, a null value is returned for that position.
+	 * @param userId            本地账户用户 Id
+	 * @param providerUserIds   第三方用户 Id
+	 * @return the provider user connection map
+	 */
+	MultiValueMap<String, ConnectionData> findConnectionsToUsers(String userId, MultiValueMap<String, String> providerUserIds);
+
+	/**
+	 * Get the "primary" connection the current user.
+	 * If the user has multiple connections to the provider, this method returns the one with the top rank (or priority).
+	 * Useful for direct use by application code to obtain a parameterized Connection instance.
+	 * @param userId        本地账户用户 Id
+	 * @param providerId    the provider id e.g. "qq"
+	 * @return the primary connection
+	 * @throws NotConnectedException if the user is not connected to the provider of the API
+	 */
+	ConnectionData getPrimaryConnection(String userId, String providerId);
+
+	/**
+	 * Add a new connection to this repository for the current user.
+	 * After the connection is added, it can be retrieved later using one of the finders defined in this interface.
+	 * @param connection the new connection to add to this repository
+	 * @throws DuplicateConnectionException if the user already has this connection
+	 */
+	void addConnection(ConnectionData connection);
+
+	/**
+	 * Update a Connection already added to this repository.
+	 * Merges the field values of the given connection object with the values stored in the repository.
+	 * @param connection the existing connection to update in this repository
+	 * @return ConnectionData 这里返回值的目的主要为了更新 spring cache
+	 */
+	ConnectionData updateConnection(ConnectionData connection);
+
+	/**
+	 * Remove all Connections between the current user and the provider from this repository.
+	 * Does nothing if no provider connections exist.
+	 * @param userId        本地账户用户 Id
+	 * @param providerId    the provider id e.g. "qq"
+	 */
+	void removeConnections(String userId, String providerId);
+
+	/**
+	 * Remove a single Connection for the current user from this repository.
+	 * Does nothing if no such connection exists.
+	 * @param userId        本地账户用户 Id
+	 * @param connectionKey the connection key
+	 */
+	void removeConnection(String userId, ConnectionKey connectionKey);
+
+	/**
+	 * 根据 userId 与 providerId 获取 ConnectionData
+	 * @param userId        本地账户用户 Id
+	 * @param providerId    the provider id e.g. "qq"
+	 * @return  ConnectionData
+	 */
+	ConnectionData findPrimaryConnection(String userId, String providerId);
+
+	/**
+	 * 根据 userId 和 connectionKey 获取 ConnectionData
+	 * @param userId        本地账户用户 Id
+	 * @param connectionKey connectionKey
+	 * @return  ConnectionData
+	 * @throws NoSuchConnectionException   no such connection exception
+	 */
+	ConnectionData getConnection(String userId, ConnectionKey connectionKey) throws NoSuchConnectionException;
+
+	/**
+	 * 根据 userId 获取 ConnectionData list
+	 * @param userId    本地账户用户 Id
+	 * @return  connection data list
+	 */
+	List<ConnectionData> findAllListConnections(String userId);
+
+	/**
+	 * 根据 userId 通过指定 providerUsersCriteriaSql 与 parameters 的 sql 获取 ConnectionData list
+	 * @param parameters                sql 的 where 条件 与 对应参数
+	 * @param providerUsersCriteriaSql  providerUsersCriteriaSql
+	 * @param userId                    本地账户用户 Id
+	 * @return  connection data list
+	 */
+	List<ConnectionData> findConnectionsToUsers(MapSqlParameterSource parameters, String providerUsersCriteriaSql, String userId);
+
+	/**
+	 * 根据 {@code AuthTokenPo#getId()} 更新 {@link ConnectionData}.<br>
+	 *     注意: 使用这个接口更新会使 spring cache 缓存更新延迟, 出现缓存强一致性问题, 这接口目的用于 refreshToken 的定时任务, 更新
+	 *     时间一般在凌晨 1-5 点.
+	 * @param token {@link AuthTokenPo}
+	 * @return      返回更新过的 {@link ConnectionData}, 还可以顺便更新 spring cache
+	 */
+	ConnectionData updateConnectionByTokenId(AuthTokenPo token);
+
+	/**
+	 * 根据 tokenId 查找 {@link ConnectionData}<br>
+	 * 注意: 这里不做 spring cache 缓存处理, 这个接口主要用于 refreshToken 的定时任务, 只调用一次, 缓存无意义
+	 * @param tokenId   {@code AuthTokenPo#getId()}
+	 * @return  ConnectionData
+	 */
+	ConnectionData findConnectionByTokenId(Long tokenId);
+}
