@@ -42,7 +42,7 @@ public class SocialAuthenticationSignUpAutoConfigurerAware implements HttpSecuri
 
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
-        // 短信验证码登录配置
+        // 第三方授权登录自动注册配置
         if (this.socialAuthenticationSignUpAutoConfig != null)
         {
             http.apply(this.socialAuthenticationSignUpAutoConfig);

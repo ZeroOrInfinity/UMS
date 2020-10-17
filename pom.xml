@@ -6,7 +6,10 @@
 
     <groupId>top.dcenter</groupId>
     <artifactId>ums</artifactId>
-    <version>1.2.0</version>
+    <version>2.0.0</version>
+    <modules>
+        <module>commons</module>
+    </modules>
 
     <packaging>pom</packaging>
     <name>ums</name>
@@ -56,7 +59,7 @@
     </distributionManagement>
 
     <properties>
-        <top.dcenter.version>1.2.0</top.dcenter.version>
+        <top.dcenter.version>2.0.0</top.dcenter.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
@@ -83,6 +86,8 @@
         <org.projectlombok.version>1.18.12</org.projectlombok.version>
         <spring-social.version>1.1.6.RELEASE</spring-social.version>
         <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
+        <servlet-api.version>3.0-alpha-1</servlet-api.version>
+        <xkcoding-simple-http.version>1.0.3</xkcoding-simple-http.version>
 
     </properties>
 
@@ -125,6 +130,25 @@
                 <groupId>org.springframework.social</groupId>
                 <artifactId>spring-social-core</artifactId>
                 <version>${spring-social.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>me.zhyd.oauth</groupId>
+                <artifactId>JustAuth</artifactId>
+                <version>${just-auth.version}</version>
+            </dependency>
+
+            <!-- 修复 HttpClientImpl timeout 配置失效问题, 作者(xkcoding) 更新太慢, 自己先上传一个 -->
+            <dependency>
+                <groupId>top.dcenter</groupId>
+                <artifactId>xkcoding-simple-http</artifactId>
+                <version>${xkcoding-simple-http.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>${servlet-api.version}</version>
             </dependency>
 
             <!-- wireMock -->

@@ -63,7 +63,7 @@ SocialAuthenticationProvider -> OAuthJdbcUsersConnectionRepository: 2.1.4.1.1.2.
 activate SocialAuthenticationProvider
 activate OAuthJdbcUsersConnectionRepository
 opt 自动注册
-OAuthJdbcUsersConnectionRepository --> OAuthJdbcUsersConnectionRepository: 2.1.4.1.1.2.1.1\n userIds.size()==0 &&\n connectionSignUp!=null成立\n则《自动注册>用户信息
+OAuthJdbcUsersConnectionRepository --> OAuthJdbcUsersConnectionRepository: 2.1.4.1.1.2.1.1\n userIds.size()==0 &&\n connectionService!=null成立\n则《自动注册>用户信息
 participant BaseConnectionSignUp #ff9800
 OAuthJdbcUsersConnectionRepository -> BaseConnectionSignUp: 2.1.4.1.1.2.1.1.1\n execute(c) \n根据提交的信息查询并\n确认是否有newUserId
 activate BaseConnectionSignUp

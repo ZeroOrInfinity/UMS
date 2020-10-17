@@ -55,7 +55,7 @@ User management scaffolding, integration: validate code, mobile login, OAuth2(au
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>1.2.0</version>
+    <version>2.0.0</version>
 </dependency>
 <!-- 第三方登录(自动注册，绑定与解绑, redis cache), 通过统一的回调地址入口实现多回调地址的路由功能 -->
 <!-- 包含 ums-core-spring-boot-starter 依赖 -->
@@ -175,8 +175,8 @@ ums:
     domain: http://127.0.0.1
 
     # 从第三方服务商获取的信息
-    # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(ums.social.[qq/wechat/gitee/weibo])组成
-    # 假设 servletcontextPath=/demo
+    # redirectUrl 直接由 {domain}/{servletContextPath}/{redirectUrlPrefix}/{providerId}(ums.oauth.[qq/gitee/weibo])组成
+    # 假设 servletContextPath=/demo
     # redirect-url: http://127.0.0.1/demo/auth/callback/qq
     gitee:
       # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false
@@ -219,7 +219,7 @@ import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
 import top.dcenter.ums.security.core.util.RequestUtil;
@@ -547,8 +547,18 @@ public class UserController {
         return "login";
     }
 
-    @GetMapping("/index")
-    public String index() {
+    @GetMapping("/")
+    public String index(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        if (userDetails != null)
+        {
+            model.addAttribute("username", userDetails.getUsername());
+            model.addAttribute("roles", userDetails.getAuthorities());
+        }
+        else
+        {
+            model.addAttribute("username", "anonymous");
+            model.addAttribute("roles", "ROLE_VISIT");
+        }
         return "index";
     }
 
@@ -695,7 +705,7 @@ public class UserController {
                     // 注册成功
                     // ...
                     console.log(data)
-                    let uri = data.data.url
+                    let uri = data.data.targetUrl
                     if (uri === null) {
                         uri = basePath
                     }
@@ -748,7 +758,8 @@ public class UserController {
     <title>index</title>
 </head>
 <body>
-    hello world!
+    hello <span th:text="${username}">world!</span><br>
+    roles: <span th:text="${roles}"/>
     <!-- 通过 th:action 的方式支持 csrf 或者 添加隐藏域<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
     <form th:action="@{/logout?logout}" method="post">
         <input type="submit" value="退出登录post"/>
