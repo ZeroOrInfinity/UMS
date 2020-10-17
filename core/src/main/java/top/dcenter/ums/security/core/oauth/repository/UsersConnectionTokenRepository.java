@@ -2,6 +2,7 @@ package top.dcenter.ums.security.core.oauth.repository;
 
 import org.springframework.lang.NonNull;
 import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.enums.EnableRefresh;
 
 import java.util.List;
 
@@ -61,6 +62,16 @@ public interface UsersConnectionTokenRepository {
 	 * @return  符合条件的 {@link AuthTokenPo} 列表
 	 * @throws Exception   查询错误
 	 */
-	List<AuthTokenPo> findAuthTokenByExpireTimeAndBetweenId(@NonNull Long expiredTime, @NonNull Integer startId,
-	                                                        @NonNull Integer endId) throws Exception;
+	List<AuthTokenPo> findAuthTokenByExpireTimeAndBetweenId(@NonNull Long expiredTime, @NonNull Long startId,
+	                                                        @NonNull Long endId) throws Exception;
+
+	/**
+	 * 根据 tokenId 更新 auth_token 表中的 enableRefresh 字段
+	 * @param enableRefresh {@link EnableRefresh}
+	 * @param tokenId       token id
+	 * @throws Exception    更新异常
+	 */
+	void updateEnableRefreshByTokenId(@NonNull EnableRefresh enableRefresh, @NonNull Long tokenId) throws Exception;
+
+
 }

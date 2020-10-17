@@ -16,7 +16,7 @@ CREATE TABLE `user_connection` (
    `accessToken` varchar(512) NOT NULL,
    `tokenId` bigint(20) DEFAULT NULL COMMENT 'auth_token.id',
    `refreshToken` varchar(512) DEFAULT NULL,
-   `expireTime` bigint(20) DEFAULT -1 COMMENT '过期时间, 基于 1970-01-01T00:00:00Z, 无过期时间默认为 -1',
+   `expireTime` bigint(20) DEFAULT '-1' COMMENT '过期时间, 基于 1970-01-01T00:00:00Z, 无过期时间默认为 -1',
    PRIMARY KEY (`userId`,`providerId`,`providerUserId`),
    UNIQUE KEY `idx_userId_providerId_rank` (`userId`,`providerId`,`rank`),
    KEY `idx_providerId_providerUserId_rank` (`providerId`,`providerUserId`,`rank`),

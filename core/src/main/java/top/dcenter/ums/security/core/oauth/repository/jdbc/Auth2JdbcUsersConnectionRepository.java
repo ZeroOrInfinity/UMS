@@ -48,12 +48,13 @@ import static top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfigura
  * Provides data access operations.
  * 抽取了 sql 语句，与 用户表的字段名称到 {@link RepositoryProperties},
  * 更便于用户自定义。<br><br>
- * redis 缓存 key 说明: "h:" 前缀表示为 hash key 前缀(绝对匹配), "hm:" 前缀表示为 hash key 前缀(父 key 可匹配, field 不能),
+ * redis 缓存 key 说明: "h:"(单个返回值)/"hs(多个返回值):" 前缀表示为 hash key 前缀(绝对匹配), "hm:" 前缀表示为 hash key 前缀(父 key 可匹配, field 不能),
  * "__" 为 hash key 的分隔符. 下面为 key 列表:
  * <pre>
- * USER_CONNECTION_HASH_CACHE_NAME:    'h:' + providerId + '__' + providerUserId
+ * USER_CONNECTION_HASH_CACHE_NAME:    'hs:' + providerId + '__' + providerUserId
  * USER_CONNECTION_HASH_CACHE_NAME:    'h:' + userId + ':' + providerId + '__' + providerUserId
  * USER_CONNECTION_HASH_CACHE_NAME:    'h:' + userId + '__' + providerId
+ * USER_CONNECTION_HASH_CACHE_NAME:    'hs:' + userId + '__' + providerId
  *
  * USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME:   'hm:' + providerId + '__' + providerUserIds
  * USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME:   'hm:' + userId + '__' + methodName(findAllConnections,findAllListConnections)
@@ -84,7 +85,7 @@ public class Auth2JdbcUsersConnectionRepository implements UsersConnectionReposi
     }
 
     @Cacheable(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
-            key = "'h:' + #providerId + '__' + #providerUserId")
+            key = "'hs:' + #providerId + '__' + #providerUserId")
     @Override
     public List<ConnectionData> findConnectionByProviderIdAndProviderUserId(String providerId, String providerUserId) {
         try
@@ -144,7 +145,7 @@ public class Auth2JdbcUsersConnectionRepository implements UsersConnectionReposi
 
     @Override
     @Cacheable(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
-            key = "'h:' + #userId + '__' + #providerId")
+            key = "'hs:' + #userId + '__' + #providerId")
     public List<ConnectionData> findConnections(String userId, String providerId) {
         return getConnectionDataList(userId, providerId);
     }
@@ -208,6 +209,17 @@ public class Auth2JdbcUsersConnectionRepository implements UsersConnectionReposi
         }
     }
 
+    @Override
+    @Cacheable(cacheNames = USER_CONNECTION_HASH_CACHE_NAME, key = "'h:' + #userId + '__' + #providerId")
+    public ConnectionData getPrimaryConnection(String userId, String providerId) throws NotConnectedException {
+        ConnectionData connection = findPrimaryConnection(userId, providerId);
+        if (connection == null)
+        {
+            throw new NotConnectedException(userId + ":" + providerId);
+        }
+        return connection;
+    }
+
     private List<ConnectionData> getConnectionDataList(String userId, String providerId) {
         try
         {
@@ -226,17 +238,6 @@ public class Auth2JdbcUsersConnectionRepository implements UsersConnectionReposi
             log.error(msg, e);
             return null;
         }
-    }
-
-    @Override
-    @Cacheable(cacheNames = USER_CONNECTION_HASH_CACHE_NAME, key = "'h:' + #userId + '__' + #providerId")
-    public ConnectionData getPrimaryConnection(String userId, String providerId) {
-        ConnectionData connection = findPrimaryConnection(userId, providerId);
-        if (connection == null)
-        {
-            throw new NotConnectedException(userId + ":" + providerId);
-        }
-        return connection;
     }
 
     @Caching(
@@ -284,10 +285,14 @@ public class Auth2JdbcUsersConnectionRepository implements UsersConnectionReposi
                             key = "'h:' + #connection.userId + '__' + #connection.providerId",
                             beforeInvocation = true),
                     @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
-                            key = "'h:' + #connection.providerId + '__' + #connection.providerUserId",
+                            key = "'hs:' + #connection.userId + '__' + #connection.providerId",
+                            beforeInvocation = true),
+                    @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+                            key = "'hs:' + #connection.providerId + '__' + #connection.providerUserId",
                             beforeInvocation = true)
             },
             put = {@CachePut(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+                    // 假定一个本地用户只能绑定一个同一第三方账号
                     key = "'h:' + #connection.userId + '__' + #connection.providerId"),
                     @CachePut(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
                             key = "'h:' + #connection.userId + ':' + #connection.providerId + '__' " +
@@ -311,10 +316,13 @@ public class Auth2JdbcUsersConnectionRepository implements UsersConnectionReposi
                     key = "'hm:' + #result.userId"),
                     @CacheEvict(cacheNames = RedisCacheAutoConfiguration.USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME,
                             key = "'hm:' + #result.providerId"),
+                    @CacheEvict(cacheNames = RedisCacheAutoConfiguration.USER_CONNECTION_HASH_CACHE_NAME,
+                            key = "'hs:' + #result.userId + '__' + #result.providerId"),
                     @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
-                            key = "'h:' + #result.providerId + '__' + #result.providerUserId")
+                            key = "'hs:' + #result.providerId + '__' + #result.providerUserId")
             },
             put = {@CachePut(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+                    // 假定一个本地用户只能绑定一个同一第三方账号
                     key = "'h:' + #result.userId + '__' + #result.providerId"),
                     @CachePut(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
                             key = "'h:' + #result.userId + ':' + #result.providerId + '__' " +
@@ -349,9 +357,11 @@ public class Auth2JdbcUsersConnectionRepository implements UsersConnectionReposi
                     @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
                             key = "'h:' + #userId + ':' + #providerId", beforeInvocation = true),
                     @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
-                            key = "'h:' + #userId + ':' + #providerId", beforeInvocation = true),
+                            key = "'h:' + #userId + '__' + #providerId", beforeInvocation = true),
                     @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
-                            key = "'h:' + #providerId", beforeInvocation = true)
+                            key = "'hs:' + #userId + ':' + #providerId", beforeInvocation = true),
+                    @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+                            key = "'hs:' + #providerId", beforeInvocation = true)
             }
     )
     @Override
@@ -374,7 +384,10 @@ public class Auth2JdbcUsersConnectionRepository implements UsersConnectionReposi
                             key = "'h:' + #userId + '__' + #connectionKey.providerId",
                             beforeInvocation = true),
                     @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
-                            key = "'h:' + #connectionKey.providerId + '__' + #connectionKey.providerUserId",
+                            key = "'hs:' + #userId + '__' + #connectionKey.providerId",
+                            beforeInvocation = true),
+                    @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+                            key = "'hs:' + #connectionKey.providerId + '__' + #connectionKey.providerUserId",
                             beforeInvocation = true)
             }
     )

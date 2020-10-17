@@ -13,6 +13,7 @@ import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration;
+import top.dcenter.ums.security.core.oauth.enums.EnableRefresh;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionTokenRepository;
 import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
 
@@ -104,7 +105,7 @@ public class Auth2JdbcUsersConnectionTokenRepository implements UsersConnectionT
         {
             throw new RuntimeException("authToken id cannot be null");
         }
-        jdbcTemplate.update("UPDATE auth_token SET " +
+        jdbcTemplate.update("UPDATE `auth_token` SET " +
                                     "`enableRefresh` = ?, " +
                                     "`providerId` = ?, " +
                                     "`accessToken` = ?, " +
@@ -171,8 +172,8 @@ public class Auth2JdbcUsersConnectionTokenRepository implements UsersConnectionT
     }
 
     @Override
-    public List<AuthTokenPo> findAuthTokenByExpireTimeAndBetweenId(@NonNull Long expiredTime, @NonNull Integer startId,
-                                                                   @NonNull Integer endId) {
+    public List<AuthTokenPo> findAuthTokenByExpireTimeAndBetweenId(@NonNull Long expiredTime, @NonNull Long startId,
+                                                                   @NonNull Long endId) throws DataAccessException {
         return jdbcTemplate.query("SELECT `id`, `enableRefresh`, `providerId`, `accessToken`, `expireIn`, " +
                                    "`refreshToken`, `uid`, `openId`, `accessCode`, `unionId`, `scope`, " +
                                    "`tokenType`, `idToken`, `macAlgorithm`, `macKey`, `code`, " +
@@ -182,6 +183,15 @@ public class Auth2JdbcUsersConnectionTokenRepository implements UsersConnectionT
                                    "WHERE id BETWEEN ? AND ? AND `expireTime` <= ? " +
                                           "AND enableRefresh = " + YES.getCode() + ";",
                            authTokenPoMapper, startId, endId, expiredTime);
+    }
+
+    @CacheEvict(cacheNames = RedisCacheAutoConfiguration.USER_CONNECTION_CACHE_NAME,
+            key = "'h:' + #tokenId", beforeInvocation = true)
+    @Transactional(rollbackFor = {Exception.class}, propagation = Propagation.REQUIRED)
+    @Override
+    public void updateEnableRefreshByTokenId(@NonNull EnableRefresh enableRefresh, @NonNull Long tokenId) throws DataAccessException {
+        jdbcTemplate.update("update `auth_token` set `enableRefresh` = ? where id = ?",
+                            enableRefresh.getCode(), tokenId);
     }
 
     private String encrypt(String text) {

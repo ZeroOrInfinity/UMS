@@ -1,6 +1,5 @@
 package top.dcenter.ums.security.core.oauth.job;
 
-import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.exception.AuthException;
 import org.springframework.beans.factory.InitializingBean;
@@ -14,12 +13,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
 import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionTokenRepository;
-import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import java.nio.charset.StandardCharsets;
@@ -113,6 +112,7 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
             for (int i = 0; i < total; i++)
             {
                 final byte[] field = Integer.toString(i).getBytes(StandardCharsets.UTF_8.name());
+                // 获取锁
                 final Boolean lock = connection.hSetNX(key, field, "0".getBytes());
                 // 获取锁失败, 继续下一批次
                 if (lock == null || !lock)
@@ -167,8 +167,8 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
         // 获取 token 记录
         List<AuthTokenPo> authTokenPoList =
                 usersConnectionTokenRepository.findAuthTokenByExpireTimeAndBetweenId(expiredTime,
-                                                                                     batch * batchCount + 1,
-                                                                                     (batch + 1) * batchCount);
+                                                                                     batch * batchCount + 1L,
+                                                                                     (batch + 1L) * batchCount);
         // 异步更新, 如果异步线程池处理过慢, refreshTokenTaskExecutor 的默认拒绝策略为 CallerRunsPolicy, 即改为同步更新
         authTokenPoList.forEach(
             token ->
@@ -199,19 +199,21 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
 
                     if (e instanceof AuthException)
                     {
-                        msg = String.format("RefreshToken 第三方 %s 不支持: token=%s",
-                                            token.getProviderId(), JSONObject.toJSONString(token));
+                        msg = String.format("RefreshToken 第三方 %s 不支持: tokenId=%s",
+                                            token.getProviderId(), token.getId());
                         log.info(msg);
                         authTokenPo = token;
                         authTokenPo.setEnableRefresh(NO);
+                        // 更新为第三方不支持 refresh token
+                        usersConnectionTokenRepository.updateEnableRefreshByTokenId(NO, token.getId());
                     }
                     else
                     {
-                        msg = String.format("RefreshToken 失败: token=%s, error=%s",
-                                            JSONObject.toJSONString(token), e.getMessage());
+                        msg = String.format("RefreshToken 失败: tokenId=%s, error=%s",
+                                            token.getId(), e.getMessage());
                         log.error(msg, e);
-                        return;
                     }
+                    return;
                 }
 
                 // 根据 authTokenPo 对 user_connection 与 auth_token 表进行更新
@@ -219,8 +221,8 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
 
             }
             catch (Exception e) {
-                String msg = String.format("RefreshToken 失败: token=%s, error=%s",
-                                           JSONObject.toJSONString(token), e.getMessage());
+                String msg = String.format("RefreshToken 失败: tokenId=%s, error=%s",
+                                           token.getId(), e.getMessage());
                 log.error(msg, e);
             }
         }

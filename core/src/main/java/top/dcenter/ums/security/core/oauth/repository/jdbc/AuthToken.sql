@@ -5,7 +5,7 @@ CREATE TABLE `auth_token` (
   `enableRefresh` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否支持 refreshToken, 默认: 0. 1 表示支持, 0 表示不支持',
   `providerId` varchar(20) DEFAULT NULL COMMENT '第三方服务商,如: qq,github',
   `accessToken` varchar(512) DEFAULT NULL COMMENT 'accessToken',
-  `expireIn` bigint(20) DEFAULT -1 COMMENT '过期时间, 无过期时间默认为 -1',
+  `expireIn` bigint(20) DEFAULT '-1' COMMENT '过期时间, 无过期时间默认为 -1',
   `refreshToken` varchar(512) DEFAULT NULL COMMENT 'refreshToken',
   `uid` varchar(20) DEFAULT NULL COMMENT 'alipay userId',
   `openId` varchar(512) DEFAULT NULL COMMENT 'qq/mi/toutiao/wechatMp/wechatOpen/weibo/jd/kujiale/dingTalk/douyin/feishu',
@@ -22,6 +22,6 @@ CREATE TABLE `auth_token` (
   `userId` varchar(255) DEFAULT NULL COMMENT 'Twitter附带属性',
   `screenName` varchar(255) DEFAULT NULL COMMENT 'Twitter附带属性',
   `oauthCallbackConfirmed` varchar(512) DEFAULT NULL COMMENT 'Twitter附带属性',
-  `expireTime` bigint(20) DEFAULT NULL COMMENT '过期时间, 基于 1970-01-01T00:00:00Z, 无过期时间默认为 -1',
+  `expireTime` bigint(20) DEFAULT '-1' COMMENT '过期时间, 基于 1970-01-01T00:00:00Z, 无过期时间默认为 -1',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4
