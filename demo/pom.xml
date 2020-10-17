@@ -5,12 +5,12 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>1.2.0</version>
+        <version>2.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ums-demo</artifactId>
-    <version>1.2.0</version>
+    <version>2.0.0</version>
     <packaging>pom</packaging>
 
     <!--<modules>
@@ -31,6 +31,14 @@
     <name>ums-demo</name>
     <description>用户管理脚手架(ums) ums-demo: 详细的 example 请查看各个子模块</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${org.projectlombok.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
     <profiles>
         <!--默认开启dev-->
         <profile>

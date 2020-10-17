@@ -36,7 +36,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class UserDetailsService implements UmsSocialUserDetailsService {
+public class UserDetailsServiceImpl implements UmsSocialUserDetailsService {
 
     /**
      * 用户名
@@ -62,7 +62,7 @@ public class UserDetailsService implements UmsSocialUserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public UserDetailsService(JdbcTemplate jdbcTemplate) {
+    public UserDetailsServiceImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         this.objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -258,7 +258,6 @@ public class UserDetailsService implements UmsSocialUserDetailsService {
             // OAuth 信息存储
             providerSignInUtils.doPostSignUp(userId, request);
             log.info("Demo ======>: 第三方登录用户：{}, 注册成功", userId);
-            //noinspection all
             SocialUser user = new SocialUser(userId,
                                              encodedPassword,
                                              true,

@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.Optional;
 
 /**
+ * {@link BaseService} 的抽象实现类
  * @author zyw
  * @version V1.0  Created by 2020/9/26 16:47
  */
@@ -35,31 +36,26 @@ public abstract class BaseServiceImpl<T, ID extends Serializable> implements Bas
         return repository.saveAll(entities);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public Optional<T> findById(ID id) {
         return repository.findById(id);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public boolean existsById(ID id) {
         return repository.existsById(id);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public Iterable<T> findAll() {
         return repository.findAll();
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public Iterable<T> findAllById(Iterable<ID> ids) {
         return repository.findAllById(ids);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
     public long count() {
         return repository.count();

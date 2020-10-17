@@ -314,7 +314,7 @@ ums:
     # 第三方登录回调处理 url ，也是 RedirectUrl 的前缀，默认为 /auth/callback
     # 如果更改此 url，更改后的必须要实现 SocialController#authCallbackRouter(HttpServletRequest) 的功能
     callback-url: /auth/callback
-    # redirectUrl 直接由 domain/servletContextPath/callbackUrl/providerId(ums.social.[qq/wechat/gitee/weibo])组成
+    # redirectUrl 直接由 {domain}/{servletContextPath}/{redirectUrlPrefix}/{providerId}(ums.oauth.[qq/gitee/weibo])组成
     # 第三方登录回调的域名
     domain: http://www.dcenter.top
 
@@ -325,7 +325,7 @@ ums:
       enable: false
       app-id:
       app-secret:
-      # redirectUrl 默认直接由 domain/servletContextPath/callbackUrl/providerId(ums.social.[qq/wechat/gitee/weibo])组成
+      # redirectUrl 直接由 {domain}/{servletContextPath}/{redirectUrlPrefix}/{providerId}(ums.oauth.[qq/gitee/weibo])组成
       # redirect-url: http://www.dcenter.top/demo/auth/callback/qq
     gitee:
       # 用户设置 true 时，{providerId}第三方登录自动开启，默认为 false

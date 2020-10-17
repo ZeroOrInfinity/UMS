@@ -38,6 +38,9 @@ spring:
 
 ums:
   client:
+    role-hierarchy:
+      - ROLE_ADMIN > ROLE_USER
+      - ROLE_USER > ROLE_VOTE
     # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
     login-process-type: redirect
     # 登录页
@@ -85,6 +88,8 @@ spring:
     generate-ddl: true
     show-sql: true
     database: mysql
+  thymeleaf:
+    cache: false
 
 
 debug: true

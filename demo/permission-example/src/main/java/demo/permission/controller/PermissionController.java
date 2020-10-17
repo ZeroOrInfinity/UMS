@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.permission.annotation.UriAuthorize;
 import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
 import top.dcenter.ums.security.core.permission.config.UriAuthorizeInterceptorAutoConfiguration;
@@ -58,20 +58,34 @@ public class PermissionController {
     private UmsUserDetailsService userDetailsService;
 
 
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/test/roleHierarchy/{id}")
+    public ResponseResult roleHierarchy(@PathVariable String id) {
+        return ResponseResult.success(id);
+    }
+    @PreAuthorize("hasRole('VOTE')")
+    @GetMapping("/test/VOTE/{id}")
+    public ResponseResult vote(@PathVariable String id) {
+        return ResponseResult.success(id);
+    }
+
     /**
      * 用户注册, 默认添加角色(admin,ROLE_USER), 权限放行,不需要登录, 默认密码: admin
      * @param mobile    mobile
-     * @return  ResponseResult
+     * @return ResponseResult
      */
     @GetMapping("/addUser/{mobile}")
     public ResponseResult addUser(@PathVariable String mobile) {
-        try {
+
+        try
+        {
             UserDetails userDetails = userDetailsService.registerUser(mobile);
 
             // 测试用例, 会返回密码, 生产上禁用
             return ResponseResult.success(null, userDetails);
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             String msg = String.format("用户注册-失败: 手机号：%s, 注册失败: %s", mobile, e.getMessage());
             log.error(msg, e);
             return ResponseResult.fail(ErrorCodeEnum.USER_REGISTER_FAILURE, mobile);

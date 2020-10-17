@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.dcenter.ums.security.core.api.sign.service.SignService;
-import top.dcenter.ums.security.core.properties.SignProperties;
+import top.dcenter.ums.security.core.sign.properties.SignProperties;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
@@ -16,7 +16,8 @@ import static top.dcenter.ums.security.core.util.SignUtil.formatDate;
 
 /**
  * 测试签到功能
- * @author flex_song zyw
+ * @author flex_song
+ * @author zyw
  * @version V1.0  Created by 2020/9/14 17:49
  */
 @SuppressWarnings("AlibabaUndefineMagicConstant")
@@ -24,8 +25,7 @@ import static top.dcenter.ums.security.core.util.SignUtil.formatDate;
 public class DemoSignController {
 
     private final SignService signService;
-    private SignProperties signProperties;
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    private final SignProperties signProperties;
     public DemoSignController(SignService signService, SignProperties signProperties) {
         this.signService = signService;
         this.signProperties = signProperties;

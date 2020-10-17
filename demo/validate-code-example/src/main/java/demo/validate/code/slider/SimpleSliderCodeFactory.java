@@ -3,7 +3,7 @@ package demo.validate.code.slider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.util.ValidateCodeUtil;
 

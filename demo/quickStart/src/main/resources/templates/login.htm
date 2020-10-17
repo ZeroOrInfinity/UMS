@@ -70,7 +70,9 @@
 </form>
 <br><br>
 <h3>社交登录</h3>
-<a th:href="@{/auth/callback/gitee}">gitee登录</a>
+<a th:href="@{/auth2/authorization/gitee}">gitee登录</a>
+<a th:href="@{/auth2/authorization/github}">github登录</a>
+<a th:href="@{/auth2/authorization/gitee}">github登录</a>
 
 <dev id="basePath" th:basePath="@{/}" style="display: none"/>
 </body>
@@ -124,7 +126,7 @@
                     // 注册成功
                     // ...
                     console.log(data)
-                    let uri = data.data.url
+                    let uri = data.data.targetUrl
                     if (uri === null) {
                         uri = basePath
                     }

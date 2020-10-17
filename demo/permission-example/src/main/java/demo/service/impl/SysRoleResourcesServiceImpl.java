@@ -3,7 +3,7 @@ package demo.service.impl;
 import demo.dao.SysRoleResourcesJpaRepository;
 import demo.entity.SysRoleResources;
 import demo.service.SysRoleResourcesService;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +32,7 @@ public class SysRoleResourcesServiceImpl extends BaseServiceImpl<SysRoleResource
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
-    public SysRoleResources findByRoleIdAndResourcesId(@NotNull Long roleId, @NotNull Long resourcesId) {
+    public SysRoleResources findByRoleIdAndResourcesId(@NonNull Long roleId, @NonNull Long resourcesId) {
         return repository.findByRoleIdAndResourcesId(roleId, resourcesId);
     }
 

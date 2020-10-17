@@ -72,7 +72,7 @@ public class SysResourcesServiceImpl extends BaseServiceImpl<SysResources, Long>
         {
             entityManager.merge(sysResources);
             i++;
-            if (i % 10 == 0)
+            if (i % 50 == 0)
             {
                 entityManager.flush();
                 entityManager.clear();

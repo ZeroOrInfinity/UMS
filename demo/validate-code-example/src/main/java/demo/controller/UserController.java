@@ -33,8 +33,16 @@ public class UserController {
 
     @GetMapping("/")
     public String index(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        model.addAttribute("username", userDetails.getUsername());
-        model.addAttribute("roles", userDetails.getAuthorities());
+        if (userDetails != null)
+        {
+            model.addAttribute("username", userDetails.getUsername());
+            model.addAttribute("roles", userDetails.getAuthorities());
+        }
+        else
+        {
+            model.addAttribute("username", "anonymous");
+            model.addAttribute("roles", "ROLE_VISIT");
+        }
         return "index";
     }
 

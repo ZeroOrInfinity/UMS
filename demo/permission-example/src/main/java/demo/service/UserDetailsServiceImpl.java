@@ -2,12 +2,12 @@ package demo.service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import demo.polo.UserDO;
 import demo.entity.SysRole;
 import demo.entity.SysUser;
 import demo.entity.SysUserRole;
 import demo.enums.UserStatusType;
 import demo.enums.UserType;
+import demo.polo.UserDO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -20,10 +20,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
-import top.dcenter.ums.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.core.auth.properties.ClientProperties;
+
+import java.util.List;
 
 /**
  *  用户密码与手机短信登录与注册服务：<br><br>
@@ -242,6 +244,19 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
             throw new RegisterUserFailureException(usernameNotEmpty, request.getSessionId());
         }
         return result;
+    }
+
+    @Override
+    public UserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
+        UserDetails userDetails = loadUserByUsername(userId);
+        User.withUserDetails(userDetails);
+        return User.withUserDetails(userDetails).build();
+    }
+
+    @Override
+    public List<Boolean> existedByUserIds(String... userIds) throws UsernameNotFoundException {
+        // ... 在本地账户上查询 userIds 是否已被使用
+        return List.of(true, false, false);
     }
 
 }

@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -32,8 +33,16 @@ public class UserController {
 
     @GetMapping("/")
     public String index(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        model.addAttribute("username", userDetails.getUsername());
-        model.addAttribute("roles", userDetails.getAuthorities());
+        if (userDetails != null)
+        {
+            model.addAttribute("username", userDetails.getUsername());
+            model.addAttribute("roles", userDetails.getAuthorities());
+        }
+        else
+        {
+            model.addAttribute("username", "anonymous");
+            model.addAttribute("roles", "ROLE_VISIT");
+        }
         return "index";
     }
 

@@ -1,4 +1,4 @@
-package demo.controller;
+package top.dcenter.ums.security.core.demo.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -31,8 +31,16 @@ public class UserController {
 
     @GetMapping("/")
     public String index(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        model.addAttribute("username", userDetails.getUsername());
-        model.addAttribute("roles", userDetails.getAuthorities());
+        if (userDetails != null)
+        {
+            model.addAttribute("username", userDetails.getUsername());
+            model.addAttribute("roles", userDetails.getAuthorities());
+        }
+        else
+        {
+            model.addAttribute("username", "anonymous");
+            model.addAttribute("roles", "ROLE_VISIT");
+        }
         return "index";
     }
 

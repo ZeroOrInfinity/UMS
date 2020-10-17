@@ -7,7 +7,6 @@ import demo.permission.service.UriPermissionService;
 import demo.service.SysResourcesService;
 import demo.service.SysRoleResourcesService;
 import demo.service.SysRoleService;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -56,7 +55,7 @@ public class UriPermissionServiceImpl implements UriPermissionService, Applicati
     private ApplicationContext applicationContext;
 
     @Override
-    public void setApplicationContext(@NotNull ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
 

@@ -3,7 +3,6 @@ package demo.service;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import me.zhyd.oauth.model.AuthUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -15,10 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
-import top.dcenter.ums.security.core.oauth2.details.Auth2UserDetails;
 
 import java.util.List;
 
@@ -179,13 +177,7 @@ public class UserDetailsService implements UmsUserDetailsService {
     }
 
     @Override
-    public Auth2UserDetails registerUser(AuthUser authUser, String username, String defaultAuthority) throws RegisterUserFailureException {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public Auth2UserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
+    public UserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
         // TODO
         return null;
     }
