@@ -1,6 +1,6 @@
 package top.dcenter.ums.security.core.exception;
 
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 
 /**
  * 登录失败异常

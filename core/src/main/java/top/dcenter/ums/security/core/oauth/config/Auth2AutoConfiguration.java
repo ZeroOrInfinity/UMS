@@ -29,8 +29,8 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 
-import static top.dcenter.ums.security.core.consts.SecurityConstants.QUERY_DATABASE_NAME_SQL;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.QUERY_DATABASE_NAME_SQL;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX;
 
 
 

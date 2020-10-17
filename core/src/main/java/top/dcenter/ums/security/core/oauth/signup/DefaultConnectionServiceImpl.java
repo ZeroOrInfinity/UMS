@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.oauth.justauth.util.JustAuthUtil;
@@ -17,8 +17,8 @@ import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionTokenRepository;
 import top.dcenter.ums.security.core.oauth.repository.exception.UpdateConnectionException;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.AuthTokenPo;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.ConnectionData;
+import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
 
 import java.util.List;
 

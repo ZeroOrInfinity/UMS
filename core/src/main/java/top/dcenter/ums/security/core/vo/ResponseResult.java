@@ -3,7 +3,7 @@ package top.dcenter.ums.security.core.vo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 
 /**
  * 简单的 Vo 对象封装, code = 0 表示处理成功信息，其他表示失败。<br><br>

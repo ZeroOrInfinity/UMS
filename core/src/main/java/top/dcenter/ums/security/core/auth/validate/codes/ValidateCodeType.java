@@ -1,11 +1,11 @@
 package top.dcenter.ums.security.core.auth.validate.codes;
 
-import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_KEY_CUSTOMIZE;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_KEY_IMAGE;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_KEY_SELECTION;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_KEY_SLIDER;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_KEY_SMS;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_KEY_TRACK;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_KEY_CUSTOMIZE;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_KEY_IMAGE;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_KEY_SELECTION;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_KEY_SLIDER;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_KEY_SMS;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_KEY_TRACK;
 
 /**
  * 验证码类型
@@ -13,7 +13,7 @@ import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_KEY
  * @author  zyw
  * @version V1.0  Created by 2020/5/7 9:35
  */
-public enum   ValidateCodeType {
+public enum ValidateCodeType {
     /**
      * 图片验证码
      */

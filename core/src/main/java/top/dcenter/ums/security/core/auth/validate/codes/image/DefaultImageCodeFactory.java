@@ -3,7 +3,7 @@ package top.dcenter.ums.security.core.auth.validate.codes.image;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.ServletRequestUtils;
 import top.dcenter.ums.security.core.api.validate.code.image.ImageCodeFactory;
-import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
+import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.ImageUtil;
 import top.dcenter.ums.security.core.util.ValidateCodeUtil;
 

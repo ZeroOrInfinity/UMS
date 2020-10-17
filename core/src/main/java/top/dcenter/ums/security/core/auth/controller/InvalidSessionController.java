@@ -14,9 +14,9 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
-import top.dcenter.ums.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;

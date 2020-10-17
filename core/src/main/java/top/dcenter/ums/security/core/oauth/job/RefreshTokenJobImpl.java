@@ -19,7 +19,7 @@ import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionTokenRepository;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import java.nio.charset.StandardCharsets;
@@ -43,7 +43,7 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
     /**
      * refresh token 定时任务锁的 redis key
      */
-    public static final String REFRESH_TOKEN_JOB = "RefreshTokenJob:HashKey";
+    public static final String REFRESH_TOKEN_JOB = "RefreshTokenJob:HashKey:lock";
     /**
      * refresh token 定时任务锁的 redis key 的过期时间, 单位: 小时
      */
@@ -127,7 +127,7 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
         }
         catch (Exception e)
         {
-            log.error("", e);
+            log.error(String.format("分布式 refreshToken 定时刷新任务异常, error=%s", e.getMessage()), e);
         }
 
     }
@@ -150,7 +150,7 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
         }
         catch (Exception e)
         {
-            log.error(e.getMessage(), e);
+            log.error(String.format("单机 refreshToken 定时刷新任务异常, error=%s", e.getMessage()), e);
         }
     }
 

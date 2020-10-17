@@ -13,9 +13,9 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
-import top.dcenter.ums.security.core.enums.LoginProcessType;
-import top.dcenter.ums.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.common.consts.SecurityConstants;
+import top.dcenter.ums.security.common.enums.LoginProcessType;
+import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.util.MvcUtil;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 import top.dcenter.ums.security.core.vo.UserInfoJsonVo;
@@ -89,7 +89,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
             }
 
             // 判断是否返回 json 类型
-            userInfoJsonVo.setUrl(targetUrl);
+            userInfoJsonVo.setTargetUrl(targetUrl);
             if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
             {
                 clearAuthenticationAttributes(request);

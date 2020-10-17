@@ -1,7 +1,5 @@
 package top.dcenter.ums.security.core.util;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -17,7 +15,7 @@ import java.util.Random;
  * @author zyw
  * @version V1.0  Created by 2020/5/4 9:25
  */
-@SuppressWarnings("AlibabaUndefineMagicConstant")
+@SuppressWarnings({"AlibabaUndefineMagicConstant", "unused"})
 public class ImageUtil {
 
     /**
@@ -61,7 +59,6 @@ public class ImageUtil {
      * @param code  验证码
      * @throws IOException  IOException
      */
-    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public static void outputImage(int w, int h, File outputFile, String code) throws IOException {
         if (outputFile == null) {
             return;
@@ -219,6 +216,7 @@ public class ImageUtil {
         shearY(g, w1, h1, color, true, random);
     }
 
+    @SuppressWarnings({"SameParameterValue", "ConstantConditions"})
     private static void shearX(Graphics g, int w1, int h1, Color color, boolean borderGap, Random random) {
 
         int period = random.nextInt(2);
@@ -240,6 +238,7 @@ public class ImageUtil {
 
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void shearY(Graphics g, int w1, int h1, Color color, boolean borderGap, Random random) {
 
         // 50;

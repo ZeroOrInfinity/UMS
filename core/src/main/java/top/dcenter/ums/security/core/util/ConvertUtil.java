@@ -1,7 +1,7 @@
 package top.dcenter.ums.security.core.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.nio.charset.StandardCharsets;
@@ -25,6 +25,7 @@ import static java.net.URLDecoder.decode;
  * @author zyw
  * @version V1.0  Created by 2020/5/6 13:59
  */
+@SuppressWarnings("unused")
 public class ConvertUtil {
 
     /**
@@ -277,7 +278,7 @@ public class ConvertUtil {
         public JsonList() {
         }
 
-        public JsonList(@NotNull Collection<? extends E> c) {
+        public JsonList(@NonNull Collection<? extends E> c) {
             super(c);
         }
 

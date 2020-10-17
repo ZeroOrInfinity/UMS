@@ -1,13 +1,13 @@
 package top.dcenter.ums.security.core.auth.session.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.lang.NonNull;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+import top.dcenter.ums.security.common.config.SecurityCoreAutoConfigurer;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.session.SessionEnhanceCheckService;
 import top.dcenter.ums.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
-import top.dcenter.ums.security.core.config.SecurityCoreAutoConfigurer;
 import top.dcenter.ums.security.core.exception.SessionEnhanceCheckException;
 
 import javax.servlet.FilterChain;
@@ -16,12 +16,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
 
-import static top.dcenter.ums.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_ENHANCE_CHECK_KEY;
-import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.SESSION_ENHANCE_CHECK;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.HEADER_USER_AGENT;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_ENHANCE_CHECK_KEY;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.SESSION_ENHANCE_CHECK;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.isPermitUri;
 
 /**
@@ -37,11 +35,7 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.isPermitUri;
 public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
 
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
-    private SessionEnhanceCheckService sessionEnhanceCheckService;
-    /**
-     * 通过 {@link SecurityCoreAutoConfigurer} 注入.
-     */
-    private Map<String, Set<String>> authorizeRequestMap;
+    private final SessionEnhanceCheckService sessionEnhanceCheckService;
     private final AntPathMatcher pathMatcher;
 
     public SessionEnhanceCheckFilter(BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
@@ -53,7 +47,8 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
         if (this.sessionEnhanceCheckService != null && session != null && !isPermitUri(request, session, pathMatcher))

@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.lang.reflect.Field;
 
-import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE;
-import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_CODE_TYPE;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_CODE_TYPE;
 
 /**
  * 验证码处理逻辑的默认实现抽象类

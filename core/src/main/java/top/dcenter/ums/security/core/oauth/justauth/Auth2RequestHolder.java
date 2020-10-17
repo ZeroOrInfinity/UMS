@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.requireNonNull;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.URL_SEPARATOR;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.URL_SEPARATOR;
 
 /**
  * JustAuth内置的各api需要的url， 用枚举类分平台类型管理

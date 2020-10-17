@@ -11,13 +11,13 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
-import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
-import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.enums.LoginProcessType;
+import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
+import top.dcenter.ums.security.common.consts.SecurityConstants;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.LoginProcessType;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
-import top.dcenter.ums.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.Objects.requireNonNullElse;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_REDIRECT_URL_KEY;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_REDIRECT_URL_KEY;
 
 /**
  * auth util
@@ -45,7 +45,7 @@ public class AuthenticationUtil {
     /**
      * 在提取 User-Agent 时, 需要被移除掉的字符的正则表达式
      */
-    @SuppressWarnings("All")
+    @SuppressWarnings("RegExpRedundantEscape")
     public static final String EXTRACT_USER_AGENT_REGEX = "[\\.\\d\\s\\(\\)]";
 
     /**

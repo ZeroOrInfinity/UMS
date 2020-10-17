@@ -22,9 +22,9 @@ import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
 import top.dcenter.ums.security.core.oauth.repository.exception.DuplicateConnectionException;
 import top.dcenter.ums.security.core.oauth.repository.exception.NoSuchConnectionException;
 import top.dcenter.ums.security.core.oauth.repository.exception.NotConnectedException;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.AuthTokenPo;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.ConnectionData;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.ConnectionKey;
+import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionKey;
 import top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
 import top.dcenter.ums.security.core.oauth.properties.RepositoryProperties;
@@ -64,7 +64,6 @@ import static top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfigura
  * @author zyw
  * @version V2.0  Created by 2020/5/13 13:41
  */
-@SuppressWarnings("SpringCacheableComponentsInspection")
 @Slf4j
 @CacheConfig(cacheManager = "auth2RedisHashCacheManager")
 public class Auth2JdbcUsersConnectionRepository implements UsersConnectionRepository {

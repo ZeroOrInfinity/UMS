@@ -1,6 +1,5 @@
 package top.dcenter.ums.security.core.auth.mobile;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -9,11 +8,11 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.consts.SecurityConstants;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.LoginFailureException;
-import top.dcenter.ums.security.core.properties.SmsCodeLoginAuthenticationProperties;
-import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
+import top.dcenter.ums.security.core.auth.properties.SmsCodeLoginAuthenticationProperties;
+import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author  zyw
  * @version V1.0  Created by 2020/5/7 15:34
  */
+@SuppressWarnings("unused")
 @Slf4j
 public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     // ~ Static fields/initializers
@@ -36,7 +36,7 @@ public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProc
     // ~ Constructors
     // ===================================================================================================
 
-    public SmsCodeLoginAuthenticationFilter(ValidateCodeProperties validateCodeProperties, SmsCodeLoginAuthenticationProperties smsCodeLoginAuthenticationProperties, ObjectMapper objectMapper) {
+    public SmsCodeLoginAuthenticationFilter(ValidateCodeProperties validateCodeProperties, SmsCodeLoginAuthenticationProperties smsCodeLoginAuthenticationProperties) {
         super(new AntPathRequestMatcher(smsCodeLoginAuthenticationProperties.getLoginProcessingUrlMobile(), SecurityConstants.POST_METHOD));
         this.validateCodeProperties = validateCodeProperties;
         this.mobileParameter = validateCodeProperties.getSms().getRequestParamMobileName();

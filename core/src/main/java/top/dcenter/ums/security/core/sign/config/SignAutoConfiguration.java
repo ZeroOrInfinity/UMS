@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import top.dcenter.ums.security.core.api.sign.service.SignService;
-import top.dcenter.ums.security.core.config.SecurityAutoConfiguration;
-import top.dcenter.ums.security.core.properties.SignProperties;
+import top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration;
+import top.dcenter.ums.security.core.sign.properties.SignProperties;
 import top.dcenter.ums.security.core.sign.UserSignServiceImpl;
 
 /**

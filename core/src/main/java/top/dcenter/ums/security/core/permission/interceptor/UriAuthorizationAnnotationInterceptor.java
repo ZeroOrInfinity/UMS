@@ -1,8 +1,8 @@
 package top.dcenter.ums.security.core.permission.interceptor;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.method.HandlerMethod;
@@ -29,7 +29,7 @@ import java.time.Instant;
 @Slf4j
 public class UriAuthorizationAnnotationInterceptor implements HandlerInterceptor {
 
-    private UriAuthorizeService uriAuthorizeService;
+    private final UriAuthorizeService uriAuthorizeService;
 
     public UriAuthorizationAnnotationInterceptor(UriAuthorizeService uriAuthorizeService) {
         this.uriAuthorizeService = uriAuthorizeService;
@@ -37,7 +37,7 @@ public class UriAuthorizationAnnotationInterceptor implements HandlerInterceptor
 
     @SuppressWarnings("RedundantThrows")
     @Override
-    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
+    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) throws Exception {
 
         if (!(handler instanceof HandlerMethod))
         {

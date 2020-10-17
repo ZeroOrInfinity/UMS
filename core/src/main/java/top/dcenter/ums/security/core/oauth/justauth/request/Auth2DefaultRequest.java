@@ -16,17 +16,17 @@ import me.zhyd.oauth.utils.UuidUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.RefreshTokenFailureException;
 import top.dcenter.ums.security.core.oauth.justauth.cache.Auth2StateCache;
 import top.dcenter.ums.security.core.oauth.justauth.cache.AuthStateSessionCache;
 import top.dcenter.ums.security.core.oauth.justauth.enums.CacheKeyStrategy;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
 
 import java.time.Instant;
 
 /**
- * {@link AuthDefaultRequest} 的扩展, 开放接口<br>
+ * {@link AuthDefaultRequest} 的扩展, 对外曝露接口<br>
  * 1. {@link #authorize(String)},<br>
  * 2. {@link #getAccessToken(AuthCallback)},<br>
  * 3. {@link #getUserInfo(AuthToken)},<br>

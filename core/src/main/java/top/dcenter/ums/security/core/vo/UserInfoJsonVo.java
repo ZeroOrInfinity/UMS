@@ -19,8 +19,20 @@ import java.util.Collection;
 @AllArgsConstructor
 public class UserInfoJsonVo {
 
+    /**
+     * 用户 id
+     */
     private String id;
+    /**
+     * 用户名称
+     */
     private String username;
-    private String url;
+    /**
+     * 跳转 url
+     */
+    private String targetUrl;
+    /**
+     * 用户权限
+     */
     private Collection<GrantedAuthority> authorities;
 }

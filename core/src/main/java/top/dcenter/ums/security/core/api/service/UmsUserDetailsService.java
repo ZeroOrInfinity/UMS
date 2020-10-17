@@ -1,8 +1,8 @@
 package top.dcenter.ums.security.core.api.service;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import top.dcenter.ums.security.core.oauth2.details.Auth2UserDetails;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,10 +21,10 @@ public interface UmsUserDetailsService extends UserDetailsService, UserDetailsRe
      * 用于第三方登录时查询服务, userId 为本地账户的 userId
      * @see UserDetailsService#loadUserByUsername(String)
      * @param userId    userId 为本地账户的 userId
-     * @return the Auth2UserDetails requested
+     * @return the UserDetails requested
      * @throws UsernameNotFoundException    没有此 userId 的用户
      */
-    Auth2UserDetails loadUserByUserId(String userId) throws UsernameNotFoundException;
+    UserDetails loadUserByUserId(String userId) throws UsernameNotFoundException;
 
     /**
      * 在本地账户中检查是否存在 userIds, userIds 为本地账户的 userIds

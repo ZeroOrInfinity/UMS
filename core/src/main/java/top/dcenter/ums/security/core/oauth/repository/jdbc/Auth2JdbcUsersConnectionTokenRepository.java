@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionTokenRepository;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,7 +28,6 @@ import static top.dcenter.ums.security.core.oauth.enums.EnableRefresh.YES;
  * @author zyw
  * @version V2.0  Created by 2020/10/10 15:32
  */
-@SuppressWarnings("SpringCacheableComponentsInspection")
 @CacheConfig(cacheManager = "auth2RedisHashCacheManager")
 public class Auth2JdbcUsersConnectionTokenRepository implements UsersConnectionTokenRepository {
 

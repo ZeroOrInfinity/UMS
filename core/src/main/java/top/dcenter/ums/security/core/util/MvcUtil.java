@@ -8,6 +8,7 @@ import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.UrlPathHelper;
-import top.dcenter.ums.security.core.config.SecurityAutoConfiguration;
+import top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -38,6 +39,7 @@ public class MvcUtil {
     /**
      * servletContextPath, 在应用启动时通过 {@link SecurityAutoConfiguration} 自动注入.
      */
+    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
     private static String servletContextPath = "";
 
     /**
@@ -151,22 +153,22 @@ public class MvcUtil {
 
 
     /**
-     * 给 clz 的 methodName 方法上的 @RequestMapping 的 value 重新赋值为 requestMappingUri
+     * 给 targetClass 的 methodName 方法上的 @RequestMapping 的 value 重新赋值为 requestMappingUri
      *
-     * @param methodName            methodName
-     * @param requestMappingUri     requestMappingUri
-     * @param clz                   methodName 的 class
+     * @param methodName            method name
+     * @param requestMappingUri     request mapping uri
+     * @param clz                   method 的 class
      * @param parameterTypes        the parameter array
      * @throws Exception    Exception
      */
     @SuppressWarnings("unchecked")
     public static void setRequestMappingUri(@NonNull String methodName, @NonNull String requestMappingUri,
                                             @NonNull Class<?> clz, Class<?>... parameterTypes) throws Exception {
-        Method sliderCheckMethod = clz.getDeclaredMethod(methodName, parameterTypes);
-        sliderCheckMethod.setAccessible(true);
+        Method method = clz.getDeclaredMethod(methodName, parameterTypes);
+        method.setAccessible(true);
 
         // 获取 RequestMapping 注解
-        RequestMapping mappingAnnotation = sliderCheckMethod.getDeclaredAnnotation(RequestMapping.class);
+        RequestMapping mappingAnnotation = method.getDeclaredAnnotation(RequestMapping.class);
         if (null != mappingAnnotation) {
             // 获取 RequestMapping 中 value 值
             String[] paths = mappingAnnotation.value();
@@ -188,6 +190,44 @@ public class MvcUtil {
         {
             String msg = String.format("设置 %s#%s() 方法的 requestMapping 映射值时发生错误.",
                                        clz.getName(),
+                                       methodName);
+            log.error(msg);
+            throw new RuntimeException(msg);
+        }
+    }
+
+    /**
+     * 给 targetClass 的 methodName 方法上的 @Scheduled 的 cron 重新赋值为 cronValue
+     *
+     * @param methodName            method name
+     * @param cronValue             corn value
+     * @param targetClass           method 的 class
+     * @param parameterTypes        the parameter array
+     * @throws Exception    Exception
+     */
+    @SuppressWarnings("unchecked")
+    public static void setScheduledCron(@NonNull String methodName, @NonNull String cronValue,
+                                        @NonNull Class<?> targetClass, Class<?>... parameterTypes) throws Exception {
+        Method method = targetClass.getDeclaredMethod(methodName, parameterTypes);
+        method.setAccessible(true);
+
+        // 获取 annotationClass 注解
+        Scheduled annotation = method.getDeclaredAnnotation(Scheduled.class);
+        if (null != annotation) {
+            // 获取代理处理器
+            InvocationHandler invocationHandler = Proxy.getInvocationHandler(annotation);
+            // 获取私有 memberValues 属性
+            Field memberValuesField = invocationHandler.getClass().getDeclaredField("memberValues");
+            memberValuesField.setAccessible(true);
+            // 获取实例的属性map
+            Map<String, Object> memberValuesValue = (Map<String, Object>) memberValuesField.get(invocationHandler);
+            // 修改属性值
+            memberValuesValue.put("cron", cronValue);
+        }
+        else
+        {
+            String msg = String.format("设置 %s#%s() 方法的 cron 映射值时发生错误.",
+                                       targetClass.getName(),
                                        methodName);
             log.error(msg);
             throw new RuntimeException(msg);

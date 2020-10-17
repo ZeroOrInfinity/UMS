@@ -2,7 +2,6 @@ package top.dcenter.ums.security.core.api.permission.service;
 
 import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -217,8 +216,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION")
-    @NotNull
+    @NonNull
     private Consumer<Map<String, UriResourcesDTO>> map2mapConsumer(final Map<String, Set<String>> uriAuthoritiesMap) {
         return map -> map.forEach(
                 (key, value) -> uriAuthoritiesMap.compute(key, (k, v) ->

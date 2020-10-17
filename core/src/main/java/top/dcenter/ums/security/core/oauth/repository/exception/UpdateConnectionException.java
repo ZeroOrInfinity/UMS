@@ -17,7 +17,7 @@ package top.dcenter.ums.security.core.oauth.repository.exception;
 
 import lombok.Getter;
 import org.springframework.security.core.SpringSecurityCoreVersion;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
 
 /**

@@ -4,14 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.web.util.UrlUtils;
 import top.dcenter.ums.security.core.auth.filter.AjaxOrFormRequestFilter;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
+import top.dcenter.ums.security.common.consts.SecurityConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 
-import static top.dcenter.ums.security.core.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
 import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 
 /**

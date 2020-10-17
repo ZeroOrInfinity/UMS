@@ -3,9 +3,9 @@ package top.dcenter.ums.security.core.auth.validate.codes.slider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ResourceUtils;
 import top.dcenter.ums.security.core.api.validate.code.slider.SliderCodeFactory;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
-import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
+import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.ValidateCodeUtil;
 
 import java.io.File;

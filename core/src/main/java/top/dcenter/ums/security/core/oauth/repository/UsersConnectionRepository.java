@@ -5,9 +5,9 @@ import org.springframework.util.MultiValueMap;
 import top.dcenter.ums.security.core.oauth.repository.exception.DuplicateConnectionException;
 import top.dcenter.ums.security.core.oauth.repository.exception.NoSuchConnectionException;
 import top.dcenter.ums.security.core.oauth.repository.exception.NotConnectedException;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.AuthTokenPo;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.ConnectionData;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.ConnectionKey;
+import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionKey;
 
 import java.util.List;
 import java.util.Set;

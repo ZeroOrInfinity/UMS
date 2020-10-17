@@ -15,7 +15,7 @@ import me.zhyd.oauth.request.AuthElemeRequest;
 import me.zhyd.oauth.utils.AuthChecker;
 import me.zhyd.oauth.utils.StringUtils;
 import me.zhyd.oauth.utils.UuidUtils;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
 
 import static top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest.determineState;

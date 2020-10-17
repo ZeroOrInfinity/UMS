@@ -3,17 +3,17 @@ package top.dcenter.ums.security.core.auth.validate.codes;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.lang.NonNull;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessor;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
-import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
+import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.ConvertUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static top.dcenter.ums.security.core.consts.SecurityConstants.GET_METHOD;
-import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_CODE_TYPE;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.GET_METHOD;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_CODE_TYPE;
 
 
 /**
@@ -52,7 +52,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
      *  验证码认证 map&#60;uri, validateCodeType&#62;
      */
     @Getter
-    private Map<String, ValidateCodeType> authUrlMap = new HashMap<>();
+    private final Map<String, ValidateCodeType> authUrlMap = new HashMap<>();
 
     public ValidateCodeFilter(ValidateCodeProcessorHolder validateCodeProcessorHolder,
                               BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
@@ -83,8 +83,8 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response,
-                                    @NotNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         final String requestUri = request.getRequestURI();
         // 验证码逻辑，当短信验证码与图片验证码 url 相同时，优先使用短信验证码逻辑。

@@ -1,7 +1,7 @@
 package top.dcenter.ums.security.core.oauth.repository;
 
 import org.springframework.lang.NonNull;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
 
 import java.util.List;
 

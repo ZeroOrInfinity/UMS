@@ -37,7 +37,7 @@ import org.springframework.util.CollectionUtils;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.ConnectionData;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
 import top.dcenter.ums.security.core.oauth.service.Auth2UserService;
 import top.dcenter.ums.security.core.oauth.signup.ConnectionService;
 import top.dcenter.ums.security.core.oauth.token.Auth2AuthenticationToken;

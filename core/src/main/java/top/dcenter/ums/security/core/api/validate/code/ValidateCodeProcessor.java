@@ -9,9 +9,9 @@ import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_ERROR;
-import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_EXPIRED;
-import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EMPTY;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_ERROR;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_EXPIRED;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EMPTY;
 
 /**
  * 验证码处理逻辑接口

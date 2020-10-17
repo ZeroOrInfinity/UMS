@@ -10,16 +10,16 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.util.AntPathMatcher;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.ExpiredSessionDetectedException;
-import top.dcenter.ums.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_ENHANCE_CHECK_KEY;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_ENHANCE_CHECK_KEY;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.determineRedirectUrl;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.redirectProcessingByLoginProcessType;
 

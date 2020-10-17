@@ -11,15 +11,15 @@ import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
-import top.dcenter.ums.security.core.consts.RegexConstants;
+import top.dcenter.ums.security.common.consts.RegexConstants;
 import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
-import top.dcenter.ums.security.core.properties.ValidateCodeProperties;
+import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.regex.PatternSyntaxException;
 
-import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.MOBILE_FORMAT_ERROR;
-import static top.dcenter.ums.security.core.enums.ErrorCodeEnum.MOBILE_PARAMETER_ERROR;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.MOBILE_FORMAT_ERROR;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.MOBILE_PARAMETER_ERROR;
 
 
 /**

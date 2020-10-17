@@ -19,7 +19,7 @@ import me.zhyd.oauth.model.AuthUser;
 import org.springframework.security.core.userdetails.UserDetails;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.oauth.repository.exception.UpdateConnectionException;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.ConnectionData;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
 
 /**
  * A command that signs up a new user in the event no user id could be mapped from a {@link AuthUser}.

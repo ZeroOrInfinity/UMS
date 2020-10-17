@@ -17,8 +17,8 @@ package top.dcenter.ums.security.core.oauth.repository.exception;
 
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.ConnectionData;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.ConnectionKey;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionKey;
 
 /**
  * Thrown by a {@link UsersConnectionRepository} when attempting to add a {@link ConnectionData} and a connection

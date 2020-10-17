@@ -7,7 +7,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisPipelineException;
 import org.springframework.lang.NonNull;
 import top.dcenter.ums.security.core.api.sign.service.SignService;
-import top.dcenter.ums.security.core.properties.SignProperties;
+import top.dcenter.ums.security.core.sign.properties.SignProperties;
 import top.dcenter.ums.security.core.util.SignUtil;
 
 import java.io.UnsupportedEncodingException;

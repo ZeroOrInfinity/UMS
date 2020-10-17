@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
-import top.dcenter.ums.security.core.consts.SecurityConstants;
+import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.core.util.ConvertUtil;
 
 import javax.servlet.FilterChain;
@@ -47,7 +47,7 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
      */
     public static final String VALIDATE_JSON_PREFIX  = "{";
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     /**
      * Creates a new instance.
@@ -59,16 +59,14 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(@NotNull HttpServletRequest request,
-                                    @NotNull HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         filterChain.doFilter(new AjaxOrFormRequest(request, objectMapper), response);
     }
 
     @Slf4j
     public static class AjaxOrFormRequest extends HttpServletRequestWrapper {
-
-        private ObjectMapper objectMapper;
 
         @Getter
         private final byte[] body;
@@ -78,7 +76,6 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
 
         AjaxOrFormRequest(HttpServletRequest request, ObjectMapper objectMapper) {
             super(request);
-            this.objectMapper = objectMapper;
             String contentType = request.getContentType();
             String method = request.getMethod();
             boolean isPostOrPutRequest = SecurityConstants.POST_METHOD.equalsIgnoreCase(method) || SecurityConstants.PUT_METHOD.equalsIgnoreCase(method);
@@ -99,7 +96,7 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
                         if (StringUtils.startsWith(jsonData, VALIDATE_JSON_PREFIX))
                         {
                             //noinspection unchecked
-                            map = this.objectMapper.readValue(jsonData, Map.class);
+                            map = objectMapper.readValue(jsonData, Map.class);
                         } else
                         {
                             map = ConvertUtil.string2JsonMap(jsonData, SecurityConstants.URL_PARAMETER_SEPARATOR,
@@ -169,12 +166,12 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
         }
 
         @Override
-        public int read(@NotNull byte[] b, int off, int len) throws IOException {
+        public int read(@NonNull byte[] b, int off, int len) throws IOException {
             return this.delegate.read(b, off, len);
         }
 
         @Override
-        public int read(@NotNull byte[] b) throws IOException {
+        public int read(@NonNull byte[] b) throws IOException {
             return this.delegate.read(b);
         }
 

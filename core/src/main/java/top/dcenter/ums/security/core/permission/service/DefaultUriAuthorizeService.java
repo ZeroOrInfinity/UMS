@@ -3,9 +3,8 @@ package top.dcenter.ums.security.core.permission.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 
@@ -24,8 +23,6 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWith
  */
 @Slf4j
 public class DefaultUriAuthorizeService extends AbstractUriAuthorizeService {
-
-    private AntPathMatcher matcher = new AntPathMatcher();
 
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired

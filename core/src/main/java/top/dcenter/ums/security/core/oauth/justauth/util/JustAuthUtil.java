@@ -5,8 +5,8 @@ import me.zhyd.oauth.model.AuthToken;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.beans.BeanUtils;
 import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.AuthTokenPo;
-import top.dcenter.ums.security.core.oauth.repository.jdbc.entity.ConnectionData;
+import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
 
 /**
  * JustAuth util

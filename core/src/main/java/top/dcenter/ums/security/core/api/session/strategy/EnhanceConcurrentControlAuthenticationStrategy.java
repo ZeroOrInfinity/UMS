@@ -1,10 +1,10 @@
 package top.dcenter.ums.security.core.api.session.strategy;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.session.SessionFixationPr
 import org.springframework.util.Assert;
 import org.springframework.web.util.WebUtils;
 import top.dcenter.ums.security.core.api.session.SessionEnhanceCheckService;
-import top.dcenter.ums.security.core.properties.ClientProperties;
+import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,7 +35,7 @@ import java.util.List;
 @Slf4j
 public class EnhanceConcurrentControlAuthenticationStrategy extends ConcurrentSessionControlAuthenticationStrategy implements ApplicationEventPublisherAware {
 
-    private SessionEnhanceCheckService sessionEnhanceCheckService;
+    private final SessionEnhanceCheckService sessionEnhanceCheckService;
 
     /**
      * Used for publishing events related to session fixation protection, such as
@@ -43,6 +43,7 @@ public class EnhanceConcurrentControlAuthenticationStrategy extends ConcurrentSe
      */
     private ApplicationEventPublisher applicationEventPublisher = new EnhanceConcurrentControlAuthenticationStrategy.NullEventPublisher();
     private boolean exceptionIfMaximumExceeded = false;
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private int maximumSessions = 1;
     private final SessionRegistry sessionRegistry;
 
@@ -260,23 +261,24 @@ public class EnhanceConcurrentControlAuthenticationStrategy extends ConcurrentSe
      */
     @Override
     public void setApplicationEventPublisher(
-            @NotNull ApplicationEventPublisher applicationEventPublisher) {
+            @NonNull ApplicationEventPublisher applicationEventPublisher) {
         Assert.notNull(applicationEventPublisher,
                        "applicationEventPublisher cannot be null");
         this.applicationEventPublisher = applicationEventPublisher;
     }
 
+    @SuppressWarnings("unused")
     public void setAlwaysCreateSession(boolean alwaysCreateSession) {
         this.alwaysCreateSession = alwaysCreateSession;
     }
 
     protected static final class NullEventPublisher implements ApplicationEventPublisher {
         @Override
-        public void publishEvent(@NotNull ApplicationEvent event) {
+        public void publishEvent(@NonNull ApplicationEvent event) {
         }
 
         @Override
-        public void publishEvent(@NotNull Object event) {
+        public void publishEvent(@NonNull Object event) {
         }
     }
 

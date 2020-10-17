@@ -3,7 +3,7 @@ package top.dcenter.ums.security.core.exception;
 import lombok.Getter;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 
 /**
  * 继承此类后, 如果异常被 {@link SimpleUrlAuthenticationFailureHandler} 处理 Response 会返回 Json 数据
