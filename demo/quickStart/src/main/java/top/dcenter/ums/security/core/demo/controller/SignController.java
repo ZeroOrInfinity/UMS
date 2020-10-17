@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.dcenter.ums.security.core.api.sign.service.SignService;
+import top.dcenter.ums.security.core.sign.config.EnableSign;
 import top.dcenter.ums.security.core.sign.properties.SignProperties;
 
 import java.io.UnsupportedEncodingException;
@@ -22,6 +23,7 @@ import static top.dcenter.ums.security.core.util.SignUtil.formatDate;
  */
 @SuppressWarnings("AlibabaUndefineMagicConstant")
 @RestController
+@EnableSign
 public class SignController {
 
     private final SignService signService;
