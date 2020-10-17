@@ -12,7 +12,7 @@
     <artifactId>basic-detail-example</artifactId>
     <name>basic-detail-example</name>
     <description>使用用户管理脚手架(ums) core 模块基本功能详细的配置: 含anonymous/session简单配置/rememberMe/csrf/登录路由/签到,
-        不包含session详细配置/验证码/手机登录/权限.
+        不包含session详细配置/验证码/手机登录/权限/缓存.
     </description>
 
     <dependencies>

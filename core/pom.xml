@@ -13,7 +13,10 @@
     <packaging>jar</packaging>
 
     <name>ums-core-spring-boot-starter</name>
-    <description>ums-core feature: mobile login, validate code(image,sms), RBAC-based uri access control, sign etc.</description>
+    <description>
+        ums-core feature: username password login, mobile login, OAuth2 login(JustAuth),
+        validate code(image,sms,slider), RBAC-based uri access control, sign etc.
+    </description>
 
     <url>https://github.com/ZeroOrInfinity/UMS</url>
 

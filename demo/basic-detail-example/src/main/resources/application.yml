@@ -29,8 +29,11 @@ spring:
     # session 过期时间
     timeout: PT300s
 
+  # =============== start: 第三方登录时用的数据库表 user_connection 与 auth_token 添加 redis cache ===============
+  # 设置缓存为 Redis
+  cache:
+    type: redis
   # ================= 签到需要的 redis 服务 ===============
-  # redis 配置
   redis:
     host: 192.168.88.88
     port: 6379
@@ -40,14 +43,14 @@ spring:
     timeout: 10000
     # redis-lettuce-pool
     lettuce:
-      # 会影响应用关闭是时间, dev 模式设置为 0
+      # 会延长关闭应用的时间, 测试时自行调整
       shutdown-timeout: PT500S
       pool:
         max-active: 8
         max-wait: PT10S
         max-idle: 8
         min-idle: 1
-
+  # =============== end: 第三方登录时用的数据库表 user_connection 与 auth_token 添加 redis cache ===============
 
 ums:
   client:
@@ -83,25 +86,6 @@ ums:
       - /testSignOfLastSevenDays/**:GET
       - /testDelOfCurrentMonth:GET
       - /login2:GET
-
-    # =============== login routing 功能: 解决跳转登录成功后不能跳转原始请求的问题 ===============
-
-    # 是否开启根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationRoutingUrl 和 authRedirectSuffixCondition
-    open-authentication-redirect: true
-    # 当请求需要身份认证时，默认跳转的url 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require,
-    # 当 openAuthenticationRedirect = true 时生效.
-    login-un-authentication-routing-url: /authentication/require
-    # 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空.
-    # 当 openAuthenticationRedirect = true 时生效.
-    # 支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.
-    # 规则具体看 AntPathMatcher.match(pattern, path)
-    auth-redirect-suffix-condition:
-      - '/hello=/login2'
-      - '/user/**=/login'
-      - '/order/**=/login'
-      - '/file/**=/login'
-      - '/social/**=/signIn.html'
-
 
     # ============= remember-me =============
     # 设置记住我功能的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
@@ -159,6 +143,23 @@ ums:
     # 用户签到 redis key TTL, 默认: 二个月 , 单位: 秒
     user-expired: 5356800
 
+
+  # =============== start: 第三方登录时用的数据库表 user_connection 与 auth_token 添加 redis cache ===============
+  # redisCacheManager 设置
+  cache:
+    redis:
+      # 是否开启缓存, 默认 false
+      open: true
+      # 是否使用 spring IOC 容器中的 RedisConnectionFactory， 默认： false
+      # 如果使用 spring IOC 容器中的 RedisConnectionFactory，则要注意 cache.database-index 要与 spring.redis.database 一样。
+      use-ioc-redis-connection-factory: true
+      cache:
+        database-index: 1
+        default-expire-time: PT200S
+        entry-ttl: PT180S
+        cache-names:
+          - cacheName
+  # =============== end: 第三方登录时用的数据库表 user_connection 与 auth_token 添加 redis cache ===============
 
 
 ---

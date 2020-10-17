@@ -7,13 +7,12 @@
     <groupId>top.dcenter</groupId>
     <artifactId>ums</artifactId>
     <version>2.0.0</version>
-    <modules>
-        <module>commons</module>
-    </modules>
 
     <packaging>pom</packaging>
     <name>ums</name>
-    <description>User management scaffolding integration: validate code, mobile login, OAuth2(automatic registration, binding and unbinding), RBAC-based uri access control function, routing function of multiple callback addresses through a unified callback address entry, and sign etc...
+    <description>
+        User management scaffolding integration: validate code, mobile login, OAuth2, RBAC-based uri
+        access control function, and sign etc...
     </description>
 
     <url>https://github.com/ZeroOrInfinity/UMS</url>

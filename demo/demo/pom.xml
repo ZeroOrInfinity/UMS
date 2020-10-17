@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
 
     <name>demo</name>
-    <description>用户管理脚手架(ums) demo: 一锅烩</description>
+    <description>用户管理脚手架(ums) demo 1.2.0: 一锅烩</description>
 
     <dependencies>
         <dependency>
