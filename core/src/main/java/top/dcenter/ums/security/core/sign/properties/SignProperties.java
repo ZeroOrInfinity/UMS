@@ -27,7 +27,7 @@ public class SignProperties {
     private String totalSignKeyPrefix = "total:sign:";
 
     /**
-     * redis key(String) 转 byte[] 转换时所用的 charset
+     * redis key(String) 转 byte[] 转换时所用的 charset, 默认: StandardCharsets.UTF_8
      */
     private String charset = StandardCharsets.UTF_8.name();
     /**

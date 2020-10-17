@@ -169,7 +169,7 @@ public class Auth2Properties {
 
     /**
      * 第三方登录回调的域名, 例如：https://localhost 默认为 "http://127.0.0.1"，
-     * redirectUrl 直接由 domain/servletContextPath/callbackUrl/providerId(ums.oauth.[qq/wechat/gitee/weibo])组成
+     * redirectUrl 直接由 {domain}/{servletContextPath}/{redirectUrlPrefix}/{providerId}(ums.oauth.[qq/gitee/weibo])组成
      */
     private String domain = "http://127.0.0.1";
 
