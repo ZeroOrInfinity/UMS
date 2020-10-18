@@ -19,12 +19,14 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.StringJoiner;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static top.dcenter.ums.security.social.config.RedisCacheAutoConfig.REDIS_CACHE_HASH_KEY_SEPARATE;
 
@@ -143,11 +145,11 @@ public class RedisHashCache extends RedisCache {
                              createAndConvertCacheKey(keyPair[0]),
                              createAndConvertCacheField(keyPair[1]),
                              serializeCacheValue(cacheValue),
-                             cacheConfig.getTtl());
+                             getRandomTtl(cacheConfig.getTtl()));
         }
         else
         {
-            cacheWriter.put(name, createAndConvertCacheKey(key), serializeCacheValue(cacheValue), cacheConfig.getTtl());
+            cacheWriter.put(name, createAndConvertCacheKey(key), serializeCacheValue(cacheValue), getRandomTtl(cacheConfig.getTtl()));
         }
     }
 
@@ -169,12 +171,12 @@ public class RedisHashCache extends RedisCache {
                              createAndConvertCacheKey(keyPair[0]),
                              createAndConvertCacheField(keyPair[1]),
                              serializeCacheValue(cacheValue),
-                             cacheConfig.getTtl());
+                             getRandomTtl(cacheConfig.getTtl()));
         }
         else
         {
             result = cacheWriter.putIfAbsent(name, createAndConvertCacheKey(key), serializeCacheValue(cacheValue),
-                                                    cacheConfig.getTtl());
+                                                    getRandomTtl(cacheConfig.getTtl()));
         }
 
         if (result == null)
@@ -343,6 +345,27 @@ public class RedisHashCache extends RedisCache {
         throw new IllegalStateException(String.format(
                 "Cannot convert cache key %s to String. Please register a suitable Converter via 'RedisCacheConfiguration.configureKeyConverters(...)' or override '%s.toString()'.",
                 source, key.getClass().getSimpleName()));
+    }
+
+    private Duration getRandomTtl(Duration ttl) {
+        if (ttl.getSeconds() == 0)
+        {
+            return ttl;
+        }
+
+        Duration randomTtl;
+        // 取缓存时间的 20% 作为动态的随机变量, 防止同时缓存失效而缓存击穿, 缓存 TTL 时间, 不会超过 Integer.MAX_Value, 所以强转不会丢失数据.
+        final int randomRange = (int) (ttl.getSeconds() * 2 / 10);
+        final ThreadLocalRandom localRandom = ThreadLocalRandom.current();
+        if (localRandom.nextBoolean())
+        {
+            randomTtl = Duration.ofSeconds(ttl.getSeconds()).minusSeconds(localRandom.nextInt(randomRange));
+        }
+        else
+        {
+            randomTtl = Duration.ofSeconds(ttl.getSeconds()).plusSeconds(localRandom.nextInt(randomRange));
+        }
+        return randomTtl;
     }
 
     private Object[] parsingKey(Object key) {

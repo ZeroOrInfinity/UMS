@@ -42,16 +42,16 @@ public class RedisCacheProperties {
          */
         private Integer databaseIndex = 0;
         /**
-         * 设置缓存管理器管理的缓存的默认过期时间, 默认: 200s
+         * 设置缓存管理器管理的缓存的默认过期时间, 默认: 200, 单位: 秒
          */
         private Duration defaultExpireTime = Duration.ofSeconds(200);
         /**
-         * Set the ttl to apply for cache entries. Use Duration.ZERO to declare an eternal cache. 默认: 180s
+         * cache ttl 。使用 0 声明一个永久的缓存。 默认: 180, 单位: 秒<br>
+         * 取缓存时间的 20% 作为动态的随机变量上下浮动, 防止同时缓存失效而缓存击穿
          */
         private Duration entryTtl = Duration.ofSeconds(180);
         /**
-         * Names of the default caches to consider for caching operations defined
-         * in the annotated class.
+         * Names of the default caches to consider for caching operations defined in the annotated class.
          */
         private Set<String> cacheNames = new HashSet<>();
 
