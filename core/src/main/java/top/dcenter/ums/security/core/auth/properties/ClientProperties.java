@@ -199,6 +199,12 @@ public class ClientProperties {
      */
     public Boolean sameOrigin = Boolean.FALSE;
 
+    /**
+     * 抑制反射警告, 支持 JDK11, 默认: false ,
+     * 在确认 WARNING: An illegal reflective access operation has occurred 安全后, 可以打开此设置, 可以抑制反射警告.
+     */
+    private Boolean suppressReflectWarning = false;
+
 
 
 
