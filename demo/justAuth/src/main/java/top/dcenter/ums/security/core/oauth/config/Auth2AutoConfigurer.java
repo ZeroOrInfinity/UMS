@@ -1,25 +1,27 @@
 package top.dcenter.ums.security.core.oauth.config;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
-import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.oauth.filter.login.Auth2LoginAuthenticationFilter;
 import top.dcenter.ums.security.core.oauth.filter.redirect.Auth2DefaultRequestRedirectFilter;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.provider.Auth2LoginAuthenticationProvider;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
 import top.dcenter.ums.security.core.oauth.service.Auth2UserService;
+import top.dcenter.ums.security.core.oauth.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.oauth.signup.ConnectionService;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -30,7 +32,7 @@ import java.util.concurrent.ExecutorService;
 @Configuration
 @ConditionalOnProperty(prefix = "ums.oauth", name = "enabled", havingValue = "true")
 @AutoConfigureAfter({Auth2AutoConfiguration.class})
-public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
+public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> implements InitializingBean {
 
     private final Auth2Properties auth2Properties;
     private final UmsUserDetailsService umsUserDetailsService;
@@ -53,7 +55,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
     }
 
     @Override
-    public void configure(HttpSecurity http) throws Exception {
+    public void configure(HttpSecurity http) {
 
         // 添加第三方登录入口过滤器
         String authorizationRequestBaseUri = auth2Properties.getAuthLoginUrlPrefix();
@@ -74,13 +76,34 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
                 usersConnectionRepository, updateConnectionTaskExecutor);
         http.authenticationProvider(auth2LoginAuthenticationProvider);
 
-        // 放行第三方登录入口地址与第三方登录回调地址
-        http.authorizeRequests().antMatchers(HttpMethod.GET,
-                                             auth2Properties.getRedirectUrlPrefix() + "/*",
-                                             auth2Properties.getAuthLoginUrlPrefix() + "/*")
-                                .permitAll();
-
     }
 
+    /**
+     * 忽略非法反射警告  适用于jdk11
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static void disableAccessWarnings() {
+        try {
+            Class unsafeClass = Class.forName("sun.misc.Unsafe");
+            Field field = unsafeClass.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            Object unsafe = field.get(null);
+
+            Method putObjectVolatile = unsafeClass.getDeclaredMethod("putObjectVolatile", Object.class, long.class, Object.class);
+            Method staticFieldOffset = unsafeClass.getDeclaredMethod("staticFieldOffset", Field.class);
+
+            Class loggerClass = Class.forName("jdk.internal.module.IllegalAccessLogger");
+            Field loggerField = loggerClass.getDeclaredField("logger");
+            Long offset = (Long) staticFieldOffset.invoke(unsafe, loggerField);
+            putObjectVolatile.invoke(unsafe, loggerClass, offset, null);
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        // 忽略非法反射警告  适用于jdk11
+        disableAccessWarnings();
+    }
 }
 
