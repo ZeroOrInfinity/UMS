@@ -42,10 +42,12 @@ import java.util.Set;
 /**
  * 简单的实现 Redis cache 自定义配置 {@link CacheManager}, 向 IOC 容器中注入 beanName=socialRedisHashCacheManager 的实例. <br><br>
  * 此 redis Cache 对 {@link org.springframework.data.redis.cache.RedisCache} 进行了修改, 把缓存的 KV 格式该成了 Hash 格式.<br>
- * Cacheable 操作异常处理: <br>
- * 异常处理在日志中打印出错误信息，但是放行，保证redis服务器出现连接等问题的时候不影响程序的正常运行，使得能够出问题时不用缓存. <br>
+ * 1. Cacheable 操作异常处理: <br>
+ *     异常处理在日志中打印出错误信息，但是放行，保证redis服务器出现连接等问题的时候不影响程序的正常运行，使得能够出问题时不用缓存. <br>
  * Cacheable 操作自定义异常处理: 实现 {@link CacheErrorHandler } 注入 IOC 容器即可自动注入 {@link CachingConfigurerSupport},
- * 当然也可自定义 {@link CachingConfigurerSupport} .
+ * 当然也可自定义 {@link CachingConfigurerSupport} .<br>
+ * 2. 缓存穿透: 对查询结果 null 值进行缓存, 添加时更新缓存 null 值, 或者 删除此缓存.<br>
+ * 3. 取缓存 TTL 的 20% 作为动态的随机变量上下浮动, 防止同时缓存失效而缓存击穿.<br>
  * @author zyw
  * @version V2.0  Created by  2020-06-11 22:57
  */

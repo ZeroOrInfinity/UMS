@@ -244,13 +244,33 @@ public class Auth2JdbcUsersConnectionRepository implements UsersConnectionReposi
             evict = {@CacheEvict(cacheNames = RedisCacheAutoConfiguration.USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME,
                     key = "'hm:' + #connection.userId", beforeInvocation = true),
                     @CacheEvict(cacheNames = RedisCacheAutoConfiguration.USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME,
-                            key = "'hm:' + #connection.providerId", beforeInvocation = true)
+                            key = "'hm:' + #connection.providerId", beforeInvocation = true),
+                    @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+                            key = "'h:' + #connection.userId + ':' + #connection.providerId + '__' + #connection.providerUserId",
+                            beforeInvocation = true),
+                    @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+                            key = "'h:' + #connection.userId + '__' + #connection.providerId",
+                            beforeInvocation = true),
+                    @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+                            key = "'hs:' + #connection.userId + '__' + #connection.providerId",
+                            beforeInvocation = true),
+                    @CacheEvict(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+                            key = "'hs:' + #connection.providerId + '__' + #connection.providerUserId",
+                            beforeInvocation = true)
+            },
+            put = {@CachePut(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+                    // 假定一个本地用户只能绑定一个同一第三方账号
+                    key = "'h:' + #connection.userId + '__' + #connection.providerId"),
+                    @CachePut(cacheNames = USER_CONNECTION_HASH_CACHE_NAME,
+                            key = "'h:' + #connection.userId + ':' + #connection.providerId + '__' " +
+                                    "+ #connection.providerUserId")
             }
     )
     @Override
     @Transactional(rollbackFor = {Exception.class}, propagation = Propagation.REQUIRED)
-    public void addConnection(ConnectionData connection) {
+    public ConnectionData addConnection(ConnectionData connection) {
         addConnectionData(connection);
+        return connection;
     }
 
     private void addConnectionData(ConnectionData connection) {

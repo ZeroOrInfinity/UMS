@@ -145,8 +145,8 @@ ums:
 
 
   # =============== start: 第三方登录时用的数据库表 user_connection 与 auth_token 添加 redis cache ===============
-  # redisCacheManager 设置
   cache:
+    # redisCacheManager 设置, 默认实现: 对查询结果 null 值进行缓存, 添加时更新缓存 null 值.
     redis:
       # 是否开启缓存, 默认 false
       open: true

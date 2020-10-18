@@ -95,8 +95,9 @@ public interface UsersConnectionRepository {
 	 * After the connection is added, it can be retrieved later using one of the finders defined in this interface.
 	 * @param connection the new connection to add to this repository
 	 * @throws DuplicateConnectionException if the user already has this connection
+     * @return ConnectionData 这里返回值的目的主要为了更新 spring cache
 	 */
-	void addConnection(ConnectionData connection);
+	ConnectionData addConnection(ConnectionData connection);
 
 	/**
 	 * Update a Connection already added to this repository.
