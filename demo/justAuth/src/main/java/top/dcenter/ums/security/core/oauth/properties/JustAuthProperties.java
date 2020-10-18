@@ -36,7 +36,7 @@ public class JustAuthProperties {
      * @see <a href="https://github.com/justauth/JustAuth/issues/83">https://github.com/justauth/JustAuth/issues/83</a>
      * @since 1.15.6
      */
-    private boolean ignoreCheckState;
+    private Boolean ignoreCheckState = false;
 
     /**
      * 默认 state 缓存过期时间：3分钟(PT180S)

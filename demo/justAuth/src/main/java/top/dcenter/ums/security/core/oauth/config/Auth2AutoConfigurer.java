@@ -23,6 +23,7 @@ import top.dcenter.ums.security.core.oauth.signup.ConnectionService;
 import java.util.concurrent.ExecutorService;
 
 /**
+ * 添加 OAuth2(JustAuth) 配置
  * @author zyw
  * @version V2.0  Created by 2020/10/12 12:31
  */
@@ -59,11 +60,6 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         Auth2DefaultRequestRedirectFilter auth2DefaultRequestRedirectFilter = new Auth2DefaultRequestRedirectFilter(authorizationRequestBaseUri);
         http.addFilterAfter(auth2DefaultRequestRedirectFilter, AbstractPreAuthenticatedProcessingFilter.class);
 
-        // 添加 provider
-        Auth2LoginAuthenticationProvider auth2LoginAuthenticationProvider = new Auth2LoginAuthenticationProvider(
-                auth2UserService, connectionSignUp, umsUserDetailsService,
-                usersConnectionRepository, updateConnectionTaskExecutor);
-        http.authenticationProvider(auth2LoginAuthenticationProvider);
 
         // 添加第三方登录回调接口过滤器
         String filterProcessesUrl = auth2Properties.getRedirectUrlPrefix();
@@ -72,6 +68,13 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         auth2LoginAuthenticationFilter.setAuthenticationManager(sharedObject);
         http.addFilterAfter(auth2LoginAuthenticationFilter, OAuth2AuthorizationRequestRedirectFilter.class);
 
+        // 添加 provider
+        Auth2LoginAuthenticationProvider auth2LoginAuthenticationProvider = new Auth2LoginAuthenticationProvider(
+                auth2UserService, connectionSignUp, umsUserDetailsService,
+                usersConnectionRepository, updateConnectionTaskExecutor);
+        http.authenticationProvider(auth2LoginAuthenticationProvider);
+
+        // 放行第三方登录入口地址与第三方登录回调地址
         http.authorizeRequests().antMatchers(HttpMethod.GET,
                                              auth2Properties.getRedirectUrlPrefix() + "/*",
                                              auth2Properties.getAuthLoginUrlPrefix() + "/*")

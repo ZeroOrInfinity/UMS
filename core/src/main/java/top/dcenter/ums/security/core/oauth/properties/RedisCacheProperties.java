@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 对第三方授权登录、绑定与解绑功能的持久化（jdbc）数据是否缓存到 redis 的配置
+ * 对第三方授权登录用户信息与 token 的持久化（jdbc）数据是否缓存到 redis 的配置
  * @author zyw
  * @version V1.0  Created by 2020/6/15 19:29
  */

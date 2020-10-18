@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 线程池属性
  * @author zyw
  * @version V2.0  Created by 2020/10/15 12:06
  */
@@ -71,7 +72,7 @@ public class ExecutorProperties {
          */
         private RejectedExecutionHandlerPolicy rejectedExecutionHandlerPolicy = RejectedExecutionHandlerPolicy.ABORT;
         /**
-         * 线程池关闭过程的超时时间, 默认: 10 秒
+         * 线程池关闭过程的超时时间, 默认: PT10S
          */
         private Duration executorShutdownTimeout = Duration.ofSeconds(10);
     }
@@ -80,7 +81,7 @@ public class ExecutorProperties {
     @Setter
     public static class RefreshTokenExecutorProperties {
         /**
-         * 线程池中空闲时保留的线程数, 默认: 1
+         * 线程池中空闲时保留的线程数, 默认: 0
          */
         private Integer corePoolSize = 0;
         /**
@@ -88,11 +89,11 @@ public class ExecutorProperties {
          */
         private Integer maximumPoolSize = Runtime.getRuntime().availableProcessors();
         /**
-         * keep alive time, 默认: 10
+         * keep alive time, 默认: 5
          */
         private Integer keepAliveTime = 5;
         /**
-         * keepAliveTime 时间单位, 默认: 毫秒
+         * keepAliveTime 时间单位, 默认: 秒
          */
         private TimeUnit timeUnit = TimeUnit.SECONDS;
         /**
@@ -131,7 +132,7 @@ public class ExecutorProperties {
          */
         private Integer keepAliveTime = 10;
         /**
-         * keepAliveTime 时间单位, 默认: 毫秒
+         * keepAliveTime 时间单位, 默认: 秒
          */
         private TimeUnit timeUnit = TimeUnit.SECONDS;
         /**

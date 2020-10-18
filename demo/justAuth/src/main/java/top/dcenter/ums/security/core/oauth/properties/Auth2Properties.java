@@ -255,7 +255,6 @@ public class Auth2Properties {
 
         /**
          * 是否支持代理, 默认为: false. <br>
-         *     当为 false 时, 其他属性都失效.
          */
         private Boolean enable = false;
 
@@ -265,12 +264,12 @@ public class Auth2Properties {
         private Proxy.Type proxy = Proxy.Type.HTTP;
 
         /**
-         * 代理 host
+         * 代理 host, enable = true 时生效.
          */
         private String hostname;
 
         /**
-         * 代理端口
+         * 代理端口, enable = true 时生效.
          */
         private Integer port;
 
@@ -289,7 +288,7 @@ public class Auth2Properties {
     @Setter
     public static class GithubProperties extends BaseAuth2Properties {
         /**
-         * GITHUB 第三方id，默认是 github。
+         * GITHUB 第三方服务商 id，默认是 github。
          */
         private String providerId = "github";
 
@@ -299,7 +298,7 @@ public class Auth2Properties {
     @Setter
     public static class WeiboProperties extends BaseAuth2Properties {
         /**
-         * 新浪微博 第三方id，默认是 weibo。
+         * 新浪微博 第三方服务商 id，默认是 weibo。
          */
         private String providerId = "weibo";
 
@@ -319,7 +318,7 @@ public class Auth2Properties {
     @Setter
     public static class DingtalkProperties extends BaseAuth2Properties {
         /**
-         * 钉钉 第三方id，默认是 dingtalk。
+         * 钉钉 第三方服务商 id，默认是 dingtalk。
          */
         private String providerId = "dingtalk";
 
@@ -329,7 +328,7 @@ public class Auth2Properties {
     @Setter
     public static class BaiduProperties extends BaseAuth2Properties {
         /**
-         * 百度 第三方id，默认是 baidu。
+         * 百度 第三方服务商 id，默认是 baidu。
          */
         private String providerId = "baidu";
 
@@ -339,7 +338,7 @@ public class Auth2Properties {
     @Setter
     public static class CsdnProperties extends BaseAuth2Properties {
         /**
-         * csdn 第三方id，默认是 csdn。
+         * csdn 第三方服务商 id，默认是 csdn。
          */
         private String providerId = "csdn";
 
@@ -367,7 +366,7 @@ public class Auth2Properties {
     @Setter
     public static class OschinaProperties extends BaseAuth2Properties {
         /**
-         * OSCHINA 第三方id，默认是 oschina。
+         * OSCHINA 第三方服务商 id，默认是 oschina。
          */
         private String providerId = "oschina";
 
@@ -409,7 +408,7 @@ public class Auth2Properties {
     @Setter
     public static class WechatOpenProperties extends BaseAuth2Properties {
         /**
-         * 微信开放平台 第三方id，默认是 wechatOpen。
+         * 微信开放平台 第三方服务商 id，默认是 wechatOpen。
          */
         private String providerId = "wechatOpen";
 
@@ -419,7 +418,7 @@ public class Auth2Properties {
     @Setter
     public static class WechatMpProperties extends BaseAuth2Properties {
         /**
-         * 微信公众平台 第三方id，默认是 wechatMp。
+         * 微信公众平台 第三方服务商 id，默认是 wechatMp。
          */
         private String providerId = "wechatMp";
 
@@ -429,7 +428,7 @@ public class Auth2Properties {
     @Setter
     public static class TaobaoProperties extends BaseAuth2Properties {
         /**
-         * 淘宝 第三方id，默认是 taobao。
+         * 淘宝 第三方服务商 id，默认是 taobao。
          */
         private String providerId = "taobao";
 
@@ -439,7 +438,7 @@ public class Auth2Properties {
     @Setter
     public static class GoogleProperties extends BaseAuth2Properties {
         /**
-         * Google 第三方id，默认是 google。
+         * Google 第三方服务商 id，默认是 google。
          */
         private String providerId = "google";
 
@@ -448,7 +447,7 @@ public class Auth2Properties {
     @Setter
     public static class FacebookProperties extends BaseAuth2Properties {
         /**
-         * Facebook 第三方id，默认是 facebook。
+         * Facebook 第三方服务商 id，默认是 facebook。
          */
         private String providerId = "facebook";
 
@@ -458,7 +457,7 @@ public class Auth2Properties {
     @Setter
     public static class DouyinProperties extends BaseAuth2Properties {
         /**
-         * 抖音 第三方id，默认是 douyin。
+         * 抖音 第三方服务商 id，默认是 douyin。
          */
         private String providerId = "douyin";
 
@@ -468,7 +467,7 @@ public class Auth2Properties {
     @Setter
     public static class LinkedinProperties extends BaseAuth2Properties {
         /**
-         * 领英 第三方id，默认是 linkedin。
+         * 领英 第三方服务商 id，默认是 linkedin。
          */
         private String providerId = "linkedin";
 
@@ -478,7 +477,7 @@ public class Auth2Properties {
     @Setter
     public static class MicrosoftProperties extends BaseAuth2Properties {
         /**
-         * 微软 第三方id，默认是 microsoft。
+         * 微软 第三方服务商 id，默认是 microsoft。
          */
         private String providerId = "microsoft";
 
@@ -488,7 +487,7 @@ public class Auth2Properties {
     @Setter
     public static class MiProperties extends BaseAuth2Properties {
         /**
-         * 小米 第三方id，默认是 mi。
+         * 小米 第三方服务商 id，默认是 mi。
          */
         private String providerId = "mi";
 
@@ -498,7 +497,7 @@ public class Auth2Properties {
     @Setter
     public static class ToutiaoProperties extends BaseAuth2Properties {
         /**
-         * 今日头条 第三方id，默认是 toutiao。
+         * 今日头条 第三方服务商 id，默认是 toutiao。
          */
         private String providerId = "toutiao";
 
@@ -508,7 +507,7 @@ public class Auth2Properties {
     @Setter
     public static class TeambitionProperties extends BaseAuth2Properties {
         /**
-         * Teambition 第三方id，默认是 teambition。
+         * Teambition 第三方服务商 id，默认是 teambition。
          */
         private String providerId = "teambition";
 
@@ -518,7 +517,7 @@ public class Auth2Properties {
     @Setter
     public static class RenrenProperties extends BaseAuth2Properties {
         /**
-         * 人人网 第三方id，默认是 renren。
+         * 人人网 第三方服务商 id，默认是 renren。
          */
         private String providerId = "renren";
 
@@ -528,7 +527,7 @@ public class Auth2Properties {
     @Setter
     public static class PinterestProperties extends BaseAuth2Properties {
         /**
-         * Pinterest 第三方id，默认是 pinterest。
+         * Pinterest 第三方服务商 id，默认是 pinterest。
          */
         private String providerId = "pinterest";
 
@@ -557,7 +556,7 @@ public class Auth2Properties {
     @Setter
     public static class HuaweiProperties extends BaseAuth2Properties {
         /**
-         * 华为 第三方id，默认是 huawei。
+         * 华为 第三方服务商 id，默认是 huawei。
          */
         private String providerId = "huawei";
 
@@ -570,7 +569,7 @@ public class Auth2Properties {
     @Setter
     public static class WechatEnterpriseProperties extends BaseAuth2Properties {
         /**
-         * 企业微信 第三方id，默认是 wechatEnterprise。
+         * 企业微信 第三方服务商 id，默认是 wechatEnterprise。
          */
         private String providerId = "wechatEnterprise";
         /**
@@ -586,7 +585,7 @@ public class Auth2Properties {
     @Setter
     public static class GitlabProperties extends BaseAuth2Properties {
         /**
-         * Gitlab 第三方id，默认是 gitlab。
+         * Gitlab 第三方服务商 id，默认是 gitlab。
          */
         private String providerId = "gitlab";
 
@@ -596,7 +595,7 @@ public class Auth2Properties {
     @Setter
     public static class KujialeProperties extends BaseAuth2Properties {
         /**
-         * 酷家乐 第三方id，默认是 kujiale。
+         * 酷家乐 第三方服务商 id，默认是 kujiale。
          */
         private String providerId = "kujiale";
 
@@ -606,7 +605,7 @@ public class Auth2Properties {
     @Setter
     public static class ElemeProperties extends BaseAuth2Properties {
         /**
-         * 饿了么 第三方id，默认是 eleme。
+         * 饿了么 第三方服务商 id，默认是 eleme。
          */
         private String providerId = "eleme";
 
@@ -616,7 +615,7 @@ public class Auth2Properties {
     @Setter
     public static class MeituanProperties extends BaseAuth2Properties {
         /**
-         * 美团 第三方id，默认是 meituan。
+         * 美团 第三方服务商 id，默认是 meituan。
          */
         private String providerId = "meituan";
 
@@ -626,7 +625,7 @@ public class Auth2Properties {
     @Setter
     public static class TwitterProperties extends BaseAuth2Properties {
         /**
-         * Twitter 第三方id，默认是 twitter。
+         * Twitter 第三方服务商 id，默认是 twitter。
          */
         private String providerId = "twitter";
 
@@ -636,7 +635,7 @@ public class Auth2Properties {
     @Setter
     public static class FeishuProperties extends BaseAuth2Properties {
         /**
-         * 飞书 第三方id，默认是 feishu。
+         * 飞书 第三方服务商 id，默认是 feishu。
          */
         private String providerId = "feishu";
 
@@ -646,7 +645,7 @@ public class Auth2Properties {
     @Setter
     public static class JdProperties extends BaseAuth2Properties {
         /**
-         * 京东 第三方id，默认是 jd。
+         * 京东 第三方服务商 id，默认是 jd。
          */
         private String providerId = "jd";
 
@@ -656,7 +655,7 @@ public class Auth2Properties {
     @Setter
     public static class AliyunProperties extends BaseAuth2Properties {
         /**
-         * 阿里云 第三方id，默认是 aliyun。
+         * 阿里云 第三方服务商 id，默认是 aliyun。
          */
         private String providerId = "aliyun";
 
