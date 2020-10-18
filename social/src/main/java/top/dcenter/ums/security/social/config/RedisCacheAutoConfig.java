@@ -5,13 +5,19 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
+import org.springframework.cache.interceptor.CacheResolver;
+import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -24,6 +30,7 @@ import org.springframework.data.redis.connection.lettuce.LettucePoolingClientCon
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.lang.NonNull;
 import top.dcenter.ums.security.social.properties.RedisCacheProperties;
 import top.dcenter.ums.security.social.repository.jdbc.cache.RedisHashCacheManager;
 import top.dcenter.ums.security.social.repository.jdbc.key.generator.AddConnectionByProviderIdKeyGenerator;
@@ -42,7 +49,11 @@ import java.util.Set;
 
 /**
  * 简单的实现 Redis cache 自定义配置 {@link CacheManager}, 向 IOC 容器中注入 beanName=socialRedisHashCacheManager 的实例. <br><br>
- * 此 redis Cache 对 {@link org.springframework.data.redis.cache.RedisCache} 进行了修改, 把缓存的 KV 格式该成了 Hash 格式.
+ * 此 redis Cache 对 {@link org.springframework.data.redis.cache.RedisCache} 进行了修改, 把缓存的 KV 格式该成了 Hash 格式.<br>
+ * Cacheable 操作异常处理: <br>
+ * 异常处理在日志中打印出错误信息，但是放行，保证redis服务器出现连接等问题的时候不影响程序的正常运行，使得能够出问题时不用缓存. <br>
+ * Cacheable 操作自定义异常处理: 实现 {@link CacheErrorHandler } 注入 IOC 容器即可自动注入 {@link CachingConfigurerSupport},
+ * 当然也可自定义 {@link CachingConfigurerSupport} .
  * @author zyw
  * @version V1.0  Created by  2020-06-11 22:57
  */
@@ -50,6 +61,7 @@ import java.util.Set;
 @EnableConfigurationProperties({RedisCacheProperties.class})
 @ConditionalOnProperty(prefix = "ums.redis", name = "open", havingValue = "true")
 @EnableCaching
+@Slf4j
 public class RedisCacheAutoConfig {
 
     /**
@@ -230,6 +242,75 @@ public class RedisCacheAutoConfig {
     @Bean("userIdKeyGenerator")
     public UserIdKeyGenerator userIdKeyGenerator() {
         return new UserIdKeyGenerator();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = {"org.springframework.cache.interceptor.CacheErrorHandler"})
+    public CacheErrorHandler cacheErrorHandler() {
+        /*
+         * Cacheable 操作异常处理:
+         * 异常处理在日志中打印出错误信息，但是放行，保证redis服务器出现连接等问题的时候不影响程序的正常运行，使得能够出问题时不用缓存
+         */
+        return new CacheErrorHandler() {
+            @Override
+            public void handleCacheGetError(@NonNull RuntimeException e, @NonNull Cache cache, @NonNull Object key) {
+                log.error("redis异常：cacheName=[{}], key=[{}]", cache.getName(), key, e);
+            }
+
+            @Override
+            public void handleCachePutError(@NonNull RuntimeException e, @NonNull Cache cache, @NonNull Object key, Object value) {
+                log.error("redis异常：cacheName=[{}], key=[{}]", cache.getName(), key, e);
+            }
+
+            @Override
+            public void handleCacheEvictError(@NonNull RuntimeException e, @NonNull Cache cache, @NonNull Object key) {
+                log.error("redis异常：cacheName=[{}], key=[{}]", cache.getName(), key, e);
+            }
+
+            @Override
+            public void handleCacheClearError(@NonNull RuntimeException e, @NonNull Cache cache) {
+                log.error("redis异常：cacheName=[{}], ", cache.getName(), e);
+            }
+        };
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = {"org.springframework.cache.annotation.CachingConfigurerSupport"})
+    public CachingConfigurerSupport cachingConfigurerSupport(CacheErrorHandler cacheErrorHandler) {
+        return new CustomizeCachingConfigurerSupport(cacheErrorHandler);
+    }
+
+    private static class CustomizeCachingConfigurerSupport extends CachingConfigurerSupport {
+
+        private final CacheErrorHandler cacheErrorHandler;
+
+        public CustomizeCachingConfigurerSupport(CacheErrorHandler cacheErrorHandler) {
+            this.cacheErrorHandler = cacheErrorHandler;
+        }
+
+        @Override
+        public CacheManager cacheManager() {
+            return super.cacheManager();
+        }
+
+        @Override
+        public CacheResolver cacheResolver() {
+            return super.cacheResolver();
+        }
+
+        @Override
+        public KeyGenerator keyGenerator() {
+            return super.keyGenerator();
+        }
+
+        /**
+         * Cacheable 操作异常处理:
+         * @return  CacheErrorHandler 自定义 Cacheable 操作异常处理
+         */
+        @Override
+        public CacheErrorHandler errorHandler() {
+            return this.cacheErrorHandler;
+        }
     }
 
 }

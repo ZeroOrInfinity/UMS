@@ -47,7 +47,8 @@ public class RedisCacheProperties {
          */
         private Duration defaultExpireTime = Duration.ofSeconds(200);
         /**
-         * Set the ttl to apply for cache entries. Use Duration.ZERO to declare an eternal cache. 默认: 180s
+         * cache ttl 。使用 0 声明一个永久的缓存。 默认: 180, 单位: 秒<br>
+         * 取缓存时间的 20% 作为动态的随机变量上下浮动, 防止同时缓存失效而缓存击穿
          */
         private Duration entryTtl = Duration.ofSeconds(180);
         /**

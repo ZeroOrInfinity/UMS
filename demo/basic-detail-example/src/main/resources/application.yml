@@ -154,9 +154,15 @@ ums:
       # 如果使用 spring IOC 容器中的 RedisConnectionFactory，则要注意 cache.database-index 要与 spring.redis.database 一样。
       use-ioc-redis-connection-factory: true
       cache:
+        # redis cache 存放的 database index, 默认: 0
         database-index: 1
+        # 设置缓存管理器管理的缓存的默认过期时间, 默认: 200s
         default-expire-time: PT200S
+        # cache ttl 。使用 0 声明一个永久的缓存。 默认: 180, 单位: 秒<br>
+        # 取缓存时间的 20% 作为动态的随机变量上下浮动, 防止同时缓存失效而缓存击穿
         entry-ttl: PT180S
+        # Names of the default caches to consider for caching operations defined in the annotated class.
+        # 此设置不对 user_connection 与 auth_token 使用的缓存名称(UCC/UCHC/UCHACC)产生影响.
         cache-names:
           - cacheName
   # =============== end: 第三方登录时用的数据库表 user_connection 与 auth_token 添加 redis cache ===============
