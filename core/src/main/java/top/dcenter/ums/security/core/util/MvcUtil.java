@@ -1,11 +1,15 @@
 package top.dcenter.ums.security.core.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.GenericApplicationListenerAdapter;
 import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -46,6 +50,33 @@ public class MvcUtil {
      * {@link UrlPathHelper}
      */
     private volatile static UrlPathHelper urlPathHelper = null;
+
+    /**
+     * jackson 封装
+     */
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    static {
+        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
+    /**
+     * 通过 {@link ObjectMapper} 转换对象到 JSONString, 主要目的用于日志输出对象字符串时使用, 减少 try catch 嵌套, 转换失败记录日志并返回空字符串.
+     * @param obj   Object
+     * @return  返回 JSONString, 转换失败记录日志并返回空字符串.
+     */
+    public static String toJsonString(Object obj) {
+        try
+        {
+            return OBJECT_MAPPER.writeValueAsString(obj);
+        }
+        catch (JsonProcessingException e)
+        {
+            String msg = String.format("Object2JsonString 失败: %s, Object=%s", e.getMessage(), obj);
+            log.error(msg, e);
+            return "";
+        }
+    }
 
     /**
      * 获取 {@link UrlPathHelper}
@@ -168,7 +199,7 @@ public class MvcUtil {
         method.setAccessible(true);
 
         // 获取 RequestMapping 注解
-        RequestMapping mappingAnnotation = method.getDeclaredAnnotation(RequestMapping.class);
+        final RequestMapping mappingAnnotation = AnnotationUtils.findAnnotation(method, RequestMapping.class);
         if (null != mappingAnnotation) {
             // 获取 RequestMapping 中 value 值
             String[] paths = mappingAnnotation.value();
@@ -212,7 +243,7 @@ public class MvcUtil {
         method.setAccessible(true);
 
         // 获取 annotationClass 注解
-        Scheduled annotation = method.getDeclaredAnnotation(Scheduled.class);
+        final Scheduled annotation = AnnotationUtils.findAnnotation(method, Scheduled.class);
         if (null != annotation) {
             // 获取代理处理器
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(annotation);

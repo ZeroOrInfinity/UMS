@@ -167,7 +167,7 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
         Auth2Properties.HttpConfigProperties proxy = auth2Properties.getProxy();
         config.setHttpConfig(proxy.getHttpConfig());
         // 设置是否忽略 state 检测
-        config.setIgnoreCheckState(justAuth.isIgnoreCheckState());
+        config.setIgnoreCheckState(justAuth.getIgnoreCheckState());
 
         switch (source) {
             case GITHUB:

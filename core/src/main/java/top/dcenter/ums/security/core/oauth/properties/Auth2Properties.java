@@ -219,7 +219,7 @@ public class Auth2Properties {
      */
     private Integer remainingExpireIn = 24;
 
-    // ===============================================
+    // =================== justAuth 属性 ===================
 
     @NestedConfigurationProperty
     private JustAuthProperties justAuth = new JustAuthProperties();

@@ -1,7 +1,6 @@
 package top.dcenter.ums.security.core.oauth.repository.jdbc;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -16,18 +15,19 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration;
+import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionKey;
+import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
+import top.dcenter.ums.security.core.oauth.properties.RepositoryProperties;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
 import top.dcenter.ums.security.core.oauth.repository.exception.DuplicateConnectionException;
 import top.dcenter.ums.security.core.oauth.repository.exception.NoSuchConnectionException;
 import top.dcenter.ums.security.core.oauth.repository.exception.NotConnectedException;
-import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
-import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
-import top.dcenter.ums.security.core.oauth.entity.ConnectionKey;
-import top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration;
-import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
-import top.dcenter.ums.security.core.oauth.properties.RepositoryProperties;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

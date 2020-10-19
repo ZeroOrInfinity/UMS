@@ -16,7 +16,6 @@
 
 package top.dcenter.ums.security.core.oauth.provider;
 
-import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -35,9 +34,9 @@ import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
 import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
-import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
 import top.dcenter.ums.security.core.oauth.service.Auth2UserService;
 import top.dcenter.ums.security.core.oauth.signup.ConnectionService;
 import top.dcenter.ums.security.core.oauth.token.Auth2AuthenticationToken;
@@ -46,6 +45,8 @@ import top.dcenter.ums.security.core.oauth.token.Auth2LoginAuthenticationToken;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+
+import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
 
 /**
  * An implementation of an {@link AuthenticationProvider} for OAuth 2.0 Login, which
@@ -210,9 +211,9 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 						}
 						catch (Exception e) {
 							String msg = String.format("异步更新第三方授权登录用户信息与 token 信息失败: AuthUser=%s, ConnectionData=%s, error=%s",
-							                              JSONObject.toJSONString(authUser),
-							                              JSONObject.toJSONString(connectionData),
-							                              e.getMessage());
+								                    toJsonString(authUser),
+								                    toJsonString(connectionData),
+								                    e.getMessage());
 							log.error(msg, e);
 						}
 					});
@@ -225,9 +226,9 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 			}
 			catch (Exception ex) {
 				String msg = String.format("同步更新第三方授权登录用户信息与 token 信息失败: AuthUser=%s, ConnectionData=%s, error=%s",
-				                           JSONObject.toJSONString(authUser),
-				                           JSONObject.toJSONString(connectionData),
-				                           e.getMessage());
+					                    toJsonString(authUser),
+					                    toJsonString(connectionData),
+					                    e.getMessage());
 				log.error(msg, e);
 			}
 		}
