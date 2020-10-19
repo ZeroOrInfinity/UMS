@@ -16,12 +16,12 @@ import me.zhyd.oauth.utils.UuidUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.exception.RefreshTokenFailureException;
+import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.core.oauth.exception.RefreshTokenFailureException;
 import top.dcenter.ums.security.core.oauth.justauth.cache.Auth2StateCache;
 import top.dcenter.ums.security.core.oauth.justauth.cache.AuthStateSessionCache;
 import top.dcenter.ums.security.core.oauth.justauth.enums.CacheKeyStrategy;
-import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
 
 import java.time.Instant;
 

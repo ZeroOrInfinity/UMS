@@ -50,12 +50,6 @@ public class ExecutorProperties {
          */
         private Integer corePoolSize = 0;
         /**
-         * 最大线程数, 默认: 本机核心数.<br>
-         * 注意: 定时刷新 accessToken 任务启动时只使用了一个线程, 没必要在此设置.
-         * 但刷新 accessToken 的执行逻辑是多线程的, 通过 ums.executor.refreshToken 配置
-         */
-        private Integer maximumPoolSize = Runtime.getRuntime().availableProcessors();
-        /**
          * keep alive time, 默认: 10
          */
         private Integer keepAliveTime = 10;

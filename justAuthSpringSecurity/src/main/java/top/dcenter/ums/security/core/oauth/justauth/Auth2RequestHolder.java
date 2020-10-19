@@ -19,7 +19,7 @@ import top.dcenter.ums.security.core.oauth.justauth.request.*;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.properties.BaseAuth2Properties;
 import top.dcenter.ums.security.core.oauth.properties.JustAuthProperties;
-import top.dcenter.ums.security.core.util.MvcUtil;
+import top.dcenter.ums.security.core.oauth.util.MvcUtil;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.requireNonNull;
-import static top.dcenter.ums.security.common.consts.SecurityConstants.URL_SEPARATOR;
+import static top.dcenter.ums.security.core.oauth.consts.SecurityConstants.URL_SEPARATOR;
 
 /**
  * JustAuth内置的各api需要的url， 用枚举类分平台类型管理
@@ -64,7 +64,6 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
      * key 为 {@link AuthDefaultSource}, value 为 providerId
      */
     private static final Map<AuthDefaultSource, String> SOURCE_PROVIDER_ID_MAP = new ConcurrentHashMap<>();
-    private static AuthStateCache authStateCache;
     private ApplicationContext applicationContext;
 
     /**
@@ -117,7 +116,7 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
         StringRedisTemplate stringRedisTemplate = applicationContext.getBean(StringRedisTemplate.class);
 
         // 获取 stateCache
-        authStateCache = getAuthStateCache(stateCacheType, auth2Properties, stringRedisTemplate);
+        AuthStateCache authStateCache = getAuthStateCache(stateCacheType, auth2Properties, stringRedisTemplate);
 
 
         /* 获取 Auth2Properties 对象的字段与对应的值:
@@ -142,7 +141,7 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
                 BaseAuth2Properties baseAuth2Properties = ((BaseAuth2Properties) baseProperties);
                 if (baseAuth2Properties.getClientId() != null && baseAuth2Properties.getClientSecret() != null)
                 {
-                    Auth2DefaultRequest auth2DefaultRequest = getAuth2DefaultRequest(source, auth2Properties);
+                    Auth2DefaultRequest auth2DefaultRequest = getAuth2DefaultRequest(source, auth2Properties,authStateCache);
                     PROVIDER_ID_AUTH_REQUEST_MAP.put(providerId, auth2DefaultRequest);
                 }
             }
@@ -157,7 +156,8 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
      */
     @SuppressWarnings({"AlibabaMethodTooLong", "deprecation"})
     private Auth2DefaultRequest getAuth2DefaultRequest(@NonNull AuthDefaultSource source,
-                                                       @NonNull Auth2Properties auth2Properties) throws IllegalAccessException {
+                                                       @NonNull Auth2Properties auth2Properties,
+                                                       @NonNull AuthStateCache authStateCache) throws IllegalAccessException {
 
         JustAuthProperties justAuth = auth2Properties.getJustAuth();
         AuthConfig config = getAuthConfig(auth2Properties, source);
@@ -167,7 +167,7 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
         Auth2Properties.HttpConfigProperties proxy = auth2Properties.getProxy();
         config.setHttpConfig(proxy.getHttpConfig());
         // 设置是否忽略 state 检测
-        config.setIgnoreCheckState(justAuth.isIgnoreCheckState());
+        config.setIgnoreCheckState(justAuth.getIgnoreCheckState());
 
         switch (source) {
             case GITHUB:

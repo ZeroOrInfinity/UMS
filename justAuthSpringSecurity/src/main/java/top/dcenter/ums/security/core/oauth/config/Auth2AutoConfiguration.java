@@ -2,16 +2,21 @@ package top.dcenter.ums.security.core.oauth.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
-import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.properties.RepositoryProperties;
@@ -22,16 +27,21 @@ import top.dcenter.ums.security.core.oauth.repository.factory.UsersConnectionRep
 import top.dcenter.ums.security.core.oauth.repository.jdbc.Auth2JdbcUsersConnectionTokenRepository;
 import top.dcenter.ums.security.core.oauth.service.Auth2UserService;
 import top.dcenter.ums.security.core.oauth.service.DefaultAuth2UserServiceImpl;
+import top.dcenter.ums.security.core.oauth.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.oauth.signup.ConnectionService;
 import top.dcenter.ums.security.core.oauth.signup.DefaultConnectionServiceImpl;
+import top.dcenter.ums.security.core.oauth.util.MvcUtil;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Objects;
 
-import static top.dcenter.ums.security.common.consts.SecurityConstants.QUERY_DATABASE_NAME_SQL;
-import static top.dcenter.ums.security.common.consts.SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX;
-
+import static top.dcenter.ums.security.core.oauth.consts.SecurityConstants.QUERY_DATABASE_NAME_SQL;
+import static top.dcenter.ums.security.core.oauth.consts.SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX;
+import static top.dcenter.ums.security.core.oauth.consts.SecurityConstants.SERVLET_CONTEXT_PATH_PARAM_NAME;
 
 
 /**
@@ -44,11 +54,12 @@ import static top.dcenter.ums.security.common.consts.SecurityConstants.QUERY_TAB
 @Configuration
 @ConditionalOnProperty(prefix = "ums.oauth", name = "enabled", havingValue = "true")
 @Slf4j
-public class Auth2AutoConfiguration implements InitializingBean {
+public class Auth2AutoConfiguration implements InitializingBean, ApplicationContextAware {
 
     private final RepositoryProperties repositoryProperties;
     private final Auth2Properties auth2Properties;
     private final DataSource dataSource;
+    private ApplicationContext applicationContext;
 
     public Auth2AutoConfiguration(RepositoryProperties repositoryProperties, Auth2Properties auth2Properties, DataSource dataSource) {
         this.repositoryProperties = repositoryProperties;
@@ -113,6 +124,29 @@ public class Auth2AutoConfiguration implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
 
+        // 给 MvcUtil.SERVLET_CONTEXT_PATH 设置 servletContextPath
+        Class<MvcUtil> mvcUtilClass = MvcUtil.class;
+        Class.forName(mvcUtilClass.getName());
+        Field[] declaredFields = mvcUtilClass.getDeclaredFields();
+        for (Field field : declaredFields)
+        {
+            field.setAccessible(true);
+            if (Objects.equals(field.getName(), SERVLET_CONTEXT_PATH_PARAM_NAME))
+            {
+                String contextPath;
+                try
+                {
+                    contextPath = Objects.requireNonNull(((AnnotationConfigServletWebServerApplicationContext) this.applicationContext).getServletContext()).getContextPath();
+                }
+                catch (Exception e)
+                {
+                    contextPath = Objects.requireNonNull(((GenericWebApplicationContext) this.applicationContext).getServletContext()).getContextPath();
+                }
+                field.set(null, contextPath);
+            }
+
+        }
+
         // ====== 是否要初始化数据库 ======
         // 如果 Auth2JdbcUsersConnectionRepository, Auth2JdbcUsersConnectionTokenRepository 所需的表 user_connection, 未创建则创建它
         try (Connection connection = dataSource.getConnection())
@@ -124,7 +158,9 @@ public class Auth2AutoConfiguration implements InitializingBean {
             }
 
             String database;
-            try (ResultSet resultSet = connection.prepareStatement(QUERY_DATABASE_NAME_SQL).executeQuery())
+
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(QUERY_DATABASE_NAME_SQL);
+                 ResultSet resultSet = preparedStatement.executeQuery())
             {
                 resultSet.next();
                 database = resultSet.getString(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
@@ -133,7 +169,9 @@ public class Auth2AutoConfiguration implements InitializingBean {
             if (StringUtils.isNotBlank(database))
             {
                 String queryUserConnectionTableExistSql = repositoryProperties.getQueryUserConnectionTableExistSql(database);
-                try (ResultSet resultSet = connection.prepareStatement(queryUserConnectionTableExistSql).executeQuery())
+
+                try (final PreparedStatement preparedStatement2 = connection.prepareStatement(queryUserConnectionTableExistSql);
+                     ResultSet resultSet = preparedStatement2.executeQuery())
                 {
                     resultSet.next();
                     int tableCount = resultSet.getInt(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
@@ -153,7 +191,9 @@ public class Auth2AutoConfiguration implements InitializingBean {
                 String authTokenTable = "auth_token";
                 String queryAuthTokenTableExistSql = "SELECT COUNT(1) FROM information_schema.tables WHERE " +
                         "table_schema='" + database + "' AND table_name = '" + authTokenTable + "'";
-                try (ResultSet resultSet = connection.prepareStatement(queryAuthTokenTableExistSql).executeQuery())
+
+                try (final PreparedStatement preparedStatement1 = connection.prepareStatement(queryAuthTokenTableExistSql);
+                     ResultSet resultSet = preparedStatement1.executeQuery())
                 {
                     resultSet.next();
                     int tableCount = resultSet.getInt(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
@@ -199,5 +239,10 @@ public class Auth2AutoConfiguration implements InitializingBean {
             }
         }
 
+    }
+
+    @Override
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }
