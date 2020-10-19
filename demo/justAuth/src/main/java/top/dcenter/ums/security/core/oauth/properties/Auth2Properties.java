@@ -12,6 +12,7 @@ import java.net.Proxy;
 import java.time.Duration;
 
 /**
+ * 第三方授权登录属性
  * @author zyw
  * @version V1.0  Created by 2020/10/6 21:01
  */
@@ -163,6 +164,12 @@ public class Auth2Properties {
     
     // =================== OAuth2 属性 ===================
     /**
+     * 抑制反射警告, 支持 JDK11, 默认: false ,
+     * 在确认 WARNING: An illegal reflective access operation has occurred 安全后, 可以打开此设置, 可以抑制反射警告.
+     */
+    private Boolean suppressReflectWarning = false;
+
+    /**
      * 是否支持第三方授权登录功能, 默认: true
      */
     private Boolean enabled = true;
@@ -219,7 +226,7 @@ public class Auth2Properties {
      */
     private Integer remainingExpireIn = 24;
 
-    // ===============================================
+    // =================== justAuth 属性 ===================
 
     @NestedConfigurationProperty
     private JustAuthProperties justAuth = new JustAuthProperties();

@@ -1,6 +1,7 @@
 package top.dcenter.ums.security.core.oauth.config;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -10,7 +11,10 @@ import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import top.dcenter.ums.security.core.oauth.filter.login.Auth2LoginAuthenticationFilter;
 import top.dcenter.ums.security.core.oauth.filter.redirect.Auth2DefaultRequestRedirectFilter;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
@@ -40,6 +44,15 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
     private final UsersConnectionRepository usersConnectionRepository;
     private final ConnectionService connectionSignUp;
     private final ExecutorService updateConnectionTaskExecutor;
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
+    @Autowired(required = false)
+    private AuthenticationFailureHandler authenticationFailureHandler;
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
+    @Autowired(required = false)
+    private AuthenticationSuccessHandler authenticationSuccessHandler;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired(required = false)
+    private PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public Auth2AutoConfigurer(Auth2Properties auth2Properties, UmsUserDetailsService umsUserDetailsService,
@@ -62,19 +75,36 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         Auth2DefaultRequestRedirectFilter auth2DefaultRequestRedirectFilter = new Auth2DefaultRequestRedirectFilter(authorizationRequestBaseUri);
         http.addFilterAfter(auth2DefaultRequestRedirectFilter, AbstractPreAuthenticatedProcessingFilter.class);
 
-
         // 添加第三方登录回调接口过滤器
         String filterProcessesUrl = auth2Properties.getRedirectUrlPrefix();
         Auth2LoginAuthenticationFilter auth2LoginAuthenticationFilter = new Auth2LoginAuthenticationFilter(filterProcessesUrl);
         AuthenticationManager sharedObject = http.getSharedObject(AuthenticationManager.class);
         auth2LoginAuthenticationFilter.setAuthenticationManager(sharedObject);
-        http.addFilterAfter(auth2LoginAuthenticationFilter, OAuth2AuthorizationRequestRedirectFilter.class);
+        if (authenticationFailureHandler != null)
+        {
+            // 添加认证失败处理器
+            auth2LoginAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+        }
+        if (authenticationSuccessHandler != null)
+        {
+            // 添加认证成功处理器
+            auth2LoginAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        }
+
+        // 添加 PersistentTokenBasedRememberMeServices
+        if (persistentTokenBasedRememberMeServices != null)
+        {
+            // 添加rememberMe功能配置
+            auth2LoginAuthenticationFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
+        }
+
+        http.addFilterAfter(postProcess(auth2LoginAuthenticationFilter), OAuth2AuthorizationRequestRedirectFilter.class);
 
         // 添加 provider
         Auth2LoginAuthenticationProvider auth2LoginAuthenticationProvider = new Auth2LoginAuthenticationProvider(
                 auth2UserService, connectionSignUp, umsUserDetailsService,
                 usersConnectionRepository, updateConnectionTaskExecutor);
-        http.authenticationProvider(auth2LoginAuthenticationProvider);
+        http.authenticationProvider(postProcess(auth2LoginAuthenticationProvider));
 
     }
 
@@ -103,7 +133,10 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
     @Override
     public void afterPropertiesSet() {
         // 忽略非法反射警告  适用于jdk11
-        disableAccessWarnings();
+        if (auth2Properties.getSuppressReflectWarning())
+        {
+            disableAccessWarnings();
+        }
     }
 }
 
