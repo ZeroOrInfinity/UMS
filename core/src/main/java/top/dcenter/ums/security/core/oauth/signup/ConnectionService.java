@@ -49,4 +49,12 @@ public interface ConnectionService {
 	 */
 	void updateUserConnection(final AuthUser authUser, final ConnectionData connectionData) throws UpdateConnectionException;
 
+	/**
+	 * 第三方授权登录信息{@link AuthUser}绑定到本地账号{@link UserDetails}, 且添加第三方授权登录信息到 user_connection 与 auth_token
+	 *
+	 * @param principal     本地用户数据
+	 * @param authUser      第三方用户信息
+	 * @param providerId    第三方服务商 Id
+	 */
+	void binding(UserDetails principal, AuthUser authUser, String providerId);
 }

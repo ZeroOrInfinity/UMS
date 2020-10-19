@@ -17,7 +17,7 @@ package top.dcenter.ums.security.core.oauth.repository.exception;
 
 import lombok.Getter;
 import org.springframework.security.core.SpringSecurityCoreVersion;
-import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.core.oauth.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
 
 /**
@@ -29,9 +29,10 @@ public class UpdateConnectionException extends RuntimeException {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	private ErrorCodeEnum errorCodeEnum;
-	private Object data;
+	private final ErrorCodeEnum errorCodeEnum;
+	private final Object data;
 
+	@SuppressWarnings("unused")
 	public UpdateConnectionException(ErrorCodeEnum errorCodeEnum, Object data) {
 		super(errorCodeEnum.getMsg());
 		this.errorCodeEnum =errorCodeEnum;

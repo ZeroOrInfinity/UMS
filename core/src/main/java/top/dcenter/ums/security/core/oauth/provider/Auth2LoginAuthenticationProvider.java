@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
@@ -27,6 +28,7 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
@@ -119,50 +121,108 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 		this.usersConnectionRepository = usersConnectionRepository;
 	}
 
+	@SuppressWarnings("AlibabaMethodTooLong")
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		Auth2LoginAuthenticationToken loginToken = (Auth2LoginAuthenticationToken) authentication;
 		Auth2DefaultRequest auth2DefaultRequest = loginToken.getAuth2DefaultRequest();
 
-		// 从第三方获取 Userinfo
+		// 1 从第三方获取 Userinfo
 		HttpServletRequest request = loginToken.getRequest();
 		AuthUser authUser = userService.loadUser(auth2DefaultRequest, request);
 
-		// 检测是否已经有第三方的授权记录, List 按 rank 排序, 直接取第一条记录
+		// 2 检测是否已经有第三方的授权记录, List 按 rank 排序, 直接取第一条记录
 		String providerUserId = authUser.getUuid();
 		List<ConnectionData> connectionDataList = usersConnectionRepository
 				.findConnectionByProviderIdAndProviderUserId(auth2DefaultRequest.getProviderId(), providerUserId);
 
+		// 3 获取 securityContext 中的 authenticationToken, 判断是否为授权用户(不含匿名用户)
+		final Authentication authenticationToken = SecurityContextHolder.getContext().getAuthentication();
+		Object principal = null;
+		if (authenticationToken != null && authenticationToken.isAuthenticated()
+				&& !(authenticationToken instanceof AnonymousAuthenticationToken))
+		{
+			principal = authenticationToken.getPrincipal();
+		}
+
 		boolean cacheWasUsed = false;
-		UserDetails userDetails;
-		// 没有第三方登录记录, 自动注册
+		UserDetails userDetails = null;
+		// 4.1 没有第三方登录记录, 自动注册 或 绑定
 		if (CollectionUtils.isEmpty(connectionDataList))
 		{
-			// 注册到本地账户, 注册第三方授权登录信息到 user_connection 与 auth_token
-			userDetails = connectionService.signUp(authUser, auth2DefaultRequest.getProviderId());
+			if (principal == null)
+			{
+				// 注册到本地账户, 注册第三方授权登录信息到 user_connection 与 auth_token
+				userDetails = connectionService.signUp(authUser, auth2DefaultRequest.getProviderId());
+			}
+			// 绑定
+			else
+			{
+				if (principal instanceof UserDetails)
+				{
+					// 当 principal 为 UserDetails 类型是进行绑定操作.
+					connectionService.binding((UserDetails) principal, authUser, auth2DefaultRequest.getProviderId());
+				}
+			}
 		}
-		// 有第三方登录记录
+		// 4.2 有第三方登录记录
 		else
 		{
-			// 扩展点, 待实现让用户选择哪一个本地账户登录, 这里直接取第一条记录.
-			ConnectionData connectionData = connectionDataList.get(0);
-			String userId = connectionData.getUserId();
+			ConnectionData connectionData = null;
+			// SecurityContextHolder 中有已认证用户
+			if (principal instanceof UserDetails)
+			{
+				userDetails = (UserDetails) principal;
+				// 已认证用户 userId
+				final String userId = userDetails.getUsername();
+				for (ConnectionData data : connectionDataList)
+				{
+					if (userId.equals(data.getUserId()))
+					{
+						// 与认证的 userId 相同, 跳过第三方授权登录流程
+						connectionData = data;
+						break;
+					}
+				}
 
-			userDetails = this.userCache.getUserFromCache(userId);
-			cacheWasUsed = true;
-			if (userDetails == null) {
-				cacheWasUsed = false;
-				userDetails = umsUserDetailsService.loadUserByUserId(userId);
+				// 与已认证的 userId 不同
+				if (connectionData == null)
+				{
+					// 走第三方授权登录流程
+					userDetails = null;
+					principal = null;
+				}
+			}
+
+			// 第三方授权登录流程
+			if (userDetails == null)
+			{
+				// 扩展点, 待实现让用户选择哪一个本地账户登录, 这里直接取第一条记录.
+				connectionData = connectionDataList.get(0);
+				final String userId = connectionData.getUserId();
+				userDetails = this.userCache.getUserFromCache(userId);
+				cacheWasUsed = true;
+				if (userDetails == null) {
+					cacheWasUsed = false;
+					userDetails = umsUserDetailsService.loadUserByUserId(userId);
+				}
 			}
 
 			// 异步更新第三方授权登录用户信息与 token 信息, 异步更新执行失败再次进行同步更新.
 			asyncUpdateUserConnectionAndToken(authUser, connectionData);
 		}
 
-		// 删除 session 中的 state 缓存
+		// 5 删除 session 中的 state 缓存
 		Auth2DefaultRequest.removeStateCacheOfSessionCache(auth2DefaultRequest.getAuthStateCache(),
 		                                                   auth2DefaultRequest.getAuthSource());
 
+		// 6 已认证用户, 直接返回
+		if (principal != null)
+		{
+			return authenticationToken;
+		}
+
+		// 认证成功后前置与后置检查
 		try {
 			preAuthenticationChecks.check(userDetails);
 			additionalAuthenticationChecks(userDetails, (Auth2LoginAuthenticationToken) authentication);
@@ -183,13 +243,13 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 
 		postAuthenticationChecks.check(userDetails);
 
+		// 放入缓存
 		if (!cacheWasUsed) {
 			this.userCache.putUserInCache(userDetails);
 		}
 
-		Object principalToReturn = userDetails;
-
-		Auth2AuthenticationToken auth2AuthenticationToken = new Auth2AuthenticationToken(principalToReturn, userDetails.getAuthorities(),
+		// 7 创建成功认证 token 并返回
+		Auth2AuthenticationToken auth2AuthenticationToken = new Auth2AuthenticationToken(userDetails, userDetails.getAuthorities(),
 		                                                                                 auth2DefaultRequest.getProviderId());
 		auth2AuthenticationToken.setDetails(loginToken.getDetails());
 

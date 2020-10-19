@@ -39,6 +39,7 @@ public interface UsersConnectionRepository {
 	Set<String> findUserIdsConnectedTo(String providerId, Set<String> providerUserIds);
 
 	/**
+	 * 获取 userId 的所有绑定信息.
 	 * Find all connections the current user has across all providers.
 	 * The returned map contains an entry for each provider the user is connected to.
 	 * The key for each entry is the providerId, and the value is the list of {@link ConnectionData}s that exist between the user and that provider.
@@ -57,6 +58,7 @@ public interface UsersConnectionRepository {
 	MultiValueMap<String, ConnectionData> findAllConnections(String userId);
 
 	/**
+	 * 获取 userId 和 providerId 的所以绑定信息.
 	 * Find the connections the current user has to the provider registered by the given id e.g. 'qq'.
 	 * The returned list is ordered by connection rank.
 	 * Returns an empty list if the user has no connections to the provider.
@@ -67,6 +69,7 @@ public interface UsersConnectionRepository {
 	List<ConnectionData> findConnections(String userId, String providerId);
 
 	/**
+	 * 获取 userId 和 providerUserIds 的所以绑定信息.
 	 * Find the connections the current user has to the given provider users.
 	 * The providerUsers parameter accepts a map containing an entry for each provider the caller is interested in.
 	 * The key for each entry is the providerId e.g. "qq", and the value is a list of provider user ids to fetch
@@ -80,6 +83,7 @@ public interface UsersConnectionRepository {
 	MultiValueMap<String, ConnectionData> findConnectionsToUsers(String userId, MultiValueMap<String, String> providerUserIds);
 
 	/**
+	 * 获取 userId 和 providerId 的所以 rank 值最小的绑定信息.
 	 * Get the "primary" connection the current user.
 	 * If the user has multiple connections to the provider, this method returns the one with the top rank (or priority).
 	 * Useful for direct use by application code to obtain a parameterized Connection instance.
@@ -88,9 +92,10 @@ public interface UsersConnectionRepository {
 	 * @return the primary connection
 	 * @throws NotConnectedException if the user is not connected to the provider of the API
 	 */
-	ConnectionData getPrimaryConnection(String userId, String providerId);
+	ConnectionData getPrimaryConnection(String userId, String providerId) throws NotConnectedException;
 
 	/**
+	 * 绑定.
 	 * Add a new connection to this repository for the current user.
 	 * After the connection is added, it can be retrieved later using one of the finders defined in this interface.
 	 * @param connection the new connection to add to this repository
@@ -108,6 +113,7 @@ public interface UsersConnectionRepository {
 	ConnectionData updateConnection(ConnectionData connection);
 
 	/**
+	 * 解除绑定.
 	 * Remove all Connections between the current user and the provider from this repository.
 	 * Does nothing if no provider connections exist.
 	 * @param userId        本地账户用户 Id
@@ -116,6 +122,7 @@ public interface UsersConnectionRepository {
 	void removeConnections(String userId, String providerId);
 
 	/**
+	 * 解除绑定.
 	 * Remove a single Connection for the current user from this repository.
 	 * Does nothing if no such connection exists.
 	 * @param userId        本地账户用户 Id
@@ -124,7 +131,7 @@ public interface UsersConnectionRepository {
 	void removeConnection(String userId, ConnectionKey connectionKey);
 
 	/**
-	 * 根据 userId 与 providerId 获取 ConnectionData
+	 * 根据 userId 与 providerId 获取 ConnectionData. 获取 userId 和 providerId 的所以 rank 值最小的绑定信息.
 	 * @param userId        本地账户用户 Id
 	 * @param providerId    the provider id e.g. "qq"
 	 * @return  ConnectionData
@@ -132,7 +139,7 @@ public interface UsersConnectionRepository {
 	ConnectionData findPrimaryConnection(String userId, String providerId);
 
 	/**
-	 * 根据 userId 和 connectionKey 获取 ConnectionData
+	 * 根据 userId 和 connectionKey 获取 ConnectionData. 获取 userId 和 providerId, provideUserId 的绑定信息.
 	 * @param userId        本地账户用户 Id
 	 * @param connectionKey connectionKey
 	 * @return  ConnectionData
@@ -141,7 +148,7 @@ public interface UsersConnectionRepository {
 	ConnectionData getConnection(String userId, ConnectionKey connectionKey) throws NoSuchConnectionException;
 
 	/**
-	 * 根据 userId 获取 ConnectionData list
+	 * 根据 userId 获取 ConnectionData list. 获取 userId 的所有绑定信息.
 	 * @param userId    本地账户用户 Id
 	 * @return  connection data list
 	 */

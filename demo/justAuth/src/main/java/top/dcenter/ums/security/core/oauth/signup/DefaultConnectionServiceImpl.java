@@ -1,6 +1,5 @@
 package top.dcenter.ums.security.core.oauth.signup;
 
-import com.alibaba.fastjson.JSONObject;
 import com.xkcoding.http.config.HttpConfig;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthToken;
@@ -8,19 +7,21 @@ import me.zhyd.oauth.model.AuthUser;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
+import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
+import top.dcenter.ums.security.core.oauth.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.core.oauth.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.oauth.justauth.util.JustAuthUtil;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionTokenRepository;
 import top.dcenter.ums.security.core.oauth.repository.exception.UpdateConnectionException;
-import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
-import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
+import top.dcenter.ums.security.core.oauth.service.UmsUserDetailsService;
 
 import java.util.List;
+
+import static top.dcenter.ums.security.core.oauth.util.MvcUtil.toJsonString;
 
 /**
  * 默认的第三方授权登录时自动注册处理器。<br>
@@ -81,14 +82,14 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
 
             // 注册到本地账户
             UserDetails userDetails = userDetailsService.registerUser(authUser, username, defaultAuthorities);
-            // 添加第三方授权登录信息到 user_connection 与 auth_token
+            // 第三方授权登录信息绑定到本地账号, 且添加第三方授权登录信息到 user_connection 与 auth_token
             registerConnection(providerId, authUser, userDetails);
 
             return userDetails;
         }
         catch (Exception e) {
             log.error(String.format("OAuth2自动注册失败: error=%s, username=%s, authUser=%s",
-                                    e.getMessage(), username, JSONObject.toJSONString(authUser)), e);
+                                    e.getMessage(), username, toJsonString(authUser)), e);
             throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_FAILURE, username);
         }
     }
@@ -123,8 +124,15 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
         }
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class}, propagation = Propagation.REQUIRED)
+    public void binding(UserDetails principal, AuthUser authUser, String providerId) {
+        // 第三方授权登录信息绑定到本地账号, 且添加第三方授权登录信息到 user_connection 与 auth_token
+        registerConnection(providerId, authUser, principal);
+    }
+
     /**
-     * 第三方授权登录自动注册
+     * 第三方授权登录信息绑定到本地账号, 且添加第三方授权登录信息到 user_connection 与 auth_token
      * @param providerId    第三方服务商
      * @param authUser      {@link AuthUser}
      * @throws RegisterUserFailureException 注册失败
@@ -156,7 +164,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
                 }
                 catch (Exception ex) {
                     msg = String.format("第三方授权登录自动注册时: 本地账户注册成功, %s, 添加第三方授权登录信息失败: %s",
-                                        userDetails, JSONObject.toJSONString(authUser));
+                                        userDetails, toJsonString(authUser));
                     log.error(msg, e);
                     throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_OAUTH2_FAILURE,
                                                            ex, userDetails.getUsername());
@@ -173,7 +181,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
                                                 "%s",
                                         userDetails,
                                         authUser.getRawUserInfo(),
-                                        JSONObject.toJSONString(authToken));
+                                        toJsonString(authToken));
                     log.error(msg, e);
                     throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_OAUTH2_FAILURE,
                                                            userDetails.getUsername());

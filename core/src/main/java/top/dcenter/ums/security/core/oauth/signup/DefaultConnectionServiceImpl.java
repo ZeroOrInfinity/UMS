@@ -81,7 +81,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
 
             // 注册到本地账户
             UserDetails userDetails = userDetailsService.registerUser(authUser, username, defaultAuthorities);
-            // 添加第三方授权登录信息到 user_connection 与 auth_token
+            // 第三方授权登录信息绑定到本地账号, 且添加第三方授权登录信息到 user_connection 与 auth_token
             registerConnection(providerId, authUser, userDetails);
 
             return userDetails;
@@ -123,8 +123,15 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
         }
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class}, propagation = Propagation.REQUIRED)
+    public void binding(UserDetails principal, AuthUser authUser, String providerId) {
+        // 第三方授权登录信息绑定到本地账号, 且添加第三方授权登录信息到 user_connection 与 auth_token
+        registerConnection(providerId, authUser, principal);
+    }
+
     /**
-     * 第三方授权登录自动注册
+     * 第三方授权登录信息绑定到本地账号, 且添加第三方授权登录信息到 user_connection 与 auth_token
      * @param providerId    第三方服务商
      * @param authUser      {@link AuthUser}
      * @throws RegisterUserFailureException 注册失败

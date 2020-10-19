@@ -17,9 +17,9 @@ package top.dcenter.ums.security.core.oauth.signup;
 
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.security.core.userdetails.UserDetails;
-import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
-import top.dcenter.ums.security.core.oauth.repository.exception.UpdateConnectionException;
 import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
+import top.dcenter.ums.security.core.oauth.exception.RegisterUserFailureException;
+import top.dcenter.ums.security.core.oauth.repository.exception.UpdateConnectionException;
 
 /**
  * A command that signs up a new user in the event no user id could be mapped from a {@link AuthUser}.
@@ -49,4 +49,12 @@ public interface ConnectionService {
 	 */
 	void updateUserConnection(final AuthUser authUser, final ConnectionData connectionData) throws UpdateConnectionException;
 
+	/**
+	 * 第三方授权登录信息{@link AuthUser}绑定到本地账号{@link UserDetails}, 且添加第三方授权登录信息到 user_connection 与 auth_token
+	 *
+	 * @param principal     本地用户数据
+	 * @param authUser      第三方用户信息
+	 * @param providerId    第三方服务商 Id
+	 */
+	void binding(UserDetails principal, AuthUser authUser, String providerId);
 }
