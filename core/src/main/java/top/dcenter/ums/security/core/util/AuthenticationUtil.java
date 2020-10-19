@@ -8,6 +8,9 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
@@ -16,8 +19,11 @@ import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
-import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
+import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
+import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
+import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,13 +35,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static java.util.Objects.requireNonNullElse;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_REDIRECT_URL_KEY;
 
 /**
- * auth util
+ * Authentication util
  *
  * @author zyw
  * @version V1.0  Created by 2020/6/1 22:39
@@ -47,6 +54,48 @@ public class AuthenticationUtil {
      */
     @SuppressWarnings("RegExpRedundantEscape")
     public static final String EXTRACT_USER_AGENT_REGEX = "[\\.\\d\\s\\(\\)]";
+
+    /**
+     * 给 {@link AbstractAuthenticationProcessingFilter} 注册 {@link BaseAuthenticationFailureHandler},
+     * {@link BaseAuthenticationSuccessHandler} 和 {@link PersistentTokenBasedRememberMeServices}.
+     * @param abstractAuthenticationProcessingFilter    abstractAuthenticationProcessingFilter
+     * @param baseAuthenticationSuccessHandler          认证成功处理器
+     * @param baseAuthenticationFailureHandler          认证失败处理器
+     * @param persistentTokenRepository                 RememberMe 持久化 Repository
+     * @param userDetailsService                        本地用户服务
+     * @param clientProperties                          客户端属性
+     */
+    public static void registerHandlerAndRememberMeServices(AbstractAuthenticationProcessingFilter abstractAuthenticationProcessingFilter,
+                                                            BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
+                                                            BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
+                                                            PersistentTokenRepository persistentTokenRepository,
+                                                            UmsUserDetailsService userDetailsService,
+                                                            ClientProperties clientProperties) {
+
+        if (baseAuthenticationFailureHandler != null)
+        {
+            // 添加认证失败处理器
+            abstractAuthenticationProcessingFilter.setAuthenticationFailureHandler(baseAuthenticationFailureHandler);
+        }
+        if (baseAuthenticationSuccessHandler != null)
+        {
+            // 添加认证成功处理器
+            abstractAuthenticationProcessingFilter.setAuthenticationSuccessHandler(baseAuthenticationSuccessHandler);
+        }
+
+        // 添加 PersistentTokenBasedRememberMeServices
+        if (persistentTokenRepository != null)
+        {
+            PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices =
+                    new PersistentTokenBasedRememberMeServices(UUID.randomUUID().toString(), userDetailsService,
+                                                               persistentTokenRepository);
+            final ClientProperties.RememberMeProperties rememberMe = clientProperties.getRememberMe();
+            persistentTokenBasedRememberMeServices.setTokenValiditySeconds(Integer.parseInt(String.valueOf(rememberMe.getRememberMeTimeout().getSeconds())));
+            persistentTokenBasedRememberMeServices.setParameter(rememberMe.getRememberMeCookieName());
+            // 添加rememberMe功能配置
+            abstractAuthenticationProcessingFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
+        }
+    }
 
     /**
      * 判断 exception 是不是 {@link AbstractResponseJsonAuthenticationException} 的子类, 如果不是, 则返回 null.
@@ -61,7 +110,6 @@ public class AuthenticationUtil {
         }
         return e;
     }
-
 
     /**
      * 是否是 permitUri 且 HttpMethod 也对应

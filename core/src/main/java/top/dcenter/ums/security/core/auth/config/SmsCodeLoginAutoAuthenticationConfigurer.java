@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
@@ -20,7 +19,7 @@ import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.properties.SmsCodeLoginAuthenticationProperties;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 
-import java.util.UUID;
+import static top.dcenter.ums.security.core.util.AuthenticationUtil.registerHandlerAndRememberMeServices;
 
 
 /**
@@ -36,10 +35,9 @@ public class SmsCodeLoginAutoAuthenticationConfigurer extends SecurityConfigurer
     private final ValidateCodeProperties validateCodeProperties;
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
     private final BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler;
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection", "SpringJavaInjectionPointsAutowiringInspection"})
     @Autowired
     private UmsUserDetailsService userDetailsService;
-    private String key;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
     private PersistentTokenRepository persistentTokenRepository;
@@ -64,48 +62,17 @@ public class SmsCodeLoginAutoAuthenticationConfigurer extends SecurityConfigurer
         SmsCodeLoginAuthenticationFilter smsCodeLoginAuthenticationFilter =
                 new SmsCodeLoginAuthenticationFilter(validateCodeProperties, smsCodeLoginAuthenticationProperties);
         smsCodeLoginAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
-        smsCodeLoginAuthenticationFilter.setAuthenticationSuccessHandler(baseAuthenticationSuccessHandler);
-        smsCodeLoginAuthenticationFilter.setAuthenticationFailureHandler(baseAuthenticationFailureHandler);
-
-        if (persistentTokenRepository != null)
-        {
-            PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices =
-                    new PersistentTokenBasedRememberMeServices(getKey(), userDetailsService,
-                                                               persistentTokenRepository);
-            persistentTokenBasedRememberMeServices.setTokenValiditySeconds(Integer.parseInt(String.valueOf(clientProperties.getRememberMe().getRememberMeTimeout().getSeconds())));
-            persistentTokenBasedRememberMeServices.setParameter(clientProperties.getRememberMe().getRememberMeCookieName());
-            // 添加rememberMe功能配置
-            smsCodeLoginAuthenticationFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
-        }
-
+        registerHandlerAndRememberMeServices(smsCodeLoginAuthenticationFilter,
+                                             baseAuthenticationSuccessHandler,
+                                             baseAuthenticationFailureHandler,
+                                             persistentTokenRepository,
+                                             userDetailsService,
+                                             clientProperties);
 
         SmsCodeLoginAuthenticationProvider smsCodeLoginAuthenticationProvider = new SmsCodeLoginAuthenticationProvider(userDetailsService);
-        http.authenticationProvider(smsCodeLoginAuthenticationProvider)
-            .addFilterAfter(smsCodeLoginAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
+        http.authenticationProvider(postProcess(smsCodeLoginAuthenticationProvider))
+            .addFilterAfter(postProcess(smsCodeLoginAuthenticationFilter), AbstractPreAuthenticatedProcessingFilter.class);
 
-    }
-
-    /**
-     * Gets the key to use for validating remember me tokens. Either the value passed into
-     * {@link #key(String)}, or a secure random string if none was specified.
-     *
-     * @return the remember me key to use
-     */
-    private String getKey() {
-        if (this.key == null) {
-            this.key = UUID.randomUUID().toString();
-        }
-        return this.key;
-    }
-
-    /**
-     * Sets the key to identify tokens created for remember me auth. Default is
-     * a secure randomly generated key.
-     *
-     * @param key the key to identify tokens created for remember me auth
-     */
-    public void key(String key) {
-        this.key = key;
     }
 
 }
