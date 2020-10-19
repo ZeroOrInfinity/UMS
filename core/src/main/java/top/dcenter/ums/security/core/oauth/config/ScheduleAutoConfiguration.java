@@ -75,7 +75,6 @@ public class ScheduleAutoConfiguration implements SchedulingConfigurer, Disposab
                 new ScheduledThreadPoolExecutor(accessTokenRefreshJob.getCorePoolSize(),
                                                 getThreadFactory(accessTokenRefreshJob.getPoolName()),
                                                 accessTokenRefreshJob.getRejectedExecutionHandlerPolicy().getRejectedHandler());
-        scheduledThreadPoolExecutor.setMaximumPoolSize(accessTokenRefreshJob.getMaximumPoolSize());
         scheduledThreadPoolExecutor.setKeepAliveTime(accessTokenRefreshJob.getKeepAliveTime(),
                                                      accessTokenRefreshJob.getTimeUnit());
 

@@ -27,6 +27,7 @@ import top.dcenter.ums.security.core.oauth.signup.DefaultConnectionServiceImpl;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import static top.dcenter.ums.security.common.consts.SecurityConstants.QUERY_DATABASE_NAME_SQL;
@@ -124,7 +125,8 @@ public class Auth2AutoConfiguration implements InitializingBean {
             }
 
             String database;
-            try (ResultSet resultSet = connection.prepareStatement(QUERY_DATABASE_NAME_SQL).executeQuery())
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(QUERY_DATABASE_NAME_SQL);
+                 ResultSet resultSet = preparedStatement.executeQuery())
             {
                 resultSet.next();
                 database = resultSet.getString(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
@@ -133,7 +135,9 @@ public class Auth2AutoConfiguration implements InitializingBean {
             if (StringUtils.isNotBlank(database))
             {
                 String queryUserConnectionTableExistSql = repositoryProperties.getQueryUserConnectionTableExistSql(database);
-                try (ResultSet resultSet = connection.prepareStatement(queryUserConnectionTableExistSql).executeQuery())
+
+                try (final PreparedStatement preparedStatement1 = connection.prepareStatement(queryUserConnectionTableExistSql);
+                     ResultSet resultSet = preparedStatement1.executeQuery())
                 {
                     resultSet.next();
                     int tableCount = resultSet.getInt(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
@@ -153,7 +157,9 @@ public class Auth2AutoConfiguration implements InitializingBean {
                 String authTokenTable = "auth_token";
                 String queryAuthTokenTableExistSql = "SELECT COUNT(1) FROM information_schema.tables WHERE " +
                         "table_schema='" + database + "' AND table_name = '" + authTokenTable + "'";
-                try (ResultSet resultSet = connection.prepareStatement(queryAuthTokenTableExistSql).executeQuery())
+
+                try (final PreparedStatement preparedStatement2 = connection.prepareStatement(queryAuthTokenTableExistSql);
+                     ResultSet resultSet = preparedStatement2.executeQuery())
                 {
                     resultSet.next();
                     int tableCount = resultSet.getInt(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);

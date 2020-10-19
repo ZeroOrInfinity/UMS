@@ -18,7 +18,9 @@ import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Map;
 import java.util.Set;
 
@@ -101,7 +103,9 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
                 }
 
                 String database;
-                try (ResultSet resultSet = connection.prepareStatement(SecurityConstants.QUERY_DATABASE_NAME_SQL).executeQuery())
+
+                try (final PreparedStatement preparedStatement = connection.prepareStatement(SecurityConstants.QUERY_DATABASE_NAME_SQL);
+                     ResultSet resultSet = preparedStatement.executeQuery())
                 {
                     resultSet.next();
                     database = resultSet.getString(SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
@@ -109,7 +113,9 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
 
                 if (StringUtils.isNotBlank(database))
                 {
-                    try (ResultSet resultSet = connection.createStatement().executeQuery(clientProperties.getQueryRememberMeTableExistSql(database)))
+
+                    try (final Statement statement = connection.createStatement();
+                         ResultSet resultSet = statement.executeQuery(clientProperties.getQueryRememberMeTableExistSql(database)))
                     {
                         resultSet.next();
                         int tableCount = resultSet.getInt(SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);

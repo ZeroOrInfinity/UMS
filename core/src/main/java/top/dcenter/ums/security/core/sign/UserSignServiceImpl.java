@@ -152,7 +152,7 @@ public class UserSignServiceImpl implements SignService {
      * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
     @Override
-    public boolean doSign(@NonNull String uid, @NonNull LocalDate date) throws UnsupportedEncodingException {
+    public Boolean doSign(@NonNull String uid, @NonNull LocalDate date) throws UnsupportedEncodingException {
 
         int offset = date.getDayOfMonth() - 1;
         byte[] key = buildSignKey(uid, date);
@@ -178,7 +178,7 @@ public class UserSignServiceImpl implements SignService {
             return false;
         }
 
-        return  Optional.of((boolean) pipelineList.get(0)).orElse(false);
+        return  Optional.of((Boolean) pipelineList.get(0)).orElse(Boolean.FALSE);
     }
 
     /**
@@ -309,8 +309,8 @@ public class UserSignServiceImpl implements SignService {
         {
             pos = connection.bitPos(key, true);
         }
-        //noinspection ConstantConditions
-        return (pos != null && pos < 0) ? null : date.withDayOfMonth((int) (pos + 1));
+        //noinspection
+        return (pos == null || pos < 0) ? null : date.withDayOfMonth((int) (pos + 1));
     }
 
     /**

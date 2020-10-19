@@ -257,9 +257,9 @@ public class SliderCodeUtil {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", baos);
         imageData = baos.toByteArray();
-        FileOutputStream out = new FileOutputStream(new File(file));
-        out.write(imageData);
-        out.close();
+        try (FileOutputStream out = new FileOutputStream(new File(file));) {
+            out.write(imageData);
+        }
     }
 
     /**

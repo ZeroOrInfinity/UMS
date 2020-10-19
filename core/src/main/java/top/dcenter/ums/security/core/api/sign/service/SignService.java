@@ -73,7 +73,7 @@ public interface SignService {
      * @return 之前的签到状态
      * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
-    boolean doSign(String uid, LocalDate date) throws UnsupportedEncodingException;
+    Boolean doSign(String uid, LocalDate date) throws UnsupportedEncodingException;
 
     /**
      * 检查用户是否签到

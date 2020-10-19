@@ -113,7 +113,7 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
             {
                 final byte[] field = Integer.toString(i).getBytes(StandardCharsets.UTF_8.name());
                 // 获取锁
-                final Boolean lock = connection.hSetNX(key, field, "0".getBytes());
+                final Boolean lock = connection.hSetNX(key, field, "0".getBytes(StandardCharsets.UTF_8.name()));
                 // 获取锁失败, 继续下一批次
                 if (lock == null || !lock)
                 {
@@ -167,7 +167,7 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
         // 获取 token 记录
         List<AuthTokenPo> authTokenPoList =
                 usersConnectionTokenRepository.findAuthTokenByExpireTimeAndBetweenId(expiredTime,
-                                                                                     batch * batchCount + 1L,
+                                                                                     1L + ((long) batch) * batchCount,
                                                                                      (batch + 1L) * batchCount);
         // 异步更新, 如果异步线程池处理过慢, refreshTokenTaskExecutor 的默认拒绝策略为 CallerRunsPolicy, 即改为同步更新
         authTokenPoList.forEach(
