@@ -14,16 +14,16 @@ import java.util.Set;
 public abstract class BaseAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
     protected boolean useReferer;
     /**
-     * 使用 userReferer 时, 如果 referer 是属于 loginUrls, 则跳转到 defaultTargetUrl
+     * 使用 userReferer 时, 如果 referer 是属于 ignoreUrls, 则跳转到 defaultTargetUrl
      */
     @Getter
-    protected Set<String> loginUrls;
+    protected Set<String> ignoreUrls;
 
     /**
-     * 添加 loginUrl
-     * @param loginUrl  loginUrl
+     * 添加 ignoreUrl
+     * @param ignoreUrl  ignoreUrl
      */
-    public void addLoginUrl(@NonNull String loginUrl) {
-        loginUrls.add(loginUrl);
+    public void addIgnoreUrl(@NonNull String ignoreUrl) {
+        ignoreUrls.add(ignoreUrl);
     }
 }

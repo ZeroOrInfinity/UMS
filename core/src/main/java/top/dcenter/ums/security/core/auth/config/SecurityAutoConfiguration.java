@@ -27,6 +27,7 @@ import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationFailureHan
 import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
+import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.permission.evaluator.UriAuthoritiesPermissionEvaluator;
 import top.dcenter.ums.security.core.permission.listener.UpdateRolesAuthoritiesListener;
 import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeService;
@@ -37,6 +38,7 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SERVLET_CONTEXT_PATH_PARAM_NAME;
+import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 
 /**
  * security 配置
@@ -101,8 +103,9 @@ public class SecurityAutoConfiguration implements InitializingBean {
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler")
-    public BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler() {
-        return new ClientAuthenticationSuccessHandler(objectMapper, clientProperties);
+    public BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler(Auth2Properties auth2Properties) {
+        return new ClientAuthenticationSuccessHandler(objectMapper, clientProperties,
+                                                      getServletContextPath() + auth2Properties.getRedirectUrlPrefix());
     }
 
     @Bean

@@ -11,12 +11,10 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.UrlUtils;
-import org.springframework.util.AntPathMatcher;
-import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
+import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
-import top.dcenter.ums.security.core.util.MvcUtil;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 import top.dcenter.ums.security.core.vo.UserInfoJsonVo;
 
@@ -29,6 +27,7 @@ import java.util.HashSet;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
+import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 import static top.dcenter.ums.security.core.util.RequestUtil.getRequestUri;
 
 /**
@@ -44,19 +43,22 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
     protected final ClientProperties clientProperties;
     protected final ObjectMapper objectMapper;
     protected final RequestCache requestCache;
-    private final AntPathMatcher matcher;
+    /**
+     * 包含 ServletContextPath
+     */
+    protected final String auth2RedirectUrl;
 
-    public ClientAuthenticationSuccessHandler(ObjectMapper objectMapper, ClientProperties clientProperties) {
+    public ClientAuthenticationSuccessHandler(ObjectMapper objectMapper, ClientProperties clientProperties, String auth2RedirectUrl) {
         this.objectMapper = objectMapper;
-        this.matcher = new AntPathMatcher();
+        this.auth2RedirectUrl = auth2RedirectUrl;
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.requestCache = new HttpSessionRequestCache();
         this.clientProperties = clientProperties;
         setTargetUrlParameter(clientProperties.getTargetUrlParameter());
         setUseReferer(clientProperties.getUseReferer());
-        loginUrls = new HashSet<>();
-        loginUrls.add(clientProperties.getLoginPage());
-        loginUrls.add(clientProperties.getLogoutUrl());
+        ignoreUrls = new HashSet<>();
+        ignoreUrls.add(clientProperties.getLoginPage());
+        ignoreUrls.add(clientProperties.getLogoutUrl());
 
     }
 
@@ -85,7 +87,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
             String targetUrl = determineTargetUrl(request, response);
             if (!UrlUtils.isAbsoluteUrl(targetUrl))
             {
-                targetUrl = MvcUtil.getServletContextPath() + targetUrl;
+                targetUrl = getServletContextPath() + targetUrl;
             }
 
             // 判断是否返回 json 类型
@@ -129,6 +131,12 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
             return defaultTargetUrl;
         }
 
+        // OAuth2 回调时 referer 直接是域名, 没有带 ServletContextPath, 直接返回 defaultTargetUrl
+        if (request.getRequestURI().startsWith(auth2RedirectUrl))
+        {
+            return defaultTargetUrl;
+        }
+
         SavedRequest savedRequest = requestCache.getRequest(request, response);
         if (savedRequest != null)
         {
@@ -156,7 +164,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         }
 
         // 当 targetUrl 为 登录 url 时, 设置为 defaultTargetUrl
-        if (isNotBlank(targetUrl) && isLoginUrl(targetUrl))
+        if (isNotBlank(targetUrl) && isIgnoreUrl(targetUrl))
         {
             targetUrl = defaultTargetUrl;
         }
@@ -175,12 +183,12 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
     }
 
     /**
-     * 判断 loginUrls 中是否包含 targetUrl
+     * 判断 ignoreUrls 中是否包含 targetUrl
      * @param targetUrl 不能为 null
      * @return boolean
      */
-    private boolean isLoginUrl(final String targetUrl) {
+    private boolean isIgnoreUrl(final String targetUrl) {
         String url = getRequestUri(targetUrl);
-        return loginUrls.stream().anyMatch(url::contains);
+        return ignoreUrls.stream().anyMatch(url::startsWith);
     }
 }

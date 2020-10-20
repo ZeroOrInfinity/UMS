@@ -90,9 +90,9 @@ public class RequestUtil {
     }
 
     /**
-     * 从完整 url 中获取去除 ServletContextPath 后的 requestUri
-     * @param url   完整 url
-     * @return  去除 ServletContextPath 后的 requestUri
+     * 从完整 url 中获取 requestUri
+     * @param url   完整 url, 例如: http://xxx.aaa.com/servletContextPath/bbb/#xxx?a=b
+     * @return  去除 ServletContextPath 后的 requestUri(/bbb/)
      */
     public static String getRequestUri(String url) {
         if (UrlUtils.isAbsoluteUrl(url))
