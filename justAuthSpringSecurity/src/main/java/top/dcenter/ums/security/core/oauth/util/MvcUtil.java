@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.util.UrlPathHelper;
@@ -86,7 +85,7 @@ public class MvcUtil {
         method.setAccessible(true);
 
         // 获取 annotationClass 注解
-        final Scheduled annotation = AnnotationUtils.findAnnotation(method, Scheduled.class);
+        final Scheduled annotation = method.getDeclaredAnnotation(Scheduled.class);
         if (null != annotation) {
             // 获取代理处理器
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(annotation);

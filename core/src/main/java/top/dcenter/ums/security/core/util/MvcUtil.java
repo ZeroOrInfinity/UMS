@@ -9,7 +9,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.GenericApplicationListenerAdapter;
 import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -199,7 +198,7 @@ public class MvcUtil {
         method.setAccessible(true);
 
         // 获取 RequestMapping 注解
-        final RequestMapping mappingAnnotation = AnnotationUtils.findAnnotation(method, RequestMapping.class);
+        final RequestMapping mappingAnnotation = method.getDeclaredAnnotation(RequestMapping.class);
         if (null != mappingAnnotation) {
             // 获取 RequestMapping 中 value 值
             String[] paths = mappingAnnotation.value();
@@ -243,7 +242,7 @@ public class MvcUtil {
         method.setAccessible(true);
 
         // 获取 annotationClass 注解
-        final Scheduled annotation = AnnotationUtils.findAnnotation(method, Scheduled.class);
+        final Scheduled annotation = method.getDeclaredAnnotation(Scheduled.class);
         if (null != annotation) {
             // 获取代理处理器
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(annotation);
