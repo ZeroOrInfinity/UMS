@@ -1,7 +1,5 @@
 package top.dcenter.ums.security.core.auth.session.strategy;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
@@ -11,8 +9,8 @@ import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.exception.ExpiredSessionDetectedException;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
+import top.dcenter.ums.security.core.exception.ExpiredSessionDetectedException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,13 +32,11 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
 
     private final RedirectStrategy redirectStrategy;
     private ClientProperties clientProperties;
-    private ObjectMapper objectMapper;
     private RequestCache requestCache;
     private final AntPathMatcher matcher;
 
-    public ClientExpiredSessionStrategy(ClientProperties clientProperties, ObjectMapper objectMapper) {
+    public ClientExpiredSessionStrategy(ClientProperties clientProperties) {
         this.clientProperties = clientProperties;
-        this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.matcher = new AntPathMatcher();
         this.redirectStrategy = new DefaultRedirectStrategy();
         this.requestCache = new HttpSessionRequestCache();
@@ -65,7 +61,7 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
                 log.debug("Session expired, starting new session and redirecting to '{}'", redirectUrl);
             }
 
-            redirectProcessingByLoginProcessType(request, response, clientProperties, objectMapper,
+            redirectProcessingByLoginProcessType(request, response, clientProperties,
                                                  redirectStrategy, ErrorCodeEnum.EXPIRED_SESSION,
                                                  redirectUrl);
         }

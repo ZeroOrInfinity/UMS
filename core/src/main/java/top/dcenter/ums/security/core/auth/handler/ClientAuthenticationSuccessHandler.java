@@ -1,7 +1,5 @@
 package top.dcenter.ums.security.core.auth.handler;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,6 +26,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
 import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
+import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
 import static top.dcenter.ums.security.core.util.RequestUtil.getRequestUri;
 
 /**
@@ -41,17 +40,14 @@ import static top.dcenter.ums.security.core.util.RequestUtil.getRequestUri;
 public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSuccessHandler {
 
     protected final ClientProperties clientProperties;
-    protected final ObjectMapper objectMapper;
     protected final RequestCache requestCache;
     /**
      * 包含 ServletContextPath
      */
     protected final String auth2RedirectUrl;
 
-    public ClientAuthenticationSuccessHandler(ObjectMapper objectMapper, ClientProperties clientProperties, String auth2RedirectUrl) {
-        this.objectMapper = objectMapper;
+    public ClientAuthenticationSuccessHandler(ClientProperties clientProperties, String auth2RedirectUrl) {
         this.auth2RedirectUrl = auth2RedirectUrl;
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.requestCache = new HttpSessionRequestCache();
         this.clientProperties = clientProperties;
         setTargetUrlParameter(clientProperties.getTargetUrlParameter());
@@ -96,7 +92,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
             {
                 clearAuthenticationAttributes(request);
                 responseWithJson(response, HttpStatus.OK.value(),
-                                 objectMapper.writeValueAsString(ResponseResult.success(null, userInfoJsonVo)));
+                                 toJsonString(ResponseResult.success(null, userInfoJsonVo)));
                 return;
             }
 
@@ -106,7 +102,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
             {
                 clearAuthenticationAttributes(request);
                 responseWithJson(response, HttpStatus.OK.value(),
-                                 objectMapper.writeValueAsString(ResponseResult.success(null, userInfoJsonVo)));
+                                 toJsonString(ResponseResult.success(null, userInfoJsonVo)));
                 return;
             }
         }

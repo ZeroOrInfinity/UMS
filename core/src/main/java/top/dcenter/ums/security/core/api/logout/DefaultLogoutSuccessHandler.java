@@ -1,7 +1,5 @@
 package top.dcenter.ums.security.core.api.logout;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -30,13 +28,11 @@ public class DefaultLogoutSuccessHandler implements LogoutSuccessHandler {
 
     protected final RedirectStrategy redirectStrategy;
     protected final ClientProperties clientProperties;
-    protected final ObjectMapper objectMapper;
     @Autowired(required = false)
     protected UserCache userCache;
 
-    public DefaultLogoutSuccessHandler(ClientProperties clientProperties, ObjectMapper objectMapper) {
+    public DefaultLogoutSuccessHandler(ClientProperties clientProperties) {
         this.clientProperties = clientProperties;
-        this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.redirectStrategy = new DefaultRedirectStrategy();
     }
 
@@ -59,7 +55,7 @@ public class DefaultLogoutSuccessHandler implements LogoutSuccessHandler {
             userCache.removeUserFromCache(authentication.getName());
         }
 
-        redirectProcessingLogoutByLoginProcessType(request, response, clientProperties, objectMapper,
+        redirectProcessingLogoutByLoginProcessType(request, response, clientProperties,
                                                    redirectStrategy, ErrorCodeEnum.LOGOUT_SUCCESS);
     }
 }

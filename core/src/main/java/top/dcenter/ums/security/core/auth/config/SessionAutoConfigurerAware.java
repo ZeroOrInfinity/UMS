@@ -1,21 +1,19 @@
 package top.dcenter.ums.security.core.auth.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.session.SessionManagementFilter;
-import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
+import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.session.strategy.DefaultRedirectInvalidSessionStrategy;
 import top.dcenter.ums.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
+import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.session.filter.SessionEnhanceCheckFilter;
 import top.dcenter.ums.security.core.auth.session.strategy.ClientExpiredSessionStrategy;
-import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
-import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +35,6 @@ public class SessionAutoConfigurerAware implements HttpSecurityAware {
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
     private final SessionEnhanceCheckFilter sessionEnhanceCheckFilter;
     private final DefaultRedirectInvalidSessionStrategy defaultRedirectInvalidSessionStrategy;
-    private final ObjectMapper objectMapper;
 
     private final EnhanceConcurrentControlAuthenticationStrategy enhanceConcurrentControlAuthenticationStrategy;
 
@@ -45,13 +42,11 @@ public class SessionAutoConfigurerAware implements HttpSecurityAware {
                                       BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
                                       SessionEnhanceCheckFilter sessionEnhanceCheckFilter,
                                       DefaultRedirectInvalidSessionStrategy defaultRedirectInvalidSessionStrategy,
-                                      ObjectMapper objectMapper,
                                       EnhanceConcurrentControlAuthenticationStrategy enhanceConcurrentControlAuthenticationStrategy) {
         this.clientProperties = clientProperties;
         this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
         this.sessionEnhanceCheckFilter = sessionEnhanceCheckFilter;
         this.defaultRedirectInvalidSessionStrategy = defaultRedirectInvalidSessionStrategy;
-        this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         this.enhanceConcurrentControlAuthenticationStrategy = enhanceConcurrentControlAuthenticationStrategy;
     }
@@ -96,7 +91,7 @@ public class SessionAutoConfigurerAware implements HttpSecurityAware {
                 .maximumSessions(clientProperties.getSession().getMaximumSessions())
                 // 当为 true 时,同个用户达到最大 maximumSession 后，自动拒绝用户在登录
                 .maxSessionsPreventsLogin(clientProperties.getSession().getMaxSessionsPreventsLogin())
-                .expiredSessionStrategy(new ClientExpiredSessionStrategy(clientProperties, objectMapper));
+                .expiredSessionStrategy(new ClientExpiredSessionStrategy(clientProperties));
         }
 
     }

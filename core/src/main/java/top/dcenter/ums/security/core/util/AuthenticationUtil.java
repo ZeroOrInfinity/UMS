@@ -1,6 +1,5 @@
 package top.dcenter.ums.security.core.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -40,6 +39,7 @@ import java.util.UUID;
 import static java.util.Objects.requireNonNullElse;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_REDIRECT_URL_KEY;
+import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
 
 /**
  * Authentication util
@@ -173,14 +173,13 @@ public class AuthenticationUtil {
      * {@link AbstractResponseJsonAuthenticationException} 类的异常, Response 会返回 Json 数据.
      * @param response          {@link javax.servlet.http.HttpServletRequest}
      * @param exception         {@link HttpServletResponse}
-     * @param objectMapper      {@link ObjectMapper}
      * @param clientProperties {@link ClientProperties}
      * @return 如果通过 {@link HttpServletResponse} 返回 JSON 数据则返回 true, 否则 false
      * @throws IOException IOException
      */
     public static boolean authenticationFailureProcessing(HttpServletResponse response, AuthenticationException exception,
                                                           AbstractResponseJsonAuthenticationException e, String acceptHeader,
-                                                          ObjectMapper objectMapper, ClientProperties clientProperties) throws IOException {
+                                                          ClientProperties clientProperties) throws IOException {
 
         boolean isJsonProcessType = LoginProcessType.JSON.equals(clientProperties.getLoginProcessType());
         boolean isAcceptHeader =
@@ -200,7 +199,7 @@ public class AuthenticationUtil {
                 result = ResponseResult.fail(exception.getMessage(), ErrorCodeEnum.UNAUTHORIZED);
             }
 
-            responseWithJson(response, status, objectMapper.writeValueAsString(result));
+            responseWithJson(response, status, toJsonString(result));
             return true;
         }
         return false;
@@ -238,18 +237,18 @@ public class AuthenticationUtil {
      * @param request   request
      * @param response  response
      * @param clientProperties  clientProperties
-     * @param objectMapper  objectMapper
      * @param redirectStrategy  redirectStrategy
      * @param errorCodeEnum errorCodeEnum
      * @throws IOException IOException
      */
     public static void redirectProcessingLogoutByLoginProcessType(HttpServletRequest request,
-                                                                HttpServletResponse response,
-                                                            ClientProperties clientProperties, ObjectMapper objectMapper,
-                                                            RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum) throws IOException {
+                                                                  HttpServletResponse response,
+                                                                  ClientProperties clientProperties,
+                                                                  RedirectStrategy redirectStrategy,
+                                                                  ErrorCodeEnum errorCodeEnum) throws IOException {
 
-        redirectProcessing(request, response, clientProperties, objectMapper, redirectStrategy, errorCodeEnum,
-                           clientProperties.getLogoutSuccessUrl());
+        redirectProcessing(request, response, clientProperties, redirectStrategy,
+                           errorCodeEnum, clientProperties.getLogoutSuccessUrl());
     }
 
     /**
@@ -257,20 +256,19 @@ public class AuthenticationUtil {
      * @param request   request
      * @param response  response
      * @param clientProperties  clientProperties
-     * @param objectMapper  objectMapper
      * @param redirectStrategy  redirectStrategy
      * @param errorCodeEnum errorCodeEnum
      * @param redirectUrl   redirectUrl
      * @throws IOException IOException
      */
     public static void redirectProcessingByLoginProcessType(HttpServletRequest request, HttpServletResponse response,
-                                                            ClientProperties clientProperties, ObjectMapper objectMapper,
+                                                            ClientProperties clientProperties,
                                                             RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum,
                                                             String redirectUrl) throws IOException {
 
         String referer = requireNonNullElse(request.getHeader(SecurityConstants.HEADER_REFERER), redirectUrl);
 
-        redirectProcessing(request, response, clientProperties, objectMapper, redirectStrategy, errorCodeEnum, referer);
+        redirectProcessing(request, response, clientProperties, redirectStrategy, errorCodeEnum, referer);
     }
 
     /**
@@ -283,7 +281,8 @@ public class AuthenticationUtil {
      * @return  determine redirectUrl
      */
     public static String determineRedirectUrl(HttpServletRequest request, HttpServletResponse response,
-                                         String destinationUrl, AntPathMatcher matcher, RequestCache requestCache) {
+                                              String destinationUrl, AntPathMatcher matcher,
+                                              RequestCache requestCache) {
         HttpSession session = request.getSession();
         String redirectUrl = destinationUrl;
 
@@ -327,8 +326,8 @@ public class AuthenticationUtil {
      */
     @SuppressWarnings("RedundantThrows")
     public static String getOriginalUrl(RequestCache requestCache, HttpServletRequest request,
-                                      HttpServletResponse response,
-                                      String defaultRedirectUrl) throws IOException {
+                                        HttpServletResponse response,
+                                        String defaultRedirectUrl) throws IOException {
         // 设置跳转的 url
         SavedRequest savedRequest = requestCache.getRequest(request, response);
         String redirectUrl = defaultRedirectUrl;
@@ -349,7 +348,7 @@ public class AuthenticationUtil {
         return redirectUrl;
     }
 
-    private static void redirectProcessing(HttpServletRequest request, HttpServletResponse response, ClientProperties clientProperties, ObjectMapper objectMapper, RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum, String redirectUrl) throws IOException {
+    private static void redirectProcessing(HttpServletRequest request, HttpServletResponse response, ClientProperties clientProperties, RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum, String redirectUrl) throws IOException {
         if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
         {
             int status = HttpStatus.UNAUTHORIZED.value();
@@ -358,8 +357,7 @@ public class AuthenticationUtil {
             response.setCharacterEncoding(SecurityConstants.CHARSET_UTF8);
 
             // 在 ResponseResult 中的 data 为请求头中的 referer
-            response.getWriter().write(objectMapper.writeValueAsString(ResponseResult.fail(errorCodeEnum,
-                                                                                           redirectUrl)));
+            response.getWriter().write(toJsonString(ResponseResult.fail(errorCodeEnum, redirectUrl)));
             return;
         }
 

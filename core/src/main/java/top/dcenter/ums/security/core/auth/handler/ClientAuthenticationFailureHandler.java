@@ -1,14 +1,12 @@
 package top.dcenter.ums.security.core.auth.handler;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
+import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.auth.filter.AjaxOrFormRequestFilter;
-import top.dcenter.ums.security.common.consts.SecurityConstants;
-import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
+import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -28,12 +26,9 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.getAbstractR
  */
 @Slf4j
 public class ClientAuthenticationFailureHandler extends BaseAuthenticationFailureHandler {
-    protected final ObjectMapper objectMapper;
     protected final ClientProperties clientProperties;
 
-    public ClientAuthenticationFailureHandler(ObjectMapper objectMapper, ClientProperties clientProperties) {
-        this.objectMapper = objectMapper;
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    public ClientAuthenticationFailureHandler(ClientProperties clientProperties) {
         this.clientProperties = clientProperties;
         setDefaultFailureUrl(clientProperties.getFailureUrl());
     }
@@ -84,7 +79,7 @@ public class ClientAuthenticationFailureHandler extends BaseAuthenticationFailur
         String acceptHeader = request.getHeader(SecurityConstants.HEADER_ACCEPT);
 
         // 返回 json 格式
-        if (authenticationFailureProcessing(response, exception, e, acceptHeader, objectMapper, clientProperties))
+        if (authenticationFailureProcessing(response, exception, e, acceptHeader, clientProperties))
         {
             // 进行必要的清理
             return;

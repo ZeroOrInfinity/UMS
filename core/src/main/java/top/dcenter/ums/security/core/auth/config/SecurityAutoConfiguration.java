@@ -1,7 +1,5 @@
 package top.dcenter.ums.security.core.auth.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -54,7 +52,6 @@ import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 public class SecurityAutoConfiguration implements InitializingBean {
 
     private final ClientProperties clientProperties;
-    private final ObjectMapper objectMapper;
 
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection", "SpringJavaInjectionPointsAutowiringInspection"})
     @Autowired
@@ -64,10 +61,8 @@ public class SecurityAutoConfiguration implements InitializingBean {
     @Autowired
     private GenericApplicationContext applicationContext;
 
-    public SecurityAutoConfiguration(ClientProperties clientProperties, ObjectMapper objectMapper) {
+    public SecurityAutoConfiguration(ClientProperties clientProperties) {
         this.clientProperties = clientProperties;
-        this.objectMapper = objectMapper;
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Bean
@@ -104,14 +99,14 @@ public class SecurityAutoConfiguration implements InitializingBean {
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler")
     public BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler(Auth2Properties auth2Properties) {
-        return new ClientAuthenticationSuccessHandler(objectMapper, clientProperties,
+        return new ClientAuthenticationSuccessHandler(clientProperties,
                                                       getServletContextPath() + auth2Properties.getRedirectUrlPrefix());
     }
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler")
     public BaseAuthenticationFailureHandler baseAuthenticationFailureHandler() {
-        return new ClientAuthenticationFailureHandler(objectMapper, clientProperties);
+        return new ClientAuthenticationFailureHandler(clientProperties);
     }
 
     @Bean
@@ -129,7 +124,7 @@ public class SecurityAutoConfiguration implements InitializingBean {
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler")
     public DefaultLogoutSuccessHandler defaultLogoutSuccessHandler() {
-        return new DefaultLogoutSuccessHandler(clientProperties, objectMapper);
+        return new DefaultLogoutSuccessHandler(clientProperties);
     }
 
 

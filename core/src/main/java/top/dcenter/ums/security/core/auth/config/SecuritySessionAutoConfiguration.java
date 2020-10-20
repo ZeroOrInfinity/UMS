@@ -1,6 +1,5 @@
 package top.dcenter.ums.security.core.auth.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -18,8 +17,8 @@ import top.dcenter.ums.security.core.api.session.SessionEnhanceCheckService;
 import top.dcenter.ums.security.core.api.session.strategy.DefaultRedirectInvalidSessionStrategy;
 import top.dcenter.ums.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.ums.security.core.auth.controller.InvalidSessionController;
-import top.dcenter.ums.security.core.auth.session.filter.SessionEnhanceCheckFilter;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
+import top.dcenter.ums.security.core.auth.session.filter.SessionEnhanceCheckFilter;
 
 import static top.dcenter.ums.security.core.util.MvcUtil.registerDelegateApplicationListener;
 
@@ -51,8 +50,8 @@ public class SecuritySessionAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.controller.InvalidSessionController")
-    public InvalidSessionController invalidSessionController(ObjectMapper objectMapper) {
-        return new InvalidSessionController(clientProperties, objectMapper);
+    public InvalidSessionController invalidSessionController() {
+        return new InvalidSessionController(clientProperties);
     }
 
     @Bean

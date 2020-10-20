@@ -1,7 +1,5 @@
 package top.dcenter.ums.security.core.auth.controller;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
+import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,16 +36,14 @@ public class InvalidSessionController implements InitializingBean {
 
     private final RedirectStrategy redirectStrategy;
     private final ClientProperties clientProperties;
-    private final ObjectMapper objectMapper;
     private final RequestCache requestCache;
 
     @Autowired
     private GenericApplicationContext applicationContext;
 
-    public InvalidSessionController(ClientProperties clientProperties, ObjectMapper objectMapper) {
+    public InvalidSessionController(ClientProperties clientProperties) {
         this.clientProperties = clientProperties;
         this.requestCache = new HttpSessionRequestCache();
-        this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.redirectStrategy = new DefaultRedirectStrategy();
     }
 
@@ -61,7 +57,7 @@ public class InvalidSessionController implements InitializingBean {
             // 设置跳转的 url
             String redirectUrl = getOriginalUrl(requestCache, request, response, clientProperties.getLoginPage());
 
-            redirectProcessingByLoginProcessType(request, response, clientProperties, objectMapper,
+            redirectProcessingByLoginProcessType(request, response, clientProperties,
                                                  redirectStrategy, ErrorCodeEnum.INVALID_SESSION,
                                                  redirectUrl);
         }
