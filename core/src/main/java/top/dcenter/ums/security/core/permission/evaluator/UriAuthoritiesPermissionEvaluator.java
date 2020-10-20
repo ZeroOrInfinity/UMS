@@ -106,6 +106,7 @@ public class UriAuthoritiesPermissionEvaluator  implements PermissionEvaluator {
         if (permission instanceof String)
         {
             String uriAuthority = ((String) permission);
+            // 忽略 targetId, 可以增加对多租户权限控制, 待扩展
             boolean hasPermission = uriAuthorizeService.hasPermission(authentication, targetType, uriAuthority);
 
             Object principal = authentication.getPrincipal();

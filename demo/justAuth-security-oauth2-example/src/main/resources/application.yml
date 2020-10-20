@@ -44,7 +44,7 @@ ums:
     enabled: true
     # 抑制反射警告, 支持 JDK11, 默认: false , 在确认 WARNING: An illegal reflective access operation has occurred 安全后, 可以打开此设置, 可以抑制反射警告.
     suppress-reflect-warning: true
-    # 第三方服务商: providerId, 支持所以 JustAuth 支持的第三方授权登录, 目前有 32 家第三方授权登录
+    # 第三方服务商: providerId, 支持所有 JustAuth 支持的第三方授权登录, 目前支持有 32 家第三方授权登录
     github:
       # 根据是否有设置 clientId 来动态加载相应 JustAuth 的 AuthXxxRequest
       client-id: 4d4ee00e82f669f2ea8d
@@ -54,7 +54,7 @@ ums:
       client-secret: e60a110a2f6e7c930c2d416f802bec6061e19bfa0ceb0df9f6b182b05d8f5a58
     # 第三方登录授权登录 url 前缀, 不包含 ServletContextPath，默认为 /auth2/authorization.
     auth-login-url-prefix: /auth2/authorization
-    # 第三方登录回调处理 url 前缀 ，也就是 RedirectUrl 的前缀, 不包含 ServletContextPahth，默认为 /auth2/login.
+    # 第三方登录回调处理 url 前缀 ，也就是 RedirectUrl 的前缀, 不包含 ServletContextPath，默认为 /auth2/login.
     redirect-url-prefix: /auth2/login
     # 第三方登录回调的域名, 例如：http://localhost:9090 默认为 "http://127.0.0.1"，
     # redirectUrl 直接由 {domain}/{servletContextPath}/{redirectUrlPrefix}/{providerId}(ums.oauth.[qq/gitee/weibo])组成

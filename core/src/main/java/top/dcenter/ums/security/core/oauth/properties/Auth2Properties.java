@@ -196,7 +196,7 @@ public class Auth2Properties {
     private String domain = "http://127.0.0.1";
 
     /**
-     * 第三方登录回调处理 url 前缀 ，也就是 RedirectUrl 的前缀, 不包含 ServletContextPahth，默认为 /oauth/login.<br><br>
+     * 第三方登录回调处理 url 前缀 ，也就是 RedirectUrl 的前缀, 不包含 ServletContextPath，默认为 /oauth/login.<br><br>
      */
     private String redirectUrlPrefix = "/oauth/login";
 

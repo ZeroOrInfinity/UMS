@@ -42,22 +42,27 @@
   | [session-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/session-detail-example) | core 模块: session 与 session 缓存详细配置                   |
   | [validate-code-example](https://gitee.com/pcore/UMS/tree/master/demo/validate-code-example)  | core 模块基本功能: 验证码(含自定义滑块验证码), 手机登录配置  |
   | [quickStart-1.2.0](https://gitee.com/pcore/UMS/tree/master/demo/quickStart-1.2.0)             | social 版本快速开始示例                                                 |
-  | [social-simple-example](https://gitee.com/pcore/UMS/tree/master/demo/social-simple-example)  | social 模块基本功能: 简单的配置(第三方登录自动注册默认打开)  |
-  | [social-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/social-detail-example)  | social 模块功能详细配置: 第三方授权登录注册功能, 统一回调地址路由配置, 第三方登录绑定配置, 第三方授权登录用户信息表自定义与 redis 缓存设置 |
+  | [过时：social-simple-example](https://gitee.com/pcore/UMS/tree/master/demo/social-simple-example)  | social 模块基本功能: 简单的配置(第三方登录自动注册默认打开)  |
+  | [过时：social-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/social-detail-example)  | social 模块功能详细配置: 第三方授权登录注册功能, 统一回调地址路由配置, 第三方登录绑定配置, 第三方授权登录用户信息表自定义与 redis 缓存设置 |
 
 ### [更新日志](https://gitee.com/pcore/UMS/wikis/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97?sort_id=2927596)
+
+### [文档地址](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926061&doc_id=984605)
+
+微信群：UMS 添加微信(z56133)备注(UMS) 
 ------
 ## 二、`maven`：
 ```xml
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 ------
 ## 三、`TODO List`:
 - 1. 准备基于 spring-security5.4 添加 JWT, OAuth2 authenticate server
+- 2. 添加多租户权限控制
 ------
 ## 四、`快速开始`：
 ### 1. 添加依赖:
@@ -66,7 +71,7 @@
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 ### 2. config:  
@@ -116,7 +121,7 @@ ums:
       client-secret: e60a110a2f6e7c930c2d416f802bec6061e19bfa0ceb0df9f6b182b05d8f5a58
     # 第三方登录授权登录 url 前缀, 不包含 ServletContextPath，默认为 /auth2/authorization.
     auth-login-url-prefix: /auth2/authorization
-    # 第三方登录回调处理 url 前缀 ，也就是 RedirectUrl 的前缀, 不包含 ServletContextPahth，默认为 /auth2/login.
+    # 第三方登录回调处理 url 前缀 ，也就是 RedirectUrl 的前缀, 不包含 ServletContextPath，默认为 /auth2/login.
     redirect-url-prefix: /auth2/login
     # 第三方登录回调的域名, 例如：http://localhost 默认为 "http://127.0.0.1"，
     # redirectUrl 直接由 {domain}/{servletContextPath}/{redirectUrlPrefix}/{providerId}(ums.oauth.[qq/gitee/weibo])组成
@@ -698,7 +703,8 @@ roles: <span th:text="${roles}"/>
 </html>
 ```
 ### 5. 访问前端页面
-- 浏览器访问 `http://127.0.0.1/login`, 至此集成了：登录校验，验证码、手机登录、第三方登录(JustAuth)、基于 RBAC 的 uri 访问权限控制功能, 签到等功能; 实现快速开发。
+- 浏览器访问 `http://localhost:9090/demo/login`, 至此集成了：登录校验，验证码、手机登录、第三方登录(JustAuth)、基于 RBAC 的 uri
+ 访问权限控制功能, 签到等功能; 实现快速开发。
 - 此 `Quick Start` 代码在 `demo 模块` -> [quickStart](https://gitee.com/pcore/UMS/tree/master/demo/quickStart), 其他功能的详细配置说明参照: [Configurations](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926340&doc_id=984605)。
 ------
 ## 五、接口使用说明:
@@ -737,7 +743,7 @@ roles: <span th:text="${roles}"/>
 | 6. [anonymous](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926358&doc_id=984605) | [core](https://gitee.com/pcore/UMS/tree/master/core)     |                                                              | [basic-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
 | 7. [验证码](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926360&doc_id=984605) | [core](https://gitee.com/pcore/UMS/tree/master/core)     |                                                              | [validate-code-example](https://gitee.com/pcore/UMS/tree/master/demo/validate-code-example/src/main/resources/application.yml) |
 | 8. [手机登录](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926419&doc_id=984605) | [core](https://gitee.com/pcore/UMS/tree/master/core)     |                                                              | [basic-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
-| 9. [第三方登录](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926435&doc_id=984605) | [core](https://gitee.com/pcore/UMS/tree/master/core) | [social-simple-example](https://gitee.com/pcore/UMS/tree/master/demo/social-simple-example/src/main/resources/application.yml) | [basic-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
+| 9. [第三方登录](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926435&doc_id=984605) | [core](https://gitee.com/pcore/UMS/tree/master/core) |  | [basic-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
 | 10. [给第三方登录时用的数据库表 user_connection 与 auth_token 添加 redis cache](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2927093&doc_id=984605) | [core](https://gitee.com/pcore/UMS/tree/master/core) |                                                              | [basic-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
 | 11. [签到](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926437&doc_id=984605) | [core](https://gitee.com/pcore/UMS/tree/master/core)     |                                                              | [basic-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
 | 12. [基于 RBAC 的访问权限控制功能](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926442&doc_id=984605) | [core](https://gitee.com/pcore/UMS/tree/master/core)     |                                                              | [permission-example](https://gitee.com/pcore/UMS/tree/master/demo/permission-example/src/main/resources/application.yml) |
@@ -781,8 +787,12 @@ roles: <span th:text="${roles}"/>
 | [签到属性](https://gitee.com/pcore/UMS/wikis/%E7%AD%BE%E5%88%B0%E5%B1%9E%E6%80%A7?sort_id=2927090) |
 | [手机登录属性](https://gitee.com/pcore/UMS/wikis/%E6%89%8B%E6%9C%BA%E7%99%BB%E5%BD%95%E5%B1%9E%E6%80%A7?sort_id=2927091) |
 | [验证码属性](https://gitee.com/pcore/UMS/wikis/%E9%AA%8C%E8%AF%81%E7%A0%81%E5%B1%9E%E6%80%A7?sort_id=2927092) |
-| [social_userConnection redisCache属性](https://gitee.com/pcore/UMS/wikis/social_userConnection%20redisCache%E5%B1%9E%E6%80%A7?sort_id=2927093) |
-| [social属性](https://gitee.com/pcore/UMS/wikis/social%E5%B1%9E%E6%80%A7?sort_id=2927094) |
+| [第三方授权登录](https://gitee.com/pcore/UMS/wikis/%E7%AC%AC%E4%B8%89%E6%96%B9%E6%8E%88%E6%9D%83%E7%99%BB%E5%BD%95(JustAuth)?sort_id=3006562) |
+| [线程池属性](https://gitee.com/pcore/UMS/wikis/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%B1%9E%E6%80%A7?sort_id=3006566) |
+| [第三方授权登录用户信息数据 redis 缓存配置](https://gitee.com/pcore/UMS/wikis/%E7%AC%AC%E4%B8%89%E6%96%B9%E6%8E%88%E6%9D%83%E7%99%BB%E5%BD%95%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E6%95%B0%E6%8D%AE%20redis%20%E7%BC%93%E5%AD%98%E9%85%8D%E7%BD%AE?sort_id=3006567) |
+| [第三方授权登录用户信息表 user_connection sql 配置](https://gitee.com/pcore/UMS/wikis/%E7%AC%AC%E4%B8%89%E6%96%B9%E6%8E%88%E6%9D%83%E7%99%BB%E5%BD%95%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E8%A1%A8%20user_connection%20sql%20%E9%85%8D%E7%BD%AE?sort_id=3006568) |
+| [过时:social_userConnection redisCache属性](https://gitee.com/pcore/UMS/wikis/social_userConnection%20redisCache%E5%B1%9E%E6%80%A7?sort_id=2927093) |
+| [过时:social属性](https://gitee.com/pcore/UMS/wikis/social%E5%B1%9E%E6%80%A7?sort_id=2927094) |
 
 ------
 
