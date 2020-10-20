@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
  * by the {@link Auth2DefaultRequestRedirectFilter} for resolving Authorization
  * Requests.
  *
- * @author zyw
+ * @author YongWu zheng
  * @since 5.1
  * @see OAuth2AuthorizationRequest
  * @see Auth2DefaultRequestRedirectFilter

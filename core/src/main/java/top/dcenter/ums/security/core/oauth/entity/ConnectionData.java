@@ -29,7 +29,7 @@ import java.io.Serializable;
  * Some fields may be null .
  * For example, an OAuth2Connection has a null 'secret' field while an OAuth1Connection has null 'refreshToken' and 'expireTime' fields.
  * @author Keith Donald
- * @author zyw
+ * @author YongWu zheng
  */
 @Setter
 @Builder

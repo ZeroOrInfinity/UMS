@@ -38,8 +38,7 @@
   | [basic-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-detail-example)   | core 模块基本功能详细的配置: 含anonymous/session简单配置/rememberMe/csrf/登录路由/签到, 不包含session详细配置/验证码/手机登录/权限. |
   | [permission-example](https://gitee.com/pcore/UMS/tree/master/demo/permission-example)     | core 模块: 基于 RBAC 的权限功能设置                          |
   | [quickStart](https://gitee.com/pcore/UMS/tree/master/demo/quickStart)             | 快速开始示例                                                 |
-  | [justAuth-security-oauth2-example](https://gitee.com/pcore/UMS/tree/master/demo/justAuth-security-oauth2-example
-  )             | OAuth2 详细示例: 引用的依赖是分离于 core 模块的独立 OAuth2 模块 top.dcenter:justAuth-spring-security-starter:1.0.0, OAuth2 功能都一样.                                                |
+  | [justAuth-security-oauth2-example](https://gitee.com/pcore/UMS/tree/master/demo/justAuth-security-oauth2-example)             | OAuth2 详细示例: 引用的依赖是分离于 core 模块的独立 OAuth2 模块 top.dcenter:justAuth-spring-security-starter:1.0.0, OAuth2 功能都一样.                                                |
   | [session-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/session-detail-example) | core 模块: session 与 session 缓存详细配置                   |
   | [validate-code-example](https://gitee.com/pcore/UMS/tree/master/demo/validate-code-example)  | core 模块基本功能: 验证码(含自定义滑块验证码), 手机登录配置  |
   | [quickStart-1.2.0](https://gitee.com/pcore/UMS/tree/master/demo/quickStart-1.2.0)             | social 版本快速开始示例                                                 |
@@ -50,19 +49,10 @@
 ------
 ## 二、`maven`：
 ```xml
-<!-- 用户管理脚手架(ums) -->
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
     <version>2.0.1</version>
-</dependency>
-
-<!-- 分离于 ums-core-spring-boot-starter 模块的独立 OAuth2 模块, Spring security 集成 JustAuth, 支持 32 种第三方授权登录 -->
-<!-- 示例代码: demo/justAuth-security-oauth2-example -->
-<dependency>
-    <groupId>top.dcenter</groupId>
-    <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>1.0.0</version>
 </dependency>
 ```
 ------
@@ -76,7 +66,7 @@
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 ### 2. config:  
@@ -252,7 +242,7 @@ import java.util.List;
  *  1. 用于第三方登录与手机短信登录逻辑。<br><br>
  *  2. 用于用户密码登录逻辑。<br><br>
  *  3. 用户注册逻辑。<br><br>
- * @author zyw
+ * @author YongWu zheng
  * @version V1.0  Created by 2020/9/20 11:06
  */
 @Service
@@ -472,7 +462,7 @@ import java.util.Map;
 
 /**
  *
- * @author zyw
+ * @author YongWu zheng
  * @version V1.0  Created by 2020/9/20 20:04
  */
 @Controller

@@ -1,4 +1,3 @@
-package top.dcenter.ums.security.core.oauth.filter.login;
 /*
  * Copyright 2002-2019 the original author or authors.
  *
@@ -14,6 +13,7 @@ package top.dcenter.ums.security.core.oauth.filter.login;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package top.dcenter.ums.security.core.oauth.filter.login;
 
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,10 +38,10 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import top.dcenter.ums.security.core.oauth.filter.redirect.Auth2DefaultRequestResolver;
+import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.oauth.repository.Auth2DefaultRequestRepository;
 import top.dcenter.ums.security.core.oauth.repository.HttpSessionAuth2DefaultRequestRepository;
 import top.dcenter.ums.security.core.oauth.token.Auth2LoginAuthenticationToken;
-import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

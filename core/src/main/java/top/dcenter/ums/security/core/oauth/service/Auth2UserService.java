@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
  * {@link Auth2DefaultRequest#getAccessToken(AuthCallback) Access Token} granted to the
  * {@link Auth2DefaultRequest#getUserInfo(AuthToken)} } and returning an AuthUser.
  *
- * @author zyw
+ * @author YongWu zheng
  * @version V1.0  Created by 2020/10/10 7:54
  * @since 2.0.0
  * @see Auth2DefaultRequest

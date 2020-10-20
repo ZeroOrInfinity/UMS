@@ -72,7 +72,7 @@ import java.io.IOException;
  *
  * @author Joe Grandja
  * @author Rob Winch
- * @author zyw
+ * @author YongWu zheng
  * @since 5.0
  * @see OAuth2AuthorizationRequest
  * @see Auth2DefaultRequestResolver

@@ -254,7 +254,7 @@ import java.util.List;
  *  1. 用于第三方登录与手机短信登录逻辑。<br><br>
  *  2. 用于用户密码登录逻辑。<br><br>
  *  3. 用户注册逻辑。<br><br>
- * @author zyw
+ * @author YongWu zheng
  * @version V1.0  Created by 2020/9/20 11:06
  */
 @Service
@@ -475,7 +475,7 @@ import java.util.Map;
 
 /**
  *
- * @author zyw
+ * @author YongWu zheng
  * @version V1.0  Created by 2020/9/20 20:04
  */
 @Controller

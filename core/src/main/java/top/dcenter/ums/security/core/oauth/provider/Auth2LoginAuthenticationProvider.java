@@ -65,7 +65,7 @@ import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
  * authentication.
  *
  * @author Joe Grandja
- * @author zyw
+ * @author YongWu zheng
  * @since 5.0
  * @see UsersConnectionRepository
  * @see Auth2AuthenticationToken

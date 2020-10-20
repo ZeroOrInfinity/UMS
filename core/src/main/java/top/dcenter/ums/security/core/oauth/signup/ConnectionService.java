@@ -24,7 +24,7 @@ import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
 /**
  * A command that signs up a new user in the event no user id could be mapped from a {@link AuthUser}.
  * Allows for implicitly creating a local user profile from connection data during a provider sign-in attempt.
- * @author zyw
+ * @author YongWu zheng
  * @version V2.0  Created by 2020-10-08 20:10
  */
 public interface ConnectionService {

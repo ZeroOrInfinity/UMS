@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
  * An implementation of an {@link Auth2UserService} that supports standard OAuth 2.0
  * Provider's.
  *
- * @author zyw
+ * @author YongWu zheng
  * @version V1.0  Created by 2020/10/10 7:54
  * @since 2.0.0
  * @see Auth2UserService

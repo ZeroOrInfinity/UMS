@@ -29,7 +29,7 @@ import java.util.Collections;
  * An {@link AbstractAuthenticationToken} for OAuth 2.0 Login, which leverages the OAuth
  * 2.0 Authorization Code Grant Flow.
  *
- * @author zyw
+ * @author YongWu zheng
  * @since 2.0.0
  * @see AbstractAuthenticationToken
  * @see Auth2DefaultRequest
