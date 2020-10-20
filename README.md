@@ -20,9 +20,10 @@ validate code, RBAC-based uri access control function, sign etc...
 ## 一、`UMS 功能列表(UMS feature list)`：
   - 验证码（图片，短信, 滑块）校验功能(validate code (image, SMS, slider) verification function)。
   - 手机登录功能，登录后自动注册(Mobile login function, automatic registration after login)。
-  - 支持所有 JustAuth 支持的第三方授权登录，登录后自动注册(OAuth2 login and auto signUp)。
+  - 支持所有 JustAuth 支持的第三方授权登录，登录后自动注册或绑定(OAuth2 login and auto signUp and auto binding)。
       - 支持定时刷新 accessToken, 支持分布式定时任务(Support timing refresh accessToken, support distributed timing tasks)。
       - 支持第三方授权登录的用户信息表与 token 信息表的缓存功能(Support the caching function of user table and token table by OAuth2 login)。
+      - 支持第三方绑定(binding)与解绑(unbinding)及查询接口(top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository).
   - 访问权限控制功能(Access control function)。
   - 简化 session、remember me、csrf 等配置(Simplify session、remember me、csrf etc configuration)。
   - 根据设置的响应方式（JSON 与 REDIRECT）返回 json 或 html 数据。
@@ -40,6 +41,7 @@ validate code, RBAC-based uri access control function, sign etc...
   | [basic-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-detail-example)   | core 模块基本功能详细的配置: 含anonymous/session简单配置/rememberMe/csrf/登录路由/签到, 不包含session详细配置/验证码/手机登录/权限. |
   | [permission-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/permission-example)     | core 模块: 基于 RBAC 的权限功能设置                          |
   | [quickStart](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/quickStart)             | 快速开始示例                                                 |
+  | [justAuth-security-oauth2-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/justAuth-security-oauth2-example)             | OAuth2 详细示例: 引用的依赖是分离于 core 模块的独立 OAuth2 模块 top.dcenter:justAuth-spring-security-starter:1.0.0,  OAuth2 功能都一样.                                                |
   | [session-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/session-detail-example) | core 模块: session 与 session 缓存详细配置                   |
   | [validate-code-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/validate-code-example)  | core 模块基本功能: 验证码(含自定义滑块验证码), 手机登录配置  |
 
@@ -48,10 +50,20 @@ validate code, RBAC-based uri access control function, sign etc...
 ------
 ## 二、`maven`：
 ```xml
+<!-- 用户管理脚手架(ums) -->
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
+</dependency>
+
+<!-- 分离于 ums-core-spring-boot-starter 模块的独立 OAuth2 模块, Spring security 集成 JustAuth, 支持 32 种第三方授权登录 -->
+<!-- An independent OAuth2 module separated from the ums-core-spring-boot-starter module, Spring security integrates JustAuth, and supports 32 third-party OAuth2 logins -->
+<!-- 示例代码: demo/justAuth-security-oauth2-example -->
+<dependency>
+    <groupId>top.dcenter</groupId>
+    <artifactId>ums-core-spring-boot-starter</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 ------
@@ -61,11 +73,13 @@ validate code, RBAC-based uri access control function, sign etc...
 ## 四、`快速开始(Quick Start)`：
 ### 1. 添加依赖(Add Dependency):
 ```xml
+<!-- 用户管理脚手架(ums) -->
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
+
 ```
 ### 2. config:  
 ```yaml
@@ -97,25 +111,6 @@ spring:
     servlet:
       content-type: text/html;charset=UTF-8
 
-  # =============== redis 设置 ===============
-  redis:
-    host: 192.168.88.88
-    port: 6379
-    password:
-    database: 0
-    # 连接超时的时间
-    timeout: 10000
-    # redis-lettuce-pool
-    lettuce:
-      # 会影响应用关闭是时间, dev 模式设置为 0
-      shutdown-timeout: PT0S
-      pool:
-        max-active: 8
-        max-wait: PT10S
-        max-idle: 8
-        min-idle: 1
-
-
 
 # ums core
 ums:
@@ -135,43 +130,17 @@ ums:
     auth-login-url-prefix: /auth2/authorization
     # 第三方登录回调处理 url 前缀 ，也就是 RedirectUrl 的前缀, 不包含 ServletContextPahth，默认为 /auth2/login.
     redirect-url-prefix: /auth2/login
-    # 第三方登录回调的域名, 例如：https://localhost 默认为 "http://127.0.0.1"，
+    # 第三方登录回调的域名, 例如：http://localhost 默认为 "http://127.0.0.1"，
     # redirectUrl 直接由 {domain}/{servletContextPath}/{redirectUrlPrefix}/{providerId}(ums.oauth.[qq/gitee/weibo])组成
     domain: http://localhost:9090
-    # JustAuth 内部参数设置
-    just-auth:
-      # 默认 state 缓存过期时间：3分钟(PT180S) 鉴于授权过程中，根据个人的操作习惯，或者授权平台的不同（google等），每个授权流程的耗时也有差异，
-      # 不过单个授权流程一般不会太长 本缓存工具默认的过期时间设置为3分钟，即程序默认认为3分钟内的授权有效，超过3分钟则默认失效，失效后删除
-      timeout: PT1800S
-    # 用于 JustAuth 的代理(HttpClient)设置
     proxy:
       # 用于国内代理(HttpClient)超时, 默认 PT3S
       timeout: PT3S
       # 用于国外网站代理(HttpClient)超时, 默认 PT15S
       foreign-timeout: PT150S
 
-    # 是否支持定时刷新 AccessToken 定时任务. 默认: false.
-    # 支持分布式(分布式 IOC 容器中必须有 RedisConnectionFactory, 也就是说, 是否分布式执行依据 IOC 容器中是否有 RedisConnectionFactory)
-    enableRefreshTokenJob: true
-    # A cron-like expression. 0 * 2 * * ? 分别对应: second/minute/hour/day of month/month/day of week,
-    # 默认为: "0 * 2 * * ?", 凌晨 2 点启动定时任务, 支持分布式(分布式 IOC 容器中必须有 {@link RedisConnectionFactory},
-    # 也就是说, 是否分布式执行依据 IOC 容器中是否有 {@link RedisConnectionFactory})
-    refresh-token-job-cron: 0 * 2 * * ?
-
-  # 第三方授权登录用户信息(user_connection) 与 auth_token 表的缓存设置
-  cache:
-    redis:
-      # Redis cache is open, 默认 false
-      open: true
-
   # ================ 密码登录, session, remember-me, csrf等配置 ================
   client:
-    # 用户角色层级配置，默认为 空. 分隔符为:" > ". 例如: ROLE_ADMIN 拥有 ROLE_USER 与 ROLE_VISIT 权限,
-    # 可以表示为: ROLE_ADMIN > ROLE_USER > ROLE_VISIT 等价于下面的配置
-    # 权限示例请看 permission-example 示例
-    role-hierarchy:
-      - ROLE_ADMIN > ROLE_USER
-      - ROLE_USER > ROLE_VISIT
     # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
     login-process-type: redirect
     # 登录页(必须自己实现)
@@ -774,18 +743,20 @@ roles: <span th:text="${roles}"/>
 ## 六、Configurations:
 | **功能(Features)**                                                     | **模块(model)**                                                 | **demo模块--简单配置(Simple Configuration)**                                       | **demo模块--详细配置(detail Configuration)**                                       |
 | ------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| 1. [基本功能](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-1%E3%80%81%E5%9F%BA%E6%9C%AC%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     | [basic-example](https://github.com/ZeroOrInfinity/tree/master/demo/basic-example/src/main/resources/application.yml) |                                                              |
-| 2. [登录路由功能](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-2%E3%80%81%E7%99%BB%E5%BD%95%E8%B7%AF%E7%94%B1%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
-| 3. [session](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-3%E3%80%81Session-%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [session-detail-example](https://github.com/ZeroOrInfinity/tree/master/demo/session-detail-example/src/main/resources/application.yml) |
-| 4. [remember-me](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-4%E3%80%81Remember-me-%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
-| 5. [csrf](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-5%E3%80%81CSRF-%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
-| 6. [anonymous](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-6%E3%80%81Anonymous-%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
-| 7. [验证码](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-7%E3%80%81%E9%AA%8C%E8%AF%81%E7%A0%81%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [validate-code-example](https://github.com/ZeroOrInfinity/tree/master/demo/validate-code-example/src/main/resources/application.yml) |
-| 8. [手机登录](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-8%E3%80%81%E6%89%8B%E6%9C%BA%E7%99%BB%E5%BD%95%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
-| 9. [第三方登录](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-9%E3%80%81%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core) | [social-simple-example](https://github.com/ZeroOrInfinity/tree/master/demo/social-simple-example/src/main/resources/application.yml) | [basic-detail-example](https://github.com/ZeroOrInfinity/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
-| 10. [给第三方登录时用的数据库表 user_connection 与 auth_token 添加 redis cache](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-10.-%E7%BB%99%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95%E6%97%B6%E7%94%A8%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8-user_connection-%E4%B8%8E-auth_token-%E6%B7%BB%E5%8A%A0-redis-cache) | [core](https://github.com/ZeroOrInfinity/tree/master/core) |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
-| 11. [签到](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-11%E3%80%81%E7%AD%BE%E5%88%B0%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
-| 11. [基于 RBAC 的访问权限控制功能](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-13%E3%80%81%E5%9F%BA%E4%BA%8E-RBAC-%E7%9A%84%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6%E5%8A%9F%E8%83%BD%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [permission-example](https://github.com/ZeroOrInfinity/tree/master/demo/permission-example/src/main/resources/application.yml) |
+| 1. [基本功能](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-1%E3%80%81%E5%9F%BA%E6%9C%AC%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     | [basic-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-example/src/main/resources/application.yml) |                                                              |
+| 2. [登录路由功能](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-2%E3%80%81%E7%99%BB%E5%BD%95%E8%B7%AF%E7%94%B1%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
+| 3. [session](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-3%E3%80%81Session-%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [session-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/session-detail-example/src/main/resources/application.yml) |
+| 4. [remember-me](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-4%E3%80%81Remember-me-%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
+| 5. [csrf](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-5%E3%80%81CSRF-%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
+| 6. [anonymous](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-6%E3%80%81Anonymous-%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
+| 7. [验证码](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-7%E3%80%81%E9%AA%8C%E8%AF%81%E7%A0%81%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [validate-code-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/validate-code-example/src/main/resources/application.yml) |
+| 8. [手机登录](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-8%E3%80%81%E6%89%8B%E6%9C%BA%E7%99%BB%E5%BD%95%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
+| 9. [第三方登录](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-9%E3%80%81%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core) | [social-simple-example](https://github.com/ZeroOrInfinity/tree/master/demo/social-simple-example/src/main/resources/application.yml) | [basic-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
+| 10. [给第三方登录时用的数据库表 user_connection 与 auth_token 添加 redis cache](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-10.-%E7%BB%99%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E5%BD%95%E6%97%B6%E7%94%A8%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8-user_connection-%E4%B8%8E-auth_token-%E6%B7%BB%E5%8A%A0-redis-cache) | [core](https://github.com/ZeroOrInfinity/tree/master/core) |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
+| 11. [签到](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-11%E3%80%81%E7%AD%BE%E5%88%B0%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [basic-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
+| 12. [基于 RBAC 的访问权限控制功能](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-13%E3%80%81%E5%9F%BA%E4%BA%8E-RBAC-%E7%9A%84%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6%E5%8A%9F%E8%83%BD%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE) | [core](https://github.com/ZeroOrInfinity/tree/master/core)     |                                                              | [permission-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/permission-example/src/main/resources/application.yml) |
+| 13. [线程池配置](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AD-14%E3%80%81%E7%BA%BF%E7%A8%8B%E6%B1%A0%E9%85%8D%E7%BD%AE) | [core](https://gitee.com/pcore/UMS/tree/master/core)     |                                                              | [justAuth-security-oauth2-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/justAuth-security-oauth2-example/src/main/resources/application.yml) |
+
 
 ------
 ## 七、[注意事项(NOTE)](https://github.com/ZeroOrInfinity/UMS/wiki/%E4%B8%83%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9): 

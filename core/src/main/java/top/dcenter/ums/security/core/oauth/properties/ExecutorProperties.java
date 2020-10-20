@@ -42,10 +42,6 @@ public class ExecutorProperties {
     public static class AccessTokenRefreshJobExecutorProperties {
 
         /**
-         * 是否支持自动刷新 accessToken
-         */
-        private Boolean open = Boolean.FALSE;
-        /**
          * 线程池中空闲时保留的线程数, 默认: 0
          */
         private Integer corePoolSize = 0;
@@ -105,7 +101,7 @@ public class ExecutorProperties {
          */
         private RejectedExecutionHandlerPolicy rejectedExecutionHandlerPolicy = RejectedExecutionHandlerPolicy.CALLER_RUNS;
         /**
-         * 线程池关闭过程的超时时间, 默认: 10 秒
+         * 线程池关闭过程的超时时间, 默认: PT10S
          */
         private Duration executorShutdownTimeout = Duration.ofSeconds(10);
     }
@@ -144,7 +140,7 @@ public class ExecutorProperties {
          */
         private RejectedExecutionHandlerPolicy rejectedExecutionHandlerPolicy = RejectedExecutionHandlerPolicy.CALLER_RUNS;
         /**
-         * 线程池关闭过程的超时时间, 默认: 10 秒
+         * 线程池关闭过程的超时时间, 默认: PT10S
          */
         private Duration executorShutdownTimeout = Duration.ofSeconds(10);
     }

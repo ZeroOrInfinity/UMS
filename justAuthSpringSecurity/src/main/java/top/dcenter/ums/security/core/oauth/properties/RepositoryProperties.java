@@ -7,7 +7,7 @@ import top.dcenter.ums.security.core.oauth.repository.factory.Auth2JdbcUsersConn
 import top.dcenter.ums.security.core.oauth.repository.factory.UsersConnectionRepositoryFactory;
 
 /**
- * OAuth2 第三方登录属性
+ * OAuth2 第三方登录 user_connection 持久化表字段, sql语句属性 设置
  *
  * @author ZYW
  * @version V1.0  Created by 2020/5/3 19:52
@@ -47,11 +47,11 @@ public class RepositoryProperties {
 
     // ================= 第三方登录 key 与 secret 加密相关 =================
     /**
-     * 第三方登录用户数据库表的字段 key 与 secret 加密专用密码
+     * 第三方登录用户数据库表的字段 accessToken 与 refreshToken 加密专用密码
      */
     private String textEncryptorPassword = "7ca5d913a17b4942942d16a974e3fecc";
     /**
-     * 第三方登录用户数据库表的字段 key 与 secret 加密专用 salt
+     * 第三方登录用户数据库表的字段 accessToken 与 refreshToken 加密专用 salt
      */
     private String textEncryptorSalt = "cd538b1b077542aca5f86942b6507fe2";
 

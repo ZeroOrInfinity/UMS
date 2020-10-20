@@ -247,6 +247,9 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
     public void afterPropertiesSet() throws Exception {
         // 3. 动态注入 refreshTokenJob() Scheduled 的映射 cron
         String methodName = "refreshTokenJob";
-        MvcUtil.setScheduledCron(methodName, auth2Properties.getRefreshTokenJobCron(), this.getClass());
+        if (auth2Properties.getEnableRefreshTokenJob())
+        {
+            MvcUtil.setScheduledCron(methodName, auth2Properties.getRefreshTokenJobCron(), this.getClass());
+        }
     }
 }

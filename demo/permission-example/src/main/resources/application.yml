@@ -38,6 +38,9 @@ spring:
 
 ums:
   client:
+    # 用户角色层级配置，默认为 空. 分隔符为:" > ". 例如: ROLE_ADMIN 拥有 ROLE_USER 与 ROLE_VISIT 权限,
+    # 可以表示为: ROLE_ADMIN > ROLE_USER > ROLE_VISIT 等价于下面的配置
+    # 权限示例请看 permission-example 示例
     role-hierarchy:
       - ROLE_ADMIN > ROLE_USER
       - ROLE_USER > ROLE_VOTE

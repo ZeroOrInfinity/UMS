@@ -221,7 +221,7 @@ public class Auth2Properties {
     private Integer batchCount = 1000;
 
     /**
-     * accessToken 的剩余有效期, 默认: 24, 单位: 小时.<br>
+     * accessToken 的剩余有效期内进行刷新 accessToken, 默认: 24, 单位: 小时.<br>
      * 注意: 需要根据实际生产环境进行优化
      */
     private Integer remainingExpireIn = 24;
@@ -266,7 +266,7 @@ public class Auth2Properties {
         private Boolean enable = false;
 
         /**
-         * 针对国外服务可以单独设置代理类型, 默认 Proxy.Type.HTTP
+         * 针对国外服务可以单独设置代理类型, 默认 Proxy.Type.HTTP, enable = true 时生效.
          */
         private Proxy.Type proxy = Proxy.Type.HTTP;
 

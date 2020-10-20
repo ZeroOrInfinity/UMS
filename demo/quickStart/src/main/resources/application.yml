@@ -26,25 +26,6 @@ spring:
     servlet:
       content-type: text/html;charset=UTF-8
 
-  # =============== redis 设置 ===============
-  redis:
-    host: 192.168.88.88
-    port: 6379
-    password:
-    database: 0
-    # 连接超时的时间
-    timeout: 10000
-    # redis-lettuce-pool
-    lettuce:
-      # 会影响应用关闭是时间, dev 模式设置为 0
-      shutdown-timeout: PT0S
-      pool:
-        max-active: 8
-        max-wait: PT10S
-        max-idle: 8
-        min-idle: 1
-
-
 
 # ums core
 ums:
@@ -64,43 +45,17 @@ ums:
     auth-login-url-prefix: /auth2/authorization
     # 第三方登录回调处理 url 前缀 ，也就是 RedirectUrl 的前缀, 不包含 ServletContextPahth，默认为 /auth2/login.
     redirect-url-prefix: /auth2/login
-    # 第三方登录回调的域名, 例如：https://localhost 默认为 "http://127.0.0.1"，
+    # 第三方登录回调的域名, 例如：http://localhost 默认为 "http://127.0.0.1"，
     # redirectUrl 直接由 {domain}/{servletContextPath}/{redirectUrlPrefix}/{providerId}(ums.oauth.[qq/gitee/weibo])组成
     domain: http://localhost:9090
-    # JustAuth 内部参数设置
-    just-auth:
-      # 默认 state 缓存过期时间：3分钟(PT180S) 鉴于授权过程中，根据个人的操作习惯，或者授权平台的不同（google等），每个授权流程的耗时也有差异，
-      # 不过单个授权流程一般不会太长 本缓存工具默认的过期时间设置为3分钟，即程序默认认为3分钟内的授权有效，超过3分钟则默认失效，失效后删除
-      timeout: PT1800S
-    # 用于 JustAuth 的代理(HttpClient)设置
     proxy:
       # 用于国内代理(HttpClient)超时, 默认 PT3S
       timeout: PT3S
       # 用于国外网站代理(HttpClient)超时, 默认 PT15S
       foreign-timeout: PT150S
 
-    # 是否支持定时刷新 AccessToken 定时任务. 默认: false.
-    # 支持分布式(分布式 IOC 容器中必须有 RedisConnectionFactory, 也就是说, 是否分布式执行依据 IOC 容器中是否有 RedisConnectionFactory)
-    enableRefreshTokenJob: true
-    # A cron-like expression. 0 * 2 * * ? 分别对应: second/minute/hour/day of month/month/day of week,
-    # 默认为: "0 * 2 * * ?", 凌晨 2 点启动定时任务, 支持分布式(分布式 IOC 容器中必须有 {@link RedisConnectionFactory},
-    # 也就是说, 是否分布式执行依据 IOC 容器中是否有 {@link RedisConnectionFactory})
-    refresh-token-job-cron: 0 * 2 * * ?
-
-  # 第三方授权登录用户信息(user_connection) 与 auth_token 表的缓存设置
-  cache:
-    redis:
-      # Redis cache is open, 默认 false
-      open: true
-
   # ================ 密码登录, session, remember-me, csrf等配置 ================
   client:
-    # 用户角色层级配置，默认为 空. 分隔符为:" > ". 例如: ROLE_ADMIN 拥有 ROLE_USER 与 ROLE_VISIT 权限,
-    # 可以表示为: ROLE_ADMIN > ROLE_USER > ROLE_VISIT 等价于下面的配置
-    # 权限示例请看 permission-example 示例
-    role-hierarchy:
-      - ROLE_ADMIN > ROLE_USER
-      - ROLE_USER > ROLE_VISIT
     # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
     login-process-type: redirect
     # 登录页(必须自己实现)

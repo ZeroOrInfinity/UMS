@@ -48,6 +48,7 @@ import top.dcenter.ums.security.social.view.ConnectionStatusView;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
 import java.util.Objects;
@@ -256,7 +257,9 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
             }
 
             String database;
-            try (ResultSet resultSet = connection.prepareStatement(QUERY_DATABASE_NAME_SQL).executeQuery())
+
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(QUERY_DATABASE_NAME_SQL);
+                 ResultSet resultSet = preparedStatement.executeQuery())
             {
                 resultSet.next();
                 database = resultSet.getString(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
@@ -265,7 +268,9 @@ public class SocialAutoConfiguration extends SocialConfigurerAdapter implements 
             if (StringUtils.isNotBlank(database))
             {
                 String queryUserConnectionTableExistSql = socialProperties.getQueryUserConnectionTableExistSql(database);
-                try (ResultSet resultSet = connection.prepareStatement(queryUserConnectionTableExistSql).executeQuery())
+
+                try (final PreparedStatement preparedStatement1 = connection.prepareStatement(queryUserConnectionTableExistSql);
+                     ResultSet resultSet = preparedStatement1.executeQuery())
                 {
                     resultSet.next();
                     int tableCount = resultSet.getInt(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);

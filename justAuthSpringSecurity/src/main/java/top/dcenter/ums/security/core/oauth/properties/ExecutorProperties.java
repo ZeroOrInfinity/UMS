@@ -42,10 +42,6 @@ public class ExecutorProperties {
     public static class AccessTokenRefreshJobExecutorProperties {
 
         /**
-         * 是否支持自动刷新 accessToken
-         */
-        private Boolean open = Boolean.FALSE;
-        /**
          * 线程池中空闲时保留的线程数, 默认: 0
          */
         private Integer corePoolSize = 0;
