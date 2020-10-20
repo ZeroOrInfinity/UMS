@@ -50,20 +50,10 @@ validate code, RBAC-based uri access control function, sign etc...
 ------
 ## 二、`maven`：
 ```xml
-<!-- 用户管理脚手架(ums) -->
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>2.0.1</version>
-</dependency>
-
-<!-- 分离于 ums-core-spring-boot-starter 模块的独立 OAuth2 模块, Spring security 集成 JustAuth, 支持 32 种第三方授权登录 -->
-<!-- An independent OAuth2 module separated from the ums-core-spring-boot-starter module, Spring security integrates JustAuth, and supports 32 third-party OAuth2 logins -->
-<!-- 示例代码: demo/justAuth-security-oauth2-example -->
-<dependency>
-    <groupId>top.dcenter</groupId>
-    <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 ------
@@ -77,7 +67,7 @@ validate code, RBAC-based uri access control function, sign etc...
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 
 ```
@@ -798,6 +788,7 @@ roles: <span th:text="${roles}"/>
 | [第三方授权登录(OAuth2 JustAuth)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8) |
 | [线程池属性(ThreadPool Properties)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8) |
 | [第三方授权登录用户信息数据 redis 缓存配置(UserConnection Redis cache Properties)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8) |
+| [第三方授权登录用户信息表 user_connection sql 配置(UserConnection sql Properties)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8) |
 | [过时:social_userConnection redis Cache 属性(Properties)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8) |
 | [过时:Social 属性(Properties)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8) |
 ------
