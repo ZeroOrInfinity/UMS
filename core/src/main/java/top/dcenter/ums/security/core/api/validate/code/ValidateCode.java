@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package top.dcenter.ums.security.core.auth.validate.codes;
+package top.dcenter.ums.security.core.api.validate.code;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -25,7 +25,7 @@ package top.dcenter.ums.security.core.api.permission.service;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.util.AntPathMatcher;
-import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
+import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
 import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
 
 import javax.servlet.http.HttpServletRequest;

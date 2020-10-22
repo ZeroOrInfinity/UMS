@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package top.dcenter.ums.security.core.permission.dto;
+package top.dcenter.ums.security.core.api.permission.entity;
 
 import lombok.Data;
 

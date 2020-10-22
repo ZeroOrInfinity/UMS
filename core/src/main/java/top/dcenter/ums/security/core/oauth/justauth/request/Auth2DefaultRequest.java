@@ -171,7 +171,7 @@ public interface Auth2DefaultRequest {
     }
 
     /**
-     * 移除 stateCache 缓存
+     * 移除 session stateCache 缓存
      * @param authStateCache    {@link AuthStateCache}
      * @param source            {@link AuthDefaultSource}
      */

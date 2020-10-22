@@ -27,7 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
-import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
 
 import java.awt.image.BufferedImage;
 

@@ -23,7 +23,7 @@
 
 package top.dcenter.ums.security.core.api.validate.code.sms;
 
-import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.DefaultSmsCodeSender;
 
 /**

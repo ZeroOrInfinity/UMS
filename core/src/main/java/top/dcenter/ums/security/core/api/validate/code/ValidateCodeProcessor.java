@@ -25,7 +25,6 @@ package top.dcenter.ums.security.core.api.validate.code;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 
