@@ -54,8 +54,16 @@ public enum ErrorCodeEnum {
     QUERY_USER_INFO_ERROR(904, "未能获取到用户信息，请重试"),
     USER_REGISTER_FAILURE(905, "用户注册失败"),
     GET_REQUEST_PARAMETER_FAILURE(906, "获取注册信息失败"),
+    USERNAME_OR_PASSWORD_ERROR(909, "用户名或密码错误"),
     UPDATE_CONNECTION_DATA_FAILURE(940, "更新第三方授权登录用户信息失败"),
     REFRESH_TOKEN_FAILURE(950, "refresh Token 刷新失败"),
+
+    ACCOUNT_DISABLED(981, "账号无效"),
+    ACCOUNT_EXPIRED(982, "账号过期"),
+    ACCOUNT_LOCKED(983, "账号已锁定"),
+    CREDENTIALS_EXPIRED(984, "凭证过期"),
+
+
     USER_REGISTER_OAUTH2_FAILURE(999, "本地用户注册成功, 第三方信息保存失败"),
 
     VALIDATE_CODE_PARAM_ERROR(600, "验证码参数错误"),

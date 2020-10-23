@@ -24,16 +24,12 @@
 package top.dcenter.ums.security.core.api.advice;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import top.dcenter.ums.security.core.exception.ExpiredSessionDetectedException;
-import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
-import top.dcenter.ums.security.core.exception.ParameterErrorException;
-import top.dcenter.ums.security.core.exception.UserNotExistException;
-import top.dcenter.ums.security.core.exception.ValidateCodeException;
-import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
-import top.dcenter.ums.security.core.exception.ValidateCodeProcessException;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.core.exception.*;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 
 /**
@@ -44,10 +40,45 @@ import top.dcenter.ums.security.core.vo.ResponseResult;
  */
 public class SecurityControllerExceptionHandler {
 
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseResult usernameNotFoundException(UsernameNotFoundException ex) {
+        return ResponseResult.fail("用户名或密码错误", ErrorCodeEnum.USERNAME_OR_PASSWORD_ERROR, null);
+    }
+
+    @ExceptionHandler(AccountDisabledException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseResult accountDisabledException(AccountDisabledException ex) {
+        String message = ex.getMessage();
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
+    }
+    @ExceptionHandler(AccountExpiredException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseResult accountExpiredException(AccountExpiredException ex) {
+        String message = ex.getMessage();
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
+    }
+    @ExceptionHandler(AccountLockedException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseResult accountLockedException(AccountLockedException ex) {
+        String message = ex.getMessage();
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
+    }
+    @ExceptionHandler(CredentialsExpiredException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseResult credentialsExpiredException(CredentialsExpiredException ex) {
+        String message = ex.getMessage();
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
+    }
     @ExceptionHandler(UserNotExistException.class)
     @ResponseBody
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseResult handleUserNotException(UserNotExistException ex) {
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseResult userNotException(UserNotExistException ex) {
         String message = ex.getMessage();
         return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
     }
