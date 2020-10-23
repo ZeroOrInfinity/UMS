@@ -47,7 +47,7 @@ validate code, RBAC-based uri access control function, sign etc...
 
 ### [更新日志(Changelog)](https://github.com/ZeroOrInfinity/UMS/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97%EF%BC%88Changelog%EF%BC%89)
 
-### [文档地址](https://github.com/ZeroOrInfinity/UMS/wiki)
+### [Github 文档地址](https://github.com/ZeroOrInfinity/UMS/wiki)  [Gitee 文档地址](https://gitee.com/pcore/UMS/wikis/pages)
 
 微信群：UMS 添加微信(z56133)备注(UMS) 
 ------
@@ -74,6 +74,23 @@ validate code, RBAC-based uri access control function, sign etc...
     <version>2.0.2</version>
 </dependency>
 
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    <version>2.3.4.RELEASE</version>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+    <version>2.3.4.RELEASE</version>
+</dependency>
+<!-- 为了解决 ClassNotFoundException: org.apache.commons.pool2.impl.GenericObjectPoolConfig -->
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-pool2</artifactId>
+    <version>2.8.1</version>
+</dependency>
 ```
 ### 2. config:  
 ```yaml
@@ -753,15 +770,16 @@ roles: <span th:text="${roles}"/>
 
 
 ------
-## 七、[注意事项(NOTE)](https://github.com/ZeroOrInfinity/UMS/wiki/%E4%B8%83%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9): 
-### 1. 基于 RBAC 的 uri 访问权限控制
+## 七、[`注意事项(NOTE)`](https://github.com/ZeroOrInfinity/UMS/wiki/%E4%B8%83%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9): 
+
+### 1\. 基于 RBAC 的 uri 访问权限控制
+
 - **修改与添加权限后更新一下角色的权限** [AbstractUriAuthorizeService](https://github.com/ZeroOrInfinity/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java)`#updateRolesAuthorities()` 方法来**刷新权限**, 即可实时刷新角色权限.
     - **刷新权限**有两种方式：一种发布事件，另一种是直接调用服务；推荐用发布事件(异步执行)。
-      1. 推荐用发布事件(异步执行)
-         `applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));`
-      2. 直接调用服务
-         `abstractUriAuthorizeService.updateRolesAuthorities();`
-### 2. HttpSecurity 配置问题：UMS 中的 [HttpSecurityAware](https://github.com/ZeroOrInfinity/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java) 配置与应用中的 HttpSecurity 配置冲突问题：
+      1. 推荐用发布事件(异步执行): `applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));`
+      2. 直接调用服务: `abstractUriAuthorizeService.updateRolesAuthorities();`
+      
+### 2\. HttpSecurity 配置问题：UMS 中的 [HttpSecurityAware](https://github.com/ZeroOrInfinity/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java) 配置与应用中的 HttpSecurity 配置冲突问题：
 
 1. 如果是新建应用添加 HttpSecurity 配置, 通过下面的接口即可: 
     - [HttpSecurityAware](https://github.com/ZeroOrInfinity/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java)
@@ -769,16 +787,18 @@ roles: <span th:text="${roles}"/>
     - 添加 HttpSecurity 配置, 通过下面的接口即可: `HttpSecurityAware`
     - 已有的 HttpSecurity 配置, 让原有的 HttpSecurity 配置实现此接口进行配置: `top.dcenter.security.core.api.config.HttpSecurityAware`
 
-### 3. 在 ServletContext 中存储的属性: 
+### 3\. 在 ServletContext 中存储的属性: 
+
 - 属性名称: SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY
-- 属性值: authorizeRequestMap<String, Set<UriHttpMethodTuple>>: key 为 PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED
-  , FULLY_AUTHENTICATED, REMEMBER_ME 的权限类型,  value 为 UriHttpMethodTuple(uri不包含 servletContextPath)的 set.
+- 属性值: authorizeRequestMap<String, Set<UriHttpMethodTuple>>: key 为 PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED, FULLY_AUTHENTICATED, REMEMBER_ME 的权限类型,  value 为 UriHttpMethodTuple(uri不包含 servletContextPath)的 set.
       
-### 4. servletContextPath 的值存储在 [MvcUtil](https://github.com/ZeroOrInfinity/blob/master/core/src/main/java/top/dcenter/ums/security/core/util/MvcUtil.java)`.servletContextPath` : 
+### 4\. servletContextPath 的值存储在 [MvcUtil](https://github.com/ZeroOrInfinity/blob/master/core/src/main/java/top/dcenter/ums/security/core/util/MvcUtil.java)`.servletContextPath` : 
+
 - 通过静态方法获取 `MvcUtil.getServletContextPath()`
 - `MvcUtil.servletContextPath` 的值是通过: [SecurityAutoConfiguration](https://github.com/ZeroOrInfinity/blob/master/core/src/main/java/top/dcenter/ums/security/core/config/SecurityAutoConfiguration.java)`#afterPropertiesSet()` 接口注入
     
-### 5. 验证码优先级(Verification code Priority): 
+### 5\. 验证码优先级(Verification code Priority): 
+
 - 同一个 uri 由多种验证码同时配置, **优先级**如下:
   `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
 ------
@@ -814,12 +834,13 @@ roles: <span th:text="${roles}"/>
 | [获取验证码逻辑](doc/SequenceDiagram/getValidateCode.png)    |
 | [图片验证码逻辑](doc/SequenceDiagram/ImageValidateCodeLogin.png) |
 | [logout](doc/SequenceDiagram/logout.png)                     |
-| [第三方绑定与解绑](doc/SequenceDiagram/OAuth2Banding.png)    |
-| [第三方授权登录](doc/SequenceDiagram/OAuth2Login.png)        |
-| [第三方授权登录注册](doc/SequenceDiagram/OAuth2SignUp.png)   |
+| [第三方授权登录](doc/SequenceDiagram/OAuth2Login-justAuth.png)        |
 | [rememberMe](doc/SequenceDiagram/rememberMe.png)             |
 | [核心配置逻辑](doc/SequenceDiagram/securityConfigurer.png)   |
 | [登录路由](doc/SequenceDiagram/securityRouter.png)           |
 | [session](doc/SequenceDiagram/session.png)                   |
 | [手机登录](doc/SequenceDiagram/SmsCodeLogin.png)             |
 | [权限控制](doc/SequenceDiagram/uriAuthorize.png)             |
+| [过时:第三方绑定与解绑](doc/SequenceDiagram/OAuth2Banding.png)    |
+| [过时:第三方授权登录](doc/SequenceDiagram/OAuth2Login.png)        |
+| [过时:第三方授权登录注册](doc/SequenceDiagram/OAuth2SignUp.png)   |

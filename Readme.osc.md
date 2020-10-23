@@ -45,9 +45,9 @@
   | [过时：social-simple-example](https://gitee.com/pcore/UMS/tree/master/demo/social-simple-example)  | social 模块基本功能: 简单的配置(第三方登录自动注册默认打开)  |
   | [过时：social-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/social-detail-example)  | social 模块功能详细配置: 第三方授权登录注册功能, 统一回调地址路由配置, 第三方登录绑定配置, 第三方授权登录用户信息表自定义与 redis 缓存设置 |
 
-### [更新日志](https://gitee.com/pcore/UMS/wikis/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97?sort_id=2927596)
+### [更新日志](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2927596&doc_id=984605)
 
-### [文档地址](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926061&doc_id=984605)
+### [文档地址](https://gitee.com/pcore/UMS/wikis/pages)
 
 微信群：UMS 添加微信(z56133)备注(UMS) 
 ------
@@ -67,11 +67,28 @@
 ## 四、`快速开始`：
 ### 1. 添加依赖:
 ```xml
-<!-- 包含 ums-core-spring-boot-starter 依赖 -->
 <dependency>
     <groupId>top.dcenter</groupId>
     <artifactId>ums-core-spring-boot-starter</artifactId>
     <version>2.0.2</version>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    <version>2.3.4.RELEASE</version>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+    <version>2.3.4.RELEASE</version>
+</dependency>
+<!-- 为了解决 ClassNotFoundException: org.apache.commons.pool2.impl.GenericObjectPoolConfig -->
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-pool2</artifactId>
+    <version>2.8.1</version>
 </dependency>
 ```
 ### 2. config:  
@@ -751,34 +768,38 @@ roles: <span th:text="${roles}"/>
 
 
 ------
-## 七、[注意事项](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926456&doc_id=984605): 
-### 1. 基于 RBAC 的 uri 访问权限控制
+
+## 七、[`注意事项`](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926456&doc_id=984605):
+
+### 1\. 基于 RBAC 的 uri 访问权限控制
+
 - **更新角色权限时必须调用** [AbstractUriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java)`#updateRolesAuthorities()` 方法来**刷新权限**, 即可实时刷新角色权限.
     - **刷新权限**有两种方式：一种发布事件，另一种是直接调用服务；推荐用发布事件(异步执行)。
-      1. 推荐用发布事件(异步执行)
-         `applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));`
-      2. 直接调用服务
-         `abstractUriAuthorizeService.updateRolesAuthorities();`
-### 2. HttpSecurity 配置问题：UMS 中的 [HttpSecurityAware](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java) 配置与应用中的 HttpSecurity 配置冲突问题：
+        1. 推荐用发布事件(异步执行): `applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));`
+        2. 直接调用服务: `abstractUriAuthorizeService.updateRolesAuthorities();`
 
-1. 如果是新建应用添加 HttpSecurity 配置, 通过下面的接口即可: 
+### 2\. HttpSecurity 配置问题：UMS 中的 [HttpSecurityAware](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java) 配置与应用中的 HttpSecurity 配置冲突问题：
+
+1. 如果是新建应用添加 HttpSecurity 配置, 通过下面的接口即可:
     - [HttpSecurityAware](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java)
 2. 如果是已存在的应用：
     - 添加 HttpSecurity 配置, 通过下面的接口即可: `HttpSecurityAware`
     - 已有的 HttpSecurity 配置, 让原有的 HttpSecurity 配置实现此接口进行配置: `top.dcenter.security.core.api.config.HttpSecurityAware`
 
-### 3. 在 ServletContext 中存储的属性: 
-- 属性名称: SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY
-- 属性值: authorizeRequestMap<String, Set<UriHttpMethodTuple>>: key 为 PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED
-  , FULLY_AUTHENTICATED, REMEMBER_ME 的权限类型,  value 为 UriHttpMethodTuple(uri不包含 servletContextPath)的 set.
-      
-### 4. servletContextPath 的值存储在 [MvcUtil](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/util/MvcUtil.java)`.servletContextPath` : 
+### 3\. 在 ServletContext 中存储的属性:
+
+- 属性名称: SecurityConstants.SERVLET\_CONTEXT\_AUTHORIZE\_REQUESTS\_MAP\_KEY
+- 属性值: authorizeRequestMap<String, Set>: key 为 PERMIT\_ALL, DENY\_ALL, ANONYMOUS, AUTHENTICATED, FULLY\_AUTHENTICATED, REMEMBER\_ME 的权限类型, value 为 UriHttpMethodTuple(uri不包含 servletContextPath)的 set.
+
+### 4\. servletContextPath 的值存储在 [MvcUtil](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/util/MvcUtil.java)`.servletContextPath` :
+
 - 通过静态方法获取 `MvcUtil.getServletContextPath()`
 - `MvcUtil.servletContextPath` 的值是通过: [SecurityAutoConfiguration](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/config/SecurityAutoConfiguration.java)`#afterPropertiesSet()` 接口注入
-    
-### 5. 验证码优先级: 
-- 同一个 uri 由多种验证码同时配置, **优先级**如下:
-  `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
+
+### 5\. 验证码优先级:
+
+- 同一个 uri 由多种验证码同时配置, **优先级**如下: `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
+
 ------
 ## 八、[属性配置列表](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926468&doc_id=984605)
 | **属性配置列表**                                             |
@@ -814,12 +835,13 @@ roles: <span th:text="${roles}"/>
 | [获取验证码逻辑](doc/SequenceDiagram/getValidateCode.png)    |
 | [图片验证码逻辑](doc/SequenceDiagram/ImageValidateCodeLogin.png) |
 | [logout](doc/SequenceDiagram/logout.png)                     |
-| [第三方绑定与解绑](doc/SequenceDiagram/OAuth2Banding.png)    |
-| [第三方授权登录](doc/SequenceDiagram/OAuth2Login.png)        |
-| [第三方授权登录注册](doc/SequenceDiagram/OAuth2SignUp.png)   |
+| [第三方授权登录](doc/SequenceDiagram/OAuth2Login-justAuth.png)        |
 | [rememberMe](doc/SequenceDiagram/rememberMe.png)             |
 | [核心配置逻辑](doc/SequenceDiagram/securityConfigurer.png)   |
 | [登录路由](doc/SequenceDiagram/securityRouter.png)           |
 | [session](doc/SequenceDiagram/session.png)                   |
 | [手机登录](doc/SequenceDiagram/SmsCodeLogin.png)             |
 | [权限控制](doc/SequenceDiagram/uriAuthorize.png)             |
+| [过时:第三方绑定与解绑](doc/SequenceDiagram/OAuth2Banding.png)    |
+| [过时:第三方授权登录](doc/SequenceDiagram/OAuth2Login.png)        |
+| [过时:第三方授权登录注册](doc/SequenceDiagram/OAuth2SignUp.png)   |
