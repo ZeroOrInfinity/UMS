@@ -31,8 +31,6 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.ThrowableAnalyzer;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
-import top.dcenter.ums.security.core.oauth.repository.Auth2DefaultRequestRepository;
-import top.dcenter.ums.security.core.oauth.repository.HttpSessionAuth2DefaultRequestRepository;
 import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
 
 import javax.servlet.FilterChain;
@@ -99,9 +97,6 @@ public class Auth2DefaultRequestRedirectFilter extends OncePerRequestFilter {
 
 	private final Auth2DefaultRequestResolver authorizationRequestResolver;
 
-	private Auth2DefaultRequestRepository<Auth2DefaultRequest> authorizationRequestRepository =
-			new HttpSessionAuth2DefaultRequestRepository();
-
 	private RequestCache requestCache = new HttpSessionRequestCache();
 
 	/**
@@ -125,17 +120,6 @@ public class Auth2DefaultRequestRedirectFilter extends OncePerRequestFilter {
 	public Auth2DefaultRequestRedirectFilter(Auth2DefaultRequestResolver authorizationRequestResolver) {
 		Assert.notNull(authorizationRequestResolver, "authorizationRequestResolver cannot be null");
 		this.authorizationRequestResolver = authorizationRequestResolver;
-	}
-
-	/**
-	 * Sets the repository used for storing {@link OAuth2AuthorizationRequest}'s.
-	 * @param authorizationRequestRepository the repository used for storing
-	 * {@link OAuth2AuthorizationRequest}'s
-	 */
-	public final void setAuthorizationRequestRepository(
-			Auth2DefaultRequestRepository<Auth2DefaultRequest> authorizationRequestRepository) {
-		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
-		this.authorizationRequestRepository = authorizationRequestRepository;
 	}
 
 	/**
@@ -204,8 +188,6 @@ public class Auth2DefaultRequestRedirectFilter extends OncePerRequestFilter {
 			Auth2DefaultRequest authorizationRequest) throws IOException {
 		// 扩展点: 可自定义 state 生成. 这里直接使用 Auth2DefaultRequest 接口的默认方法 generateState()
 		String authorize = authorizationRequest.authorize(authorizationRequest.generateState());
-
-		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
 
 		this.authorizationRedirectStrategy.sendRedirect(request, response, authorize);
 	}
