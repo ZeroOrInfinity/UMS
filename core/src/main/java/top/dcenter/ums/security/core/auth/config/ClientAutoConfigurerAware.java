@@ -31,18 +31,18 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
-import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
-import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
+import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.http.HttpMethod.GET;
@@ -78,7 +78,7 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
 
     private final ClientProperties clientProperties;
 
-    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection", "SpringJavaInjectionPointsAutowiringInspection"})
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
     private UmsUserDetailsService umsUserDetailsService;
 
@@ -106,8 +106,8 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
     @Override
     public void configure(WebSecurity web) {
         String[] ignoringUrls = clientProperties.getIgnoringUrls();
-        web.ignoring()
-                .antMatchers(Objects.requireNonNullElseGet(ignoringUrls, () -> new String[0]));
+        web.ignoring().mvcMatchers(GET, FAVICON, JS, CSS, HTML)
+                .antMatchers(Optional.ofNullable(ignoringUrls).orElse(new String[0]));
     }
 
     @Override
@@ -171,11 +171,6 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
 
         final Map<UriHttpMethodTuple, Set<String>> permitAllMap = new HashMap<>(16);
 
-
-        permitAllMap.put(tuple(GET, FAVICON), null);
-        permitAllMap.put(tuple(GET, JS), null);
-        permitAllMap.put(tuple(GET, CSS), null);
-        permitAllMap.put(tuple(GET, HTML), null);
         permitAllMap.put(tuple(GET, clientProperties.getFailureUrl()), null);
         permitAllMap.put(tuple(GET, clientProperties.getLoginPage()), null);
         permitAllMap.put(tuple(GET, clientProperties.getLoginUnAuthenticationRoutingUrl()), null);
