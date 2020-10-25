@@ -156,11 +156,11 @@ public interface HttpSecurityAware {
      * 最终在{@link SecurityCoreAutoConfigurer} 中 <code>configure(HttpSecurity)</code> 方法中配置, return 可以为 null 值.
      * @return authorizeRequestMap <br> ==key== 为权限类型({@link #PERMIT_ALL},{@link #DENY_ALL},
      * {@link #ANONYMOUS},{@link #AUTHENTICATED},{@link #FULLY_AUTHENTICATED},{@link #REMEMBER_ME},{@link #ACCESS},{@link #HAS_ROLE},{@link #HAS_ANY_ROLE},
-     *      {@link #HAS_AUTHORITY},{@link #HAS_ANY_AUTHORITY},{@link #HAS_IP_ADDRESS}); <br> ==value== 为
+     *      {@link #HAS_AUTHORITY},{@link #HAS_ANY_AUTHORITY},{@link #HAS_IP_ADDRESS}); <br> ==value== 为{@link Map}(Map&#60;String, Set&#60;String&#62;&#62;)<br>
      *      {@link Map}(Map&#60;String, Set&#60;String&#62;&#62;)的 <br> =key= 为 UriHttpMethodTuple, <br> =value= 为 role/authority/ip 的 Set; 当
      *      authorizeRequestMap 的 ==key== 为 {@link #HAS_ROLE},{@link #HAS_ANY_ROLE}/{@link #HAS_AUTHORITY}/{@link #HAS_ANY_AUTHORITY}/
-     *      {@link #HAS_IP_ADDRESS}时, set 不为 null, <br> 当 authorizeRequestMap 的 ==key== 为 {@link #PERMIT_ALL}/{@link #DENY_ALL}/
-     *      {@link #ANONYMOUS}/{@link #AUTHENTICATED}/{@link #FULLY_AUTHENTICATED}/@link #REMEMBER_ME}/{@link #ACCESS}时, set 可以为
+     *      {@link #HAS_IP_ADDRESS}/{@link #ACCESS}时, set 不为 null, <br> 当 authorizeRequestMap 的 ==key== 为 {@link #PERMIT_ALL}/
+     *      {@link #DENY_ALL}/ {@link #ANONYMOUS}/{@link #AUTHENTICATED}/{@link #FULLY_AUTHENTICATED}/{@link #REMEMBER_ME}时, set 可以为
      *      null).
      */
     Map<String, Map<UriHttpMethodTuple, Set<String>>> getAuthorizeRequestMap();

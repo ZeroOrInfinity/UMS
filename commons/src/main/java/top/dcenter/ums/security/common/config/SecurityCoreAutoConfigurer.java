@@ -38,11 +38,10 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
-import org.springframework.util.StringUtils;
 import org.springframework.web.context.WebApplicationContext;
+import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
-import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -114,9 +113,9 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
         UriHttpMethodTuple[] authenticatedArray = set2ArrayByType(authorizeRequestMap, AUTHENTICATED);
         UriHttpMethodTuple[] fullyAuthenticatedArray = set2ArrayByType(authorizeRequestMap, FULLY_AUTHENTICATED);
         UriHttpMethodTuple[] rememberMeArray = set2ArrayByType(authorizeRequestMap, REMEMBER_ME);
-        UriHttpMethodTuple[] accessArray = set2ArrayByType(authorizeRequestMap, ACCESS);
 
         // 将 AuthorizeRequestUriMap<String, Set<String>> 转换为对应的 Map<uri, role[]>
+        Map<UriHttpMethodTuple, String[]> accessMap = toMapPlusByType(authorizeRequestMapPlus, ACCESS);
         Map<UriHttpMethodTuple, String[]> hasRoleMap = toMapPlusByType(authorizeRequestMapPlus, HAS_ROLE);
         Map<UriHttpMethodTuple, String[]> hasAnyRoleMap = toMapPlusByType(authorizeRequestMapPlus, HAS_ANY_ROLE);
         Map<UriHttpMethodTuple, String[]> hasAuthorityMap = toMapPlusByType(authorizeRequestMapPlus, HAS_AUTHORITY);
@@ -134,7 +133,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
 
         // 配置 权限 验证 授权 信息
         urlAuthorizationConfigurer(http, permitAllArray, denyAllArray, anonymousArray, authenticatedArray,
-                                   fullyAuthenticatedArray, rememberMeArray, accessArray, hasRoleMap, hasAnyRoleMap,
+                                   fullyAuthenticatedArray, rememberMeArray, accessMap, hasRoleMap, hasAnyRoleMap,
                                    hasAuthorityMap, hasAnyAuthorityMap, hasIpAddressMap);
 
         // 处理 postConfigure
@@ -150,12 +149,13 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
     private void urlAuthorizationConfigurer(HttpSecurity http, UriHttpMethodTuple[] permitAllArray,
                                             UriHttpMethodTuple[] denyAllArray, UriHttpMethodTuple[] anonymousArray,
                                             UriHttpMethodTuple[] authenticatedArray, UriHttpMethodTuple[] fullyAuthenticatedArray,
-                                            UriHttpMethodTuple[] rememberMeArray, UriHttpMethodTuple[] accessArray, Map<UriHttpMethodTuple, String[]> hasRoleMap,
+                                            UriHttpMethodTuple[] rememberMeArray, Map<UriHttpMethodTuple, String[]> accessMap, Map<UriHttpMethodTuple, String[]> hasRoleMap,
                                             Map<UriHttpMethodTuple, String[]> hasAnyRoleMap, Map<UriHttpMethodTuple, String[]> hasAuthorityMap,
                                             Map<UriHttpMethodTuple, String[]> hasAnyAuthorityMap, Map<UriHttpMethodTuple, String[]> hasIpAddressMap) throws Exception {
 
         final ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = http.authorizeRequests();
 
+        //根据 authorizeRequestType 设置权限
         setAuthorizeRequest(registry, permitAllArray, PERMIT_ALL);
         setAuthorizeRequest(registry, denyAllArray, DENY_ALL);
         setAuthorizeRequest(registry, anonymousArray, ANONYMOUS);
@@ -163,23 +163,22 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
         setAuthorizeRequest(registry, fullyAuthenticatedArray, FULLY_AUTHENTICATED);
         setAuthorizeRequest(registry, rememberMeArray, REMEMBER_ME);
 
-
+        // 根据 authorizeRequestType 设置权限
         setAuthorizeRequestPlus(registry, hasRoleMap, HAS_ROLE);
         setAuthorizeRequestPlus(registry, hasAnyRoleMap, HAS_ANY_ROLE);
         setAuthorizeRequestPlus(registry, hasAuthorityMap, HAS_AUTHORITY);
         setAuthorizeRequestPlus(registry, hasAnyAuthorityMap, HAS_ANY_AUTHORITY);
         setAuthorizeRequestPlus(registry, hasIpAddressMap, HAS_IP_ADDRESS);
 
-        if (accessArray.length > 0)
+        // 设置 ACCESS 权限
+        if (accessMap.size() > 0)
         {
-            StringBuilder sb = new StringBuilder();
-            for (UriHttpMethodTuple tuple : accessArray)
-            {
-                if (tuple != null && StringUtils.hasText(tuple.getUri()))
-                {
-                    sb.append(tuple).append(" and ");
-                }
-            }
+            final StringBuilder sb = new StringBuilder();
+            accessMap.values()
+                     .stream()
+                     .flatMap(Arrays::stream)
+                     .forEach(access -> sb.append(access).append(" and "));
+
             int interceptLen = 5;
             if (sb.length() > interceptLen)
             {
@@ -439,8 +438,8 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
      * 把权限作为 key 与之相对应的 uriSet 作为 value, 分类放入 map, 此 map 存储在 applicationContent 时所用的 key 传入参数都不能为 null.
      * @param targetAuthorizeRequestMap  用于存储 PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED, FULLY_AUTHENTICATED,
      *                                   REMEMBER_ME 的权限类型.
-     * @param targetAuthorizeRequestMapPlus  用于存储 HAS_ROLE, HAS_ANY_ROLE, HAS_AUTHORITY, HAS_ANY_AUTHORITY, HAS_IP_ADDRESS
-     *                                       的权限类型.
+     * @param targetAuthorizeRequestMapPlus  用于存储 ACCESS, HAS_ROLE, HAS_ANY_ROLE, HAS_AUTHORITY, HAS_ANY_AUTHORITY,
+     *                                       HAS_IP_ADDRESS 的权限类型.
      */
     private void groupingAuthorizeRequestUris(@NonNull Map<String, Set<UriHttpMethodTuple>> targetAuthorizeRequestMap,
                                               @NonNull Map<String, Map<UriHttpMethodTuple, Set<String>>> targetAuthorizeRequestMapPlus) {
@@ -455,8 +454,8 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                 groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, AUTHENTICATED);
                 groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, FULLY_AUTHENTICATED);
                 groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, REMEMBER_ME);
-                groupByMap(targetAuthorizeRequestMap, authorizeRequestMap, ACCESS);
 
+                groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, ACCESS);
                 groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, HAS_ROLE);
                 groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, HAS_ANY_ROLE);
                 groupByMapPlus(targetAuthorizeRequestMapPlus, authorizeRequestMap, HAS_AUTHORITY);
@@ -475,7 +474,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
 
     /**
      * 根据权限类型从 authorizeRequestMap 提取的 uriSet 添加到 map 中, 权限仅限制为:
-     * PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED, FULLY_AUTHENTICATED, REMEMBER_ME, ACCESS 的类型.
+     * PERMIT_ALL, DENY_ALL, ANONYMOUS, AUTHENTICATED, FULLY_AUTHENTICATED, REMEMBER_ME 的类型.
      * @param targetAuthorizeRequestMap 不可以为null
      * @param srcAuthorizeRequestMap  可以为 null
      * @param authorizeRequestType 不允许为 null
@@ -508,7 +507,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
 
     /**
      * 根据权限类型从 authorizeRequestMap 提取的 uriSet 添加到 targetAuthorizeRequestMap 中, 权限仅限制为:
-     * HAS_ROLE, HAS_ANY_ROLE, HAS_AUTHORITY, HAS_ANY_AUTHORITY, HAS_IP_ADDRESS 的类型.
+     * HAS_ROLE, HAS_ANY_ROLE, HAS_AUTHORITY, HAS_ANY_AUTHORITY, HAS_IP_ADDRESS, ACCESS 的类型.
      * @param targetAuthorizeRequestMap 不可以为null
      * @param srcAuthorizeRequestMap  可以为 null
      * @param authorizeRequestType 不允许为 null

@@ -35,6 +35,7 @@ import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.auth.config.ValidateCodeBeanAutoConfiguration;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -82,7 +83,9 @@ public class UriAuthorizeAutoConfigurerAware implements HttpSecurityAware {
 
         final Map<UriHttpMethodTuple, Set<String>> accessMap = new HashMap<>(16);
         String accessExp = clientProperties.getAccessExp();
-        accessMap.put(UriHttpMethodTuple.tuple(null, accessExp), null);
+
+        // 这里 tuple(null, accessExp) 的唯一作用是作为 key 值, 无实际意义
+        accessMap.put(UriHttpMethodTuple.tuple(null, accessExp), Collections.singleton(accessExp));
 
         Map<String, Map<UriHttpMethodTuple, Set<String>>> resultMap = new HashMap<>(1);
 
