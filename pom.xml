@@ -6,7 +6,7 @@
 
     <groupId>top.dcenter</groupId>
     <artifactId>ums</artifactId>
-    <version>2.0.2</version>
+    <version>2.0.3</version>
 
     <packaging>pom</packaging>
     <name>ums</name>
@@ -58,34 +58,25 @@
     </distributionManagement>
 
     <properties>
-        <top.dcenter.version>2.0.2</top.dcenter.version>
+        <top.dcenter.version>2.0.3</top.dcenter.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <java.version>11</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <java.version>1.8</java.version>
 
         <spring-session-bom.version>Dragonfruit-SR1</spring-session-bom.version>
         <spring-boot.version>2.3.4.RELEASE</spring-boot.version>
         <spring-security.version>5.4.0</spring-security.version>
 
-        <swagger.fox.version>2.9.2</swagger.fox.version>
-        <swagger.core.version>1.5.24</swagger.core.version>
+        <swagger.fox.version>3.0.0</swagger.fox.version>
         <wiremock.version>2.26.3</wiremock.version>
-        <commons-lang.version>2.6</commons-lang.version>
-        <commons-lang3.version>3.11</commons-lang3.version>
-        <commons-io.version>2.8.0</commons-io.version>
-        <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-pool2.version>2.8.1</commons-pool2.version>
-        <just-auth.version>1.15.7</just-auth.version>
+        <just-auth.version>1.15.8</just-auth.version>
         <findbugs.jsr305.version>3.0.2</findbugs.jsr305.version>
         <spotbugs-annotations.version>3.1.12</spotbugs-annotations.version>
-        <org.jetbrains-annotations.version>13.0</org.jetbrains-annotations.version>
         <org.projectlombok.version>1.18.12</org.projectlombok.version>
-        <spring-social.version>1.1.6.RELEASE</spring-social.version>
-        <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
         <servlet-api.version>3.0-alpha-1</servlet-api.version>
-        <xkcoding-simple-http.version>1.0.3</xkcoding-simple-http.version>
 
     </properties>
 
@@ -96,13 +87,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -119,22 +103,6 @@
                 <version>${spring-session-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.social</groupId>
-                <artifactId>spring-social-security</artifactId>
-                <version>${spring-social.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.social</groupId>
-                <artifactId>spring-social-config</artifactId>
-                <version>${spring-social.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.social</groupId>
-                <artifactId>spring-social-core</artifactId>
-                <version>${spring-social.version}</version>
             </dependency>
 
             <dependency>
@@ -162,27 +130,6 @@
                 <artifactId>wiremock</artifactId>
                 <version>${wiremock.version}</version>
             </dependency>
-            <!-- commons 工具 -->
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>${commons-beanutils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commons-io.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>${commons-lang.version}</version>
-            </dependency>
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
@@ -195,37 +142,16 @@
                 <version>${spotbugs-annotations.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jetbrains</groupId>
-                <artifactId>annotations</artifactId>
-                <version>${org.jetbrains-annotations.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${org.projectlombok.version}</version>
             </dependency>
 
-            <!-- swagger2 -->
+            <!-- swagger3 -->
             <dependency>
                 <groupId>io.springfox</groupId>
-                <artifactId>springfox-swagger2</artifactId>
+                <artifactId>springfox-boot-starter</artifactId>
                 <version>${swagger.fox.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.springfox</groupId>
-                <artifactId>springfox-swagger-ui</artifactId>
-                <version>${swagger.fox.version}</version>
-            </dependency>
-            <!--swagger 最新依赖内置版本-->
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-models</artifactId>
-                <version>${swagger.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-annotations</artifactId>
-                <version>${swagger.core.version}</version>
             </dependency>
 
         </dependencies>
@@ -268,9 +194,9 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>3.8.1</version>
                         <configuration>
-                            <source>${maven.compiler.source}</source>
-                            <target>${maven.compiler.target}</target>
-                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <source>1.8</source>
+                            <target>1.8</target>
+                            <encoding>utf-8</encoding>
                         </configuration>
                     </plugin>
 
@@ -321,9 +247,9 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>3.8.1</version>
                         <configuration>
-                            <source>${maven.compiler.source}</source>
-                            <target>${maven.compiler.target}</target>
-                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <source>1.8</source>
+                            <target>1.8</target>
+                            <encoding>utf-8</encoding>
                         </configuration>
                     </plugin>
 
@@ -420,9 +346,9 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>3.8.1</version>
                         <configuration>
-                            <source>${maven.compiler.source}</source>
-                            <target>${maven.compiler.target}</target>
-                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <source>1.8</source>
+                            <target>1.8</target>
+                            <encoding>utf-8</encoding>
                         </configuration>
                     </plugin>
 
