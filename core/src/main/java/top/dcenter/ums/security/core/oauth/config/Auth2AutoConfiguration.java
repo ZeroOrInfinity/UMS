@@ -24,7 +24,7 @@
 package top.dcenter.ums.security.core.oauth.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -155,7 +155,7 @@ public class Auth2AutoConfiguration implements InitializingBean {
                 database = resultSet.getString(QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
             }
 
-            if (StringUtils.isNotBlank(database))
+            if (StringUtils.hasText(database))
             {
                 String queryUserConnectionTableExistSql = repositoryProperties.getQueryUserConnectionTableExistSql(database);
 
@@ -167,12 +167,14 @@ public class Auth2AutoConfiguration implements InitializingBean {
                     if (tableCount < 1)
                     {
                         String creatUserConnectionTableSql = repositoryProperties.getCreatUserConnectionTableSql();
-                        connection.prepareStatement(creatUserConnectionTableSql).executeUpdate();
-                        log.info("{} 表创建成功，SQL：{}", repositoryProperties.getTableName(),
-                                 creatUserConnectionTableSql);
-                        if (!connection.getAutoCommit())
-                        {
-                            connection.commit();
+                        try (final PreparedStatement preparedStatement = connection.prepareStatement(creatUserConnectionTableSql);) {
+                            preparedStatement.executeUpdate();
+                            log.info("{} 表创建成功，SQL：{}", repositoryProperties.getTableName(),
+                                     creatUserConnectionTableSql);
+                            if (!connection.getAutoCommit())
+                            {
+                                connection.commit();
+                            }
                         }
                     }
                 }

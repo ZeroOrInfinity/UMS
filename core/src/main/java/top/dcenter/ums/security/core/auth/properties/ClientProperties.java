@@ -37,6 +37,7 @@ import top.dcenter.ums.security.core.permission.evaluator.UriAuthoritiesPermissi
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -349,7 +350,7 @@ public class ClientProperties {
         /**
          * 匿名用户权限 list, 默认为 ROLE_ANONYMOUS
          */
-        private List<String>  authorities = new ArrayList<>(List.of("ROLE_ANONYMOUS"));
+        private List<String>  authorities = new ArrayList<>(Collections.singletonList("ROLE_ANONYMOUS"));
 
     }
 

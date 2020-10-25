@@ -24,7 +24,7 @@
 package top.dcenter.ums.security.core.auth.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
@@ -134,7 +134,7 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
                     database = resultSet.getString(SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
                 }
 
-                if (StringUtils.isNotBlank(database))
+                if (StringUtils.hasText(database))
                 {
 
                     try (final Statement statement = connection.createStatement();
@@ -144,11 +144,14 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
                         int tableCount = resultSet.getInt(SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX);
                         if (tableCount < 1)
                         {
-                            connection.prepareStatement(JdbcTokenRepositoryImpl.CREATE_TABLE_SQL).executeUpdate();
-                            log.info("persistent_logins 表创建成功，SQL：{}", JdbcTokenRepositoryImpl.CREATE_TABLE_SQL);
-                            if (!connection.getAutoCommit())
-                            {
-                                connection.commit();
+                            try (final PreparedStatement preparedStatement =
+                                         connection.prepareStatement(JdbcTokenRepositoryImpl.CREATE_TABLE_SQL);) {
+                                preparedStatement.executeUpdate();
+                                log.info("persistent_logins 表创建成功，SQL：{}", JdbcTokenRepositoryImpl.CREATE_TABLE_SQL);
+                                if (!connection.getAutoCommit())
+                                {
+                                    connection.commit();
+                                }
                             }
                         }
                     }

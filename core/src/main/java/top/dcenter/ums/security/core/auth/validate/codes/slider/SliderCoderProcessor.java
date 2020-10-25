@@ -25,7 +25,7 @@ package top.dcenter.ums.security.core.auth.validate.codes.slider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
@@ -139,9 +139,9 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         String y = request.getParameter(yRequestParamName);
 
         // 校验参数是否有效
-        checkParam(sessionKey, session, req, !StringUtils.isNotBlank(token), VALIDATE_CODE_NOT_EMPTY, tokenRequestParamName);
-        checkParam(sessionKey, session, req, !StringUtils.isNotBlank(x), VALIDATE_CODE_NOT_EMPTY, xRequestParamName);
-        checkParam(sessionKey, session, req, !StringUtils.isNotBlank(y), VALIDATE_CODE_NOT_EMPTY, yRequestParamName);
+        checkParam(sessionKey, session, req, !StringUtils.hasText(token), VALIDATE_CODE_NOT_EMPTY, tokenRequestParamName);
+        checkParam(sessionKey, session, req, !StringUtils.hasText(x), VALIDATE_CODE_NOT_EMPTY, xRequestParamName);
+        checkParam(sessionKey, session, req, !StringUtils.hasText(y), VALIDATE_CODE_NOT_EMPTY, yRequestParamName);
 
         token = token.trim();
         Integer locationX = Integer.parseInt(x);

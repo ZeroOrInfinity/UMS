@@ -24,7 +24,7 @@
 package top.dcenter.ums.security.core.auth.validate.codes.sms;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -80,7 +80,7 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
         {
             mobile = ServletRequestUtils.getRequiredStringParameter(req,
                                                                     validateCodeProperties.getSms().getRequestParamMobileName());
-            if (StringUtils.isNotBlank(mobile) && mobile.matches(RegexConstants.MOBILE_PATTERN))
+            if (StringUtils.hasText(mobile) && mobile.matches(RegexConstants.MOBILE_PATTERN))
             {
                 return smsCodeSender.sendSms(mobile, validateCode.getCode());
             }

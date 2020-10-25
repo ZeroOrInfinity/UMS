@@ -32,6 +32,7 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
@@ -45,8 +46,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
 import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
@@ -121,7 +120,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
 
             // 判断 accept 是否要求返回 json
             String acceptHeader = request.getHeader(SecurityConstants.HEADER_ACCEPT);
-            if (isNotBlank(acceptHeader) && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
+            if (StringUtils.hasText(acceptHeader) && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {
                 clearAuthenticationAttributes(request);
                 responseWithJson(response, HttpStatus.OK.value(),
@@ -176,19 +175,19 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
 
         if (useReferer) {
             String referer = request.getHeader("Referer");
-            if (isNotBlank(referer))
+            if (StringUtils.hasText(referer))
             {
                 targetUrl = referer;
             }
         }
 
         // 当 targetUrl 为 登录 url 时, 设置为 defaultTargetUrl
-        if (isNotBlank(targetUrl) && isIgnoreUrl(targetUrl))
+        if (StringUtils.hasText(targetUrl) && isIgnoreUrl(targetUrl))
         {
             targetUrl = defaultTargetUrl;
         }
 
-        if (isBlank(targetUrl)) {
+        if (!StringUtils.hasText(targetUrl)) {
             targetUrl = defaultTargetUrl;
         }
 

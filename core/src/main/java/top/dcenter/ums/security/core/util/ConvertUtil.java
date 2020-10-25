@@ -23,10 +23,11 @@
 
 package top.dcenter.ums.security.core.util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,11 +78,11 @@ public class ConvertUtil {
      * @return  Set, 当 str 为空时，返回空的 Set
      */
     public static Set<String> string2Set(String str, String separator){
-        String[] splits = StringUtils.splitByWholeSeparator(str, separator);
-        if (splits == null)
+        if (str == null)
         {
             return new HashSet<>();
         }
+        String[] splits = str.split(separator);
         return Stream.of(splits).collect(Collectors.toSet());
     }
 
@@ -92,11 +93,11 @@ public class ConvertUtil {
      * @return  List, 当 str 为空时，返回空的 List
      */
     public static List<String> string2List(String str, String separator){
-        String[] splits = StringUtils.splitByWholeSeparator(str, separator);
-        if (splits == null)
+        if (str == null)
         {
             return new ArrayList<>();
         }
+        String[] splits = str.split(separator);
         return Stream.of(splits).collect(Collectors.toList());
     }
 
@@ -139,11 +140,11 @@ public class ConvertUtil {
      * @return  HashMap&#60;String, Object&#62;, 当 kvStrings 为空时，返回空的 map
      */
     public static Map<String, Object> string2JsonMap(String kvStrings, String separator, String kvSeparator){
-        String[] splits = StringUtils.splitByWholeSeparator(kvStrings, separator);
-        if (splits == null)
+        if (kvStrings == null)
         {
-            return new JsonMap<>(0);
+            return new HashMap<>(16);
         }
+        String[] splits = kvStrings.split(separator);
         int length = splits.length;
         Map<String, Object> map = new JsonMap<>(length);
 
@@ -156,28 +157,43 @@ public class ConvertUtil {
     private static void string2JsonMap(String kvSeparator, String[] splits, Map<String, Object> map) {
         for (String split : splits)
         {
-            if (StringUtils.isNotBlank(split))
+            final String[] kvArr = StringUtils.split(split, kvSeparator);
+            if (kvArr != null)
             {
-                final String[] kvArr = StringUtils.splitByWholeSeparator(split, kvSeparator);
-                if (kvArr != null && kvArr.length == 2)
-                {
-                    map.compute(kvArr[0], (k, v) -> {
+                map.compute(kvArr[0], (k, v) -> {
+                    try {
                         if (v == null)
                         {
-                            v = decode(kvArr[1], StandardCharsets.UTF_8);
+                            v = decode(kvArr[1], StandardCharsets.UTF_8.name());
                         } else if (v instanceof JsonList)
                         {
-                            ((JsonList) v).add(decode(kvArr[1], StandardCharsets.UTF_8));
+                            ((JsonList) v).add(decode(kvArr[1], StandardCharsets.UTF_8.name()));
                         } else
                         {
                             List list = new JsonList<>();
                             list.add(v);
-                            list.add(decode(kvArr[1], StandardCharsets.UTF_8));
+                            list.add(decode(kvArr[1], StandardCharsets.UTF_8.name()));
                             v = list;
                         }
                         return v;
-                    });
-                }
+                    }
+                    catch (UnsupportedEncodingException e) {
+                        if (v == null)
+                        {
+                            v = kvArr[1];
+                        } else if (v instanceof JsonList)
+                        {
+                            ((JsonList) v).add(kvArr[1]);
+                        } else
+                        {
+                            List list = new JsonList<>();
+                            list.add(v);
+                            list.add(kvArr[1]);
+                            v = list;
+                        }
+                        return v;
+                    }
+                });
             }
         }
     }
@@ -191,11 +207,11 @@ public class ConvertUtil {
      * @return  HashMap&#60;String, T&#62;, 当 keyStr 为空时，返回空的 map
      */
     public static <T> Map<String, T> keyString2Map(String keyStr, String separator, T value){
-        String[] splits = StringUtils.splitByWholeSeparator(keyStr, separator);
-        if (splits == null)
+        if (keyStr == null)
         {
-            return new HashMap<>(0);
+            return new HashMap<>(16);
         }
+        String[] splits = keyStr.split(separator);
         int length = splits.length;
         Map<String, T> map = new HashMap<>(length);
 
@@ -214,16 +230,74 @@ public class ConvertUtil {
      * @param map 用于存储结果的 Map
      */
     public static <T> void keyString2Map(String keyStr, String separator, T value, Map<String, T> map){
-        String[] splits = StringUtils.splitByWholeSeparator(keyStr, separator);
-        if (splits == null)
+        if (keyStr == null)
         {
             return;
         }
+        String[] splits = keyStr.split(separator);
 
         for (String split : splits)
         {
             map.put(split, value);
         }
+    }
+
+    /**
+     * Copy from {@code org.apache.commons.lang3.StringUtils}
+     * <p>Splits a String by Character type as returned by
+     * {@code java.lang.Character.getType(char)}. Groups of contiguous
+     * characters of the same type are returned as complete tokens, with the
+     * following exception: the character of type
+     * {@code Character.UPPERCASE_LETTER}, if any, immediately
+     * preceding a token of type {@code Character.LOWERCASE_LETTER}
+     * will belong to the following token rather than to the preceding, if any,
+     * {@code Character.UPPERCASE_LETTER} token.
+     * <pre>
+     * StringUtils.splitByCharacterTypeCamelCase(null)         = null
+     * StringUtils.splitByCharacterTypeCamelCase("")           = []
+     * StringUtils.splitByCharacterTypeCamelCase("ab de fg")   = ["ab", " ", "de", " ", "fg"]
+     * StringUtils.splitByCharacterTypeCamelCase("ab   de fg") = ["ab", "   ", "de", " ", "fg"]
+     * StringUtils.splitByCharacterTypeCamelCase("ab:cd:ef")   = ["ab", ":", "cd", ":", "ef"]
+     * StringUtils.splitByCharacterTypeCamelCase("number5")    = ["number", "5"]
+     * StringUtils.splitByCharacterTypeCamelCase("fooBar")     = ["foo", "Bar"]
+     * StringUtils.splitByCharacterTypeCamelCase("foo200Bar")  = ["foo", "200", "Bar"]
+     * StringUtils.splitByCharacterTypeCamelCase("ASFRules")   = ["ASF", "Rules"]
+     * </pre>
+     * @param str the String to split, may be {@code null}
+     * @param camelCase whether to use so-called "camel-case" for letter types
+     * @return an array of parsed Strings, {@code null} if null String input
+     * @since 2.4
+     */
+    public static String[] splitByCharacterTypeCamelCase(final String str, final boolean camelCase) {
+        if (str == null) {
+            return null;
+        }
+        if (str.isEmpty()) {
+            return new String[0];
+        }
+        final char[] c = str.toCharArray();
+        final List<String> list = new ArrayList<>();
+        int tokenStart = 0;
+        int currentType = Character.getType(c[tokenStart]);
+        for (int pos = tokenStart + 1; pos < c.length; pos++) {
+            final int type = Character.getType(c[pos]);
+            if (type == currentType) {
+                continue;
+            }
+            if (camelCase && type == Character.LOWERCASE_LETTER && currentType == Character.UPPERCASE_LETTER) {
+                final int newTokenStart = pos - 1;
+                if (newTokenStart != tokenStart) {
+                    list.add(new String(c, tokenStart, newTokenStart - tokenStart));
+                    tokenStart = newTokenStart;
+                }
+            } else {
+                list.add(new String(c, tokenStart, pos - tokenStart));
+                tokenStart = pos;
+            }
+            currentType = type;
+        }
+        list.add(new String(c, tokenStart, c.length - tokenStart));
+        return list.toArray(new String[0]);
     }
 
     /**

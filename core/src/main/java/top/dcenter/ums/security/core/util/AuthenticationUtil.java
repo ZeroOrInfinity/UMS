@@ -23,7 +23,6 @@
 
 package top.dcenter.ums.security.core.util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,6 +35,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
@@ -59,7 +59,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static java.util.Objects.requireNonNullElse;
+import static java.util.Optional.ofNullable;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_REDIRECT_URL_KEY;
 import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
@@ -157,15 +157,17 @@ public class AuthenticationUtil {
      * @param matcher       AntPathMatcher
      * @return  boolean
      */
-    private static boolean isPermitUri(@NonNull String requestUri, String method, @NonNull HttpSession session,
+    private static boolean isPermitUri(@NonNull String requestUri, @NonNull String method, @NonNull HttpSession session,
                                       @NonNull AntPathMatcher matcher) {
         // authorizeRequestMap 通过 SecurityCoreAutoConfigurer.groupingAuthorizeRequestUris(..) 注入 ServletContext,
 
         // noinspection unchecked
-        Map<String, Set<UriHttpMethodTuple>> authorizeRequestMap = (Map<String, Set<UriHttpMethodTuple>>) session.getServletContext().getAttribute(SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY);
-        authorizeRequestMap = requireNonNullElse(authorizeRequestMap, new HashMap<>(0));
+        Map<String, Set<UriHttpMethodTuple>> authorizeRequestMap =
+                (Map<String, Set<UriHttpMethodTuple>>) session.getServletContext()
+                                                              .getAttribute(SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY);
+        authorizeRequestMap = ofNullable(authorizeRequestMap).orElse(new HashMap<>(0));
         Set<UriHttpMethodTuple> permitSet =
-                requireNonNullElse(authorizeRequestMap.get(HttpSecurityAware.PERMIT_ALL), new HashSet<>(0));
+                ofNullable(authorizeRequestMap.get(HttpSecurityAware.PERMIT_ALL)).orElse(new HashSet<>(0));
 
         for (UriHttpMethodTuple tuple : permitSet)
         {
@@ -174,14 +176,14 @@ public class AuthenticationUtil {
             {
                 HttpMethod httpMethod = tuple.getMethod();
                 // 没有 HttpMethod 类型, 只需要 uri 匹配
-                if (httpMethod == null || StringUtils.isBlank(method))
+                if (httpMethod == null)
                 {
                     return true;
                 }
 
                 // 有 HttpMethod 类型, 还需要 method 匹配
                 String name = httpMethod.name();
-                if (StringUtils.equalsIgnoreCase(name, method))
+                if (name.equalsIgnoreCase(method))
                 {
                     return true;
                 }
@@ -206,7 +208,7 @@ public class AuthenticationUtil {
 
         boolean isJsonProcessType = LoginProcessType.JSON.equals(clientProperties.getLoginProcessType());
         boolean isAcceptHeader =
-                StringUtils.isNotBlank(acceptHeader) && (acceptHeader.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE) || acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE));
+                StringUtils.hasText(acceptHeader) && (acceptHeader.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE) || acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE));
         // 判断是否返回 json 类型
         if (isJsonProcessType || isAcceptHeader)
         {
@@ -251,6 +253,7 @@ public class AuthenticationUtil {
      * @param userAgent User-Agent
      * @return 去掉 User-Agent 中的(\.|\s|\(|\)|\d), 再返回剩余的字符
      */
+    @SuppressWarnings("unused")
     public static String extractUserAgent(String userAgent) {
         return userAgent.replaceAll(EXTRACT_USER_AGENT_REGEX, "");
     }
@@ -289,7 +292,7 @@ public class AuthenticationUtil {
                                                             RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum,
                                                             String redirectUrl) throws IOException {
 
-        String referer = requireNonNullElse(request.getHeader(SecurityConstants.HEADER_REFERER), redirectUrl);
+        String referer = ofNullable(request.getHeader(SecurityConstants.HEADER_REFERER)).orElse(redirectUrl);
 
         redirectProcessing(request, response, clientProperties, redirectStrategy, errorCodeEnum, referer);
     }
@@ -314,16 +317,16 @@ public class AuthenticationUtil {
         if (isPermitUri(request, session, matcher))
         {
             // 设置跳转目标 url 为自己, 重新刷新 session
-            redirectUrl = request.getRequestURL().toString() + requireNonNullElse(request.getQueryString(), "");
+            redirectUrl = request.getRequestURL().toString() + ofNullable(request.getQueryString()).orElse("");
         }
         else
         {
             // 获取原始请求的 url
             SavedRequest savedRequest = requestCache.getRequest(request, response);
-            originalUrl = request.getRequestURL().toString() + requireNonNullElse(request.getQueryString(), "");
+            originalUrl = request.getRequestURL().toString() + ofNullable(request.getQueryString()).orElse("");
             if (savedRequest != null)
             {
-                originalUrl = requireNonNullElse(savedRequest.getRedirectUrl(), originalUrl);
+                originalUrl = ofNullable(savedRequest.getRedirectUrl()).orElse(originalUrl);
             }
         }
 
@@ -356,13 +359,13 @@ public class AuthenticationUtil {
         String redirectUrl = defaultRedirectUrl;
         if (savedRequest != null)
         {
-            redirectUrl = requireNonNullElse(savedRequest.getRedirectUrl(), redirectUrl);
+            redirectUrl = ofNullable(savedRequest.getRedirectUrl()).orElse(redirectUrl);
         }
 
         // 从 session 中查看是否有原始请求连接.
         HttpSession session = request.getSession();
         String originalUrl = (String) session.getAttribute(SESSION_REDIRECT_URL_KEY);
-        if (StringUtils.isNotBlank(originalUrl))
+        if (StringUtils.hasText(originalUrl))
         {
             redirectUrl = originalUrl;
             session.removeAttribute(SESSION_REDIRECT_URL_KEY);

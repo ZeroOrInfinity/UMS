@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -47,7 +46,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+
+import static java.util.Optional.ofNullable;
+import static top.dcenter.ums.security.core.util.RequestUtil.readAllBytes;
 
 /**
  * 增加对 Ajax 格式与 form 格式的解析, 解析数据时默认使用 UTF-8 格式, 覆写了
@@ -111,12 +112,12 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
                 try
                 {
                     // 获取 表单 字节数据
-                    bytes = request.getInputStream().readAllBytes();
+                    bytes = readAllBytes(request.getInputStream());
                     if (bytes.length != 0)
                     {
                         String jsonData = new String(bytes, StandardCharsets.UTF_8).trim();
                         // 转换为 map 类型, 并放入 request 域方便下次调用
-                        if (StringUtils.startsWith(jsonData, VALIDATE_JSON_PREFIX))
+                        if (jsonData.startsWith(VALIDATE_JSON_PREFIX))
                         {
                             //noinspection unchecked
                             map = objectMapper.readValue(jsonData, Map.class);
@@ -130,7 +131,7 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
                 catch (Exception e) {
                     log.error(String.format("读取请求数据失败: %s",e.getMessage()), e);
                 }
-                formMap = Objects.requireNonNullElse(map, new HashMap<>(0));
+                formMap = ofNullable(map).orElse(new HashMap<>(0));
                 body = bytes;
             } else
             {

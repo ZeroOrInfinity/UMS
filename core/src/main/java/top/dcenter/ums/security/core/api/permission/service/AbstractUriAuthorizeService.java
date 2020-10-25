@@ -24,13 +24,13 @@
 package top.dcenter.ums.security.core.api.permission.service;
 
 import lombok.Getter;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.CollectionUtils;
 import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
 import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
 import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeService;

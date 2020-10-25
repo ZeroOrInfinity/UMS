@@ -25,18 +25,17 @@ package top.dcenter.ums.security.core.auth.validate.codes;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.lang.NonNull;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.filter.OncePerRequestFilter;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessor;
-import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
-import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.ConvertUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
@@ -167,7 +166,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
     private ValidateCodeType getValidateCodeType(HttpServletRequest request) {
         ValidateCodeType result;
         String method = request.getMethod();
-        if (!StringUtils.equalsIgnoreCase(method, GET_METHOD)) {
+        if (!GET_METHOD.equalsIgnoreCase(method)) {
             // 去除 ServletContextPath 的 uri
             String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
             result = authUrlMap.getOrDefault(requestUri, null);

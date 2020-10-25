@@ -43,6 +43,7 @@ public class SliderCode extends ValidateCode {
 
     private static final long serialVersionUID = 2275969703368971952L;
 
+    /** 标记 @Transient 时, 缓存 ValidateCode 时会自动清除 */
     @ToString.Exclude
     @Transient
     private String newImage;

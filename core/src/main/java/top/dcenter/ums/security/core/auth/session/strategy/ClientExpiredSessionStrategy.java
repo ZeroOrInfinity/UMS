@@ -54,8 +54,8 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.redirectProc
 public class ClientExpiredSessionStrategy implements SessionInformationExpiredStrategy {
 
     private final RedirectStrategy redirectStrategy;
-    private ClientProperties clientProperties;
-    private RequestCache requestCache;
+    private final ClientProperties clientProperties;
+    private final RequestCache requestCache;
     private final AntPathMatcher matcher;
 
     public ClientExpiredSessionStrategy(ClientProperties clientProperties) {

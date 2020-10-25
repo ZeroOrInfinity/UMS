@@ -24,7 +24,7 @@
 package top.dcenter.ums.security.core.auth.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;
@@ -105,11 +105,12 @@ public class ClientSecurityController implements BaseSecurityController, Initial
             {
                 String targetUrl = savedRequest.getRedirectUrl();
 
-                if (StringUtils.isNotBlank(targetUrl))
+                if (StringUtils.hasText(targetUrl))
                 {
                     targetUrl = targetUrl.replaceFirst(URL_REGEX, URI_$1);
                     String contextPath = request.getServletContext().getContextPath();
-                    targetUrl = StringUtils.substringAfter(targetUrl, contextPath);
+
+                    targetUrl = targetUrl.substring(contextPath.length());
 
                     Iterator<Map.Entry<String, String>> it = authRedirectUrls.entrySet().iterator();
 

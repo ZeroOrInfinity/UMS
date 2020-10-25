@@ -23,7 +23,7 @@
 
 package top.dcenter.ums.security.core.api.validate.code;
 
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
@@ -70,6 +70,7 @@ public interface ValidateCodeProcessor {
      * @param validateCode  验证码对象
      * @return  是否成功的状态
      */
+    @SuppressWarnings("UnusedReturnValue")
     boolean saveSession(ServletWebRequest request, ValidateCode validateCode);
 
     /**
@@ -112,7 +113,7 @@ public interface ValidateCodeProcessor {
         }
 
         // 校验参数是否有效
-        if (!StringUtils.isNotBlank(codeInRequest))
+        if (!StringUtils.hasText(codeInRequest))
         {
             // 按照逻辑是前端过滤无效参数, 如果进入此逻辑, 按非正常访问处理
             session.removeAttribute(sessionKey);
@@ -128,7 +129,7 @@ public interface ValidateCodeProcessor {
             throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, req.getRemoteAddr(), codeInRequest);
         }
         // 验证码校验
-        if (!StringUtils.equalsIgnoreCase(codeInSession.getCode(), codeInRequest))
+        if (!codeInRequest.equalsIgnoreCase(codeInSession.getCode()))
         {
             if (!codeInSession.getReuse())
             {
