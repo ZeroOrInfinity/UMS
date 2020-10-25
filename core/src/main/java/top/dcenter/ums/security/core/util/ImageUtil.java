@@ -185,16 +185,27 @@ public class ImageUtil {
         shear(g2, width, height, c, random);
 
         g2.setColor(getRandColor(100, 160, random));
-        int fontSize = height - 4;
+        int yPending = (int) (height * 0.05F);
+        int fontSize = height - yPending;
         Font font = new Font("Arial", Font.ITALIC, fontSize);
         g2.setFont(font);
         char[] chars = code.toCharArray();
         for (int i = 0; i < verifySize; i++) {
+            int xPending = (int) (width * 0.1F);
+            int dynamicPending = ((width - xPending) / verifySize) * i;
+            if (i == 0) {
+                dynamicPending = dynamicPending + xPending;
+            }
+            else {
+                dynamicPending = dynamicPending + xPending / 2;
+            }
             AffineTransform affine = new AffineTransform();
             affine.setToRotation(Math.PI / 4 * rand.nextDouble() * (rand.nextBoolean() ? 1 : -1),
-                                 (width / ((double) verifySize)) * i + fontSize / ((double) 2), height / ((double) 2));
+                                 (double) dynamicPending + fontSize / ((double) 2),
+                                 (height - yPending) / ((double) 2));
             g2.setTransform(affine);
-            g2.drawChars(chars, i, 1, ((width - 10) / verifySize) * i + 5, height / 2 + fontSize / 2 - 2);
+            g2.drawChars(chars, i, 1, dynamicPending,
+                         height / 2 + fontSize / 2 - yPending);
         }
 
         g2.dispose();
