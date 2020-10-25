@@ -28,7 +28,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
-import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
 
 /**
  * 滑块验证码, 添加 @Transient 注解的是为了在保存 session 时把不必要的图片字段值清除.
@@ -43,6 +43,7 @@ public class SliderCode extends ValidateCode {
 
     private static final long serialVersionUID = 2275969703368971952L;
 
+    /** 标记 @Transient 时, 缓存 ValidateCode 时会自动清除 */
     @ToString.Exclude
     @Transient
     private String newImage;

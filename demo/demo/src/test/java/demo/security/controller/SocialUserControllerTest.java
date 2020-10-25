@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.CHARSET_UTF8;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.CHARSET_UTF8;
 
 /**
  * 用户控制器测试

@@ -32,10 +32,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.permission.annotation.UriAuthorize;
-import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
 import top.dcenter.ums.security.core.permission.config.UriAuthorizeInterceptorAutoConfiguration;
 import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
 import top.dcenter.ums.security.core.vo.ResponseResult;
@@ -72,7 +71,8 @@ import top.dcenter.ums.security.core.vo.ResponseResult;
 @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
 @RestController
 @Slf4j
-@EnableUriAuthorize
+//@EnableUriAuthorize
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class PermissionController {
 
     @Autowired

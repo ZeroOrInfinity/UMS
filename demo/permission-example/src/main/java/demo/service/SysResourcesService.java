@@ -25,7 +25,7 @@ package demo.service;
 
 import demo.entity.SysResources;
 import org.springframework.lang.NonNull;
-import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
+import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
 
 import java.util.List;
 

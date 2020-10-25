@@ -25,8 +25,8 @@ package demo.validate.code.sms;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
 import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
-import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.ValidateCodeUtil;
 

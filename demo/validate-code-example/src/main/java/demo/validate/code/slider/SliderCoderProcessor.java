@@ -25,18 +25,18 @@ package demo.validate.code.slider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.ServletWebRequest;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
-import top.dcenter.ums.security.core.auth.validate.codes.ValidateCode;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
+import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
-import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
-import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.AuthenticationUtil;
 import top.dcenter.ums.security.core.util.ValidateCodeUtil;
 
@@ -140,9 +140,9 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         String y = request.getParameter(Y_REQUEST_PARAM_NAME);
 
         // 校验参数是否有效
-        checkParam(sessionKey, session, req, !StringUtils.isNotBlank(token), VALIDATE_CODE_NOT_EMPTY, TOKEN_REQUEST_PARAM_NAME);
-        checkParam(sessionKey, session, req, !StringUtils.isNotBlank(x), VALIDATE_CODE_NOT_EMPTY, X_REQUEST_PARAM_NAME);
-        checkParam(sessionKey, session, req, !StringUtils.isNotBlank(y), VALIDATE_CODE_NOT_EMPTY, Y_REQUEST_PARAM_NAME);
+        checkParam(sessionKey, session, req, !StringUtils.hasText(token), VALIDATE_CODE_NOT_EMPTY, TOKEN_REQUEST_PARAM_NAME);
+        checkParam(sessionKey, session, req, !StringUtils.hasText(x), VALIDATE_CODE_NOT_EMPTY, X_REQUEST_PARAM_NAME);
+        checkParam(sessionKey, session, req, !StringUtils.hasText(y), VALIDATE_CODE_NOT_EMPTY, Y_REQUEST_PARAM_NAME);
 
         token = token.trim();
         Integer locationX = Integer.parseInt(x);

@@ -28,8 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
 import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
-import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

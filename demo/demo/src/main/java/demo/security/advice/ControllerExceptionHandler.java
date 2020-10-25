@@ -53,7 +53,7 @@ public class ControllerExceptionHandler extends SecurityControllerExceptionHandl
     @ExceptionHandler(UserNotExistException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseResult handleUserNotException(UserNotExistException ex) {
+    public ResponseResult userNotException(UserNotExistException ex) {
         String message = ex.getMessage();
         return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
     }

@@ -21,58 +21,67 @@
  * SOFTWARE.
  */
 
-package demo.test.web.config;
+package demo.security.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.oas.annotations.EnableOpenApi;
 import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
- * Swagger2 配置及控制是否支持 Swagger2 开关
+ * Swagger3 配置及控制是否支持 Swagger3 开关
  *
  * @author YongWu zheng
  * @createrDate 2020-05-18 10:08
  */
 @Configuration
-@EnableSwagger2
-public class Swagger2Configuration {
+@EnableOpenApi
+public class Swagger3Config implements WebMvcConfigurer {
 
-    @Value("${swagger.show}")
-    private boolean swaggerShow;
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/swagger-ui/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/")
+                .resourceChain(false);
 
+    }
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/swagger-ui/")
+                .setViewName("forward:/swagger-ui/index.html");
+    }
+
+    /**
+     * 可选配置
+     * @return
+     */
     @Bean
     public Docket createRestApi() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .enable(swaggerShow)
+        return new Docket(DocumentationType.OAS_30)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
+                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 .paths(PathSelectors.any())
                 .build();
     }
-    /**
-     * 构建api文档的详细方法
-     *
-     * @return ApiInfo
-     */
+
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                //页面标题
-                .title("spring Security 脚手架 Api")
-                //创建
-                .termsOfServiceUrl("https://security.dcenter.com")
-                .version("1.0.0")
-                //描述
-                .description("spring Security 脚手架 Api 示例")
+                .title("Swagger3接口文档")
+                .description("文档描述")
+                .contact(new Contact("zyw", "#", "561331298@qq.com"))
+                .version("1.0")
                 .build();
     }
-
 }

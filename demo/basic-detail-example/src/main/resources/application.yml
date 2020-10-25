@@ -167,7 +167,6 @@ ums:
           - cacheName
   # =============== end: 第三方登录时用的数据库表 user_connection 与 auth_token 添加 redis cache ===============
 
-
 ---
 spring:
   profiles: dev

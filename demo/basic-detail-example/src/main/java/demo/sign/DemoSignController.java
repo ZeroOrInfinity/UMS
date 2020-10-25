@@ -31,6 +31,7 @@ import top.dcenter.ums.security.core.sign.properties.SignProperties;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -246,7 +247,7 @@ public class DemoSignController {
 
         {
             sb.append("删除当月用户签到统计 key").append("<br>");
-            List<LocalDate> list = List.of(today);
+            List<LocalDate> list = Collections.singletonList(today);
             long amount = signService.delTotalSignByDate(list);
             sb.append("删除数量: ").append(amount).append("<br>");
         }

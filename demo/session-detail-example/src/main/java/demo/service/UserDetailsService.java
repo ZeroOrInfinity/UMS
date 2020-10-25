@@ -206,7 +206,7 @@ public class UserDetailsService implements UmsUserDetailsService {
     }
 
     @Override
-    public List<Boolean> existedByUserIds(String... userIds) throws UsernameNotFoundException {
+    public List<Boolean> existedByUsernames(String... usernames) throws UsernameNotFoundException {
         // TODO
         return null;
     }

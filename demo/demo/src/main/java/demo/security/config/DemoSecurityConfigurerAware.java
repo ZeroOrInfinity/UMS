@@ -26,11 +26,11 @@ package demo.security.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
-import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
-import top.dcenter.ums.security.social.config.SocialCoreConfig;
-import top.dcenter.ums.security.social.properties.SocialProperties;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,20 +46,21 @@ import java.util.Set;
 @Slf4j
 public class DemoSecurityConfigurerAware implements HttpSecurityAware {
 
-    private final SocialProperties socialProperties;
-
-    private final SocialCoreConfig socialCoreConfig;
-
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    public DemoSecurityConfigurerAware(SocialProperties socialProperties,
-                                       SocialCoreConfig socialCoreConfig) {
-        this.socialProperties = socialProperties;
-        this.socialCoreConfig = socialCoreConfig;
-    }
 
     @Override
     public void postConfigure(HttpSecurity http) {
         // dto nothing
+    }
+
+    @Override
+    public void configure(WebSecurity web) {
+        // TODO
+    }
+
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        // TODO
+
     }
 
     @Override

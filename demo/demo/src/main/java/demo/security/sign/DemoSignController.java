@@ -27,11 +27,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.dcenter.ums.security.core.api.sign.service.SignService;
-import top.dcenter.ums.security.core.properties.SignProperties;
 import top.dcenter.ums.security.core.sign.config.EnableSign;
+import top.dcenter.ums.security.core.sign.properties.SignProperties;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -249,7 +250,7 @@ public class DemoSignController {
 
         {
             sb.append("删除当月用户签到统计 key").append("<br>");
-            List<LocalDate> list = List.of(today);
+            List<LocalDate> list = Collections.singletonList(today);
             long amount = signService.delTotalSignByDate(list);
             sb.append("删除数量: ").append(amount).append("<br>");
         }

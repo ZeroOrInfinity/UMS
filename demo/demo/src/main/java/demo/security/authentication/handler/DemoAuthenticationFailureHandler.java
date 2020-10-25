@@ -23,22 +23,20 @@
 
 package demo.security.authentication.handler;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
+import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
+import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
-import top.dcenter.ums.security.core.properties.ClientProperties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static top.dcenter.ums.security.core.consts.SecurityConstants.HEADER_ACCEPT;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.HEADER_USER_AGENT;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.authenticationFailureProcessing;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.getAbstractResponseJsonAuthenticationException;
 
@@ -53,13 +51,11 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.getAbstractR
 @Slf4j
 public class DemoAuthenticationFailureHandler extends BaseAuthenticationFailureHandler {
 
-    private final ObjectMapper objectMapper;
-    private final ClientProperties clientProperties;
+    protected final ClientProperties clientProperties;
 
-    public DemoAuthenticationFailureHandler(ObjectMapper objectMapper, ClientProperties clientProperties) {
-        this.objectMapper = objectMapper;
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    public DemoAuthenticationFailureHandler(ClientProperties clientProperties) {
         this.clientProperties = clientProperties;
+        setDefaultFailureUrl(clientProperties.getFailureUrl());
     }
 
     /**
@@ -85,9 +81,9 @@ public class DemoAuthenticationFailureHandler extends BaseAuthenticationFailureH
         // 进行必要的缓存清理
 
         // 检测是否接收 json 格式
-        String acceptHeader = request.getHeader(HEADER_ACCEPT);
+        String acceptHeader = request.getHeader(SecurityConstants.HEADER_ACCEPT);
 
-        if (authenticationFailureProcessing(response, exception, e, acceptHeader, objectMapper, clientProperties))
+        if (authenticationFailureProcessing(response, exception, e, acceptHeader, clientProperties))
         {
             // 进行必要的清理缓存
             return;

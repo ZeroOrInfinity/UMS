@@ -42,12 +42,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
+import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
-import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -277,9 +278,14 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
     }
 
     @Override
-    public List<Boolean> existedByUserIds(String... userIds) throws UsernameNotFoundException {
+    public List<Boolean> existedByUsernames(String... usernames) throws UsernameNotFoundException {
         // ... 在本地账户上查询 userIds 是否已被使用
-        return List.of(true, false, false);
+        List<Boolean> list = new ArrayList<>();
+        list.add(true);
+        list.add(false);
+        list.add(false);
+
+        return list;
     }
 
 }

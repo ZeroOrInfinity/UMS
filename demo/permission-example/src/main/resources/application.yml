@@ -38,6 +38,16 @@ spring:
 
 ums:
   client:
+    # ========= 权限表达式 ==========
+    # 权限表达式, 默认为 hasPermission(request, authentication). hasPermission
+    # 方法默认实现为 {@link UriAuthoritiesPermissionEvaluator}, 想自定义逻辑, 实现 {@link PermissionEvaluator} 即可替换.
+    # 注意: 当开启注解 {@link EnableGlobalMethodSecurity} 或 {@link EnableUriAuthorize}时, 此配置失效.
+    # 此配置等效于:
+    # String accessExp = "hasPermission(request, authentication)";
+    # // or accessExp = "@yourService.hasPermission(request, authentication)";
+    # httpSecurity.authorizeRequests().anyRequest().access(accessExp);
+    # 默认: hasPermission(request, authentication)
+    access-exp: 'hasPermission(request, authentication)'
     # 用户角色层级配置，默认为 空. 分隔符为:" > ". 例如: ROLE_ADMIN 拥有 ROLE_USER 与 ROLE_VISIT 权限,
     # 可以表示为: ROLE_ADMIN > ROLE_USER > ROLE_VISIT 等价于下面的配置
     # 权限示例请看 permission-example 示例

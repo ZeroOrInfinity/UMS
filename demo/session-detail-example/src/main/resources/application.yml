@@ -65,6 +65,16 @@ server:
 
 ums:
   client:
+#    # ========= 放行权限 ==========
+#    # 权限表达式, 默认为 hasPermission(request, authentication). hasPermission
+#    # 方法默认实现为 {@link UriAuthoritiesPermissionEvaluator}, 想自定义逻辑, 实现 {@link PermissionEvaluator} 即可替换.
+#    # 注意: 当开启注解 {@link EnableGlobalMethodSecurity} 时, 此配置失效.
+#    # 此配置等效于:
+#    # String accessExp = "hasPermission(request, authentication)";
+#    # // or accessExp = "@yourService.hasPermission(request, authentication)";
+#    # httpSecurity.authorizeRequests().anyRequest().access(accessExp);
+#    # 默认: hasPermission(request, authentication)
+#    access-exp: permitAll()
     # 登录页
     login-page: /login
     # 登录失败页
@@ -132,6 +142,7 @@ ums:
       invalid-session-url: /session/invalid
       # session 的 cookie name, 默认为: JSESSIONID, 需要与 server.servlet.session.cookie.name 同时设置
       session-cookie-name: SID
+
 
 
   # 验证码配置

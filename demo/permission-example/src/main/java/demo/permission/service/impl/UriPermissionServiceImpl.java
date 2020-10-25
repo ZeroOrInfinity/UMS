@@ -38,7 +38,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import top.dcenter.ums.security.core.permission.dto.UriResourcesDTO;
+import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
 import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
 import top.dcenter.ums.security.core.permission.event.UpdateRolesAuthoritiesEvent;
 import top.dcenter.ums.security.core.util.ConvertUtil;

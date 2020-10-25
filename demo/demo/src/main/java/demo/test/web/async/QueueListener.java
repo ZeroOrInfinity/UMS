@@ -25,9 +25,9 @@ package demo.test.web.async;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -51,7 +51,7 @@ public class QueueListener implements ApplicationListener<ContextRefreshedEvent>
     }
 
     @Override
-    public void onApplicationEvent(@NotNull ContextRefreshedEvent event) {
+    public void onApplicationEvent(@NonNull ContextRefreshedEvent event) {
         new Thread(() -> {
             String orderNumber;
             while (true)

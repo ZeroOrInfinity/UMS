@@ -26,14 +26,14 @@ package demo.security.session.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.session.SessionEnhanceCheckService;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import static top.dcenter.ums.security.core.consts.SecurityConstants.HEADER_USER_AGENT;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.SESSION_ENHANCE_CHECK_KEY;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.HEADER_USER_AGENT;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_ENHANCE_CHECK_KEY;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.extractUserAgent;
 
 /**

@@ -24,16 +24,18 @@
 package demo.security.permission;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import top.dcenter.ums.security.core.api.config.HttpSecurityAware;
-import top.dcenter.ums.security.core.bean.UriHttpMethodTuple;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import static org.springframework.http.HttpMethod.GET;
-import static top.dcenter.ums.security.core.bean.UriHttpMethodTuple.tuple;
+import static top.dcenter.ums.security.common.bean.UriHttpMethodTuple.tuple;
 
 /**
  * spring session 相关配置
@@ -46,6 +48,18 @@ public class UriAuthorizeConfigurerAware implements HttpSecurityAware {
     @Override
     public void postConfigure(HttpSecurity http) {
         // dto nothing
+    }
+
+    @Override
+    public void configure(WebSecurity web) {
+        // TODO
+
+    }
+
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        // TODO
+
     }
 
     @Override

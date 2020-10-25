@@ -25,8 +25,9 @@ package top.dcenter.ums.security.core.demo.service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,6 +44,7 @@ import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,9 +56,9 @@ import java.util.List;
  * @version V1.0  Created by 2020/9/20 11:06
  */
 @Service
-@Slf4j
 public class UserDetailsServiceImpl implements UmsUserDetailsService {
 
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     /**
      * 用户名
      */
@@ -234,9 +236,14 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
     }
 
     @Override
-    public List<Boolean> existedByUserIds(String... userIds) throws UsernameNotFoundException {
+    public List<Boolean> existedByUsernames(String... usernames) throws UsernameNotFoundException {
         // ... 在本地账户上查询 userIds 是否已被使用
-        return List.of(true, false, false);
+        List<Boolean> list = new ArrayList<>();
+        list.add(true);
+        list.add(false);
+        list.add(false);
+
+        return list;
     }
 
     private String getValueOfRequest(ServletWebRequest request, String paramName, ErrorCodeEnum usernameNotEmpty) throws RegisterUserFailureException {

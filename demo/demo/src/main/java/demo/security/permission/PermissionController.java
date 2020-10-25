@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import top.dcenter.ums.security.core.permission.annotation.UriAuthorize;
-import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
 import top.dcenter.ums.security.core.permission.config.UriAuthorizeInterceptorAutoConfiguration;
 
 /**
@@ -41,7 +40,7 @@ import top.dcenter.ums.security.core.permission.config.UriAuthorizeInterceptorAu
  */
 @RestController
 @Slf4j
-@EnableUriAuthorize()
+//@EnableUriAuthorize()
 public class PermissionController {
     /**
      * 此 uri 已经设置 PERMIT_ALL, 不用登录验证

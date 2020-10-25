@@ -25,27 +25,21 @@ package demo.security.service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import demo.test.entity.UserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.web.ProviderSignInUtils;
-import org.springframework.social.security.SocialUser;
-import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.ums.security.core.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
-import top.dcenter.ums.security.core.util.RequestUtil;
-import top.dcenter.ums.security.social.api.service.UmsSocialUserDetailsService;
-import top.dcenter.ums.security.social.api.service.SocialUserCache;
 
 import java.util.List;
 
@@ -62,7 +56,7 @@ import java.util.List;
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 @Slf4j
 @Component
-public class LoginSocialUserDetailsService implements UmsSocialUserDetailsService {
+public class LoginSocialUserDetailsService implements UmsUserDetailsService {
 
     /**
      * 用户名
@@ -75,18 +69,18 @@ public class LoginSocialUserDetailsService implements UmsSocialUserDetailsServic
     public static final String PARAM_PASSWORD = "password";
 
     private final ObjectMapper objectMapper;
+
     private final JdbcTemplate jdbcTemplate;
+
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
-    private SocialUserCache socialUserCache;
-
+    private UserCache userCache;
     /**
      * 用于密码加解密
      */
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private PasswordEncoder passwordEncoder;
-
 
     public LoginSocialUserDetailsService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -101,9 +95,9 @@ public class LoginSocialUserDetailsService implements UmsSocialUserDetailsServic
         {
             // 从缓存中查询用户信息:
             // 从缓存中查询用户信息
-            if (this.socialUserCache != null)
+            if (this.userCache != null)
             {
-                UserDetails userDetails = this.socialUserCache.getUserFromCache(username);
+                UserDetails userDetails = this.userCache.getUserFromCache(username);
                 if (userDetails != null)
                 {
                     return userDetails;
@@ -115,87 +109,24 @@ public class LoginSocialUserDetailsService implements UmsSocialUserDetailsServic
             // ...
 
             // 示例：只是从用户登录日志表中提取的信息，
-            List<String> list = jdbcTemplate.queryForList("select username from persistent_logins where username = ?", String.class, username);
-            if (list.contains(username))
-            {
-                for (String name : list)
-                {
-                    if (name.equals(username))
-                    {
-                        log.info("Demo ======>: 登录用户名：{}, 登录成功", username);
-                        return new User(username,
-                                        passwordEncoder.encode("admin"),
-                                        true,
-                                        true,
-                                        true,
-                                        true,
-                                        AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER"));
+            log.info("Demo ======>: 登录用户名：{}, 登录成功", username);
+            return new User(username,
+                            passwordEncoder.encode("admin"),
+                            true,
+                            true,
+                            true,
+                            true,
+                            AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER"));
 
-                    }
-                }
-            }
-            log.warn("Demo ======>: 登录用户名：{}, 登录失败", username);
-            return null;
         }
         catch (Exception e)
         {
-            log.error(e.getMessage(), e);
+            String msg = String.format("Demo ======>: 登录用户名：%s, 登录失败: %s", username, e.getMessage());
+            log.error(msg, e);
             throw new UserNotExistException(ErrorCodeEnum.QUERY_USER_INFO_ERROR, e, username);
         }
     }
 
-    @Override
-    public SocialUserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
-        try
-        {
-            // 从缓存中查询用户信息
-            if (this.socialUserCache != null)
-            {
-                SocialUserDetails userDetails = this.socialUserCache.getSocialUserFromCache(userId);
-                if (userDetails != null)
-                {
-                    return null;
-                }
-            }
-
-            // 根据用户名获取用户信息。
-
-            // 获取用户信息逻辑。。。
-            // ...
-
-            // 示例：只是从 OAuth2 用户登录日志表中提取的信息，
-            List<String> list = jdbcTemplate.queryForList("select userId from social_UserConnection " +
-                                                                  "where userId = ?",
-                                                          String.class, userId);
-            if (list.contains(userId))
-            {
-                for (String username : list)
-                {
-                    if (username.equals(userId))
-                    {
-                        log.info("Demo ======>: 登录用户名：{}, 登录成功", userId);
-                        return new SocialUser(username,
-                                              "",
-                                              true,
-                                              true,
-                                              true,
-                                              true,
-                                              AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER"));
-
-                    }
-
-                }
-
-            }
-            log.info("Demo ======>: 登录用户名：{}, 登录失败", userId);
-            return null;
-        }
-        catch (Exception e)
-        {
-            log.error(e.getMessage(), e);
-            throw new UserNotExistException(ErrorCodeEnum.QUERY_USER_INFO_ERROR, e, userId);
-        }
-    }
 
     @Override
     public UserDetails registerUser(String mobile) throws RegisterUserFailureException {
@@ -220,9 +151,9 @@ public class LoginSocialUserDetailsService implements UmsSocialUserDetailsServic
         );
 
         // 把用户信息存入缓存
-        if (socialUserCache != null)
+        if (userCache != null)
         {
-            socialUserCache.putUserInCache(user);
+            userCache.putUserInCache(user);
         }
 
         return user;
@@ -244,71 +175,22 @@ public class LoginSocialUserDetailsService implements UmsSocialUserDetailsServic
 
         log.info("Demo ======>: 用户名：{}, 注册成功", username);
         User user = new User(username,
-                              encodedPassword,
-                              true,
-                              true,
-                              true,
-                              true,
-                              AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER")
+                             encodedPassword,
+                             true,
+                             true,
+                             true,
+                             true,
+                             AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER")
         );
 
         // 把用户信息存入缓存
-        if (socialUserCache != null)
+        if (userCache != null)
         {
-            socialUserCache.putUserInCache(user);
+            userCache.putUserInCache(user);
         }
 
         return user;
 
-    }
-
-    @Override
-    public SocialUserDetails registerUser(ServletWebRequest request, ProviderSignInUtils providerSignInUtils) throws RegisterUserFailureException {
-
-        UserInfo userInfo = RequestUtil.extractRequest2Object(request.getRequest(), objectMapper, UserInfo.class);
-        String userId = null;
-        String password = "";
-        if (userInfo != null)
-        {
-            userId = userInfo.getUserId();
-            password = userInfo.getPassword();
-        }
-
-        try
-        {
-            Connection<?> connectionFromSession = providerSignInUtils.getConnectionFromSession(request);
-            log.info("Demo ======>: connectionFromSession = {}", connectionFromSession);
-
-            // 用户信息持久化逻辑。。。
-            // ...
-            String encodedPassword = passwordEncoder.encode(password);
-            // OAuth 信息存储
-            providerSignInUtils.doPostSignUp(userId, request);
-            log.info("Demo ======>: 第三方登录用户：{}, 注册成功", userId);
-            //noinspection all
-            SocialUser user = new SocialUser(userId,
-                                  encodedPassword,
-                                  true,
-                                  true,
-                                  true,
-                                  true,
-                                  AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER")
-            );
-
-            // 把用户信息存入缓存
-            if (socialUserCache != null)
-            {
-                socialUserCache.putUserInCache(user);
-            }
-
-            return user;
-        }
-        catch (Exception e)
-        {
-            log.error(e.getMessage(), e);
-
-            throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_FAILURE, e, userId);
-        }
     }
 
     private String getValueOfRequest(ServletWebRequest request, String paramName, ErrorCodeEnum usernameNotEmpty) throws RegisterUserFailureException {
@@ -318,6 +200,24 @@ public class LoginSocialUserDetailsService implements UmsSocialUserDetailsServic
             throw new RegisterUserFailureException(usernameNotEmpty, request.getSessionId());
         }
         return result;
+    }
+
+    @Override
+    public UserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public List<Boolean> existedByUsernames(String... usernames) throws UsernameNotFoundException {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public String generateUserId() {
+        // TODO
+        return null;
     }
 
 }

@@ -35,7 +35,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.removeAllMappings;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static top.dcenter.ums.security.core.consts.SecurityConstants.CHARSET_UTF8;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.CHARSET_UTF8;
 
 /**
  * wireMock 模拟服务器
