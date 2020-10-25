@@ -23,7 +23,6 @@
 
 package top.dcenter.ums.security.core.oauth.signup;
 
-import com.alibaba.fastjson.JSONObject;
 import com.xkcoding.http.config.HttpConfig;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthToken;
@@ -42,6 +41,7 @@ import top.dcenter.ums.security.core.oauth.repository.UsersConnectionTokenReposi
 import top.dcenter.ums.security.core.oauth.repository.exception.UpdateConnectionException;
 import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
 import top.dcenter.ums.security.core.oauth.entity.ConnectionData;
+import top.dcenter.ums.security.core.util.MvcUtil;
 
 import java.util.List;
 
@@ -88,7 +88,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
         try {
             // 重名检查
             username = null;
-            final List<Boolean> existedByUserIds = userDetailsService.existedByUserIds(usernames);
+            final List<Boolean> existedByUserIds = userDetailsService.existedByUsernames(usernames);
             for(int i = 0, len = existedByUserIds.size(); i < len; i++) {
                 if (!existedByUserIds.get(i))
                 {
@@ -111,7 +111,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
         }
         catch (Exception e) {
             log.error(String.format("OAuth2自动注册失败: error=%s, username=%s, authUser=%s",
-                                    e.getMessage(), username, JSONObject.toJSONString(authUser)), e);
+                                    e.getMessage(), username, MvcUtil.toJsonString(authUser)), e);
             throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_FAILURE, username);
         }
     }
@@ -186,7 +186,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
                 }
                 catch (Exception ex) {
                     msg = String.format("第三方授权登录自动注册时: 本地账户注册成功, %s, 添加第三方授权登录信息失败: %s",
-                                        userDetails, JSONObject.toJSONString(authUser));
+                                        userDetails, MvcUtil.toJsonString(authUser));
                     log.error(msg, e);
                     throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_OAUTH2_FAILURE,
                                                            ex, userDetails.getUsername());
@@ -203,7 +203,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
                                                 "%s",
                                         userDetails,
                                         authUser.getRawUserInfo(),
-                                        JSONObject.toJSONString(authToken));
+                                        MvcUtil.toJsonString(authToken));
                     log.error(msg, e);
                     throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_OAUTH2_FAILURE,
                                                            userDetails.getUsername());
