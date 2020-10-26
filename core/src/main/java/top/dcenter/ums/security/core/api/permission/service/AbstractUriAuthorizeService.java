@@ -197,17 +197,14 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     }
 
     /**
-     * 从 {@link #getRolesAuthorities()} 中获取获取所有 roles 的 uri 权限 map.<br><br>
-     * 实现对 uri 的权限控制时, 要考虑纯正的 resetFul 风格的 api 是通过 GET/POST/PUT/DELETE 等来区别 curd 操作的情况;
-     * 这里我们用 map(uri, Set(authority)) 来处理.
+     * 从 {@link #getRolesAuthorities()} 中获取获取所有 roles 的 uri 权限 map(uri, Set(authority)).<br><br>
      * @return 所有角色 uri 权限 Map(uri, Set(authority))
      */
     @Override
     public Optional<Map<String, Set<String>>> getUriAuthoritiesOfAllRole() {
 
         /*
-         * 实现对 requestUri 的权限控制时, 要考虑纯正的 resetFul 风格的 api 是通过 GET/POST/PUT/DELETE 等来区别 curd 操作的情况;
-         * 这里我们用 map(uri, Set(authority)) 来处理, resetFul 风格的 api 适合拦截器模式, 不适用过滤器模式
+         * 从 #getRolesAuthorities() 中获取获取所有 roles 的 uri 权限 map(uri, Set(authority))
          */
         return Optional.of(this.uriAuthoritiesMap);
     }

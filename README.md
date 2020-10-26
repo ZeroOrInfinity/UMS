@@ -48,9 +48,9 @@ validate code, RBAC-based uri access control function, sign etc...
   | [session-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/session-detail-example) | core 模块: session 与 session 缓存详细配置                   |
   | [validate-code-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/validate-code-example)  | core 模块基本功能: 验证码(含自定义滑块验证码), 手机登录配置  |
 
-### [更新日志(Changelog)](https://github.com/ZeroOrInfinity/UMS/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97%EF%BC%88Changelog%EF%BC%89)
+### [Github 更新日志(Changelog)](https://github.com/ZeroOrInfinity/UMS/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97%EF%BC%88Changelog%EF%BC%89) | [Gitee 更新日志](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2927596&doc_id=984605)
 
-### [Github 文档地址](https://github.com/ZeroOrInfinity/UMS/wiki)  [Gitee 文档地址](https://gitee.com/pcore/UMS/wikis/pages)
+### [Github 文档地址](https://github.com/ZeroOrInfinity/UMS/wiki) | [Gitee 文档地址](https://gitee.com/pcore/UMS/wikis/pages)
 
 微信群：UMS 添加微信(z56133)备注(UMS) 
 ------
@@ -71,7 +71,7 @@ validate code, RBAC-based uri access control function, sign etc...
 ------
 ## 四、`快速开始(Quick Start)`：
 
-- [文档](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%9B%9B%E3%80%81%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B(Quick-Start))
+- [Gitee 文档](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926257&doc_id=984605) | [Github 文档](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%9B%9B%E3%80%81%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B(Quick-Start))
 - example: [quickStart](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/quickStart)
 
 ------
