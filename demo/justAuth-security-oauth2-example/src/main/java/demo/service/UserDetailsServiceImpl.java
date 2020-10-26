@@ -23,12 +23,10 @@
 
 package demo.service;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
@@ -37,11 +35,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletWebRequest;
-import top.dcenter.ums.security.core.oauth.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.oauth.exception.RegisterUserFailureException;
-import top.dcenter.ums.security.core.oauth.exception.UserNotExistException;
-import top.dcenter.ums.security.core.oauth.service.UmsUserDetailsService;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
+import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
+import top.dcenter.ums.security.core.exception.UserNotExistException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,10 +68,6 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
      */
     public static final String PARAM_PASSWORD = "password";
 
-    private final ObjectMapper objectMapper;
-
-    private final JdbcTemplate jdbcTemplate;
-
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
     private UserCache userCache;
@@ -81,12 +77,6 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    public UserDetailsServiceImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
 
     @SuppressWarnings("AlibabaUndefineMagicConstant")
     @Override
@@ -195,10 +185,21 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
     }
 
     @Override
-    public UserDetails registerUser(AuthUser authUser, String username, String defaultAuthority) throws RegisterUserFailureException {
+    public UserDetails registerUser(@NonNull AuthUser authUser, @NonNull String username,
+                                    @NonNull String defaultAuthority, String decodeState) throws RegisterUserFailureException {
 
         // 第三方授权登录不需要密码, 这里随便设置的, 生成环境按自己的逻辑
         String encodedPassword = passwordEncoder.encode(authUser.getUuid());
+
+        // 这里的 decodeState 可以根据自己实现的 top.dcenter.ums.security.core.oauth.service.Auth2StateCoder 接口的逻辑来传递必要的参数.
+        // 比如: 第三方登录成功后的跳转地址
+        final RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        // 假设 decodeState 就是 redirectUrl, 我们直接把 redirectUrl 设置到 request 上
+        // 后续经过成功处理器时直接从 requestAttributes.getAttribute("redirectUrl", RequestAttributes.SCOPE_REQUEST) 获取并跳转
+        if (requestAttributes != null) {
+            requestAttributes.setAttribute("redirectUrl", decodeState, RequestAttributes.SCOPE_REQUEST);
+        }
+        // 当然 decodeState 也可以传递从前端传到后端的用户信息, 注册到本地用户
 
         List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(defaultAuthority);
 
@@ -235,7 +236,7 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
     }
 
     @Override
-    public List<Boolean> existedByUserIds(String... userIds) throws UsernameNotFoundException {
+    public List<Boolean> existedByUsernames(String... usernames) throws UsernameNotFoundException {
         // ... 在本地账户上查询 userIds 是否已被使用
         List<Boolean> list = new ArrayList<>();
         list.add(true);
