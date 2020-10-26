@@ -16,6 +16,7 @@
 package top.dcenter.ums.security.core.oauth.signup;
 
 import me.zhyd.oauth.model.AuthUser;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.oauth.repository.exception.UpdateConnectionException;
@@ -36,10 +37,11 @@ public interface ConnectionService {
 	 * username_{providerId}_{providerUserId}.
 	 * @param authUser      the user info from the provider sign-in attempt
 	 * @param providerId    第三方服务商, 如: qq, github
+	 * @param encodeState   加密后的 state.   {@code https://gitee.com/pcore/just-auth-spring-security-starter/issues/I22JC7}
 	 * @return the new user UserDetails. May be null to indicate that an implicit failed to register local user.
 	 * @throws RegisterUserFailureException 用户重名或注册失败
 	 */
-	UserDetails signUp(AuthUser authUser, String providerId) throws RegisterUserFailureException;
+	UserDetails signUp(@NonNull AuthUser authUser, @NonNull String providerId, @NonNull String encodeState) throws RegisterUserFailureException;
 
 	/**
 	 * 根据传入的参数更新第三方授权登录的用户信息, 包括 accessToken 信息,

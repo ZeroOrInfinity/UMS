@@ -24,6 +24,7 @@
 package top.dcenter.ums.security.core.oauth.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,6 +35,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
+import top.dcenter.ums.security.core.api.oauth.state.service.Auth2StateCoder;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
@@ -123,9 +125,11 @@ public class Auth2AutoConfiguration implements InitializingBean {
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.oauth.signup.ConnectionService")
     public ConnectionService connectionSignUp(UmsUserDetailsService userDetailsService,
                                               UsersConnectionTokenRepository usersConnectionTokenRepository,
-                                              UsersConnectionRepository usersConnectionRepository) {
+                                              UsersConnectionRepository usersConnectionRepository,
+                                              @Autowired(required = false) Auth2StateCoder auth2StateCoder) {
         return new DefaultConnectionServiceImpl(userDetailsService, auth2Properties,
-                                                usersConnectionRepository, usersConnectionTokenRepository);
+                                                usersConnectionRepository, usersConnectionTokenRepository,
+                                                auth2StateCoder);
     }
 
     @Bean
@@ -167,7 +171,7 @@ public class Auth2AutoConfiguration implements InitializingBean {
                     if (tableCount < 1)
                     {
                         String creatUserConnectionTableSql = repositoryProperties.getCreatUserConnectionTableSql();
-                        try (final PreparedStatement preparedStatement = connection.prepareStatement(creatUserConnectionTableSql);) {
+                        try (final PreparedStatement preparedStatement = connection.prepareStatement(creatUserConnectionTableSql)) {
                             preparedStatement.executeUpdate();
                             log.info("{} 表创建成功，SQL：{}", repositoryProperties.getTableName(),
                                      creatUserConnectionTableSql);

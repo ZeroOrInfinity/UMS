@@ -78,7 +78,7 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
 
     private final ClientProperties clientProperties;
 
-    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection", "SpringJavaInjectionPointsAutowiringInspection"})
     @Autowired(required = false)
     private UmsUserDetailsService umsUserDetailsService;
 
@@ -208,14 +208,14 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
 
     private void logoutConfigurer(HttpSecurity http) throws Exception {
         http.logout()
-                .logoutUrl(clientProperties.getLogoutUrl())
-                .logoutSuccessHandler(defaultLogoutSuccessHandler)
-                .logoutSuccessUrl(clientProperties.getLogoutSuccessUrl())
-                .deleteCookies(clientProperties.getRememberMe().getRememberMeCookieName(),
-                               clientProperties.getSession().getSessionCookieName())
-                .clearAuthentication(true)
-                .invalidateHttpSession(true)
-                .permitAll();
+            .logoutUrl(clientProperties.getLogoutUrl())
+            .logoutSuccessHandler(defaultLogoutSuccessHandler)
+            .logoutSuccessUrl(clientProperties.getLogoutSuccessUrl())
+            .deleteCookies(clientProperties.getRememberMe().getRememberMeCookieName(),
+                           clientProperties.getSession().getSessionCookieName())
+            .clearAuthentication(true)
+            .invalidateHttpSession(true)
+            .permitAll();
     }
 
 
