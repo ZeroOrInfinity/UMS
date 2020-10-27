@@ -246,6 +246,23 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
         return list;
     }
 
+    /**
+     * {@link #existedByUsernames(String...)} usernames 生成规则.
+     * 如需自定义重新实现此逻辑
+     * @param authUser     第三方用户信息
+     * @return  返回一个 username 数组
+     */
+    @Override
+    public String[] generateUsernames(AuthUser authUser) {
+        return new String[]{
+                authUser.getUsername(),
+                // providerId = authUser.getSource()
+                authUser.getUsername() + "_" + authUser.getSource(),
+                // providerUserId = authUser.getUuid()
+                authUser.getUsername() + "_" + authUser.getSource() + "_" + authUser.getUuid()
+        };
+    }
+
     private String getValueOfRequest(ServletWebRequest request, String paramName, ErrorCodeEnum usernameNotEmpty) throws RegisterUserFailureException {
         String result = request.getParameter(paramName);
         if (result == null)
