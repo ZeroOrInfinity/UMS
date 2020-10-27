@@ -24,6 +24,7 @@
 package top.dcenter.ums.security.core.auth.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -127,14 +128,17 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
                                  toJsonString(ResponseResult.success(null, userInfoJsonVo)));
                 return;
             }
+
+            clearAuthenticationAttributes(request);
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
         }
         catch (Exception e)
         {
             log.error(String.format("设置登录成功后跳转的URL失败: error=%s, user=%s, ip=%s, ua=%s, sid=%s",
                                     e.getMessage(), username, ip, userAgent, sid), e);
+            super.onAuthenticationSuccess(request, response, authentication);
         }
 
-        super.onAuthenticationSuccess(request, response, authentication);
     }
 
 
@@ -145,20 +149,25 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
     protected String determineTargetUrl(HttpServletRequest request,
                                         HttpServletResponse response) {
         String defaultTargetUrl = getDefaultTargetUrl();
-        if (isAlwaysUseDefaultTargetUrl()) {
+        SavedRequest savedRequest = this.requestCache.getRequest(request, response);
+
+        if (isAlwaysUseDefaultTargetUrl()
+            // OAuth2 回调时 referer 直接是域名, 没有带 ServletContextPath, 直接返回 defaultTargetUrl
+            || request.getRequestURI().startsWith(auth2RedirectUrl)) {
+            if (this.logger.isTraceEnabled()) {
+                this.logger.trace(LogMessage.format("Using default url %s", defaultTargetUrl));
+            }
+            this.requestCache.removeRequest(request, response);
             return defaultTargetUrl;
         }
 
-        // OAuth2 回调时 referer 直接是域名, 没有带 ServletContextPath, 直接返回 defaultTargetUrl
-        if (request.getRequestURI().startsWith(auth2RedirectUrl))
-        {
-            return defaultTargetUrl;
-        }
-
-        SavedRequest savedRequest = requestCache.getRequest(request, response);
         if (savedRequest != null)
         {
-            return savedRequest.getRedirectUrl();
+            final String redirectUrl = savedRequest.getRedirectUrl();
+            if (this.logger.isTraceEnabled()) {
+                this.logger.trace(LogMessage.format("using url %s from default saved request %s", redirectUrl));
+            }
+            return redirectUrl;
         }
 
         // Check for the parameter and use that if available
@@ -168,7 +177,11 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         if (targetUrlParameter != null) {
             targetUrl = request.getParameter(targetUrlParameter);
 
-            if (org.springframework.util.StringUtils.hasText(targetUrl)) {
+            if (StringUtils.hasText(targetUrl)) {
+                if (this.logger.isTraceEnabled()) {
+                    this.logger.trace(LogMessage.format("Using url %s from request parameter %s", targetUrl,
+                                                        targetUrlParameter));
+                }
                 return targetUrl;
             }
         }
@@ -182,15 +195,17 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         }
 
         // 当 targetUrl 为 登录 url 时, 设置为 defaultTargetUrl
-        if (StringUtils.hasText(targetUrl) && isIgnoreUrl(targetUrl))
+        if (!StringUtils.hasText(targetUrl) || isIgnoreUrl(targetUrl))
         {
-            targetUrl = defaultTargetUrl;
+            if (this.logger.isTraceEnabled()) {
+                this.logger.trace(LogMessage.format("Using default url %s", defaultTargetUrl));
+            }
+            return defaultTargetUrl;
         }
 
-        if (!StringUtils.hasText(targetUrl)) {
-            targetUrl = defaultTargetUrl;
+        if (this.logger.isTraceEnabled()) {
+            this.logger.trace(LogMessage.format("Using url %s from Referer header", targetUrl));
         }
-
         return targetUrl;
     }
 
