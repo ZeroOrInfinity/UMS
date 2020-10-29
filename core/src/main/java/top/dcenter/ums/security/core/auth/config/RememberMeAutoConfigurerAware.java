@@ -24,8 +24,8 @@
 package top.dcenter.ums.security.core.auth.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -33,10 +33,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
-import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 
 import javax.sql.DataSource;
@@ -64,7 +65,7 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public RememberMeAutoConfigurerAware(ClientProperties clientProperties,
                                          UmsUserDetailsService umsUserDetailsService,
-                                         PersistentTokenRepository persistentTokenRepository) {
+                                         @Autowired(required = false) PersistentTokenRepository persistentTokenRepository) {
         this.clientProperties = clientProperties;
         this.persistentTokenRepository = persistentTokenRepository;
         this.umsUserDetailsService = umsUserDetailsService;
@@ -89,14 +90,22 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
 
+        final ClientProperties.RememberMeProperties rememberMe = clientProperties.getRememberMe();
+        if (rememberMe.getEnable())
         // 开启 REMEMBER_ME 功能
-        http.rememberMe()
-                .rememberMeParameter(clientProperties.getRememberMe().getRememberMeParameter())
-                .rememberMeCookieName(clientProperties.getRememberMe().getRememberMeCookieName())
+        {
+            http.rememberMe()
+                .rememberMeParameter(rememberMe.getRememberMeParameter())
+                .rememberMeCookieName(rememberMe.getRememberMeCookieName())
                 .tokenRepository(persistentTokenRepository)
-                .tokenValiditySeconds(Integer.parseInt(String.valueOf(clientProperties.getRememberMe().getRememberMeTimeout().getSeconds())))
+                .tokenValiditySeconds(Integer.parseInt(String.valueOf(rememberMe.getRememberMeTimeout().getSeconds())))
                 .userDetailsService(umsUserDetailsService)
-                .useSecureCookie(clientProperties.getRememberMe().getUseSecureCookie());
+                .useSecureCookie(rememberMe.getUseSecureCookie());
+        }
+        else {
+            http.rememberMe().disable();
+        }
+
     }
 
     @Override
@@ -145,7 +154,7 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
                         if (tableCount < 1)
                         {
                             try (final PreparedStatement preparedStatement =
-                                         connection.prepareStatement(JdbcTokenRepositoryImpl.CREATE_TABLE_SQL);) {
+                                         connection.prepareStatement(JdbcTokenRepositoryImpl.CREATE_TABLE_SQL)) {
                                 preparedStatement.executeUpdate();
                                 log.info("persistent_logins 表创建成功，SQL：{}", JdbcTokenRepositoryImpl.CREATE_TABLE_SQL);
                                 if (!connection.getAutoCommit())

@@ -25,6 +25,7 @@ package top.dcenter.ums.security.core.auth.config;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
@@ -39,6 +40,7 @@ import javax.sql.DataSource;
  * @version V1.0  Created by 2020/5/28 21:44
  */
 @Configuration
+@ConditionalOnProperty(prefix = "ums.client.remember-me", name = "enable", havingValue = "true")
 @AutoConfigureAfter({PropertiesAutoConfiguration.class, SecurityAutoConfiguration.class})
 public class SecurityRememberMeAutoConfiguration {
 
@@ -64,7 +66,7 @@ public class SecurityRememberMeAutoConfiguration {
      * @return {@link PersistentTokenRepository}
      */
     @Bean
-    public PersistentTokenRepository persistentTokenRepository() {
-        return userTokenRepositoryFactory().getPersistentTokenRepository();
+    public PersistentTokenRepository persistentTokenRepository(BasedRememberMeTokenRepositoryFactory userTokenRepositoryFactory) {
+        return userTokenRepositoryFactory.getPersistentTokenRepository();
     }
 }

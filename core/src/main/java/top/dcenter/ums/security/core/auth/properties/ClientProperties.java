@@ -295,6 +295,12 @@ public class ClientProperties {
     @Getter
     @Setter
     public static class RememberMeProperties {
+
+        /**
+         * RememberMe 是否开启, 默认为 false;
+         */
+        private Boolean enable = false;
+
         /**
          * 设置记住我功能的 session 的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
          */
