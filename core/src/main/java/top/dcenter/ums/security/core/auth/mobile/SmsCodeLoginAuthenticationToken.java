@@ -51,7 +51,7 @@ public class SmsCodeLoginAuthenticationToken extends AbstractAuthenticationToken
     // ===================================================================================================
     /**
      * This constructor can be safely used by any codes that wishes to create a
-     * <codes>UsernamePasswordAuthenticationToken</codes>, as the {@link #isAuthenticated()}
+     * <codes>SmsCodeLoginAuthenticationToken</codes>, as the {@link #isAuthenticated()}
      * will return <codes>false</codes>.
      *
      */

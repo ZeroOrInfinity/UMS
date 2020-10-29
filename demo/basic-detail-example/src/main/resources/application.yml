@@ -92,9 +92,14 @@ ums:
     # 记住我功能默认通过 org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl 存入数据库中
     # 实现 BasedRememberMeTokenRepositoryFactory 可以自定义缓存方式
     remember-me:
+      # RememberMe 是否开启, 默认为 false;
+      enable: true
+      # 设置记住我功能的 session 的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
       remember-me-timeout: P14D
+      # 设置记住我功能的 CookieName，默认 REMEMBER_ME
       remember-me-cookie-name: REMEMBER_ME
-      remember-me-parameter: REMEMBER_ME
+      # 设置记住我功能的参数名称，默认 REMEMBER_ME
+      remember-me-parameter: rememberMe
       # 当为 true 时 REMEMBER_ME 只能用于 https, 默认为 false
       use-secure-cookie: false
 
@@ -126,6 +131,14 @@ ums:
         - /test/permission:add
         - /test/permission:list
         - /test/pass/:list
+  # ================ 手机登录配置 ================
+  mobile:
+    login:
+      # 手机验证码登录是否开启, 默认 false，
+      # 手机验证码登录开启后 必须配置 ums.codes.sms.auth-urls=/authentication/mobile
+      sms-code-login-is-open: true
+      # 手机验证码登录请求处理url, 默认 /authentication/mobile
+      login-processing-url-mobile: /authentication/mobile
 
   # ============= 用户签到配置 =============
   # 签到功能 设置

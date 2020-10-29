@@ -40,7 +40,34 @@
         </tr>
     </table>
 </form>
-
+<h3>手机登录</h3>
+<form id="mobile-form" th:action="@{/authentication/mobile}" method="post">
+    <table>
+        <tr>
+            <td>手机号码：</td>
+            <td>
+                <input type="tel" name="mobile" value="13345678980"><p style="color: #ff0000"
+                                                                       id="error-name-mobile"></p>
+                <a th:href="@{/code/sms?mobile=13345678980}" >发送验证码</a>
+            </td>
+        </tr>
+        <tr>
+            <td>手机验证码：</td>
+            <td>
+                <input type="text" name="smsCode">
+            </td>
+        </tr>
+        <tr>
+            <td ><input type="checkbox" name="rememberMe" checked="true">记住我</input></td>
+            <td><p style="color: #ff0000" id="error-code-mobile"></p></td>
+        </tr>
+        <tr>
+            <td ><button id="btn-mobile" type="button">登录ajax</button></td>
+            <!-- 通过 form submit 不能接收错误信息, 通过 ajax 可接收错误信息 -->
+            <td ><button type="submit">登录</button></td>
+        </tr>
+    </table>
+</form>
 <br><br>
 
 <dev id="basePath" th:basePath="@{/}" style="display: none"/>

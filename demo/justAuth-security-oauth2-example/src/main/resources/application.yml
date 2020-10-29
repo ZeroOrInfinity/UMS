@@ -1,5 +1,13 @@
 server:
   port: 9090
+  servlet:
+    # tomcat session 设置
+    session:
+      timeout: PT600S
+      cookie:
+        max-age: PT600S
+        # session 的 cookie name, 默认为: JSESSIONID
+        name: SID
 
 spring:
   profiles:
@@ -11,12 +19,19 @@ spring:
     username: root
     password: 123456
 
-  # session 简单配置
+  # session 配置
   session:
     # session 存储模式设置, 要导入相应的 spring-session 类的依赖, 默认为 none, 分布式应用把 session 放入 redis 等中间件
-    store-type: none
+    store-type: redis
     # session 过期时间
     timeout: PT300s
+    redis:
+      # redis 刷新模式
+      flush-mode: on_save
+      # redis 命名空间
+      namespace: spring:session
+      # Cron expression for expired session cleanup job
+      cleanup-cron: 5 * * * * *
 
   # =============== redis 设置 ===============
   redis:
@@ -44,6 +59,8 @@ ums:
     enabled: true
     # 第三方授权登录后如未注册用户是否支持自动注册功能, 默认: true
     auto-sign-up: true
+    # 第三方授权登录后如未注册用户不支持自动注册功能, 这跳转到此 url 进行注册逻辑, 此 url 必须开发者自己实现; 默认: "/signUp"
+    sign-up-url: /signUpAgain
     # 用于第三方授权登录时, 未开启自动注册且用户是第一次授权登录的临时用户密码, 默认为: "". 注意: 生产环境更换密码
     temporary-user-password: ""
     # 用于第三方授权登录时, 未开启自动注册且用户是第一次授权登录的临时用户的默认权限, 多个权限用逗号分开, 默认为: "ROLE_TEMPORARY_USER"
@@ -96,6 +113,7 @@ ums:
       ignoreCheckState: false
       # 默认 state 缓存过期时间：3分钟(PT180S) 鉴于授权过程中，根据个人的操作习惯，或者授权平台的不同（google等），每个授权流程的耗时也有差异，
       # 不过单个授权流程一般不会太长 本缓存工具默认的过期时间设置为3分钟，即程序默认认为3分钟内的授权有效，超过3分钟则默认失效，失效后删除
+      # 注意: 这是为了测试打断点时用的, 生产环境自己设置为合适数组或默认
       timeout: PT1800S
       # JustAuth state 缓存类型, 默认 session
       cacheType: session
