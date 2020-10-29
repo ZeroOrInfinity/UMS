@@ -104,13 +104,9 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
                                                 token.getAuthorities());
             // 设置跳转的 url
             String targetUrl = determineTargetUrl(request, response);
-            if (!UrlUtils.isAbsoluteUrl(targetUrl))
-            {
-                targetUrl = getServletContextPath() + targetUrl;
-            }
 
             // 判断是否返回 json 类型
-            userInfoJsonVo.setTargetUrl(targetUrl);
+            userInfoJsonVo.setTargetUrl(getJsonTargetUrl(targetUrl));
             if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
             {
                 clearAuthenticationAttributes(request);
@@ -140,7 +136,6 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         }
 
     }
-
 
     /**
      * Builds the target URL according to the logic defined in the main class Javadoc.
@@ -213,6 +208,17 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
     public void setUseReferer(boolean useReferer) {
         super.setUseReferer(useReferer);
         this.useReferer = useReferer;
+    }
+
+    /**
+     * 获取用于 json 的跳转地址
+     */
+    private String getJsonTargetUrl(String targetUrl) {
+        if (!UrlUtils.isAbsoluteUrl(targetUrl))
+        {
+            targetUrl = getServletContextPath() + targetUrl;
+        }
+        return targetUrl;
     }
 
     /**
