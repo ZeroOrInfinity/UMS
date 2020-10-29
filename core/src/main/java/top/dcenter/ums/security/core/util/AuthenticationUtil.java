@@ -298,7 +298,7 @@ public class AuthenticationUtil {
     }
 
     /**
-     * determine redirectUrl
+     * determine invalid session redirect url
      * @param request           request
      * @param response          response
      * @param destinationUrl    destinationUrl
@@ -306,9 +306,9 @@ public class AuthenticationUtil {
      * @param requestCache      requestCache
      * @return  determine redirectUrl
      */
-    public static String determineRedirectUrl(HttpServletRequest request, HttpServletResponse response,
-                                              String destinationUrl, AntPathMatcher matcher,
-                                              RequestCache requestCache) {
+    public static String determineInvalidSessionRedirectUrl(HttpServletRequest request, HttpServletResponse response,
+                                                            String destinationUrl, AntPathMatcher matcher,
+                                                            RequestCache requestCache) {
         HttpSession session = request.getSession();
         String redirectUrl = destinationUrl;
 

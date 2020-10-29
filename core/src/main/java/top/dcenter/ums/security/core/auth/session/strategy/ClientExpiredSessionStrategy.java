@@ -41,7 +41,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_ENHANCE_CHECK_KEY;
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.determineRedirectUrl;
+import static top.dcenter.ums.security.core.util.AuthenticationUtil.determineInvalidSessionRedirectUrl;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.redirectProcessingByLoginProcessType;
 
 /**
@@ -78,7 +78,7 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
             // 清除缓存
             session.removeAttribute(SESSION_ENHANCE_CHECK_KEY);
 
-            String redirectUrl = determineRedirectUrl(request, response, clientProperties.getLoginPage(), matcher, requestCache);
+            String redirectUrl = determineInvalidSessionRedirectUrl(request, response, clientProperties.getLoginPage(), matcher, requestCache);
             if (log.isDebugEnabled())
             {
                 log.debug("Session expired, starting new session and redirecting to '{}'", redirectUrl);

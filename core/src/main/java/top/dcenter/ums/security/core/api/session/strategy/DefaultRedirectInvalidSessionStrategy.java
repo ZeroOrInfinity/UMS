@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.determineRedirectUrl;
+import static top.dcenter.ums.security.core.util.AuthenticationUtil.determineInvalidSessionRedirectUrl;
 
 /**
  * Performs a redirect to a fixed URL when an invalid requested session is detected by the
@@ -66,7 +66,7 @@ public final class DefaultRedirectInvalidSessionStrategy implements InvalidSessi
 	public void onInvalidSessionDetected(HttpServletRequest request,
 	                                     HttpServletResponse response) throws IOException {
 
-		String redirectUrl = determineRedirectUrl(request, response, destinationUrl, matcher, requestCache);
+		String redirectUrl = determineInvalidSessionRedirectUrl(request, response, destinationUrl, matcher, requestCache);
 		if (log.isDebugEnabled())
 		{
 			log.debug("Starting new session and redirecting to '{}'", redirectUrl);
