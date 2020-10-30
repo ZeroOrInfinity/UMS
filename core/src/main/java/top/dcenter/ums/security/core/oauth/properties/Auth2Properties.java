@@ -29,6 +29,10 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import top.dcenter.ums.security.core.oauth.filter.login.Auth2LoginAuthenticationFilter;
+import top.dcenter.ums.security.core.oauth.userdetails.TemporaryUser;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -196,7 +200,12 @@ public class Auth2Properties {
     private Boolean autoSignUp = true;
 
     /**
-     * 第三方授权登录后如未注册用户不支持自动注册功能, 这跳转到此 url 进行注册逻辑, 此 url 必须开发者自己实现; 默认: "/signUp"<br>
+     * 第三方授权登录后如未注册用户不支持自动注册功能, 这跳转到此 url 进行注册逻辑, 此 url 必须开发者自己实现; 默认: /signUp.html; <br>
+     * 例如:<br>
+     * 1. 设置值 "/signUp", 则跳转指定到 "/signUp" 进行注册. <br>
+     * 2. 想返回自定义 json 数据到前端, 这里要设置 null , 在 {@link Auth2LoginAuthenticationFilter} 设置的
+     * {@link AuthenticationSuccessHandler} 上处理返回 json; 判断是否为临时用户的条件是: {@link Authentication#getPrincipal()}
+     * 是否为 {@link TemporaryUser} 类型.<br>
      */
     private String signUpUrl = "/signUp";
 
