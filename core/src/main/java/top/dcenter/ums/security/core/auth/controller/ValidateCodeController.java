@@ -135,7 +135,7 @@ public class ValidateCodeController implements InitializingBean {
         // 3. 动态注入 createCode() RequestMapping 的映射 uri
         methodName = "createCode";
         MvcUtil.setRequestMappingUri(methodName,
-                                     validateCodeProperties.getGetValidateCodeUrlPrefix() + URL_SEPARATOR + "{type}",
+                                     validateCodeProperties.getValidateCodeUrlPrefix() + URL_SEPARATOR + "{type}",
                                      this.getClass(),
                                      String.class, HttpServletRequest.class, HttpServletResponse.class);
 

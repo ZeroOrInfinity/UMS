@@ -27,6 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.web.context.request.ServletWebRequest;
+import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +61,12 @@ public class ValidateCodeProperties {
     /**
      * 获取验证码的 url 的前缀, 默认: /code
      */
-    private String getValidateCodeUrlPrefix = "/code";
+    private String validateCodeUrlPrefix = "/code";
+
+    /**
+     * 验证码缓存类型, 默认: SESSION, 可选: REDIS/SESSION
+     */
+    private ValidateCodeCacheType validateCodeCacheType = ValidateCodeCacheType.SESSION;
 
     /**
      * 图片验证码属性
