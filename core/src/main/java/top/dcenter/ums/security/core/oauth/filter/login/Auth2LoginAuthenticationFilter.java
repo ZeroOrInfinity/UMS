@@ -180,7 +180,7 @@ public class Auth2LoginAuthenticationFilter extends AbstractAuthenticationProces
         }
 
         final Object principal = authResult.getPrincipal();
-        if (principal instanceof TemporaryUser) {
+        if (principal instanceof TemporaryUser && StringUtils.hasText(this.signUpUrl)) {
             this.redirectStrategy.sendRedirect(request, response, this.signUpUrl);
             return;
         }
