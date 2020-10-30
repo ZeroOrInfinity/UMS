@@ -56,7 +56,6 @@ import static top.dcenter.ums.security.common.consts.SecurityConstants.DEFAULT_U
  */
 @SuppressWarnings("jol")
 @Getter
-@Setter
 @ConfigurationProperties("ums.client")
 public class ClientProperties {
 
@@ -77,35 +76,43 @@ public class ClientProperties {
      * ROLE_USER > ROLE_EMPLOYEE
      * </pre>
      */
+    @Setter
     private List<String> roleHierarchy = new ArrayList<>();
 
     /**
      * 设置登录页(必须自己实现)，用户没有配置则默认为 /login
      */
+    @Setter
     private String loginPage = DEFAULT_LOGIN_PAGE_URL;
     /**
      * 设置处理登录表单的 uri，不需要用户实现此 uri，由 Spring security 自动实现， 默认为 /authentication/form
      */
+    @Setter
     private String loginProcessingUrl = DEFAULT_LOGIN_PROCESSING_URL_FORM;
     /**
      * 设置认证失败默认跳转页面(必须自己实现)
      */
+    @Setter
     private String failureUrl = this.loginPage;
     /**
      * 错误页面
      */
+    @Setter
     private String errorUrl = "/error";
     /**
      * 4xx 错误页面(必须自己实现)
      */
+    @Setter
     private String error4Url = "/4*.html";
     /**
      * 5xx 错误页面(必须自己实现)
      */
+    @Setter
     private String error5Url = "/5*.html";
     /**
      * 设置认证成功默认跳转页面(必须自己实现)
      */
+    @Setter
     private String successUrl = "/";
 
     /**
@@ -140,6 +147,7 @@ public class ClientProperties {
      * </pre>
      * 支持通配符 规则具体看 AntPathMatcher.match(pattern, path)
      */
+    @Setter
     private String[] ignoringUrls;
 
     /**
@@ -156,6 +164,7 @@ public class ClientProperties {
      * httpSecurity.authorizeRequests().antMatchers("/user/**").permitAll();
      * </pre>
      */
+    @Setter
     private Set<String>  permitUrls = new HashSet<>();
 
 
@@ -171,71 +180,76 @@ public class ClientProperties {
      * httpSecurity.authorizeRequests().anyRequest().access(accessExp);
      * </pre>
      */
+    @Setter
     public String accessExp = "hasPermission(request, authentication)";
 
     /**
      * 是否开启登录路由功能, 根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationRoutingUrl 和 authRedirectSuffixCondition
      */
+    @Setter
     private Boolean openAuthenticationRedirect = false;
     /**
      * 当请求需要身份认证时，默认跳转的url, 当 openAuthenticationRedirect = true 时生效.
      * 会根据 authJumpSuffixCondition 条件判断的认证处理类型的 url，默认实现 /authentication/require. <br><br>
      */
+    @Setter
     private String loginUnAuthenticationRoutingUrl = DEFAULT_UN_AUTHENTICATION_ROUTING_URL;
     /**
      * 设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空.
      * 当 openAuthenticationRedirect = true 时生效.
      * 支持通配符 规则具体看 AntPathMatcher.match(pattern, path)
      */
-    private List<String> authRedirectSuffixCondition;
+    @Setter
+    private List<String> authRedirectSuffixCondition = new ArrayList<>();
 
     /**
      * 设置登录后返回格式, 默认: JSON
      */
+    @Setter
     private LoginProcessType loginProcessType = LoginProcessType.JSON;
 
     /**
      * 设置登出 url, 默认为 /logout
      */
+    @Setter
     public String logoutUrl = "/logout";
     /**
      * 设置登出后跳转的 url(必须自己实现), 默认为 /login
      */
+    @Setter
     public String logoutSuccessUrl = "/login";
     /**
      * 设置由客户端决定认证成功要跳转的 url 的 request 参数名称, 默认为 redirectTargetUrl
      */
+    @Setter
     public String targetUrlParameter = "redirectTargetUrl";
     /**
      * 设置登录时用户名的 request 参数名称, 默认为 username
      */
+    @Setter
     public String usernameParameter = "username";
     /**
      * 设置登录时用户密码的 request 参数名称, 默认为 password
      */
+    @Setter
     public String passwordParameter = "password";
     /**
      * 登录后是否利用 Referer 进行跳转, 默认为: true
      */
+    @Setter
     public Boolean useReferer = true;
     /**
      * 允许来自同一来源(如: example.com)的 X-Frame-Options headers 请求, 默认为: false
      */
+    @Setter
     public Boolean sameOrigin = Boolean.FALSE;
 
     /**
      * 抑制反射警告, 支持 JDK11, 默认: false ,
      * 在确认 WARNING: An illegal reflective access operation has occurred 安全后, 可以打开此设置, 可以抑制反射警告.
      */
+    @Setter
     private Boolean suppressReflectWarning = false;
-
-
-
-
-
-    public ClientProperties() {
-        this.authRedirectSuffixCondition = new ArrayList<>();
-    }
 
     public String getQueryRememberMeTableExistSql(String databaseName){
         return "SELECT COUNT(1) FROM information_schema.tables WHERE table_schema='" + databaseName + "' AND table_name = 'persistent_logins'";
