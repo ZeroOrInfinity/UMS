@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package top.dcenter.ums.security.core.auth.validate.codes;
+package top.dcenter.ums.security.core.api.validate.code.enums;
 
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_KEY_CUSTOMIZE;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_KEY_IMAGE;

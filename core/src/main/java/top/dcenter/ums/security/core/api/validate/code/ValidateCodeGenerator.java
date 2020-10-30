@@ -23,7 +23,7 @@
 
 package top.dcenter.ums.security.core.api.validate.code;
 
-import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
+import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsCodeGenerator;
 

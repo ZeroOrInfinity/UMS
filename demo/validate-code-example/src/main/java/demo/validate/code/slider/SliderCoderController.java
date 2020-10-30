@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
+import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 
 import javax.servlet.http.HttpServletRequest;

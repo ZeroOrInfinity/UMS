@@ -26,7 +26,7 @@ package top.dcenter.ums.security.core.auth.validate.codes.image;
 import lombok.extern.slf4j.Slf4j;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
 import top.dcenter.ums.security.core.api.validate.code.image.ImageCodeFactory;
-import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
+import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 
 import javax.servlet.ServletRequest;

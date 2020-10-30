@@ -25,7 +25,7 @@ package top.dcenter.ums.security.core.auth.validate.codes.slider;
 
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
 import top.dcenter.ums.security.core.api.validate.code.slider.SliderCodeFactory;
-import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
+import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 
 import javax.servlet.ServletRequest;

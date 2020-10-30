@@ -33,6 +33,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessor;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessorHolder;
+import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
