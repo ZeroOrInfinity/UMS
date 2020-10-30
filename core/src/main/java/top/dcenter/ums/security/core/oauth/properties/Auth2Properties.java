@@ -200,7 +200,7 @@ public class Auth2Properties {
     private Boolean autoSignUp = true;
 
     /**
-     * 第三方授权登录后如未注册用户不支持自动注册功能, 这跳转到此 url 进行注册逻辑, 此 url 必须开发者自己实现; 默认: /signUp.html; <br>
+     * 第三方授权登录后如未注册用户不支持自动注册功能, 则跳转到此 url 进行注册逻辑, 此 url 必须开发者自己实现; 默认: /signUp.html; <br>
      * 例如:<br>
      * 1. 设置值 "/signUp", 则跳转指定到 "/signUp" 进行注册. <br>
      * 2. 想返回自定义 json 数据到前端, 这里要设置 null , 在 {@link Auth2LoginAuthenticationFilter} 设置的
