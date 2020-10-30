@@ -264,9 +264,13 @@ public class LoginSocialUserDetailsService implements UmsUserDetailsService {
     }
 
     @Override
-    public String generateUserId() {
-        // TODO
-        return null;
+    public String[] generateUsernames(AuthUser authUser) {
+        return new String[]{
+                authUser.getUsername(),
+                // providerId = authUser.getSource()
+                authUser.getUsername() + "_" + authUser.getSource(),
+                // providerUserId = authUser.getUuid()
+                authUser.getUsername() + "_" + authUser.getSource() + "_" + authUser.getUuid()
+        };
     }
-
 }

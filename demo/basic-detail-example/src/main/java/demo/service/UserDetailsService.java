@@ -260,10 +260,4 @@ public class UserDetailsService implements UmsUserDetailsService {
         return null;
     }
 
-    @Override
-    public String generateUserId() {
-        // TODO
-        return null;
-    }
-
 }
