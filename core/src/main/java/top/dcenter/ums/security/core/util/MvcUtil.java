@@ -23,9 +23,12 @@
 
 package top.dcenter.ums.security.core.util;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -80,6 +83,9 @@ public class MvcUtil {
 
     static {
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        OBJECT_MAPPER.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        // 解决jackson2无法反序列化LocalDateTime的问题
+        OBJECT_MAPPER.registerModule(new JavaTimeModule());
     }
 
     /**
@@ -97,6 +103,23 @@ public class MvcUtil {
             String msg = String.format("Object2JsonString 失败: %s, Object=%s", e.getMessage(), obj);
             log.error(msg, e);
             return "";
+        }
+    }
+
+    /**
+     * 使用 {@link ObjectMapper} 把 jsonString 反序列化为 T 对象.
+     * @param jsonString    json string
+     * @param clz           要反序列化的目标 class
+     * @return  返回反序列化对象, 如果反序列化错误返回 null
+     */
+    @Nullable
+    public static <T> T json2Object(@NonNull String jsonString, @NonNull Class<T> clz) {
+        try {
+            return OBJECT_MAPPER.readValue(jsonString, clz);
+        }
+        catch (JsonProcessingException e) {
+            log.error(String.format("[%s] 反序列化为 [%s] 时错误: %s", jsonString, clz.getName(), e.getMessage()), e);
+            return null;
         }
     }
 
