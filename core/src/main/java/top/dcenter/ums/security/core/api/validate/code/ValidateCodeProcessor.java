@@ -23,13 +23,14 @@
 
 package top.dcenter.ums.security.core.api.validate.code;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.ServletWebRequest;
+import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_ERROR;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_EXPIRED;
@@ -65,13 +66,13 @@ public interface ValidateCodeProcessor {
     ValidateCode generate(ServletWebRequest request);
 
     /**
-     * 缓存到session
+     * 缓存验证码
      * @param request   ServletWebRequest
      * @param validateCode  验证码对象
      * @return  是否成功的状态
      */
     @SuppressWarnings("UnusedReturnValue")
-    boolean saveSession(ServletWebRequest request, ValidateCode validateCode);
+    boolean save(ServletWebRequest request, ValidateCode validateCode);
 
     /**
      * 发送验证码
@@ -94,15 +95,21 @@ public interface ValidateCodeProcessor {
      * 注意: 不要覆盖此方法. 想修改自定义校验逻辑, 实现 {@link #validate(ServletWebRequest)} 即可.
      * @param request                       servletWebRequest
      * @param requestParamValidateCodeName  验证码的请求参数名称
+     * @param validateCodeClass             验证码 class
+     * @param validateCodeCacheType         验证码缓存类型
+     * @param stringRedisTemplate           stringRedisTemplate, 缓存类型不为 redis 时可以为 null
      * @throws ValidateCodeException    ValidateCodeException
      */
-    default void defaultValidate(ServletWebRequest request, String requestParamValidateCodeName) throws ValidateCodeException {
+    default void defaultValidate(ServletWebRequest request, String requestParamValidateCodeName,
+                                 Class<? extends ValidateCode> validateCodeClass,
+                                 ValidateCodeCacheType validateCodeCacheType,
+                                 StringRedisTemplate stringRedisTemplate) throws ValidateCodeException {
         // 获取 session 中的验证码
         HttpServletRequest req = request.getRequest();
         ValidateCodeType validateCodeType = getValidateCodeType();
-        String sessionKey = validateCodeType.getSessionKey();
-        HttpSession session = req.getSession();
-        ValidateCode codeInSession = (ValidateCode) session.getAttribute(sessionKey);
+
+        ValidateCode codeInSession = validateCodeCacheType.getCodeInCache(request, validateCodeType,
+                                                                          validateCodeClass, stringRedisTemplate);
         // 获取 request 中的验证码
         String codeInRequest = request.getParameter(requestParamValidateCodeName);
 
@@ -116,7 +123,7 @@ public interface ValidateCodeProcessor {
         if (!StringUtils.hasText(codeInRequest))
         {
             // 按照逻辑是前端过滤无效参数, 如果进入此逻辑, 按非正常访问处理
-            session.removeAttribute(sessionKey);
+            validateCodeCacheType.removeCache(request, validateCodeType, stringRedisTemplate);
             throw new ValidateCodeException(VALIDATE_CODE_NOT_EMPTY, req.getRemoteAddr(), validateCodeType.name());
         }
 
@@ -125,19 +132,21 @@ public interface ValidateCodeProcessor {
         // 校验是否过期
         if (codeInSession.isExpired())
         {
-            session.removeAttribute(sessionKey);
+            validateCodeCacheType.removeCache(request, validateCodeType, stringRedisTemplate);
             throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, req.getRemoteAddr(), codeInRequest);
         }
+
         // 验证码校验
         if (!codeInRequest.equalsIgnoreCase(codeInSession.getCode()))
         {
             if (!codeInSession.getReuse())
             {
-                session.removeAttribute(sessionKey);
+                validateCodeCacheType.removeCache(request, validateCodeType, stringRedisTemplate);
             }
             throw new ValidateCodeException(VALIDATE_CODE_ERROR, req.getRemoteAddr(), codeInRequest);
         }
-        session.removeAttribute(sessionKey);
+
+        validateCodeCacheType.removeCache(request, validateCodeType, stringRedisTemplate);
 
     }
 }

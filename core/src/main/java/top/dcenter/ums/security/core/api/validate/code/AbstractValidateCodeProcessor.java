@@ -24,15 +24,17 @@
 package top.dcenter.ums.security.core.api.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.annotation.Transient;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.web.context.request.ServletWebRequest;
+import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.lang.reflect.Field;
 
+import static java.util.Objects.requireNonNull;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_CODE_TYPE;
 
@@ -46,17 +48,33 @@ import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.ILLEGAL_VALIDA
 @Slf4j
 public abstract class AbstractValidateCodeProcessor implements ValidateCodeProcessor {
 
-    protected ValidateCodeGeneratorHolder validateCodeGeneratorHolder;
+    protected final ValidateCodeGeneratorHolder validateCodeGeneratorHolder;
+
+    protected final StringRedisTemplate stringRedisTemplate;
+
+    protected final ValidateCodeCacheType validateCodeCacheType;
+
+    protected final Class<? extends ValidateCode> validateCodeClass;
 
     /**
      * 验证码处理逻辑的默认实现抽象类.<br><br>
      *
      * @param validateCodeGeneratorHolder   validateCodeGeneratorHolder
+     * @param validateCodeCacheType         验证码缓存类型
+     * @param validateCodeClass             验证码 class
+     * @param stringRedisTemplate           stringRedisTemplate, 缓存类型不为 redis 时可以为 null
      */
-    public AbstractValidateCodeProcessor(ValidateCodeGeneratorHolder validateCodeGeneratorHolder) {
-
+    public AbstractValidateCodeProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
+                                         @NonNull ValidateCodeCacheType validateCodeCacheType,
+                                         @NonNull Class<? extends ValidateCode> validateCodeClass,
+                                         @Nullable StringRedisTemplate stringRedisTemplate) {
         this.validateCodeGeneratorHolder = validateCodeGeneratorHolder;
-
+        this.validateCodeCacheType = validateCodeCacheType;
+        this.validateCodeClass = validateCodeClass;
+        this.stringRedisTemplate = stringRedisTemplate;
+        if (ValidateCodeCacheType.REDIS.equals(validateCodeCacheType)) {
+            requireNonNull(stringRedisTemplate, "stringRedisTemplate cannot be null");
+        }
     }
 
     @Override
@@ -64,7 +82,6 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
         ValidateCode validateCode;
         HttpServletRequest req = request.getRequest();
-        HttpSession session = req.getSession();
         String ip = req.getRemoteAddr();
         String sid = request.getSessionId();
         String uri = req.getRequestURI();
@@ -78,11 +95,12 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
                          ip, sid, uri, validateCode.toString());
                 return false;
             }
-            saveSession(request, validateCode);
+            save(request, validateCode);
         }
         catch (Exception e)
         {
-            session.removeAttribute(getValidateCodeType().getSessionKey());
+            this.validateCodeCacheType.removeCache(request, getValidateCodeType(), this.stringRedisTemplate);
+
             if (e instanceof ValidateCodeException)
             {
                 ValidateCodeException exception = (ValidateCodeException) e;
@@ -120,54 +138,26 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
     }
 
     @Override
-    public boolean saveSession(ServletWebRequest request, ValidateCode validateCode) {
+    public boolean save(ServletWebRequest request, ValidateCode validateCode) {
 
-
-        HttpServletRequest req = request.getRequest();
+        ValidateCodeType validateCodeType = getValidateCodeType();
         try
         {
-            ValidateCodeType validateCodeType = getValidateCodeType();
-            if (validateCodeType == null)
-            {
-                return false;
-            }
-
-            // 移除不必要的属性值(图片等)
-            removeUnnecessaryFieldValue(validateCode);
-
-            req.getSession().setAttribute(validateCodeType.getSessionKey(), validateCode);
+            return this.validateCodeCacheType.save(request, validateCode, validateCodeType, stringRedisTemplate);
         }
         catch (Exception e)
         {
             String msg = String.format("验证码保存到Session失败: error=%s, ip=%s, code=%s",
                                        e.getMessage(),
-                                       req.getRemoteAddr(),
+                                       request.getRequest().getRemoteAddr(),
                                        validateCode);
             log.error(msg, e);
             return false;
         }
-        return true;
+
     }
 
-    /**
-     * 移除不必要的属性值
-     * @param validateCode  验证码
-     * @throws IllegalAccessException   IllegalAccessException
-     */
-    private void removeUnnecessaryFieldValue(ValidateCode validateCode) throws IllegalAccessException {
 
-        Field[] fields = validateCode.getClass().getDeclaredFields();
-
-        for (Field field : fields)
-        {
-            field.setAccessible(true);
-            Transient aTransient = field.getDeclaredAnnotation(Transient.class);
-            if (aTransient != null)
-            {
-                field.set(validateCode, null);
-            }
-        }
-    }
 
     /**
      * 发送验证码，由子类实现,
@@ -179,7 +169,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
      * <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      * ValidateCodeType validateCodeType = getValidateCodeType();</p>
      * <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-     * String sessionKey = validateCodeType.getSessionKey();</p>
+     * String sessionKey = validateCodeType.getKeyPrefix();</p>
      *
      * @param request      ServletWebRequest
      * @param validateCode 验证码对象
@@ -199,7 +189,8 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
         ValidateCodeType validateCodeType = getValidateCodeType();
         ValidateCodeGenerator<?> validateCodeGenerator = getValidateCodeGenerator(validateCodeType);
-        defaultValidate(request, validateCodeGenerator.getRequestParamValidateCodeName());
+        defaultValidate(request, validateCodeGenerator.getRequestParamValidateCodeName(),
+                        this.validateCodeClass, this.validateCodeCacheType,this.stringRedisTemplate);
 
     }
 

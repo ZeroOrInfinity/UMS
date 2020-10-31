@@ -61,11 +61,13 @@ public class ValidateCodeProperties {
     /**
      * 获取验证码的 url 的前缀, 默认: /code
      */
+    @Setter
     private String validateCodeUrlPrefix = "/code";
 
     /**
      * 验证码缓存类型, 默认: SESSION, 可选: REDIS/SESSION
      */
+    @Setter
     private ValidateCodeCacheType validateCodeCacheType = ValidateCodeCacheType.SESSION;
 
     /**
@@ -265,6 +267,10 @@ public class ValidateCodeProperties {
          * 提交验证码请求时，请求中带的验证码变量名，默认 trackCode
          */
         private String requestParamName = DEFAULT_REQUEST_PARAM_TRACK_CODE_NAME;
+        /**
+         * 验证码的有效时间，默认 180秒
+         */
+        private Integer expire = 180;
 
     }
 
@@ -289,6 +295,10 @@ public class ValidateCodeProperties {
          * 提交验证码请求时，请求中带的验证码变量名，默认 selectionCode
          */
         private String requestParamName = DEFAULT_REQUEST_PARAM_SELECTION_CODE_NAME;
+        /**
+         * 验证码的有效时间，默认 180秒
+         */
+        private Integer expire = 180;
 
     }
 
@@ -313,6 +323,10 @@ public class ValidateCodeProperties {
          * 提交验证码请求时，请求中带的验证码变量名，默认 customizeCode
          */
         private String requestParamName = DEFAULT_REQUEST_PARAM_CUSTOMIZE_CODE_NAME;
+        /**
+         * 验证码的有效时间，默认 180秒
+         */
+        private Integer expire = 180;
 
     }
 

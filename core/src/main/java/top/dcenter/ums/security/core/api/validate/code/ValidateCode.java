@@ -23,6 +23,9 @@
 
 package top.dcenter.ums.security.core.api.validate.code;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -44,11 +47,18 @@ public class ValidateCode implements Serializable {
     private static final long serialVersionUID = 8564646192066649173L;
 
     private String code;
+
     private LocalDateTime expireTime;
     /**
      * 是否复用, 如果复用, 不会重新产生验证码, 仍使用验证码失败的验证码
      */
     private Boolean reuse;
+
+    public ValidateCode() {
+        this.code = null;
+        this.expireTime = null;
+        this.reuse = false;
+    }
 
     /**
      * 验证码构造器: 默认 <pre>reuse = false;</pre> 不复用
@@ -61,6 +71,12 @@ public class ValidateCode implements Serializable {
         reuse = false;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss SSS", locale = "zh", timezone = "GMT+8")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    public void setExpireTime(LocalDateTime expireTime) {
+        this.expireTime = expireTime;
+    }
+
     public void setExpireTime(int expireIn) {
         this.expireTime = LocalDateTime.now().plusSeconds(expireIn);
     }
@@ -69,7 +85,7 @@ public class ValidateCode implements Serializable {
      * 验证码构造器: 默认不复用
      * @param code      验证码
      * @param expireIn  过期日期
-     * @param reuse     是否复用, 如果复用, 不会重新产生验证码, 仍使用验证码失败的验证码, 默认: false 即不复用
+     * @param reuse     是否复用, 如果复用, 不会重新产生验证码, 仍使用验证失败的验证码, 默认: false 即不复用
      */
     public ValidateCode(String code, int expireIn, Boolean reuse) {
         this.code = code;

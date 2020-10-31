@@ -113,7 +113,7 @@ public class ValidateCodeController implements InitializingBean {
      */
     @RequestMapping(value = {"${ums.codes.slider.sliderCheckUrl}"}, method = RequestMethod.POST)
     public ResponseResult sliderCheck(HttpServletRequest request) {
-        SliderCode sliderCode = (SliderCode) request.getSession().getAttribute(ValidateCodeType.SLIDER.getSessionKey());
+        SliderCode sliderCode = (SliderCode) request.getSession().getAttribute(ValidateCodeType.SLIDER.getKeyPrefix());
         return ResponseResult.success(null, sliderCode.getCode());
     }
 

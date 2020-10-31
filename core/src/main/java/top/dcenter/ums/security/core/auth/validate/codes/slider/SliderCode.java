@@ -69,6 +69,12 @@ public class SliderCode extends ValidateCode {
 
     private Integer sourceHeight;
 
+    public SliderCode() {
+        this.newImage = null;
+        this.sourceImage = null;
+        this.secondCheck = false;
+    }
+
     /**
      * 滑块验证码
      * @param code          验证码

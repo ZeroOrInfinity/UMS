@@ -27,7 +27,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
+import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,7 +46,6 @@ public class ValidateCodeProcessorHolder implements InitializingBean {
 
     @Autowired
     private GenericApplicationContext applicationContext;
-
 
     /**
      * 根据 type 获取 {@link ValidateCodeProcessor}，如果不存在则返回 null
@@ -80,14 +81,32 @@ public class ValidateCodeProcessorHolder implements InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() {
+    public void afterPropertiesSet() throws NoSuchFieldException, IllegalAccessException {
 
         // 解决循环应用问题
         Map<String, ValidateCodeProcessor> validateCodeProcessorMap = applicationContext.getBeansOfType(ValidateCodeProcessor.class);
         Collection<ValidateCodeProcessor> values = validateCodeProcessorMap.values();
         validateCodeProcessors =
-                values.stream().collect(Collectors.toMap(validateCodeProcessor -> validateCodeProcessor.getValidateCodeType().name().toLowerCase(),
-                                                         validateCodeProcessor -> validateCodeProcessor));
+                values.stream()
+                      .collect(Collectors.toMap(validateCodeProcessor -> validateCodeProcessor.getValidateCodeType().name().toLowerCase(),
+                                                validateCodeProcessor -> validateCodeProcessor));
 
+        // 设置各种验证码类型的过期时间
+        final ValidateCodeProperties properties = applicationContext.getBean(ValidateCodeProperties.class);
+
+        setExpireIn(ValidateCodeType.IMAGE, properties.getImage().getExpire());
+        setExpireIn(ValidateCodeType.SMS, properties.getSms().getExpire());
+        setExpireIn(ValidateCodeType.SLIDER, properties.getSlider().getExpire());
+        setExpireIn(ValidateCodeType.TRACK, properties.getTrack().getExpire());
+        setExpireIn(ValidateCodeType.SELECTION, properties.getSelection().getExpire());
+        setExpireIn(ValidateCodeType.CUSTOMIZE, properties.getCustomize().getExpire());
+
+    }
+
+    private void setExpireIn(ValidateCodeType validateCodeType, Integer expireIn) throws NoSuchFieldException, IllegalAccessException {
+
+        final Field expireInField = validateCodeType.getClass().getSuperclass().getDeclaredField("expireIn");
+        expireInField.setAccessible(true);
+        expireInField.set(validateCodeType, expireIn);
     }
 }

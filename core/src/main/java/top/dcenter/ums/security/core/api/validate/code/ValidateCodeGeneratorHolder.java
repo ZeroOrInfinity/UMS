@@ -23,12 +23,9 @@
 
 package top.dcenter.ums.security.core.api.validate.code;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 
 import java.util.Collection;
@@ -49,11 +46,6 @@ public class ValidateCodeGeneratorHolder implements InitializingBean {
 
     @Autowired
     private GenericApplicationContext applicationContext;
-
-    @Autowired(required = false)
-    @Setter
-    @Getter
-    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 根据 type 获取 {@link ValidateCodeGenerator}，如果不存在则返回 null

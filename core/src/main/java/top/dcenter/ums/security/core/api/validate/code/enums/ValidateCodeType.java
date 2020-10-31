@@ -42,7 +42,7 @@ public enum ValidateCodeType {
      */
     IMAGE {
         @Override
-        public String getSessionKey() {
+        public String getKeyPrefix() {
             return SESSION_KEY_IMAGE;
         }
     },
@@ -51,7 +51,7 @@ public enum ValidateCodeType {
      */
     SMS {
         @Override
-        public String getSessionKey() {
+        public String getKeyPrefix() {
             return SESSION_KEY_SMS;
         }
     },
@@ -60,7 +60,7 @@ public enum ValidateCodeType {
      */
     TRACK {
         @Override
-        public String getSessionKey() {
+        public String getKeyPrefix() {
             return SESSION_KEY_TRACK;
         }
     },
@@ -69,7 +69,7 @@ public enum ValidateCodeType {
      */
     SLIDER {
         @Override
-        public String getSessionKey() {
+        public String getKeyPrefix() {
             return SESSION_KEY_SLIDER;
         }
     },
@@ -78,7 +78,7 @@ public enum ValidateCodeType {
      */
     SELECTION {
         @Override
-        public String getSessionKey() {
+        public String getKeyPrefix() {
             return SESSION_KEY_SELECTION;
         }
     },
@@ -87,15 +87,34 @@ public enum ValidateCodeType {
      */
     CUSTOMIZE {
         @Override
-        public String getSessionKey() {
+        public String getKeyPrefix() {
             return SESSION_KEY_CUSTOMIZE;
         }
     };
+
+    private Integer expireIn;
 
     /**
      * 返回相应的 SessionKey
      * @return SessionKey
      */
-    public abstract String getSessionKey();
+    public abstract String getKeyPrefix();
+
+    /**
+     * 获取验证码的过期时间, 单位: 秒
+     * @return  过期时间
+     */
+    public Integer getExpireIn() {
+        return this.expireIn;
+    }
+
+//    /**
+//     * 设置验证码过期时间, 单位: 秒
+//     * @param expireIn  过期时间
+//     */
+//    public void setExpireIn(Integer expireIn) {
+//        this.expireIn = expireIn;
+//    }
+
 
 }

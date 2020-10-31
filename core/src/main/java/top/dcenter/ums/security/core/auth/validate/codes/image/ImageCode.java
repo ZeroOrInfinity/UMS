@@ -46,7 +46,11 @@ public class ImageCode extends ValidateCode {
 
     @ToString.Exclude
     @Transient
-    private BufferedImage image;
+    private transient BufferedImage image;
+
+    public ImageCode() {
+        this.image = null;
+    }
 
     /**
      * 图片验证码
