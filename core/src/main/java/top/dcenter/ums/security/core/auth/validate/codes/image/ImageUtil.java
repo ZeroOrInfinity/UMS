@@ -21,7 +21,9 @@
  * SOFTWARE.
  */
 
-package top.dcenter.ums.security.core.util;
+package top.dcenter.ums.security.core.auth.validate.codes.image;
+
+import top.dcenter.ums.security.core.util.ValidateCodeUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -35,6 +37,8 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
+ * 图片生成工具
+ * @author 此代码是网上爬的, 忘记哪爬到
  * @author YongWu zheng
  * @version V1.0  Created by 2020/5/4 9:25
  */
@@ -275,8 +279,8 @@ public class ImageUtil {
     @SuppressWarnings("SameParameterValue")
     private static void shearY(Graphics g, int w1, int h1, Color color, boolean borderGap, Random random) {
 
-        // 50;
-        int period = random.nextInt(40) + 10;
+        //
+        int period = random.nextInt(h1 / 4);
 
         int frames = 20;
         int phase = 7;

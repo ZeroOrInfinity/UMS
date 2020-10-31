@@ -30,7 +30,7 @@ import top.dcenter.ums.security.core.api.validate.code.image.ImageCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.DefaultImageCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
-import top.dcenter.ums.security.core.util.ImageUtil;
+import top.dcenter.ums.security.core.auth.validate.codes.image.ImageUtil;
 import top.dcenter.ums.security.core.util.ValidateCodeUtil;
 
 import javax.servlet.ServletRequest;
