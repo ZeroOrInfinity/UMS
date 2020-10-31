@@ -25,6 +25,10 @@ package demo.security.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -32,8 +36,9 @@ import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.common.consts.RegexConstants;
 import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
-import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeGeneratorHolder;
-import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeType;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGeneratorHolder;
+import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
+import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor;
 import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
 
@@ -52,8 +57,10 @@ import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.MOBILE_PARAMET
 @Slf4j
 public class DemoSmsValidateCodeProcessor extends SmsValidateCodeProcessor {
 
-    public DemoSmsValidateCodeProcessor(ValidateCodeGeneratorHolder validateCodeGeneratorHolder) {
-        super(validateCodeGeneratorHolder);
+    public DemoSmsValidateCodeProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
+                                        @NonNull ValidateCodeCacheType validateCodeCacheType,
+                                        @Nullable @Autowired(required = false) StringRedisTemplate stringRedisTemplate) {
+        super(validateCodeGeneratorHolder, validateCodeCacheType, stringRedisTemplate);
     }
 
     /**

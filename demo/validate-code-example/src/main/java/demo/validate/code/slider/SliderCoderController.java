@@ -56,7 +56,7 @@ public class SliderCoderController {
     @RequestMapping(value = "check2",method = RequestMethod.POST)
     @ResponseBody
     public ResponseResult check(HttpServletRequest request) {
-        SliderCode sliderCode = (SliderCode) request.getSession().getAttribute(ValidateCodeType.CUSTOMIZE.getSessionKey());
+        SliderCode sliderCode = (SliderCode) request.getSession().getAttribute(ValidateCodeType.CUSTOMIZE.getKeyPrefix());
         return ResponseResult.success(null, sliderCode.getCode());
     }
 

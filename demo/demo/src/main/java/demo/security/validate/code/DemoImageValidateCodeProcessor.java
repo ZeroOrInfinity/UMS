@@ -24,10 +24,15 @@
 package demo.security.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
-import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeGeneratorHolder;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGeneratorHolder;
+import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageValidateCodeProcessor;
 
@@ -43,8 +48,10 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class DemoImageValidateCodeProcessor extends ImageValidateCodeProcessor {
 
-    public DemoImageValidateCodeProcessor(ValidateCodeGeneratorHolder validateCodeGeneratorHolder) {
-        super(validateCodeGeneratorHolder);
+    public DemoImageValidateCodeProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
+                                          @NonNull ValidateCodeCacheType validateCodeCacheType,
+                                          @Nullable @Autowired(required = false) StringRedisTemplate stringRedisTemplate) {
+        super(validateCodeGeneratorHolder, validateCodeCacheType, stringRedisTemplate);
     }
 
     @Override

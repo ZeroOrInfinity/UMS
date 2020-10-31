@@ -172,6 +172,8 @@ ums:
   # 同一个 uri 由多种验证码同时配置, **优先级**如下:
   #  `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
   codes:
+    # 验证码缓存类型, 默认: SESSION, 可选: REDIS/SESSION
+    validate-code-cache-type: session
     # 获取验证码的 url 的前缀, 默认: /code
     get-validate-code-url-prefix: /code
     # 图片验证码

@@ -89,22 +89,10 @@ public class DeserializerTestController {
         // redis 添加反序列化配置.
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
-                                 ObjectMapper.DefaultTyping.NON_FINAL);
+        mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.registerModules(new CoreJackson2Module(), new WebJackson2Module(), new Auth2Jackson2Module());
-
-        //final String authTokenPo = stringRedisTemplate.opsForValue().get("UCC::h:48");
-        //final AuthTokenPo tokenPo = mapper.readValue(authTokenPo, AuthTokenPo.class);
-
-        //final Object data = stringRedisTemplate.opsForHash().get("UCHC::h:pcore_gitee", "gitee");
-        //final ConnectionData connectionData = mapper.readValue(((String) data), ConnectionData.class);
-
-
-        //log.info(connectionData.toString());
-        //log.info(tokenPo.toString());
-
 
         // 测试 redis 序列化 与 反序列化
         if (authentication instanceof UsernamePasswordAuthenticationToken)

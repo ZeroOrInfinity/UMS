@@ -81,6 +81,8 @@ ums:
 
   # 验证码配置
   codes:
+    # 验证码缓存类型, 默认: SESSION, 可选: REDIS/SESSION
+    validate-code-cache-type: redis
     # 获取验证码的 url 的前缀, 默认: /code
     get-validate-code-url-prefix: /code
     # 图片验证码

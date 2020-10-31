@@ -92,6 +92,12 @@ public class SliderCode extends ValidateCode {
         this.locationY = locationY;
         this.sourceWidth = sourceWidth;
         this.sourceHeight = sourceHeight;
-        secondCheck = false;
+        this.secondCheck = false;
+    }
+
+    public SliderCode() {
+        this.newImage = null;
+        this.sourceImage = null;
+        this.secondCheck = false;
     }
 }
