@@ -37,8 +37,8 @@ import top.dcenter.ums.security.common.consts.RegexConstants;
 import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGeneratorHolder;
-import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
+import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor;
 import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
 import top.dcenter.ums.security.core.util.IpUtil;
@@ -59,9 +59,9 @@ import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.MOBILE_PARAMET
 public class DemoSmsValidateCodeProcessor extends SmsValidateCodeProcessor {
 
     public DemoSmsValidateCodeProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
-                                        @NonNull ValidateCodeCacheType validateCodeCacheType,
+                                        @NonNull ValidateCodeProperties validateCodeProperties,
                                         @Nullable @Autowired(required = false) StringRedisTemplate stringRedisTemplate) {
-        super(validateCodeGeneratorHolder, validateCodeCacheType, stringRedisTemplate);
+        super(validateCodeGeneratorHolder, validateCodeProperties.getValidateCodeCacheType(), stringRedisTemplate);
     }
 
     /**
