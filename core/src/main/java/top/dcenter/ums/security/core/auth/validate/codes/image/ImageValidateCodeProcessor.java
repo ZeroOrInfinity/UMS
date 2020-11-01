@@ -33,6 +33,7 @@ import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
+import top.dcenter.ums.security.core.util.IpUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.imageio.ImageIO;
@@ -78,7 +79,7 @@ public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
             HttpServletRequest req = request.getRequest();
             log.error(String.format("发送验证码失败: error=%s, ip=%s, sid=%s, uri=%s, validateCode=%s",
                                     e.getMessage(),
-                                    req.getRemoteAddr(),
+                                    IpUtil.getRealIp(req),
                                     request.getSessionId(),
                                     MvcUtil.getServletContextPath() + req.getRequestURI(),
                                     validateCode.toString()), e);

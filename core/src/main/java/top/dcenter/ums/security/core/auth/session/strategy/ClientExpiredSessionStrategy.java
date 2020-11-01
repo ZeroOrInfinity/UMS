@@ -34,6 +34,7 @@ import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.ExpiredSessionDetectedException;
+import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -91,7 +92,7 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
         catch (Exception e)
         {
             log.error(String.format("SESSION过期处理失败: error=%s, ip=%s, sid=%s, uri=%s",
-                                    e.getMessage(), request.getRemoteAddr(), session.getId(), request.getRequestURI()), e);
+                                    e.getMessage(), IpUtil.getRealIp(request), session.getId(), request.getRequestURI()), e);
             throw new ExpiredSessionDetectedException(ErrorCodeEnum.SERVER_ERROR, session.getId());
         }
     }

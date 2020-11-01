@@ -39,6 +39,7 @@ import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.util.ConvertUtil;
+import top.dcenter.ums.security.core.util.IpUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.FilterChain;
@@ -124,7 +125,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
                     validateCodeProcessor.validate(new ServletWebRequest(request, response));
                 } else
                 {
-                    String ip = request.getRemoteAddr();
+                    String ip = IpUtil.getRealIp(request);
                     log.warn("违法的验证码类型: error={}, ip={}, sid={}, type={}",
                                  ILLEGAL_VALIDATE_CODE_TYPE.getMsg(),
                              ip,
@@ -136,7 +137,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
             }
 
         } catch (Exception e) {
-            String ip = request.getRemoteAddr();
+            String ip = IpUtil.getRealIp(request);
             log.warn("验证码错误: error={}, ip={}, sid={}, uri={}",
                      e.getMessage(),
                      ip,

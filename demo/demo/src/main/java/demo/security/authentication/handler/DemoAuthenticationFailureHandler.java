@@ -30,6 +30,7 @@ import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
+import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -74,7 +75,7 @@ public class DemoAuthenticationFailureHandler extends BaseAuthenticationFailureH
         log.info("demo ========> 登录失败: {}, user={}, ip={}, ua={}, sid={}",
                  exception.getMessage(),
                  e == null ? null : e.getUid(),
-                 request.getRemoteAddr(),
+                 IpUtil.getRealIp(request),
                  request.getHeader(HEADER_USER_AGENT),
                  request.getSession(true).getId());
 

@@ -41,6 +41,7 @@ import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
+import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.regex.PatternSyntaxException;
@@ -79,7 +80,7 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
     public boolean sent(ServletWebRequest request, ValidateCode validateCode) {
         String mobile = null;
         HttpServletRequest req = request.getRequest();
-        String ip = req.getRemoteAddr();
+        String ip = IpUtil.getRealIp(req);
         String sid = request.getSessionId();
         String uri = req.getRequestURI();
         try

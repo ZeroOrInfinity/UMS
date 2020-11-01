@@ -31,6 +31,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
+import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -82,7 +83,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
         ValidateCode validateCode;
         HttpServletRequest req = request.getRequest();
-        String ip = req.getRemoteAddr();
+        String ip = IpUtil.getRealIp(req);
         String sid = request.getSessionId();
         String uri = req.getRequestURI();
         try
@@ -133,7 +134,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         }
         catch (Exception e)
         {
-            throw new ValidateCodeException(GET_VALIDATE_CODE_FAILURE, e, request.getRequest().getRemoteAddr(), request.getRequest().getRequestURI());
+            throw new ValidateCodeException(GET_VALIDATE_CODE_FAILURE, e, IpUtil.getRealIp(request.getRequest()), request.getRequest().getRequestURI());
         }
     }
 
@@ -149,7 +150,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         {
             String msg = String.format("验证码保存到Session失败: error=%s, ip=%s, code=%s",
                                        e.getMessage(),
-                                       request.getRequest().getRemoteAddr(),
+                                       IpUtil.getRealIp(request.getRequest()),
                                        validateCode);
             log.error(msg, e);
             return false;

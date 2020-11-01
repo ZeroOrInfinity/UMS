@@ -38,6 +38,7 @@ import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
+import top.dcenter.ums.security.core.util.IpUtil;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 import top.dcenter.ums.security.core.vo.UserInfoJsonVo;
 
@@ -86,7 +87,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
 
         // 客户端成功处理器,
         String username = authentication.getName();
-        String ip = request.getRemoteAddr();
+        String ip = IpUtil.getRealIp(request);
         String userAgent = request.getHeader(SecurityConstants.HEADER_USER_AGENT);
         String sid = request.getSession(true).getId();
 

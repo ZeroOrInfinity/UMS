@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
+import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
@@ -74,7 +75,7 @@ public class UriAuthoritiesPermissionEvaluator  implements PermissionEvaluator {
             // 日志参数
             Object principal = authentication.getPrincipal();
             String sid = request.getSession(true).getId();
-            String ip = request.getRemoteAddr();
+            String ip = IpUtil.getRealIp(request);
             String uri = request.getRequestURI();
             long now = Instant.now().toEpochMilli();
             String referer = request.getHeader("referer");

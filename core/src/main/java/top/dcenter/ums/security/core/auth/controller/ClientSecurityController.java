@@ -24,7 +24,6 @@
 package top.dcenter.ums.security.core.auth.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;
@@ -34,12 +33,14 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import top.dcenter.ums.security.core.api.controller.BaseSecurityController;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
+import top.dcenter.ums.security.core.api.controller.BaseSecurityController;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
+import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
+import top.dcenter.ums.security.core.util.IpUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -131,7 +132,7 @@ public class ClientSecurityController implements BaseSecurityController, Initial
         catch (Exception e)
         {
             String requestUri = request.getRequestURI();
-            String ip = request.getRemoteAddr();
+            String ip = IpUtil.getRealIp(request);
             String msg = String.format("IllegalAccessUrlException: ip=%s, uri=%s, sid=%s, error=%s",
                                       ip,
                                       getServletContextPath() + requestUri,

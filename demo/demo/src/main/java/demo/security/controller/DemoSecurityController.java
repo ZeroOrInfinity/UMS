@@ -37,6 +37,7 @@ import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.controller.BaseSecurityController;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
+import top.dcenter.ums.security.core.util.IpUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -126,7 +127,7 @@ public class DemoSecurityController implements BaseSecurityController {
         catch (Exception e)
         {
             String requestUri = request.getRequestURI();
-            String ip = request.getRemoteAddr();
+            String ip = IpUtil.getRealIp(request);
             log.error(String.format("IllegalAccessUrlException: ip=%s, uri=%s, sid=%s, error=%s",
                                     ip,
                                     MvcUtil.getServletContextPath() + requestUri,

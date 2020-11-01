@@ -30,6 +30,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
+import top.dcenter.ums.security.core.util.IpUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,7 +64,7 @@ public enum ValidateCodeCacheType {
             {
                 String msg = String.format("验证码保存到 Session 失败: error=%s, ip=%s, code=%s",
                                            e.getMessage(),
-                                           req.getRemoteAddr(),
+                                           IpUtil.getRealIp(req),
                                            validateCode);
                 log.error(msg, e);
                 return false;
@@ -103,7 +104,7 @@ public enum ValidateCodeCacheType {
             catch (Exception e) {
                 String msg = String.format("验证码保存到 redis 失败: error=%s, ip=%s, code=%s",
                                            e.getMessage(),
-                                           request.getRequest().getRemoteAddr(),
+                                           IpUtil.getRealIp(request.getRequest()),
                                            validateCode);
                 log.error(msg, e);
                 return false;

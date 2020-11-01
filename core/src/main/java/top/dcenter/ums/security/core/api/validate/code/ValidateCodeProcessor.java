@@ -29,6 +29,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
+import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -116,7 +117,7 @@ public interface ValidateCodeProcessor {
         // 检查 session 是否有值
         if (codeInSession == null)
         {
-            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, req.getRemoteAddr(), codeInRequest);
+            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, IpUtil.getRealIp(req), codeInRequest);
         }
 
         // 校验参数是否有效
@@ -124,7 +125,7 @@ public interface ValidateCodeProcessor {
         {
             // 按照逻辑是前端过滤无效参数, 如果进入此逻辑, 按非正常访问处理
             validateCodeCacheType.removeCache(request, validateCodeType, stringRedisTemplate);
-            throw new ValidateCodeException(VALIDATE_CODE_NOT_EMPTY, req.getRemoteAddr(), validateCodeType.name());
+            throw new ValidateCodeException(VALIDATE_CODE_NOT_EMPTY, IpUtil.getRealIp(req), validateCodeType.name());
         }
 
         codeInRequest = codeInRequest.trim();
@@ -133,7 +134,7 @@ public interface ValidateCodeProcessor {
         if (codeInSession.isExpired())
         {
             validateCodeCacheType.removeCache(request, validateCodeType, stringRedisTemplate);
-            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, req.getRemoteAddr(), codeInRequest);
+            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, IpUtil.getRealIp(req), codeInRequest);
         }
 
         // 验证码校验
@@ -143,7 +144,7 @@ public interface ValidateCodeProcessor {
             {
                 validateCodeCacheType.removeCache(request, validateCodeType, stringRedisTemplate);
             }
-            throw new ValidateCodeException(VALIDATE_CODE_ERROR, req.getRemoteAddr(), codeInRequest);
+            throw new ValidateCodeException(VALIDATE_CODE_ERROR, IpUtil.getRealIp(req), codeInRequest);
         }
 
         validateCodeCacheType.removeCache(request, validateCodeType, stringRedisTemplate);

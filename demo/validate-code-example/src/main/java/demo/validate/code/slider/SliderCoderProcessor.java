@@ -40,6 +40,7 @@ import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.util.AuthenticationUtil;
+import top.dcenter.ums.security.core.util.IpUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 import top.dcenter.ums.security.core.util.ValidateCodeUtil;
 
@@ -121,7 +122,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         // 检查 session 是否有值
         if (sliderCodeInSession == null)
         {
-            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, req.getRemoteAddr(), request.getSessionId());
+            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, IpUtil.getRealIp(req), request.getSessionId());
         }
 
         // 检测是否是第二此校验
@@ -159,7 +160,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
             {
                 this.validateCodeCacheType.removeCache(request, sliderType, stringRedisTemplate);
             }
-            throw new ValidateCodeException(VALIDATE_CODE_FAILURE, req.getRemoteAddr(), token);
+            throw new ValidateCodeException(VALIDATE_CODE_FAILURE, IpUtil.getRealIp(req), token);
         }
 
         // 更新 session 中的验证码信息, 以便于第二次校验
@@ -188,7 +189,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         {
             // 按照逻辑是前端过滤无效参数, 如果进入此逻辑, 按非正常访问处理
             this.validateCodeCacheType.removeCache(request, sliderType, stringRedisTemplate);
-            throw new ValidateCodeException(errorCodeEnum, request.getRequest().getRemoteAddr(), errorData);
+            throw new ValidateCodeException(errorCodeEnum, IpUtil.getRealIp(request.getRequest()), errorData);
         }
     }
 

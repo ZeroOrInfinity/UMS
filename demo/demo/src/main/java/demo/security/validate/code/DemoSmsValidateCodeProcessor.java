@@ -41,6 +41,7 @@ import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheTy
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor;
 import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
+import top.dcenter.ums.security.core.util.IpUtil;
 
 import java.util.regex.PatternSyntaxException;
 
@@ -84,13 +85,13 @@ public class DemoSmsValidateCodeProcessor extends SmsValidateCodeProcessor {
         }
         catch (ServletRequestBindingException e)
         {
-            throw new ValidateCodeParamErrorException(MOBILE_PARAMETER_ERROR, validateCodeProperties.getSms().getRequestParamMobileName(), request.getRequest().getRemoteAddr());
+            throw new ValidateCodeParamErrorException(MOBILE_PARAMETER_ERROR, validateCodeProperties.getSms().getRequestParamMobileName(), IpUtil.getRealIp(request.getRequest()));
         }
         catch (PatternSyntaxException e) {
             log.error(e.getMessage(), e);
         }
 
-        throw new ValidateCodeParamErrorException(MOBILE_FORMAT_ERROR, mobile, request.getRequest().getRemoteAddr());
+        throw new ValidateCodeParamErrorException(MOBILE_FORMAT_ERROR, mobile, IpUtil.getRealIp(request.getRequest()));
     }
 
     @Override

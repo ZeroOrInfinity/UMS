@@ -24,6 +24,7 @@
 package demo.test.filter;
 
 import lombok.extern.slf4j.Slf4j;
+import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -44,7 +45,7 @@ import java.time.Instant;
 @Slf4j
 public class TimeFilter implements Filter {
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
         if (log.isDebugEnabled())
         {
             log.debug("TimeFilter.init");
@@ -57,7 +58,7 @@ public class TimeFilter implements Filter {
         log.info("\n\tservletRequest = {}\n\tservletResponse = {}\n\tfilterChain = {}", servletRequest, servletResponse, filterChain);
         Instant start = Instant.now();
         filterChain.doFilter(servletRequest, servletResponse);
-        String ip = servletRequest.getRemoteAddr();
+        String ip = IpUtil.getRealIp((HttpServletRequest) servletRequest);
         log.info("TimeFilter.doFilter end。{} request {} duration = {}", ip,
                  ((HttpServletRequest) servletRequest).getRequestURI(),
                  (Instant.now().toEpochMilli() - start.toEpochMilli()));

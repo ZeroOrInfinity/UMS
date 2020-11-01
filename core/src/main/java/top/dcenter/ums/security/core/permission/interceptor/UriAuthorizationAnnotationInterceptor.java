@@ -32,6 +32,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
 import top.dcenter.ums.security.core.permission.annotation.UriAuthorize;
+import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -80,7 +81,7 @@ public class UriAuthorizationAnnotationInterceptor implements HandlerInterceptor
 
         String sid = request.getSession(true).getId();
         Object principal = authentication.getPrincipal();
-        String ip = request.getRemoteAddr();
+        String ip = IpUtil.getRealIp(request);
         String uri = request.getRequestURI();
         long now = Instant.now().toEpochMilli();
         String referer = request.getHeader("referer");

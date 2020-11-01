@@ -33,6 +33,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
+import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -66,7 +67,7 @@ public class DefaultLogoutSuccessHandler implements LogoutSuccessHandler {
 
         log.info("登出成功: user={}, ip={}, ua={}, sid={}, sck={}",
                  authentication != null ? authentication.getPrincipal() : "",
-                 request.getRemoteAddr(),
+                 IpUtil.getRealIp(request),
                  request.getHeader(SecurityConstants.HEADER_USER_AGENT),
                  session.getId(),
                  session.getAttribute(SecurityConstants.SESSION_ENHANCE_CHECK_KEY));

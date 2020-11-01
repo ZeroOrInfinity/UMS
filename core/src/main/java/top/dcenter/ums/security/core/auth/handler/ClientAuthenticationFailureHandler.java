@@ -30,6 +30,7 @@ import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticati
 import top.dcenter.ums.security.core.auth.filter.AjaxOrFormRequestFilter;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
+import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -92,7 +93,7 @@ public class ClientAuthenticationFailureHandler extends BaseAuthenticationFailur
         }
         log.info("登录失败: user={}, ip={}, ua={}, sid={}, reqData={}",
                  e == null ? null : e.getUid(),
-                 request.getRemoteAddr(),
+                 IpUtil.getRealIp(request),
                  request.getHeader(SecurityConstants.HEADER_USER_AGENT),
                  request.getSession(true).getId(),
                  reqData);

@@ -28,6 +28,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.session.SessionEnhanceCheckService;
+import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -49,14 +50,14 @@ public class DemoSessionEnhanceCheckServiceImpl implements SessionEnhanceCheckSe
     @Override
     public void setEnhanceCheckValue(@NonNull HttpSession session, @NonNull HttpServletRequest request) {
         String userAgent = request.getHeader(HEADER_USER_AGENT);
-         session.setAttribute(SESSION_ENHANCE_CHECK_KEY, request.getRemoteAddr() + extractUserAgent(userAgent));
+         session.setAttribute(SESSION_ENHANCE_CHECK_KEY, IpUtil.getRealIp(request) + extractUserAgent(userAgent));
     }
 
     @Override
     public boolean sessionEnhanceCheck(@NonNull String checkValue, @NonNull HttpServletRequest request) {
 
         String userAgent = request.getHeader(HEADER_USER_AGENT);
-        String remoteAddr = request.getRemoteAddr();
+        String remoteAddr = IpUtil.getRealIp(request);
         // 验证是否合法的 client 特征码
         if (checkValue.equals(remoteAddr + extractUserAgent(userAgent)))
         {

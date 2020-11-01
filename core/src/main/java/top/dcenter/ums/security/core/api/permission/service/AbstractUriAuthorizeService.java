@@ -59,9 +59,17 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
 
     /**
-     * 权限前缀
+     * 角色权限前缀
      */
     private static final String DEFAULT_ROLE_PREFIX = "ROLE_";
+    /**
+     * 多租户权限前缀
+     */
+    private static final String DEFAULT_TENANT_PREFIX = "TENANT_";
+    /**
+     * 资源权限前缀
+     */
+    private static final String DEFAULT_SCOPE_PREFIX = "SCOPE_";
 
     /**
      * 权限分隔符

@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
+import top.dcenter.ums.security.core.util.IpUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -87,7 +88,7 @@ public class InvalidSessionController implements InitializingBean {
         catch (Exception e)
         {
             String requestUri = request.getRequestURI();
-            String ip = request.getRemoteAddr();
+            String ip = IpUtil.getRealIp(request);
             String msg = String.format("IllegalAccessUrlException: ip=%s, uri=%s, sid=%s, error=%s",
                                        ip, requestUri, request.getSession(true).getId(), e.getMessage());
             log.error(msg, e);

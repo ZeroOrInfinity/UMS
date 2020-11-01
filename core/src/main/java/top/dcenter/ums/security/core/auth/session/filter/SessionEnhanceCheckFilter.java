@@ -32,6 +32,7 @@ import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticati
 import top.dcenter.ums.security.core.api.session.SessionEnhanceCheckService;
 import top.dcenter.ums.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.ums.security.core.exception.SessionEnhanceCheckException;
+import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -82,7 +83,7 @@ public class SessionEnhanceCheckFilter extends OncePerRequestFilter {
             if (checkValue != null && !this.sessionEnhanceCheckService.sessionEnhanceCheck(checkValue, request))
             {
                 log.warn("session被劫持: ip={}, ua={}, sid={}, uri={}, checkValue={}",
-                         request.getRemoteAddr(),
+                         IpUtil.getRealIp(request),
                          request.getHeader(HEADER_USER_AGENT),
                          session.getId(),
                          request.getRequestURI(),
