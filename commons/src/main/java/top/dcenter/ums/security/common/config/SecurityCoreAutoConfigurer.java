@@ -125,9 +125,9 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
         // 处理 preConfigure
         if (webSecurityConfigurerMap != null)
         {
-            for (HttpSecurityAware postConfigurer : webSecurityConfigurerMap.values())
+            for (HttpSecurityAware configurer : webSecurityConfigurerMap.values())
             {
-                postConfigurer.preConfigure(http);
+                configurer.preConfigure(http);
             }
         }
 
@@ -139,9 +139,9 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
         // 处理 postConfigure
         if (webSecurityConfigurerMap != null)
         {
-            for (HttpSecurityAware postConfigurer : webSecurityConfigurerMap.values())
+            for (HttpSecurityAware configurer : webSecurityConfigurerMap.values())
             {
-                postConfigurer.postConfigure(http);
+                configurer.postConfigure(http);
             }
         }
     }
