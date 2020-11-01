@@ -1,4 +1,4 @@
-## 2.0.4
+## 2.0.5
 ### Fixes and Improvements:
 1. 修复: permitUrls 当不带方法后缀时不生效的 bug.
 2. 特性: 添加基于 SLF4J MDC 机制的日志链路追踪功能.

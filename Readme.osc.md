@@ -46,7 +46,7 @@
   | [session-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/session-detail-example) | core 模块: session 与 session 缓存详细配置                   |
   | [validate-code-example](https://gitee.com/pcore/UMS/tree/master/demo/validate-code-example)  | core 模块基本功能: 验证码(含自定义滑块验证码), 手机登录配置  |
 
-### [Github 更新日志(Changelog)](https://github.com/ZeroOrInfinity/UMS/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97%EF%BC%88Changelog%EF%BC%89) | [Gitee 更新日志](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2927596&doc_id=984605)
+### [Github 更新日志(UpdatedLog)](https://github.com/ZeroOrInfinity/UMS/blob/master/UpdatedLog.md) | [Gitee 更新日志](https://gitee.com/pcore/UMS/blob/master/UpdatedLog.md)
 
 ### [Gitee文档地址](https://gitee.com/pcore/UMS/wikis/pages) | [Github 文档地址](https://github.com/ZeroOrInfinity/UMS/wiki)
 
