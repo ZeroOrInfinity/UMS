@@ -198,3 +198,6 @@ debug: true
 server:
   servlet:
     context-path: /demo
+
+logging:
+  config: classpath:logback-spring.xml

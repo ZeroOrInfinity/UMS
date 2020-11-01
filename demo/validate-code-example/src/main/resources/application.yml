@@ -169,3 +169,6 @@ spring:
     throw-exception-if-no-handler-found: true
 
 debug: true
+
+logging:
+  config: classpath:logback-spring.xml

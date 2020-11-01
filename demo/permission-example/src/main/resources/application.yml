@@ -104,6 +104,8 @@ spring:
   thymeleaf:
     cache: false
 
+logging:
+  config: classpath:logback-spring.xml
 
 debug: true
 

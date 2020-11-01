@@ -29,6 +29,8 @@ spring:
   cache:
     type: redis
 
+logging:
+  config: classpath:logback-spring.xml
 
 server:
   port: 9090

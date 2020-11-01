@@ -283,5 +283,8 @@ server:
   servlet:
     context-path: /demo
 
+logging:
+  config: classpath:logback-spring.xml
+
 swagger:
   show: true
