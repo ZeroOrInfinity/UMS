@@ -1,7 +1,12 @@
 ## 2.0.4
 ### Fixes and Improvements:
-1. 修复: 生成 userConnectionUpdateExecutor 时 maximumPoolSize 小于 corePoolSize 的 bug. 感谢: 永生的灯塔水母
-2. 修复: AuthStateRedisCache.java containsKey(key) 方法的 bug. 感谢: 永生的灯塔水母
+1. 修复: permitUrls 当不带方法后缀时不生效的 bug.
+2. 特性: 添加基于 SLF4J MDC 机制的日志链路追踪功能.
+
+## 2.0.4
+### Fixes and Improvements:
+1. 修复: 生成 userConnectionUpdateExecutor 时 maximumPoolSize 小于 corePoolSize 的 bug. 感谢: 永生的灯塔水母.
+2. 修复: AuthStateRedisCache.java containsKey(key) 方法的 bug. 感谢: 永生的灯塔水母.
 3. 修复: 成功处理器redirect方式多加ServletContextPath的问题.
 4. 增强: 添加在不支持自动注册时, 创建临时用户 TemporaryUser 后跳转 signUpUrl, signUpUrl 可通过属性设置, 再次获取 TemporaryUser 
 通过 SecurityContextHolder.getContext().getAuthentication().getPrincipal(); 改进 signUpUrl 的处理方式: 
@@ -9,9 +14,10 @@
 5. 优化: 添加了一些 Authentication 与 UserDetails 子类的反序列化器, 以解决 redis 缓存不能反序列化此类型的问题, 添加反序列化配置(Auth2Jackson2Module);
 具体配置 redis 反序列器的配置请看 RedisCacheAutoConfiguration.getJackson2JsonRedisSerializer() 方法.
 6. 优化: UmsUserDetailsService.generateUsernames(AuthUser authUser) 接口默认实现方法, 便于开发者对与用户命名规则的自定义.
-7. 优化: 更改接口 UmsUserDetailsService 的方法名称: existedByUserIds -> existedByUsernames. 更新方法说明. 感谢: 永生的灯塔水母
+7. 优化: 更改接口 UmsUserDetailsService 的方法名称: existedByUserIds -> existedByUsernames. 更新方法说明. 感谢: 永生的灯塔水母.
 8. 其他: 更新 JustAuth 到 1.15.8. 时序图, 更新 example 与 README.
-9. 增强: 添加验证码 redis 缓存
+9. 增强: 添加验证码 redis 缓存. issue: #I22JKH
+
 
 ## 2.0.3
 ### Fixes and Improvements:
