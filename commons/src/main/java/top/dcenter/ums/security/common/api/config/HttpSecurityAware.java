@@ -38,6 +38,7 @@ import top.dcenter.ums.security.common.config.SecurityCoreAutoConfigurer;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -186,10 +187,9 @@ public interface HttpSecurityAware {
                                                     @NonNull final Map<UriHttpMethodTuple, Set<String>> permitAllMap) {
         UriHttpMethodTuple tuple = null;
         String[] split = StringUtils.split(permitUrl, SecurityConstants.URI_METHOD_SEPARATOR);
-        if (null == split)
-        {
-            return;
-        }
+
+        split = Optional.ofNullable(split).orElse(new String[]{permitUrl});
+
         switch (split.length)
         {
             case 1:
