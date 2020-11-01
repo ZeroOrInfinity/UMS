@@ -87,7 +87,7 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
                                                                       SLIDER_IMG_OUT_PADDING,
                                                                       SLIDER_IMG_SLIDER_IMG_EXPIRE_IN);
 
-            sliderCode.setToken(ValidateCodeUtil.getUUID());
+            sliderCode.setToken(ValidateCodeUtil.getUuid());
 
             return sliderCode;
         }

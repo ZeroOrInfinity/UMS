@@ -23,10 +23,10 @@
 
 package top.dcenter.ums.security.core.util;
 
+import me.zhyd.oauth.utils.UuidUtils;
 import org.springframework.lang.NonNull;
 
 import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -54,8 +54,8 @@ public class ValidateCodeUtil {
      * 不带 - 的 uuid
      * @return  不带 - 的 uuid 字符串
      */
-    public static String getUUID() {
-        return UUID.randomUUID().toString().replaceAll("-", "");
+    public static String getUuid() {
+        return UuidUtils.getUUID();
     }
 
 

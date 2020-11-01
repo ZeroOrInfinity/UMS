@@ -165,7 +165,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         // 更新 session 中的验证码信息, 以便于第二次校验
         sliderCodeInSession.setSecondCheck(true);
         // 方便二次校验时, 调用 ValidateCodeGenerator.defaultValidate 方法.
-        sliderCodeInSession.setCode(ValidateCodeUtil.getUUID());
+        sliderCodeInSession.setCode(ValidateCodeUtil.getUuid());
         // 这里第一次校验通过, 第二次校验不需要使用复用功能, 不然第二次校验时不会清除 session 中的验证码缓存
         sliderCodeInSession.setReuse(false);
 
