@@ -22,14 +22,16 @@
  */
 package top.dcenter.ums.security.core.mdc.config;
 
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
-import top.dcenter.ums.security.core.mdc.properties.MdcProperties;
 import top.dcenter.ums.security.core.mdc.interceptor.MdcLogInterceptor;
+import top.dcenter.ums.security.core.mdc.properties.MdcProperties;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +43,8 @@ import java.util.List;
  * @version V2.0  Created by 2020/10/31 18:15
  */
 @Configuration
+@ConditionalOnProperty(prefix = "ums.mdc", name = "enable", havingValue = "true")
+@AutoConfigureAfter(value = {MdcPropertiesAutoConfiguration.class})
 public class MdcLogWebMvcConfigurer implements WebMvcConfigurer {
 
     private final MdcProperties mdcProperties;
