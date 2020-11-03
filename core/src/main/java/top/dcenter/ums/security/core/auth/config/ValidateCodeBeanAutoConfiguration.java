@@ -75,8 +75,9 @@ public class ValidateCodeBeanAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator")
-    public ImageCodeGenerator imageCodeGenerator(ValidateCodeProperties validateCodeProperties) {
-        return new ImageCodeGenerator(validateCodeProperties, imageCodeFactory(validateCodeProperties));
+    public ImageCodeGenerator imageCodeGenerator(ValidateCodeProperties validateCodeProperties,
+                                                 ImageCodeFactory imageCodeFactory) {
+        return new ImageCodeGenerator(validateCodeProperties, imageCodeFactory);
     }
 
     @Bean
