@@ -29,8 +29,6 @@ import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
 
-import java.awt.image.BufferedImage;
-
 /**
  * 图片验证码封装, 添加 @Transient 注解的是为了再保存 session 时把不必要的且图片字段清楚
  * @author zhailiang
@@ -46,21 +44,21 @@ public class ImageCode extends ValidateCode {
 
     @ToString.Exclude
     @Transient
-    private transient BufferedImage image;
+    private transient String imageUrl;
 
     public ImageCode() {
-        this.image = null;
+        this.imageUrl = null;
     }
 
     /**
      * 图片验证码
-     * @param image     tp
+     * @param imageUrl  图片验证码 URL
      * @param code      验证码字符串
      * @param expireIn  秒
      */
-    public ImageCode(BufferedImage image, String code, int expireIn) {
+    public ImageCode(String imageUrl, String code, int expireIn) {
         super(code, expireIn);
-        this.image = image;
+        this.imageUrl = imageUrl;
     }
 
 }

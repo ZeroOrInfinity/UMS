@@ -82,9 +82,19 @@ ums:
   # 验证码配置
   codes:
     # 验证码缓存类型, 默认: SESSION, 可选: REDIS/SESSION
-    validate-code-cache-type: redis
+    validate-code-cache-type: session
     # 获取验证码的 url 的前缀, 默认: /code
     get-validate-code-url-prefix: /code
+    # ===== 刷新图片验证码与滑块验证码缓存 定时任务 属性 =====
+    # A cron-like expression.
+    # 0 * 4 * * ? 分别对应: second/minute/hour/day of month/month/day of week
+    # 默认为: "0 * 4 * * ?", 凌晨四点
+    refresh-validate-code-job-cron: 0 * 4 * * ?
+    # 是否支持定时刷新 validateCodeJob 定时任务. 默认: true.
+    enable-refresh-validate-code-job: true
+    # 定时刷新 validateCodeJob 任务时, 需要缓存的验证码图片数. 默认: 100;
+    # 注意: 这里为了方便开发而设置的值, 生产环境根据情况直接设置
+    total-images: 100
     # 图片验证码
     image:
       # 设置需要图片验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
@@ -93,12 +103,17 @@ ums:
         - /authentication/social
       # 验证码长度
       length: 4
+      # 图片验证码高
       height: 60
+      # 图片验证码宽
       width: 270
+      # 验证码过期时间
       expire: 180
-      request-para-height-name: height
-      request-para-width-name: width
+      # 验证码 request 参数名称
       request-param-image-code-name: imageCode
+      # 缓存图片验证码目录，默认 classpath:static/image/code,
+      # 不以 "classpath:" 开头时即认为是绝对路径, 以 "classpath:" 开头时即认为是基于 classpath 的相对路径.
+      image-cache-directory: classpath:static/image/code
     # 自定义滑块验证码, v1.1.2-alph 版本已经内置, 具体配置可以看注释掉的 slider 配置
     customize:
       # 设置需要短信验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “，”号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
@@ -138,10 +153,12 @@ ums:
     #  slider-img-out-padding:
     #  # 滑块验证码默认过期时间, 180 秒
     #  expire: 180
-    #  # 原始图片目录，默认 static/image/validate/original
-    #  original-image-directory: static/image/validate/original
-    #  # 根据原始图片生成的滑块图片目录，用于自定义缓存滑块图片的存储目录, 默认 static/image/validate/template
-    #  template-image-directory: static/image/validate/template
+    #  # 原始图片目录，默认 classpath:static/image/validate/original
+    #  # 不以 "classpath:" 开头时即认为是绝对路径, 以 "classpath:" 开头时即认为是基于 classpath 的相对路径.
+    #  original-image-directory: classpath:static/image/validate/original
+    #  # 根据原始图片生成的滑块图片目录，用于自定义缓存滑块图片的存储目录, 默认 classpath:static/image/validate/template
+    #  # 不以 "classpath:" 开头时即认为是绝对路径, 以 "classpath:" 开头时即认为是基于 classpath 的相对路径.
+    #  template-image-directory: classpath:static/image/validate/template
 
 
     # 短信验证码
@@ -153,6 +170,7 @@ ums:
       expire: 120
       request-param-mobile-name: mobile
       request-param-sms-code-name: smsCode
+
   # ================ 手机登录配置 ================
   mobile:
     login:

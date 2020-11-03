@@ -126,7 +126,11 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         try
         {
             ValidateCodeGenerator<?> validateCodeGenerator = getValidateCodeGenerator(getValidateCodeType());
-            return (ValidateCode) validateCodeGenerator.generate(request.getRequest());
+            final ValidateCode validateCode = (ValidateCode) validateCodeGenerator.generate(request.getRequest());
+            if (validateCode == null) {
+                throw new ValidateCodeException(GET_VALIDATE_CODE_FAILURE, IpUtil.getRealIp(request.getRequest()), request.getRequest().getRequestURI());
+            }
+            return validateCode;
         }
         catch (ValidateCodeException e)
         {

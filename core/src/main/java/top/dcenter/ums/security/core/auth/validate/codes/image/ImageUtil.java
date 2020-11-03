@@ -33,6 +33,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -44,6 +46,11 @@ import java.util.Random;
  */
 @SuppressWarnings({"AlibabaUndefineMagicConstant", "unused"})
 public class ImageUtil {
+
+    /**
+     * 图片验证码类型
+     */
+    public static final String IMAGE_TYPE = "png";
 
     /**
      * 生成随机验证码文件,并返回验证码值
@@ -78,7 +85,7 @@ public class ImageUtil {
     }
 
     /**
-     * 生成指定验证码图像文件
+     * 生成 png 验证码图像文件
      *
      * @param w     图片宽度
      * @param h     图片高度
@@ -91,26 +98,33 @@ public class ImageUtil {
             return;
         }
         File dir = outputFile.getParentFile();
+        FileOutputStream fos = null;
         try {
+
             if (!dir.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                dir.mkdirs();
+                final Path directories = Files.createDirectories(dir.toPath());
+                if (!directories.toFile().exists()) {
+                    throw new IOException("输出图片失败");
+                }
             }
             boolean newFile = outputFile.createNewFile();
             if (!newFile)
             {
                 throw new IOException("输出图片失败");
             }
-            FileOutputStream fos = new FileOutputStream(outputFile);
+            fos = new FileOutputStream(outputFile);
             outputImage(w, h, fos, code);
-            fos.close();
         } catch (Exception e) {
             throw new IOException(e.getMessage(), e);
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
         }
     }
 
     /**
-     * 输出指定验证码图片流
+     * 输出 png 验证码图片流
      *
      * @param w     图片宽度
      * @param h     图片高度
@@ -120,7 +134,7 @@ public class ImageUtil {
      */
     public static void outputImage(int w, int h, OutputStream os, String code) throws IOException {
         BufferedImage image = getBufferedImage(w, h, code);
-        ImageIO.write(image, "jpg", os);
+        ImageIO.write(image, IMAGE_TYPE, os);
     }
 
     /**

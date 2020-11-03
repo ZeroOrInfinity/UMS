@@ -26,6 +26,7 @@ package demo.security.validate.code;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -36,8 +37,12 @@ import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheTy
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageValidateCodeProcessor;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * 自定义图片验证码处理器
@@ -69,7 +74,14 @@ public class DemoImageValidateCodeProcessor extends ImageValidateCodeProcessor {
             {
                 return false;
             }
-            ImageIO.write(imageCode.getImage(), "JPG", response.getOutputStream());
+
+            response.setContentType(MediaType.IMAGE_PNG_VALUE);
+
+            try (final FileChannel fileChannel = FileChannel.open(Paths.get(imageCode.getImageUrl()), StandardOpenOption.READ);
+                 final WritableByteChannel writableByteChannel = Channels.newChannel(response.getOutputStream())) {
+                fileChannel.transferTo(0, fileChannel.size(), writableByteChannel);
+            }
+
             log.info("Demo ========>: imageCode = {}", imageCode);
             return true;
         }

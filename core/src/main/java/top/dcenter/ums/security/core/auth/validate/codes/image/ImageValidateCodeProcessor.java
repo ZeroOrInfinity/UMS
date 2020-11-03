@@ -25,6 +25,7 @@ package top.dcenter.ums.security.core.auth.validate.codes.image;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -36,9 +37,13 @@ import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.util.IpUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 
 /**
@@ -60,6 +65,7 @@ public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
     public boolean sent(ServletWebRequest request, ValidateCode validateCode) {
         try
         {
+
             if (!(validateCode instanceof ImageCode))
             {
                 return false;
@@ -71,7 +77,14 @@ public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
             {
                 return false;
             }
-            ImageIO.write(imageCode.getImage(), "JPEG", response.getOutputStream());
+
+            response.setContentType(MediaType.IMAGE_PNG_VALUE);
+
+            try (final FileChannel fileChannel = FileChannel.open(Paths.get(imageCode.getImageUrl()), StandardOpenOption.READ);
+                 final WritableByteChannel writableByteChannel = Channels.newChannel(response.getOutputStream())) {
+                fileChannel.transferTo(0, fileChannel.size(), writableByteChannel);
+            }
+
             return true;
         }
         catch (Exception e)
