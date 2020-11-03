@@ -141,15 +141,11 @@ public class ValidateCodeBeanAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeJob"})
-    @ConditionalOnProperty(prefix = "ums.codes", name = "enableRefreshValidateCodeJob", havingValue = "true")
+    @ConditionalOnProperty(prefix = "ums.codes", name = "enable-refresh-validate-code-job", havingValue = "true")
     public RefreshValidateCodeJob refreshValidateCodeJob(ValidateCodeProperties validateCodeProperties,
-                                                         @Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor,
-                                                         ImageCodeFactory imageCodeFactory,
-                                                         SliderCodeFactory sliderCodeFactory) {
+                                                         @Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor) {
 
-        return new DefaultRefreshValidateCodeJobImpl(validateCodeProperties, jobTaskScheduledExecutor,
-                                                     imageCodeFactory, sliderCodeFactory);
+        return new DefaultRefreshValidateCodeJobImpl(validateCodeProperties, jobTaskScheduledExecutor);
     }
 
 

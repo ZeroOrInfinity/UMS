@@ -20,27 +20,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package top.dcenter.ums.security.core.api.validate.code.job;
 
-package top.dcenter.ums.security.core.api.validate.code.slider;
-
-import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeJob;
-import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCode;
-import top.dcenter.ums.security.core.exception.ValidateCodeException;
+import top.dcenter.ums.security.core.auth.validate.codes.job.DefaultRefreshValidateCodeJobImpl;
 
 /**
- * 滑块验证码工厂
+ * 刷新验证码缓存的的定时任务, 实现此接口注入 IOC 容器即可替换 {@link DefaultRefreshValidateCodeJobImpl}
  * @author YongWu zheng
- * @version V1.0
- * Created by 2020/9/21 21:19
+ * @version V2.0  Created by 2020/11/2 10:26
  */
-public interface SliderCodeFactory extends RefreshValidateCodeJob {
-
+public interface RefreshValidateCodeJob {
     /**
-     * 获取滑块验证码对象
-     *
-     * @return  返回滑块验证码对象
-     * @throws ValidateCodeException  ValidateCodeException
+     * 刷新验证码缓存的的定时任务
      */
-    SliderCode getSliderCode() throws ValidateCodeException;
-
+    void refreshValidateCodeJob();
 }

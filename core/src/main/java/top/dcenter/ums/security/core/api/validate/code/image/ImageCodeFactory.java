@@ -23,9 +23,9 @@
 
 package top.dcenter.ums.security.core.api.validate.code.image;
 
+import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeJob;
 import top.dcenter.ums.security.core.auth.validate.codes.image.DefaultImageCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;
-import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 
 import javax.servlet.ServletRequest;
 
@@ -36,15 +36,12 @@ import javax.servlet.ServletRequest;
  * @version V1.0
  * Created by 2020/5/22 11:14
  */
-public interface ImageCodeFactory {
+public interface ImageCodeFactory extends RefreshValidateCodeJob {
     /**
      * 获取图片验证码. <br><br>
-     *     如果 request 中传递了图片的宽与高的值，参数名称必须与 {@link ValidateCodeProperties} 中的 ums.codes.image
-     *     .request-para-height-name=height 和 ums.codes.image.request-para-width-name=width 一致。
-     *     如果 request 中没有传递相关参数，则会使用 ums.codes.image.height=60 和 ums.codes.image.width=270 默认配置。<br><br>
-     *     以上参数都可以自定义配置。
      * @param request                   request
      * @return 图片验证码
      */
     ImageCode getImageCode(ServletRequest request);
+
 }
