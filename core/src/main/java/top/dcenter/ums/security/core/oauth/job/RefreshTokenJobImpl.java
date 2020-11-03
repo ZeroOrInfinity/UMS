@@ -75,7 +75,7 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
     private final UsersConnectionRepository usersConnectionRepository;
     private final UsersConnectionTokenRepository usersConnectionTokenRepository;
     private final Auth2Properties auth2Properties;
-    private final ScheduledExecutorService accessTokenJobTaskExecutor;
+    private final ScheduledExecutorService jobTaskScheduledExecutor;
     private final ExecutorService refreshTokenTaskExecutor;
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired(required = false)
@@ -84,15 +84,15 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
     public RefreshTokenJobImpl(UsersConnectionRepository usersConnectionRepository,
                                UsersConnectionTokenRepository usersConnectionTokenRepository,
                                Auth2Properties auth2Properties,
-                               @Qualifier("accessTokenJobTaskExecutor") ScheduledExecutorService accessTokenJobTaskExecutor,
+                               @Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor,
                                @Qualifier("refreshTokenTaskExecutor") ExecutorService refreshTokenTaskExecutor) {
-        Assert.notNull(accessTokenJobTaskExecutor, "accessTokenJobTaskExecutor cannot be null");
+        Assert.notNull(jobTaskScheduledExecutor, "jobTaskScheduledExecutor cannot be null");
         Assert.notNull(refreshTokenTaskExecutor, "refreshTokenTaskExecutor cannot be null");
         Assert.notNull(usersConnectionRepository, "usersConnectionRepository cannot be null");
         Assert.notNull(usersConnectionTokenRepository, "usersConnectionTokenRepository cannot be null");
         Assert.notNull(auth2Properties, "auth2Properties cannot be null");
 
-        this.accessTokenJobTaskExecutor = accessTokenJobTaskExecutor;
+        this.jobTaskScheduledExecutor = jobTaskScheduledExecutor;
         this.refreshTokenTaskExecutor = refreshTokenTaskExecutor;
         this.usersConnectionRepository = usersConnectionRepository;
         this.usersConnectionTokenRepository = usersConnectionTokenRepository;
@@ -103,7 +103,7 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
     @Override
     @Scheduled(cron = "0 * 3 * * ?")
     public void refreshTokenJob() {
-        accessTokenJobTaskExecutor.schedule(() -> {
+        jobTaskScheduledExecutor.schedule(() -> {
             if (this.redisConnectionFactory != null)
             {
                 // 分布式

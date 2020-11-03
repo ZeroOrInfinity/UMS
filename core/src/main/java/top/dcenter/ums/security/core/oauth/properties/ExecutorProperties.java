@@ -43,10 +43,10 @@ import java.util.concurrent.TimeUnit;
 public class ExecutorProperties {
 
     /**
-     * 启动第三方授权登录用户的 accessToken 的定时任务时的 Executor 属性,<br>
+     * 定时任务时的 Executor 属性<br>
      * 注意: 需要根据实际生产环境进行优化
      */
-    private final AccessTokenRefreshJobExecutorProperties accessTokenRefreshJob = new AccessTokenRefreshJobExecutorProperties();
+    private final JobTaskScheduledExecutorProperties jobTaskScheduledExecutor = new JobTaskScheduledExecutorProperties();
     /**
      * 更新第三方授权登录用户的 accessToken 的执行逻辑, 向本地数据库 auth_token 表获取过期或在一定时间内过期的 token 记录, 用 refreshToken 向第三方服务商更新
      * accessToken 信息的 Executor 属性,<br>
@@ -61,7 +61,7 @@ public class ExecutorProperties {
 
     @Getter
     @Setter
-    public static class AccessTokenRefreshJobExecutorProperties {
+    public static class JobTaskScheduledExecutorProperties {
 
         /**
          * 线程池中空闲时保留的线程数, 默认: 0
