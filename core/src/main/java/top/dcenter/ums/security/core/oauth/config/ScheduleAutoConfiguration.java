@@ -27,7 +27,6 @@ import org.slf4j.MDC;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,14 +56,13 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings({"unused"})
 @Configuration
-@ConditionalOnProperty(prefix = "ums.oauth", name = "enabled", havingValue = "true")
 @AutoConfigureAfter(value = {Auth2AutoConfiguration.class})
 @EnableScheduling
 public class ScheduleAutoConfiguration implements SchedulingConfigurer, DisposableBean {
 
     private final Auth2Properties auth2Properties;
     private final ExecutorProperties executorProperties;
-    private ScheduledExecutorService accessTokenScheduledExecutorService;
+    private ScheduledExecutorService jobTaskScheduledExecutor;
     private ExecutorService updateConnectionExecutorService;
     private ExecutorService refreshTokenExecutorService;
 
@@ -75,37 +73,35 @@ public class ScheduleAutoConfiguration implements SchedulingConfigurer, Disposab
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-        taskRegistrar.setScheduler(accessTokenScheduledExecutorService);
+        taskRegistrar.setScheduler(jobTaskScheduledExecutor);
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.core.oauth.job.RefreshTokenJob"})
-    @ConditionalOnProperty(prefix = "ums.oauth", name = "enableRefreshTokenJob", havingValue = "true")
+    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-refresh-token-job", havingValue = "true")
     public RefreshTokenJob refreshTokenJob(UsersConnectionTokenRepository usersConnectionTokenRepository,
                                            UsersConnectionRepository usersConnectionRepository,
-                                           @Qualifier("accessTokenJobTaskExecutor") ScheduledExecutorService accessTokenJobTaskExecutor,
+                                           @Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor,
                                            @Qualifier("refreshTokenTaskExecutor") ExecutorService refreshTokenTaskExecutor) {
         return new RefreshTokenJobImpl(usersConnectionRepository, usersConnectionTokenRepository,
-                                       auth2Properties, accessTokenJobTaskExecutor,refreshTokenTaskExecutor);
+                                       auth2Properties, jobTaskScheduledExecutor,refreshTokenTaskExecutor);
     }
 
     @Bean()
-    @ConditionalOnProperty(prefix = "ums.oauth", name = "enableRefreshTokenJob", havingValue = "true")
-    public ScheduledExecutorService accessTokenJobTaskExecutor() {
-        ExecutorProperties.AccessTokenRefreshJobExecutorProperties accessTokenRefreshJob = executorProperties.getAccessTokenRefreshJob();
+    public ScheduledExecutorService jobTaskScheduledExecutor() {
+        ExecutorProperties.JobTaskScheduledExecutorProperties jobTaskScheduledExecutor = executorProperties.getJobTaskScheduledExecutor();
         ScheduledThreadPoolExecutor scheduledThreadPoolExecutor =
-                new MdcScheduledThreadPoolTaskExecutor(accessTokenRefreshJob.getCorePoolSize(),
-                                                       getThreadFactory(accessTokenRefreshJob.getPoolName()),
-                                                       accessTokenRefreshJob.getRejectedExecutionHandlerPolicy().getRejectedHandler());
-        scheduledThreadPoolExecutor.setKeepAliveTime(accessTokenRefreshJob.getKeepAliveTime(),
-                                                     accessTokenRefreshJob.getTimeUnit());
+                new MdcScheduledThreadPoolTaskExecutor(jobTaskScheduledExecutor.getCorePoolSize(),
+                                                       getThreadFactory(jobTaskScheduledExecutor.getPoolName()),
+                                                       jobTaskScheduledExecutor.getRejectedExecutionHandlerPolicy().getRejectedHandler());
+        scheduledThreadPoolExecutor.setKeepAliveTime(jobTaskScheduledExecutor.getKeepAliveTime(),
+                                                     jobTaskScheduledExecutor.getTimeUnit());
 
-        this.accessTokenScheduledExecutorService = scheduledThreadPoolExecutor;
+        this.jobTaskScheduledExecutor = scheduledThreadPoolExecutor;
         return scheduledThreadPoolExecutor;
     }
 
     @Bean()
-    @ConditionalOnProperty(prefix = "ums.oauth", name = "enableRefreshTokenJob", havingValue = "true")
+    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-refresh-token-job", havingValue = "true")
     public ExecutorService refreshTokenTaskExecutor() {
         ExecutorProperties.RefreshTokenExecutorProperties refreshToken = executorProperties.getRefreshToken();
         ThreadPoolExecutor threadPoolExecutor =
@@ -122,6 +118,7 @@ public class ScheduleAutoConfiguration implements SchedulingConfigurer, Disposab
     }
 
     @Bean(destroyMethod = "shutdown")
+    @ConditionalOnProperty(prefix = "ums.oauth", name = "enabled", havingValue = "true")
     public ExecutorService updateConnectionTaskExecutor() {
         ExecutorProperties.UserConnectionUpdateExecutorProperties userConnectionUpdate = executorProperties.getUserConnectionUpdate();
         ThreadPoolExecutor threadPoolExecutor =
@@ -160,7 +157,7 @@ public class ScheduleAutoConfiguration implements SchedulingConfigurer, Disposab
         if (refreshTokenExecutorService != null)
         {
             refreshTokenExecutorService.shutdown();
-            refreshTokenExecutorService.awaitTermination(executorProperties.getAccessTokenRefreshJob().getExecutorShutdownTimeout().toMillis(),
+            refreshTokenExecutorService.awaitTermination(executorProperties.getJobTaskScheduledExecutor().getExecutorShutdownTimeout().toMillis(),
                                                                  TimeUnit.MILLISECONDS);
             if (!refreshTokenExecutorService.isTerminated()) {
                 // log.error("Processor did not terminate in time")
@@ -168,14 +165,14 @@ public class ScheduleAutoConfiguration implements SchedulingConfigurer, Disposab
             }
         }
 
-        if (accessTokenScheduledExecutorService != null)
+        if (jobTaskScheduledExecutor != null)
         {
-            accessTokenScheduledExecutorService.shutdown();
-            accessTokenScheduledExecutorService.awaitTermination(executorProperties.getAccessTokenRefreshJob().getExecutorShutdownTimeout().toMillis(),
+            jobTaskScheduledExecutor.shutdown();
+            jobTaskScheduledExecutor.awaitTermination(executorProperties.getJobTaskScheduledExecutor().getExecutorShutdownTimeout().toMillis(),
                                                                  TimeUnit.MILLISECONDS);
-            if (!accessTokenScheduledExecutorService.isTerminated()) {
+            if (!jobTaskScheduledExecutor.isTerminated()) {
                 // log.error("Processor did not terminate in time")
-                accessTokenScheduledExecutorService.shutdownNow();
+                jobTaskScheduledExecutor.shutdownNow();
             }
         }
     }
