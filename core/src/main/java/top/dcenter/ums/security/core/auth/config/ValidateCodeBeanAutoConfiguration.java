@@ -25,8 +25,10 @@ package top.dcenter.ums.security.core.auth.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
@@ -37,6 +39,7 @@ import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticati
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessorHolder;
 import top.dcenter.ums.security.core.api.validate.code.image.ImageCodeFactory;
+import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeJob;
 import top.dcenter.ums.security.core.api.validate.code.slider.SliderCodeFactory;
 import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.auth.controller.ValidateCodeController;
@@ -45,12 +48,15 @@ import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeFilter;
 import top.dcenter.ums.security.core.auth.validate.codes.image.DefaultImageCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageValidateCodeProcessor;
+import top.dcenter.ums.security.core.auth.validate.codes.job.DefaultRefreshValidateCodeJobImpl;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SimpleSliderCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCoderProcessor;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderValidateCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.DefaultSmsCodeSender;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor;
+
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * 验证码功能配置
@@ -86,7 +92,7 @@ public class ValidateCodeBeanAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.security.core.validate.codes.ValidateCodeBeanAutoConfiguration.imageCodeFactory")
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.validate.code.image.ImageCodeFactory")
     public ImageCodeFactory imageCodeFactory(ValidateCodeProperties validateCodeProperties) {
         return new DefaultImageCodeFactory(validateCodeProperties);
     }
@@ -131,6 +137,18 @@ public class ValidateCodeBeanAutoConfiguration {
         return new SliderCoderProcessor(validateCodeGeneratorHolder,
                                         validateCodeProperties,
                                         stringRedisTemplate);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeJob"})
+    @ConditionalOnProperty(prefix = "ums.codes", name = "enableRefreshValidateCodeJob", havingValue = "true")
+    public RefreshValidateCodeJob refreshValidateCodeJob(ValidateCodeProperties validateCodeProperties,
+                                                         @Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor,
+                                                         ImageCodeFactory imageCodeFactory,
+                                                         SliderCodeFactory sliderCodeFactory) {
+
+        return new DefaultRefreshValidateCodeJobImpl(validateCodeProperties, jobTaskScheduledExecutor,
+                                                     imageCodeFactory, sliderCodeFactory);
     }
 
 
