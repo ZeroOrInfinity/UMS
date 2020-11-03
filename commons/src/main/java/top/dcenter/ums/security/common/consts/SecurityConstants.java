@@ -78,12 +78,10 @@ public class SecurityConstants {
     public static final String SESSION_ENHANCE_CHECK_KEY = "SESSION_ENHANCE_CHECK_KEY";
 
     /**
-     * authorizeRequestsMap(String, Set(UriHttpMethodTuple)): 把权限类型作为 key 与之相对应的 UriHttpMethodTupleSet 作为 value, 分类放入
-     * authorizeRequestsMap, 此 map 存储在 servletContext
-     * 时所用的 key. <br>
+     * Set(UriHttpMethodTuple): 把权限类型为 PERMIT_ALL 的 Set 存储在 servletContext 时所用的 key. <br>
      *     主要用于 {@code AuthenticationUtil#isPermitUri(HttpServletRequest, HttpSession, AntPathMatcher)}
      */
-    public static final String SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY = "SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY";
+    public static final String SERVLET_CONTEXT_PERMIT_ALL_SET_KEY = "SERVLET_CONTEXT_PERMIT_ALL_SET_KEY";
 
 
 

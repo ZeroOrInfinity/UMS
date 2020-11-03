@@ -465,9 +465,9 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
 
             ApplicationContext applicationContext = getApplicationContext();
             WebApplicationContext servletContext = (WebApplicationContext) applicationContext;
-            // 把 targetAuthorizeRequestMap 添加到 ServletContext, 主要用于 AuthenticationUtil.isPermitAll(..)
+            // 把 PERMIT_ALL 的 Set<UriHttpMethodTuple> 添加到 ServletContext, 主要用于 AuthenticationUtil.isPermitAll(..)
             Objects.requireNonNull(servletContext.getServletContext())
-                    .setAttribute(SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY, targetAuthorizeRequestMap);
+                    .setAttribute(SecurityConstants.SERVLET_CONTEXT_PERMIT_ALL_SET_KEY, targetAuthorizeRequestMap.get(PERMIT_ALL));
         }
     }
 
@@ -497,7 +497,7 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
 
                 if (v == null)
                 {
-                    v = new HashSet<>(uriSet.size());
+                    v = new HashSet<>();
                 }
                 v.addAll(uriSet);
                 return v;

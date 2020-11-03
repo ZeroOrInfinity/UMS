@@ -36,7 +36,6 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
-import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
@@ -53,14 +52,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import static java.util.Optional.ofNullable;
-import static top.dcenter.ums.security.common.consts.SecurityConstants.SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.SERVLET_CONTEXT_PERMIT_ALL_SET_KEY;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_REDIRECT_URL_KEY;
 import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
 
@@ -159,17 +156,14 @@ public class AuthenticationUtil {
      */
     private static boolean isPermitUri(@NonNull String requestUri, @NonNull String method, @NonNull HttpSession session,
                                       @NonNull AntPathMatcher matcher) {
-        // authorizeRequestMap 通过 SecurityCoreAutoConfigurer.groupingAuthorizeRequestUris(..) 注入 ServletContext,
+        // permitAllSet 通过 SecurityCoreAutoConfigurer.groupingAuthorizeRequestUris(..) 注入 ServletContext,
 
         // noinspection unchecked
-        Map<String, Set<UriHttpMethodTuple>> authorizeRequestMap =
-                (Map<String, Set<UriHttpMethodTuple>>) session.getServletContext()
-                                                              .getAttribute(SERVLET_CONTEXT_AUTHORIZE_REQUESTS_MAP_KEY);
-        authorizeRequestMap = ofNullable(authorizeRequestMap).orElse(new HashMap<>(0));
-        Set<UriHttpMethodTuple> permitSet =
-                ofNullable(authorizeRequestMap.get(HttpSecurityAware.PERMIT_ALL)).orElse(new HashSet<>(0));
+        Set<UriHttpMethodTuple> permitAllSet =
+                (Set<UriHttpMethodTuple>) session.getServletContext().getAttribute(SERVLET_CONTEXT_PERMIT_ALL_SET_KEY);
+        permitAllSet = ofNullable(permitAllSet).orElse(new HashSet<>(0));
 
-        for (UriHttpMethodTuple tuple : permitSet)
+        for (UriHttpMethodTuple tuple : permitAllSet)
         {
             // uri 匹配
             if (matcher.match(tuple.getUri(), requestUri))
@@ -342,7 +336,7 @@ public class AuthenticationUtil {
     }
 
     /**
-     * 从请求中获取原始请求 url, 如: 引发登录的原始请求, 登录成功后获取此 url 跳转会原始 url
+     * 从请求中获取原始请求 url, 如: 引发登录的原始请求, 登录成功后获取此 url 跳转回原始 url
      * @param requestCache          requestCache
      * @param request               request
      * @param response              response
