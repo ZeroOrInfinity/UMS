@@ -70,6 +70,32 @@ public class ValidateCodeProperties {
     @Setter
     private ValidateCodeCacheType validateCodeCacheType = ValidateCodeCacheType.SESSION;
 
+    // =================== 刷新图片验证码与滑块验证码缓存 定时任务 属性 ===================
+    /**
+     * A cron-like expression.
+     * <pre>
+     * 0 * 4 * * ? 分别对应: second/minute/hour/day of month/month/day of week
+     * </pre>
+     * 默认为: "0 * 4 * * ?", 凌晨四点
+     * @see org.springframework.scheduling.support.CronSequenceGenerator
+     */
+    @Setter
+    private String refreshValidateCodeJobCron = "0 * 4 * * ?";
+
+    /**
+     * 是否支持定时刷新 validateCodeJob 定时任务. 默认: true.
+     */
+    @Setter
+    private Boolean enableRefreshValidateCodeJob = true;
+
+    /**
+     * 定时刷新 validateCodeJob 任务时, 需要缓存的验证码图片数. 默认: 100;<br>
+     * 注意: 这里为了方便开发而设置的值, 生产环境根据情况直接设置
+     */
+    @Setter
+    private Integer totalImages = 100;
+
+
     /**
      * 图片验证码属性
      * @author zhailiang
@@ -143,11 +169,11 @@ public class ValidateCodeProperties {
 
 
         /**
-         * 图片验证码的宽度的字面量，默认 width
+         * 图片验证码的宽度的字面量，默认 width, 当从缓存中获取验证码时, 通过 request 自定义图片大小失效
          */
         private String requestParaWidthName = "width";
         /**
-         * 图片验证码的高度的字面量，默认 height
+         * 图片验证码的高度的字面量，默认 height, 当从缓存中获取验证码时, 通过 request 自定义图片大小失效
          */
         private String requestParaHeightName = "height";
 
@@ -156,6 +182,13 @@ public class ValidateCodeProperties {
          * 提交图片验证码请求时，请求中带的图片验证码变量名，默认 imageCode
          */
         private String requestParamImageCodeName = DEFAULT_REQUEST_PARAM_IMAGE_CODE_NAME;
+
+        /**
+         * 缓存图片验证码目录，默认 classpath:static/image/code,<br>
+         *     不以 "classpath:" 开头时即认为是绝对路径, 以 "classpath:" 开头时即认为是基于 classpath 的相对路径.
+         */
+        private String imageCacheDirectory = "classpath:static/image/code";
+
         /**
          * 设置需要图片验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “-” 或 ","号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
          */
@@ -236,13 +269,15 @@ public class ValidateCodeProperties {
         private Integer sliderImgOutPadding = 1;
 
         /**
-         * 原始图片目录，默认 static/image/validate/original
+         * 原始图片目录，默认 classpath:static/image/validate/original,<br>
+         *     不以 "classpath:" 开头时即认为是绝对路径, 以 "classpath:" 开头时即认为是基于 classpath 的相对路径.
          */
-        private String originalImageDirectory = "static/image/validate/original";
+        private String originalImageDirectory = "classpath:static/image/validate/original";
         /**
-         * 根据原始图片生成的滑块图片目录，用于自定义缓存滑块图片的存储目录, 默认 static/image/validate/template
+         * 根据原始图片生成的滑块图片目录，用于自定义缓存滑块图片的存储目录, 默认 classpath:static/image/validate/template,<br>
+         *     不以 "classpath:" 开头时即认为是绝对路径, 以 "classpath:" 开头时即认为是基于 classpath 的相对路径.
          */
-        private String templateImageDirectory = "static/image/validate/template";
+        private String templateImageDirectory = "classpath:static/image/validate/template";
 
     }
 
