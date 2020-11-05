@@ -46,10 +46,10 @@ public class SliderCode extends ValidateCode {
     /** 标记 @Transient 时, 缓存 ValidateCode 时会自动清除 */
     @ToString.Exclude
     @Transient
-    private String newImage;
+    private transient String newImage;
     @ToString.Exclude
     @Transient
-    private String sourceImage;
+    private transient String sourceImage;
 
     /**
      * token
