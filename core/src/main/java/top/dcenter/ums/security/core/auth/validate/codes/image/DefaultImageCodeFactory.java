@@ -153,6 +153,7 @@ public class DefaultImageCodeFactory implements ImageCodeFactory {
             final int size = fileList.size();
             if (size >= (int) (totalImages * PERCENTAGE)) {
                 readFiles2CacheImageCodes(newImageCodePaths, fileList);
+                this.imageCodePaths = newImageCodePaths;
             }
             // 删除缓存, 重新创建图片验证码缓存
             else {
@@ -168,8 +169,6 @@ public class DefaultImageCodeFactory implements ImageCodeFactory {
                 refreshValidateCodeJob();
             }
         }
-
-        this.imageCodePaths = newImageCodePaths;
 
         log.info("从缓存中读取或创建图片验证码总耗时: {} 毫秒", Instant.now().toEpochMilli() - now.toEpochMilli());
 
