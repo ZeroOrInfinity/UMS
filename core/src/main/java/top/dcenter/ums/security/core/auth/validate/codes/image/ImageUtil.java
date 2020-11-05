@@ -37,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 图片生成工具
@@ -151,7 +152,7 @@ public class ImageUtil {
         width = Math.max(width, tempWidth);
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Random rand = new Random();
+        Random rand = ThreadLocalRandom.current();
         Graphics2D g2 = image.createGraphics();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -169,7 +170,7 @@ public class ImageUtil {
         g2.setColor(Color.GRAY);
         g2.fillRect(0, 0, width, height);
 
-        Random random = new Random();
+        Random random = ThreadLocalRandom.current();
 
         Color c = getRandColor(200, 250, random);
         // 设置背景色
