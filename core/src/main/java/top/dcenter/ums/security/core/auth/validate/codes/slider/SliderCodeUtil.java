@@ -23,302 +23,190 @@
 
 package top.dcenter.ums.security.core.auth.validate.codes.slider;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Base64Utils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 滑块验证工具类<br>
  *
- * @author : LeonardozzZ223 https://blog.csdn.net/adidas74891496/article/details/106281363
- * @version : Created in 10:57 2018/6/25
+ * @author : YongWu zheng
+ * @version : V1.0  Created by 2020/9/21 12:33
  */
+@Slf4j
 public class SliderCodeUtil {
-
-    /**
-     * 根据传入的路径生成指定验证码图片
-     *
-     * @param filePath              文件路径
-     * @param cutWidth              模板图宽度
-     * @param cutHeight             模板图高度
-     * @param circleR               抠图凸起圆心
-     * @param expireIn              滑块验证码默认过期时间, 单位: 秒
-     * @param rectanglePadding      抠图内部矩形填充大小
-     * @param sliderImgOutPadding   抠图的边框宽度
-     * @return  sliderCode
-     * @throws IOException  IOException
-     */
-    public static SliderCode getSliderCodeImage(String filePath, int cutWidth, int cutHeight, int circleR,
-                                                int rectanglePadding, int sliderImgOutPadding, int expireIn) throws IOException {
-        BufferedImage srcImage = ImageIO.read(new File(filePath));
-
-        int locationX = cutWidth + new Random().nextInt(srcImage.getWidth() - cutWidth * 3);
-        int locationY = cutHeight + new Random().nextInt(srcImage.getHeight() - cutHeight) / 2;
-        BufferedImage markImage = new BufferedImage(cutWidth, cutHeight, BufferedImage.TYPE_4BYTE_ABGR);
-        int[][] data = getBlockData(cutWidth, cutHeight, circleR, rectanglePadding, sliderImgOutPadding);
-        cutImgByTemplate(srcImage, markImage, data, locationX, locationY, cutWidth, cutHeight);
-        return new SliderCode(null, expireIn, null, getImageBASE64(markImage), getImageBASE64(srcImage), locationX, locationY,
-                              srcImage.getWidth(), srcImage.getHeight());
-    }
-
-
-    /**
-     * 生成随机滑块形状
-     * <p>
-     * 0 透明像素
-     * 1 滑块像素
-     * 2 阴影像素
-     * @param cutWidth              模板图宽度
-     * @param cutHeight             模板图高度
-     * @param circleR               抠图凸起圆心
-     * @param rectanglePadding      抠图内部矩形填充大小
-     * @param sliderImgOutPadding   抠图的边框宽度
-     * @return int[][]
-     */
-    @SuppressWarnings({"AlibabaAvoidComplexCondition", "AlibabaMethodTooLong", "AlibabaLowerCamelCaseVariableNaming"})
-    private static int[][] getBlockData(int cutWidth, int cutHeight, int circleR,
-                                        int rectanglePadding, int sliderImgOutPadding) {
-        int[][] data = new int[cutWidth][cutHeight];
-        Random random = new Random();
-        //(x-a)²+(y-b)²=r²
-        //x中心位置左右5像素随机
-        double x1 = rectanglePadding + (cutWidth - 2 * rectanglePadding) / 2.0 - 5 + random.nextInt(10);
-        //y 矩形上边界半径-1像素移动
-        double y1_top = rectanglePadding - random.nextInt(3);
-        double y1_bottom = cutHeight - rectanglePadding + random.nextInt(3);
-        double y1 = random.nextInt(2) == 1 ? y1_top : y1_bottom;
-
-
-        double x2_right = cutWidth - rectanglePadding - circleR + random.nextInt(2 * circleR - 4);
-        double x2_left = rectanglePadding + circleR - 2 - random.nextInt(2 * circleR - 4);
-        double x2 = random.nextInt(2) == 1 ? x2_right : x2_left;
-        double y2 = rectanglePadding + (cutHeight - 2 * rectanglePadding) / 2.0 - 4 + random.nextInt(10);
-
-        double po = Math.pow(circleR, 2);
-        for (int i = 0; i < cutWidth; i++)
-        {
-            for (int j = 0; j < cutHeight; j++)
-            {
-                //矩形区域
-                boolean fill;
-                if ((i >= rectanglePadding && i < cutWidth - rectanglePadding)
-                        && (j >= rectanglePadding && j < cutHeight - rectanglePadding))
-                {
-                    data[i][j] = 1;
-                    fill = true;
-                }
-                else
-                {
-                    data[i][j] = 0;
-                    fill = false;
-                }
-                //凸出区域
-                double d3 = Math.pow(i - x1, 2) + Math.pow(j - y1, 2);
-                if (d3 < po)
-                {
-                    data[i][j] = 1;
-                }
-                else
-                {
-                    if (!fill)
-                    {
-                        data[i][j] = 0;
-                    }
-                }
-                //凹进区域
-                double d4 = Math.pow(i - x2, 2) + Math.pow(j - y2, 2);
-                if (d4 < po)
-                {
-                    data[i][j] = 0;
-                }
-            }
-        }
-        //边界阴影
-        for (int i = 0; i < cutWidth; i++)
-        {
-            for (int j = 0; j < cutHeight; j++)
-            {
-                //四个正方形边角处理
-                for (int k = 1; k <= sliderImgOutPadding; k++)
-                {
-                    //左上、右上
-                    if (i >= rectanglePadding - k && i < rectanglePadding
-                            && ((j >= rectanglePadding - k && j < rectanglePadding)
-                            || (j >= cutHeight - rectanglePadding - k && j < cutHeight - rectanglePadding + 1)))
-                    {
-                        data[i][j] = 2;
-                    }
-
-                    //左下、右下
-                    if (i >= cutWidth - rectanglePadding + k - 1 && i < cutWidth - rectanglePadding + 1)
-                    {
-                        for (int n = 1; n <= sliderImgOutPadding; n++)
-                        {
-                            //noinspection IfStatementMissingBreakInLoop
-                            if (((j >= rectanglePadding - n && j < rectanglePadding)
-                                    || (j >= cutHeight - rectanglePadding - n && j <= cutHeight - rectanglePadding)))
-                            {
-                                data[i][j] = 2;
-                            }
-                        }
-                    }
-                }
-
-                if (data[i][j] == 1 && j - sliderImgOutPadding > 0 && data[i][j - sliderImgOutPadding] == 0)
-                {
-                    data[i][j - sliderImgOutPadding] = 2;
-                }
-                if (data[i][j] == 1 && j + sliderImgOutPadding > 0 && j + sliderImgOutPadding < cutHeight && data[i][j + sliderImgOutPadding] == 0)
-                {
-                    data[i][j + sliderImgOutPadding] = 2;
-                }
-                if (data[i][j] == 1 && i - sliderImgOutPadding > 0 && data[i - sliderImgOutPadding][j] == 0)
-                {
-                    data[i - sliderImgOutPadding][j] = 2;
-                }
-                if (data[i][j] == 1 && i + sliderImgOutPadding > 0 && i + sliderImgOutPadding < cutWidth && data[i + sliderImgOutPadding][j] == 0)
-                {
-                    data[i + sliderImgOutPadding][j] = 2;
-                }
-            }
-        }
-        return data;
-    }
-
-    /**
-     * 裁剪区块
-     * 根据生成的滑块形状，对原图和裁剪块进行变色处理
-     *
-     * @param oriImage    原图
-     * @param targetImage 裁剪图
-     * @param blockImage  滑块
-     * @param x           裁剪点x
-     * @param y           裁剪点y
-     * @param cutWidth      模板图宽度
-     * @param cutHeight     模板图高度
-     */
-    @SuppressWarnings({"AlibabaAvoidStartWithDollarAndUnderLineNaming", "AlibabaLowerCamelCaseVariableNaming"})
-    private static void cutImgByTemplate(BufferedImage oriImage, BufferedImage targetImage, int[][] blockImage,
-                                         int x, int y, int cutWidth, int cutHeight) {
-        for (int i = 0; i < cutWidth; i++)
-        {
-            for (int j = 0; j < cutHeight; j++)
-            {
-                int _x = x + i;
-                int _y = y + j;
-                int rgbFlg = blockImage[i][j];
-                int rgb_ori = oriImage.getRGB(_x, _y);
-                // 原图中对应位置变色处理
-                if (rgbFlg == 1)
-                {
-                    //抠图上复制对应颜色值
-                    targetImage.setRGB(i, j, rgb_ori);
-                    //原图对应位置颜色变化
-                    oriImage.setRGB(_x, _y, Color.LIGHT_GRAY.getRGB());
-                }
-                else if (rgbFlg == 2)
-                {
-                    targetImage.setRGB(i, j, Color.WHITE.getRGB());
-                    oriImage.setRGB(_x, _y, Color.GRAY.getRGB());
-                }
-                else if (rgbFlg == 0)
-                {
-                    //int alpha = 0;
-                    targetImage.setRGB(i, j, rgb_ori & 0x00ffffff);
-                }
-            }
-
-        }
-    }
-
 
     /**
      * 随机获取一张图片对象
      *
-     * @param path          path
-     * @return BufferedImage
-     * @throws IOException  IOException
+     * @param imageAbsPaths 图片的绝对路径的数组
+     * @return File             图片文件
      */
-    public static BufferedImage getRandomImage(String path) throws IOException {
-        File files = new File(path);
-        File[] fileList = files.listFiles();
-        List<String> fileNameList = new ArrayList<>();
-        if (fileList != null && fileList.length != 0)
-        {
-            for (File tempFile : fileList)
-            {
-                if (tempFile.isFile() && tempFile.getName().endsWith(".jpg"))
-                {
-                    fileNameList.add(tempFile.getAbsolutePath().trim());
-                }
-            }
-        }
-        Random random = new Random();
-        File imageFile = new File(fileNameList.get(random.nextInt(fileNameList.size())));
-        return ImageIO.read(imageFile);
-    }
-
-    /**
-     * 将IMG输出为文件
-     *
-     * @param image image
-     * @param file  file
-     * @throws Exception    Exception
-     */
-    public static void writeImg(BufferedImage image, String file) throws Exception {
-        byte[] imageData;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", baos);
-        imageData = baos.toByteArray();
-        try (FileOutputStream out = new FileOutputStream(new File(file))) {
-            out.write(imageData);
-        }
+    public static File getRandomImageFile(String[] imageAbsPaths, ThreadLocalRandom random) {
+        final String imageAbsPath = imageAbsPaths[random.nextInt(imageAbsPaths.length)];
+        return Paths.get(imageAbsPath).toFile();
     }
 
     /**
      * 将图片转换为BASE64
      *
-     * @param image     image
-     * @return  图片字符串
-     * @throws IOException  IOException
+     * @param image image
+     * @return 图片字节数组
+     * @throws IOException IOException
      */
     @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
-    public static String getImageBASE64(BufferedImage image) throws IOException {
+    public static byte[] getImageByteBASE64(BufferedImage image) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(image, "png", out);
-        //转成byte数组
+        // 转成 byte 数组
         byte[] bytes = out.toByteArray();
-        return Base64Utils.encodeToString(bytes);
+        return Base64Utils.encode(bytes);
     }
 
     /**
-     * 将BASE64字符串转换为图片
-     *
-     * @param base64String  base64String
-     * @return  BufferedImage
+     * 源图片宽必须大于模板图片宽的倍数
      */
-    public static BufferedImage base64StringToImage(String base64String) {
-        try
-        {
-            byte[] bytes = Base64Utils.decodeFromString(base64String);
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-            return ImageIO.read(byteArrayInputStream);
+    public static final int WIDTH_RATE = 3;
+    /**
+     * 源图片高必须大于模板图片高的倍数
+     */
+    public static final int HEIGHT_RATE = 2;
+
+    /**
+     * 根据模板抠图
+     *
+     * @param imageTemplate 模板图片
+     * @param imageTarget   源图片
+     * @param grayscale     在模板上抠图区灰阶等级: 4-10, 数值越高, 灰色越深
+     * @return 返回生成的滑块图片数据: 处理后的源图片(srcImage)与处理后模板图片(markImage), 以及 X 轴(locationX), Y 轴(locationY)信息.
+     */
+    public static Map<String, Object> cutImageByTemplate(BufferedImage imageTemplate, BufferedImage imageTarget,
+                                                         int grayscale) {
+
+        Map<String, Object> sliderCodeInfoMap = new HashMap<>(4);
+
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        // 模板图宽高
+        int width = imageTemplate.getWidth();
+        int height = imageTemplate.getHeight();
+
+        // 源图宽高
+        int srcWidth = imageTarget.getWidth();
+        int srcHeight = imageTarget.getHeight();
+
+        // 检查模板图片宽高是否符合源图片的宽高
+        if (srcWidth / width < WIDTH_RATE && srcHeight / height < HEIGHT_RATE) {
+            String msg = String.format("模板图片宽高不符合源图片的宽高: 源图片宽必须大于模板图片宽的 %d 倍, 源图片高必须大于模板图片高的 %d 倍",
+                                       WIDTH_RATE, HEIGHT_RATE);
+            throw new RuntimeException(msg);
         }
-        catch (IOException e)
-        {
-            e.printStackTrace();
+
+        // 随机生成抠图位置
+        final int offsetX = width / 10;
+        int locationX = offsetX + random.nextInt(srcWidth - width - offsetX);
+        final int offsetY = height / 10;
+        int locationY = offsetY + random.nextInt(srcHeight - height - offsetY);
+
+        // 抠图后对应的模板图片
+        Graphics2D graphics = imageTemplate.createGraphics();
+        graphics.setBackground(Color.white);
+
+        // 对源图片进行抠图, 把抠除的图片放置到对应的模板图片 imageTemplate 上
+        cutImageByTemplate(imageTarget, imageTemplate, grayscale, locationX, locationY);
+
+        // 设置“抗锯齿”的属性
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setStroke(new BasicStroke(5, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+        graphics.drawImage(imageTemplate, 0, 0, null);
+        graphics.dispose();
+
+        sliderCodeInfoMap.put("markImage", imageTemplate);
+        sliderCodeInfoMap.put("srcImage", imageTarget);
+        sliderCodeInfoMap.put("locationX", locationX);
+        sliderCodeInfoMap.put("locationY", locationY);
+
+        return sliderCodeInfoMap;
+    }
+
+    /**
+     * 对源图片进行抠图, 并生成对应模板图片.
+     *
+     * @param oriImage      源图片
+     * @param templateImage 模板图片
+     * @param grayscale     在模板上抠图区灰阶等级: 4-10, 数值越高, 灰色越深
+     * @param locationX     X 轴
+     * @param locationY     Y 轴
+     */
+    private static void cutImageByTemplate(BufferedImage oriImage, BufferedImage templateImage,
+                                           int grayscale,
+                                           int locationX, int locationY) {
+        // 源文件图像矩阵
+        int[][] oriImageData = getImageData(oriImage);
+        // 模板图像矩阵
+        int[][] templateImageData = getImageData(templateImage);
+        // 源图片高宽
+        final int width = oriImageData.length;
+        final int height = oriImageData[0].length;
+        // 模板图片高宽
+        final int cutWidth = templateImageData.length;
+        final int cutHeight = templateImageData[0].length;
+
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                // 是否模板区域
+                final boolean isMarkTarget = (i >= locationX && j >= locationY) && (i < locationX + cutWidth && j < locationY + cutHeight);
+                if (isMarkTarget) {
+
+                    int rgb = oriImage.getRGB(i, j);
+                    int templateRgb = templateImage.getRGB(i - locationX, j - locationY);
+                    //noinspection ConditionCoveredByFurtherCondition
+                    if (templateRgb != 16777215 && templateRgb != -1 && templateRgb <= 0) {
+                        // 抠图上复制对应颜色值
+                        templateImage.setRGB(i - locationX, j - locationY, rgb);
+                        // 对源图片的抠图区域进行灰度处理
+                        int r = (0xff & rgb);
+                        int g = (0xff & (rgb >> 8));
+                        int b = (0xff & (rgb >> 16));
+                        int gray = (r + g + b) / grayscale;
+                        rgb = 255 << 24 | gray << 16 | gray << 8 | gray;
+                        oriImage.setRGB(i, j, rgb);
+                    }
+                    else {
+                        rgb = rgb & 0x00ffffff;
+                        templateImage.setRGB(i - locationX, j - locationY, rgb);
+                    }
+
+                }
+            }
         }
-        return null;
+
+    }
+
+    /**
+     * 生成图像矩阵
+     *
+     * @param bufferedImage {@link BufferedImage}
+     * @return 字节流图片
+     */
+    private static int[][] getImageData(BufferedImage bufferedImage) {
+        int[][] data = new int[bufferedImage.getWidth()][bufferedImage.getHeight()];
+        for (int i = 0; i < bufferedImage.getWidth(); i++) {
+            for (int j = 0; j < bufferedImage.getHeight(); j++) {
+                data[i][j] = bufferedImage.getRGB(i, j);
+            }
+        }
+        return data;
     }
 
 }
