@@ -27,11 +27,13 @@
   - 简化 session、remember me、csrf 等配置。
   - 根据设置的响应方式（JSON 与 REDIRECT）返回 json 或 html 数据。
   - 签到功能。
+  - 支持基于 SLF4J MDC 机制的日志链路追踪功能
   
 ### 模块功能 
 
   | **模块**   | **功能**                                                         |
   | ------ | ------------------------------------------------------------ |
+    | [commons](https://gitee.com/pcore/UMS/tree/master/commons)   | 通用组件模块 |
   | [core](https://gitee.com/pcore/UMS/tree/master/core)   | 验证码/用户名密码登录/手机登录且自动注册/OAuth2 login by JustAuth/访问权限控制/签到/简化HttpSecurity(session、remember me、csrf 等)配置/session redis 缓存/可配置的响应方式(JSON 与 REDIRECT)返回 json 或 html 数据 |
   | [demo](https://gitee.com/pcore/UMS/tree/master/demo)   | basic-example/basic-detail-example/permission-example/quickStart/session-detail-example/validate-codi-example/justAuth-security-oauth2-example |
 ### demo 演示功能 
@@ -42,7 +44,7 @@
   | [basic-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-detail-example)   | core 模块基本功能详细的配置: 含anonymous/session简单配置/rememberMe/csrf/登录路由/签到, 不包含session详细配置/验证码/手机登录/权限. |
   | [permission-example](https://gitee.com/pcore/UMS/tree/master/demo/permission-example)     | core 模块: 基于 RBAC 的权限功能设置                          |
   | [quickStart](https://gitee.com/pcore/UMS/tree/master/demo/quickStart)             | 快速开始示例                                                 |
-  | [justAuth-security-oauth2-example](https://gitee.com/pcore/UMS/tree/master/demo/justAuth-security-oauth2-example)             | 第三方授权登录.                                                |
+  | [justAuth-security-oauth2-example](https://gitee.com/pcore/UMS/tree/master/demo/justAuth-security-oauth2-example)             | 第三方授权登录, MDC 日志链路追踪配置                                               |
   | [session-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/session-detail-example) | core 模块: session 与 session 缓存详细配置                   |
   | [validate-code-example](https://gitee.com/pcore/UMS/tree/master/demo/validate-code-example)  | core 模块基本功能: 验证码(含自定义滑块验证码), 手机登录配置  |
 
@@ -135,6 +137,7 @@
 | 11. [签到](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926437&doc_id=984605) | [core](https://gitee.com/pcore/UMS/tree/master/core)     |                                                              | [basic-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-detail-example/src/main/resources/application.yml) |
 | 12. [基于 RBAC 的访问权限控制功能](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926442&doc_id=984605) | [core](https://gitee.com/pcore/UMS/tree/master/core)     |                                                              | [permission-example](https://gitee.com/pcore/UMS/tree/master/demo/permission-example/src/main/resources/application.yml) |
 | 13. [线程池配置](https://gitee.com/pcore/UMS/wikis/pages?sort_id=3014547&doc_id=984605) | [core](https://gitee.com/pcore/UMS/tree/master/core)     |                                                              | [justAuth-security-oauth2-example](https://gitee.com/pcore/UMS/tree/master/demo/justAuth-security-oauth2-example/src/main/resources/application.yml) |
+| 14. [基于 SLF4J MDC 机制的日志链路追踪配置](https://gitee.com/pcore/UMS/wikis/pages?sort_id=3055053&doc_id=984605) | [core](https://gitee.com/pcore/UMS/tree/master/core)     |                                                              | [justAuth-security-oauth2-example](https://gitee.com/pcore/UMS/tree/master/demo/justAuth-security-oauth2-example/src/main/resources/application.yml) |
 
 
 ------
@@ -158,8 +161,8 @@
 
 ### 3\. 在 ServletContext 中存储的属性:
 
-- 属性名称: SecurityConstants.SERVLET\_CONTEXT\_AUTHORIZE\_REQUESTS\_MAP\_KEY
-- 属性值: authorizeRequestMap<String, Set>: key 为 PERMIT\_ALL, DENY\_ALL, ANONYMOUS, AUTHENTICATED, FULLY\_AUTHENTICATED, REMEMBER\_ME 的权限类型, value 为 UriHttpMethodTuple(uri不包含 servletContextPath)的 set.
+- 属性名称: SecurityConstants.SERVLET_CONTEXT_PERMIT_ALL_SET_KEY
+- 属性值: Set<UriHttpMethodTuple>, 把权限类型为 PERMIT_ALL 的 Set 存储在 servletContext .
 
 ### 4\. servletContextPath 的值存储在 [MvcUtil](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/util/MvcUtil.java)`.servletContextPath` :
 
@@ -190,14 +193,15 @@ jackson2JsonRedisSerializer.setObjectMapper(om);
 ## 八、[属性配置列表](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926468&doc_id=984605)
 | **属性配置列表**                                             |
 | ------------------------------------------------------------ |
-| [基本属性](https://gitee.com/pcore/UMS/wikis/%E5%9F%BA%E6%9C%AC%E5%B1%9E%E6%80%A7?sort_id=2927088) |
-| [签到属性](https://gitee.com/pcore/UMS/wikis/%E7%AD%BE%E5%88%B0%E5%B1%9E%E6%80%A7?sort_id=2927090) |
-| [手机登录属性](https://gitee.com/pcore/UMS/wikis/%E6%89%8B%E6%9C%BA%E7%99%BB%E5%BD%95%E5%B1%9E%E6%80%A7?sort_id=2927091) |
-| [验证码属性](https://gitee.com/pcore/UMS/wikis/%E9%AA%8C%E8%AF%81%E7%A0%81%E5%B1%9E%E6%80%A7?sort_id=2927092) |
-| [第三方授权登录](https://gitee.com/pcore/UMS/wikis/%E7%AC%AC%E4%B8%89%E6%96%B9%E6%8E%88%E6%9D%83%E7%99%BB%E5%BD%95(JustAuth)?sort_id=3006562) |
-| [线程池属性](https://gitee.com/pcore/UMS/wikis/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%B1%9E%E6%80%A7?sort_id=3006566) |
-| [第三方授权登录用户信息数据 redis 缓存配置](https://gitee.com/pcore/UMS/wikis/%E7%AC%AC%E4%B8%89%E6%96%B9%E6%8E%88%E6%9D%83%E7%99%BB%E5%BD%95%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E6%95%B0%E6%8D%AE%20redis%20%E7%BC%93%E5%AD%98%E9%85%8D%E7%BD%AE?sort_id=3006567) |
-| [第三方授权登录用户信息表 user_connection sql 配置](https://gitee.com/pcore/UMS/wikis/%E7%AC%AC%E4%B8%89%E6%96%B9%E6%8E%88%E6%9D%83%E7%99%BB%E5%BD%95%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E8%A1%A8%20user_connection%20sql%20%E9%85%8D%E7%BD%AE?sort_id=3006568) |
+| [基本属性](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2927088&doc_id=984605) |
+| [签到属性](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2927090&doc_id=984605) |
+| [手机登录属性](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2927091&doc_id=984605) |
+| [验证码属性](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2927092&doc_id=984605) |
+| [第三方授权登录](https://gitee.com/pcore/UMS/wikis/pages?sort_id=3006562&doc_id=984605) |
+| [线程池属性](https://gitee.com/pcore/UMS/wikis/pages?sort_id=3006566&doc_id=984605) |
+| [基于 SLF4J MDC 机制的日志链路追踪属性](https://gitee.com/pcore/UMS/wikis/pages?sort_id=3054979&doc_id=984605) |
+| [第三方授权登录用户信息数据 redis 缓存配置](https://gitee.com/pcore/UMS/wikis/pages?sort_id=3006567&doc_id=984605) |
+| [第三方授权登录用户信息表 user_connection sql 配置](https://gitee.com/pcore/UMS/wikis/pages?sort_id=3006568&doc_id=984605) |
 
 ------
 

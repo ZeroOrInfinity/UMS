@@ -1,3 +1,19 @@
+## 2.0.6
+### Fixes and Improvements:
+1. 特性: 添加定时刷新验证码图片缓存的定时任务功能与相应的属性配置.
+2. 增强: 添加图片验证码缓存功能, 支持定时刷新缓存验证码. 在单机上测试: 获取实时验证码: 响应验证码的时间为 15-30 ms 获取缓存验证码: 响应验证码的时间为 1-4   ms.
+3. 增强: 添加滑块验证码图片缓存功能, 已经定时刷新缓存验证码图片.
+4. 改进: 添加 SLF4J MDC 日志链路追踪的开关属性
+5. 改进: 改进滑块验证码生成算法, 可以根据使用者提供的源图片(支持多图)与模板图片(只需白色背景的图片, 支持多图) 生成滑块验证码..
+6. 修复: 修复 enableRefreshTokenJob 属性不能控制是否开启定时刷新 accessToken 任务的 bug.
+7. 修复: 当 imageCodeFactory 实现自定义逻辑后, 无法创建 ImageCodeGenerator 的 bug.
+8. 修复: 不能通过实现 ImageCodeFactory 且注入 IOC 容器后不能替换 DefaultImageCodeFactory 的 bug.
+9. 修复: 修复示例中 ValidateCodeCacheType 不能注入的问题.
+10. 修复: 第三方授权登录时, 缓存到 redis 时, 设置 state 缓存时间时少个时间单位, 变成 offset错误的 bug. 感谢: 永生的灯塔水母.
+11. 优化: permitAllUrls 存储到 servletContext 的格式, 由 Map 改为 Set, 方便调用.
+12. 优化: 更改 定时任务的 Executor 属性名称, 使其能应用在其他定时任务上.
+13. 优化: 优化 ip 的获取方式. 删除设置图片验证码宽与高的 request 参数属性. 更新与优化验证码示例等.
+
 ## 2.0.5
 ### Fixes and Improvements:
 1. 修复: permitUrls 当不带方法后缀时不生效的 bug.
