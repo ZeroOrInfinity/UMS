@@ -167,17 +167,6 @@ public class ValidateCodeProperties {
          */
         private Integer expire = 300;
 
-
-        /**
-         * 图片验证码的宽度的字面量，默认 width, 当从缓存中获取验证码时, 通过 request 自定义图片大小失效
-         */
-        private String requestParaWidthName = "width";
-        /**
-         * 图片验证码的高度的字面量，默认 height, 当从缓存中获取验证码时, 通过 request 自定义图片大小失效
-         */
-        private String requestParaHeightName = "height";
-
-
         /**
          * 提交图片验证码请求时，请求中带的图片验证码变量名，默认 imageCode
          */
@@ -201,7 +190,6 @@ public class ValidateCodeProperties {
      * @author  YongWu zheng
      * @version V1.0  Created by 2020-09-22 13:28
      */
-    @SuppressWarnings("jol")
     @Getter
     @Setter
     public static class SliderCodeProperties {
@@ -247,37 +235,31 @@ public class ValidateCodeProperties {
          * 滑块验证码默认过期时间, 180 秒
          */
         private Integer expire = 180;
-        /**
-         * 滑块图宽度, 默认: 50
-         */
-        private Integer cutWidth = 50;
-        /**
-         * 滑块图高度, 默认: 50
-         */
-        private Integer cutHeight = 50;
-        /**
-         * 抠图凸起圆心, 默认: 5
-         */
-        private Integer circleR = 5;
-        /**
-         * 抠图内部矩形填充大小, 默认: 8
-         */
-        private Integer rectanglePadding = 8;
-        /**
-         * 抠图的边框宽度, 默认: 1
-         */
-        private Integer sliderImgOutPadding = 1;
 
         /**
-         * 原始图片目录，默认 classpath:static/image/validate/original,<br>
-         *     不以 "classpath:" 开头时即认为是绝对路径, 以 "classpath:" 开头时即认为是基于 classpath 的相对路径.
+         * 在模板上抠图区灰阶等级: 4-10, 数值越高, 灰色越深, 默认: 5
          */
-        private String originalImageDirectory = "classpath:static/image/validate/original";
+        private Integer grayscale = 5;
+
         /**
-         * 根据原始图片生成的滑块图片目录，用于自定义缓存滑块图片的存储目录, 默认 classpath:static/image/validate/template,<br>
+         * 模板图片与原始图片的图片后缀, 默认: png
+         */
+        private String imageSuffix = "png";
+        /**
+         * 原始图片目录, 默认 classpath:static/image/slider/original,<br>
          *     不以 "classpath:" 开头时即认为是绝对路径, 以 "classpath:" 开头时即认为是基于 classpath 的相对路径.
          */
-        private String templateImageDirectory = "classpath:static/image/validate/template";
+        private String originalImageDirectory = "classpath:static/image/slider/original";
+        /**
+         * 模板图片目录, 模板图片必须符合: 模板图片的宽 * 3 < 原始图片的宽, 且 模板图片的高 *2 < 原始图片的高; 背景必须是白色, 默认 classpath:static/image/slider/template,<br>
+         *     不以 "classpath:" 开头时即认为是绝对路径, 以 "classpath:" 开头时即认为是基于 classpath 的相对路径.
+         */
+        private String templateImageDirectory = "classpath:static/image/slider/template";
+        /**
+         * 根据原始图片生成的滑块图片目录，用于自定义缓存滑块图片的存储目录, 默认 classpath:static/image/slider/code,<br>
+         *     不以 "classpath:" 开头时即认为是绝对路径, 以 "classpath:" 开头时即认为是基于 classpath 的相对路径.
+         */
+        private String codeImageDirectory = "classpath:static/image/slider/code";
 
     }
 
