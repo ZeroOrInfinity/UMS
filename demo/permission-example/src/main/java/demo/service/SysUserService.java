@@ -23,7 +23,7 @@
 
 package demo.service;
 
-import demo.polo.UserDO;
+import demo.pojo.UserDO;
 import demo.entity.SysUser;
 import org.springframework.lang.NonNull;
 

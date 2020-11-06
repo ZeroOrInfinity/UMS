@@ -25,7 +25,7 @@ package demo.service.impl;
 
 import demo.dao.SysUserJpaRepository;
 import demo.entity.SysUser;
-import demo.polo.UserDO;
+import demo.pojo.UserDO;
 import demo.service.SysUserService;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;

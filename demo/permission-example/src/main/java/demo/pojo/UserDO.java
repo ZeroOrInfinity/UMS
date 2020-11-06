@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package demo.polo;
+package demo.pojo;
 
 import lombok.Data;
 

@@ -30,7 +30,7 @@ import demo.entity.SysUser;
 import demo.entity.SysUserRole;
 import demo.enums.UserStatusType;
 import demo.enums.UserType;
-import demo.polo.UserDO;
+import demo.pojo.UserDO;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.beans.factory.annotation.Autowired;
