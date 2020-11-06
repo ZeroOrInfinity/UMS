@@ -33,7 +33,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.annotation.Order;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.context.support.GenericWebApplicationContext;
@@ -41,7 +40,6 @@ import top.dcenter.ums.security.core.api.advice.SecurityControllerExceptionHandl
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler;
-import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.controller.ClientSecurityController;
 import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationFailureHandler;
@@ -49,9 +47,6 @@ import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationSuccessHan
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
-import top.dcenter.ums.security.core.permission.evaluator.UriAuthoritiesPermissionEvaluator;
-import top.dcenter.ums.security.core.permission.listener.UpdateRolesAuthoritiesListener;
-import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeService;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import java.lang.reflect.Field;
@@ -69,7 +64,6 @@ import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
  * @version V1.0  Created by 2020/5/3 19:59
  */
 @Configuration(proxyBeanMethods = false)
-@EnableAsync
 @Order(99)
 @AutoConfigureAfter({PropertiesAutoConfiguration.class})
 public class SecurityAutoConfiguration implements InitializingBean {
@@ -86,23 +80,6 @@ public class SecurityAutoConfiguration implements InitializingBean {
 
     public SecurityAutoConfiguration(ClientProperties clientProperties) {
         this.clientProperties = clientProperties;
-    }
-
-    @Bean
-    public UpdateRolesAuthoritiesListener updateRolesAuthoritiesListener(UriAuthorizeService uriAuthorizeService) {
-        return new UpdateRolesAuthoritiesListener(uriAuthorizeService);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService")
-    public UriAuthorizeService uriAuthorizeService() {
-        return new DefaultUriAuthorizeService();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(type = "org.springframework.security.access.PermissionEvaluator")
-    public UriAuthoritiesPermissionEvaluator uriAuthoritiesPermissionEvaluator(UriAuthorizeService uriAuthorizeService) {
-        return new UriAuthoritiesPermissionEvaluator(uriAuthorizeService);
     }
 
     @Bean

@@ -7,6 +7,7 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   top.dcenter.ums.security.core.auth.config.ClientAutoConfigurerAware,\
   top.dcenter.ums.security.core.auth.config.RoleHierarchyAutoConfiguration,\
   top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration,\
+  top.dcenter.ums.security.core.auth.config.PermissionAutoConfiguration,\
   top.dcenter.ums.security.core.auth.config.ValidateCodeBeanAutoConfiguration,\
   top.dcenter.ums.security.core.auth.config.ValidateCodeAutoConfigurerAware,\
   top.dcenter.ums.security.core.auth.config.SmsCodeLoginAutoAuthenticationConfigurer,\
