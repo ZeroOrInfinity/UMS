@@ -23,8 +23,9 @@
 
 package top.dcenter.ums.security.core.permission.enums;
 
-import lombok.Getter;
+import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 /**
  * 权限后缀类型
@@ -35,93 +36,76 @@ public enum PermissionSuffixType {
     /**
      * 查询
      */
-    LIST("GET")
-            {
-                @Override
-                public String getPermissionSuffix() {
-                    return ":list";
-                }
-            },
+    GET {
+        @Override
+        public String getPermissionSuffix() {
+            return ":list";
+        }
+    },
     /**
      * 添加
      */
-    ADD("POST")
-            {
-                @Override
-                public String getPermissionSuffix() {
-                    return ":add";
-                }
-            },
+    POST {
+        @Override
+        public String getPermissionSuffix() {
+            return ":add";
+        }
+    },
     /**
      * 更新
      */
-    EDIT("PUT")
-            {
-                @Override
-                public String getPermissionSuffix() {
-                    return ":edit";
-                }
-            },
+    PUT {
+        @Override
+        public String getPermissionSuffix() {
+            return ":edit";
+        }
+    },
     /**
      * 删除
      */
-    DELETE("DELETE")
-            {
-                @Override
-                public String getPermissionSuffix() {
-                    return ":del";
-                }
-            },
+    DELETE {
+        @Override
+        public String getPermissionSuffix() {
+            return ":del";
+        }
+    },
     /**
      * HEAD
      */
-    HEAD("HEAD")
-            {
-                @Override
-                public String getPermissionSuffix() {
-                    return ":head";
-                }
-            },
+    HEAD {
+        @Override
+        public String getPermissionSuffix() {
+            return ":head";
+        }
+    },
     /**
      * PATCH
      */
-    PATCH("PATCH")
-            {
-                @Override
-                public String getPermissionSuffix() {
-                    return ":patch";
-                }
-            },
+    PATCH {
+        @Override
+        public String getPermissionSuffix() {
+            return ":patch";
+        }
+    },
     /**
      * OPTIONS
      */
-    OPTIONS("OPTIONS")
-            {
-                @Override
-                public String getPermissionSuffix() {
-                    return ":options";
-                }
-            },
+    OPTIONS {
+        @Override
+        public String getPermissionSuffix() {
+            return ":options";
+        }
+    },
     /**
      * TRACE
      */
-    TRACE("TRACE")
-            {
-                @Override
-                public String getPermissionSuffix() {
-                    return ":trace";
-                }
-            };
+    TRACE {
+        @Override
+        public String getPermissionSuffix() {
+            return ":trace";
+        }
+    };
 
-    /**
-     * request method
-     */
-    @Getter
-    private String method;
-
-    PermissionSuffixType(String method) {
-        this.method = method;
-    }
 
     /**
      * 获取权限后缀
@@ -134,7 +118,8 @@ public enum PermissionSuffixType {
      * @param method    requestMethod
      * @return  权限后缀, 如果 method 不匹配, 返回 null
      */
-    public static String getPermissionSuffix(@NonNull String method) {
+    @Nullable
+    public static String getPermissionSuffix(@NonNull HttpMethod method) {
         PermissionSuffixType permissionType = getPermissionType(method);
         if (permissionType == null)
         {
@@ -148,11 +133,12 @@ public enum PermissionSuffixType {
      * @param method    requestMethod
      * @return  权限后缀, 如果 method 不匹配, 返回 null
      */
-    public static PermissionSuffixType getPermissionType(@NonNull String method) {
+    @Nullable
+    public static PermissionSuffixType getPermissionType(@NonNull HttpMethod method) {
         PermissionSuffixType[] types = values();
         for (PermissionSuffixType type : types)
         {
-            if (type.method.equals(method.toUpperCase()))
+            if (type.name().equalsIgnoreCase(method.name()))
             {
                 return type;
             }
