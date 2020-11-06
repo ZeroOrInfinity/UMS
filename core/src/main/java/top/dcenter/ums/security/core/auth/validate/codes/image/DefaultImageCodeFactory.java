@@ -28,6 +28,7 @@ import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.core.api.validate.code.image.ImageCodeFactory;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.ServletRequest;
 import java.io.File;
 import java.io.IOException;
@@ -89,6 +90,11 @@ public class DefaultImageCodeFactory implements ImageCodeFactory {
     public DefaultImageCodeFactory(ValidateCodeProperties validateCodeProperties) {
         this.validateCodeProperties = validateCodeProperties;
         this.totalImages = validateCodeProperties.getTotalImages();
+    }
+
+    @PostConstruct
+    public void init() {
+        // 从缓存中读取滑块验证码或者重新创建滑块验证码缓存
         readOrCreateCacheImageCodes();
     }
 

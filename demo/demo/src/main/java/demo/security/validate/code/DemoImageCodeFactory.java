@@ -31,6 +31,7 @@ import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageUtil;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.ServletRequest;
 import java.io.File;
 import java.io.IOException;
@@ -93,6 +94,11 @@ public class DemoImageCodeFactory implements ImageCodeFactory {
     public DemoImageCodeFactory(ValidateCodeProperties validateCodeProperties) {
         this.validateCodeProperties = validateCodeProperties;
         this.totalImages = validateCodeProperties.getTotalImages();
+    }
+
+    @PostConstruct
+    public void init() {
+        // 从缓存中读取滑块验证码或者重新创建滑块验证码缓存
         readOrCreateCacheImageCodes();
     }
 

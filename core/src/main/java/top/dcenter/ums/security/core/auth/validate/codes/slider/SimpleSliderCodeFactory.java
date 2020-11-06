@@ -32,6 +32,7 @@ import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.util.ValidateCodeUtil;
 
+import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -136,7 +137,10 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
         this.expireIn = slider.getExpire();
         this.templateImagePaths = getImagesAbsPaths(slider.getTemplateImageDirectory(), slider.getImageSuffix());
         this.originalImagePaths = getImagesAbsPaths(slider.getOriginalImageDirectory(), slider.getImageSuffix());
+    }
 
+    @PostConstruct
+    public void init() {
         // 从缓存中读取滑块验证码或者重新创建滑块验证码缓存
         readOrCreateCacheImageCodes();
     }
@@ -376,13 +380,13 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
      * 生成滑块验证码图片
      * @param random            {@link ThreadLocalRandom}
      * @param codeImageAbsPath  生成的滑块验证码图片存放目录
-     * @return                  生成的滑块验证码信息
+     * @return                  生成的滑块验证码图片信息
      * @throws IOException  生成滑块验证码错误
      */
     private ImageInfo generateSliderImage(ThreadLocalRandom random, String codeImageAbsPath) throws IOException {
         final File templateImage = getRandomImageFile(this.templateImagePaths, random);
         final File originalImage = getRandomImageFile(this.originalImagePaths, random);
-        final SliderCodeInfo sliderCodeInfo = new SliderCodeInfo(templateImage, originalImage, this.grayscale);
+        final SliderCodeInfo sliderCodeInfo = createSliderCodeInfo(templateImage, originalImage, this.grayscale);
 
         // 不包含后缀信息的文件名称
         // x_y_w_h_token
@@ -398,6 +402,40 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
         return new ImageInfo(srcImageAbsPath, markImageAbsPath, sliderCodeInfo);
     }
 
+    /**
+     * 创建滑块验证码图片
+     * @param templateFile          模板图片文件
+     * @param originalFile          源图片文件
+     * @param grayscale             在模板上抠图区灰阶等级: 4-10, 数值越高, 灰色越深
+     * @return                      生成的滑块验证码信息
+     */
+    private SliderCodeInfo createSliderCodeInfo(File templateFile, File originalFile, int grayscale) throws IOException {
+        BufferedImage templateImage = ImageIO.read(templateFile);
+        BufferedImage oriImage = ImageIO.read(originalFile);
+        final Map<String, Object> sliderCodeInfoMap = cutImageByTemplate(templateImage, oriImage, grayscale);
+
+        BufferedImage markImage = (BufferedImage) sliderCodeInfoMap.get("markImage");
+        BufferedImage srcImage = (BufferedImage) sliderCodeInfoMap.get("srcImage");
+
+        // 构建缓存的文件名称
+        final StringBuilder fileName = new StringBuilder();
+        fileName.append(sliderCodeInfoMap.get("locationX"))
+                .append(IMAGE_NAME_DELIMITER)
+                .append(sliderCodeInfoMap.get("locationY"))
+                .append(IMAGE_NAME_DELIMITER)
+                .append(srcImage.getWidth())
+                .append(IMAGE_NAME_DELIMITER)
+                .append(srcImage.getHeight())
+                .append(IMAGE_NAME_DELIMITER)
+                .append(getUuid());
+
+        return new SliderCodeInfo(srcImage, markImage, fileName);
+
+    }
+
+    /**
+     * 为了提取重复代码, 重构方法而设置的内部类, 主要目的为传递多个变量值
+     */
     private static class SliderCodeInfo {
 
         /**
@@ -413,35 +451,10 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
          */
         private final StringBuilder fileName;
 
-        /**
-         * 创建滑块验证码图片
-         * @param templateFile          模板图片文件
-         * @param originalFile          源图片文件
-         * @param grayscale             在模板上抠图区灰阶等级: 4-10, 数值越高, 灰色越深
-         */
-        public SliderCodeInfo(File templateFile, File originalFile, int grayscale) throws IOException {
-
-            BufferedImage templateImage = ImageIO.read(templateFile);
-            BufferedImage oriImage = ImageIO.read(originalFile);
-            final Map<String, Object> sliderCodeInfoMap = cutImageByTemplate(templateImage, oriImage, grayscale);
-
-            this.markImage = (BufferedImage) sliderCodeInfoMap.get("markImage");
-            this.srcImage = (BufferedImage) sliderCodeInfoMap.get("srcImage");
-
-            // 构建缓存的文件名称
-            final StringBuilder fileName = new StringBuilder();
-            fileName.append(sliderCodeInfoMap.get("locationX"))
-                    .append(IMAGE_NAME_DELIMITER)
-                    .append(sliderCodeInfoMap.get("locationY"))
-                    .append(IMAGE_NAME_DELIMITER)
-                    .append(srcImage.getWidth())
-                    .append(IMAGE_NAME_DELIMITER)
-                    .append(srcImage.getHeight())
-                    .append(IMAGE_NAME_DELIMITER)
-                    .append(getUuid());
-
+        public SliderCodeInfo(BufferedImage srcImage, BufferedImage markImage, StringBuilder fileName) {
+            this.srcImage = srcImage;
+            this.markImage = markImage;
             this.fileName = fileName;
-
         }
 
     }
@@ -455,7 +468,7 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
         private final String markImageAbsPath;
         private final SliderCodeInfo sliderCodeInfo;
 
-        public ImageInfo(String srcImageAbsPath, String markImageAbsPath, SliderCodeInfo sliderCodeInfo) {
+        ImageInfo(String srcImageAbsPath, String markImageAbsPath, SliderCodeInfo sliderCodeInfo) {
             this.srcImageAbsPath = srcImageAbsPath;
             this.markImageAbsPath = markImageAbsPath;
             this.sliderCodeInfo = sliderCodeInfo;
