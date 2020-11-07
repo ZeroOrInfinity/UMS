@@ -63,6 +63,11 @@ public enum ErrorCodeEnum {
     ACCOUNT_LOCKED(983, "账号已锁定"),
     CREDENTIALS_EXPIRED(984, "凭证过期"),
 
+    UPDATE_ROLE_PERMISSIONS_FAILURE(990, "更新角色资源失败"),
+    UPDATE_ROLE_PERMISSIONS_ILLEGAL(991, "非法操作: 越权更新角色资源"),
+    QUERY_ROLE_PERMISSIONS_FAILURE(992, "查询角色资源信息失败"),
+    QUERY_ROLE_PERMISSIONS_ILLEGAL(993, "非法操作: 越权查询角色资源信息"),
+
 
     USER_REGISTER_OAUTH2_FAILURE(999, "本地用户注册成功, 第三方信息保存失败"),
 

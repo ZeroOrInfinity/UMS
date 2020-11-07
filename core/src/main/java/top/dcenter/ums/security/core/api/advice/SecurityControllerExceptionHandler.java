@@ -40,6 +40,13 @@ import top.dcenter.ums.security.core.vo.ResponseResult;
  */
 public class SecurityControllerExceptionHandler {
 
+    @ExceptionHandler(RolePermissionsException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseResult rolePermissionsException(RolePermissionsException ex) {
+        return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), ex.getData());
+    }
+
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
