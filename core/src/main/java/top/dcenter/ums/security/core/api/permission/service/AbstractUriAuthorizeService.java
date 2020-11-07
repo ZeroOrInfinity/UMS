@@ -25,6 +25,7 @@ package top.dcenter.ums.security.core.api.permission.service;
 
 import lombok.Getter;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
@@ -79,7 +80,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     /**
      * 所有角色 uri 权限 Map(role, map(uri, uriResourcesDTO))
      */
-    protected volatile Map<String, Map<String, UriResourcesDTO>> rolesAuthorityMap;
+    protected volatile Map<String, Map<String, UriResourcesDTO>> rolesAuthoritiesMap;
     /**
      * 所有角色 uri 权限 Map(uri, Set(authority))
      */
@@ -96,7 +97,13 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         return antPathMatcher.match(pattern, requestUri);
     }
 
-
+    /**
+     * 根据 authentication 来判断 request 是否有 uriAuthority 访问权限. 用于自定义注解{@code @UriAuthorize("/test/permission/**:add")}
+     * @param request           request
+     * @param authentication    authentication
+     * @param uriAuthority      uri 权限
+     * @return  有访问权限则返回 true, 否则返回 false.
+     */
     @Override
     public boolean hasPermission(HttpServletRequest request, Authentication authentication, String uriAuthority) {
 
@@ -107,6 +114,13 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
     }
 
+    /**
+     * 根据 authentication 来判断是否有 uriAuthority 访问权限, <br>
+     * 用于 {@code httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication)")} 判断
+     * @param authentication    authentication
+     * @param request           HttpServletRequest
+     * @return  有访问权限则返回 true, 否则返回 false.
+     */
     @Override
     public boolean hasPermission(Authentication authentication, HttpServletRequest request) {
 
@@ -118,53 +132,34 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
         final String method = request.getMethod();
 
-        // 用户有权限的 uri 集合
-        Set<String> userUriSet = uriAuthorityOfUserRoleMap.keySet();
-
-        // 匹配 requestUri 的用户权限集合
-        Set<String> userAuthoritySet;
-
-        // 精确匹配 requestUri 并检查是否有权限
-        if (userUriSet.contains(requestUri))
-        {
-            // 用户持有 requestUri 的权限集合
-            userAuthoritySet = uriAuthorityOfUserRoleMap.get(requestUri);
-            // 检查是否有匹配的权限
-            boolean isMatchByMethod = isMatchByMethod(method, userAuthoritySet);
-            if (isMatchByMethod)
-            {
-                return true;
-            }
-        }
-
-        // antPathMatcher 匹配 requestUri 并获取匹配的用户权限集合
-        userAuthoritySet = userUriSet.stream()
-                .filter(uri -> match(uri, requestUri))
-                .flatMap(uri -> uriAuthorityOfUserRoleMap.get(uri).stream())
-                .collect(Collectors.toSet());
-
-        // 检查是否有匹配的权限
-        return isMatchByMethod(method, userAuthoritySet);
+        return uriAuthorityOfUserRoleMap.entrySet()
+                                        .stream()
+                                        // 通过 antPathMatcher 检查用户权限集合中 uri 是否匹配 requestUri
+                                        .filter(entry -> antPathMatcher.match(entry.getKey(), requestUri))
+                                        // 用户的 authority 的 permissionSuffix 是否 method 对应的 permissionSuffix 后缀匹配
+                                        .anyMatch(entry -> isMatchByMethod(method, entry.getValue()));
 
     }
 
+    /**
+     * 根据 authentication 来判断是否有 uriAuthority 访问权限, 用于 {@code @PerAuthorize("hasPermission('/users', '/users:list')")} 判断
+     * @param authentication    authentication
+     * @param requestUri        不包含 ServletContextPath 的 requestUri
+     * @param uriAuthority      uri 权限
+     * @return  有访问权限则返回 true, 否则返回 false.
+     */
     @Override
-    public boolean hasPermission(Authentication authentication, String requestUri, String uriAuthority) {
+    public boolean hasPermission(Authentication authentication, final String requestUri, final String uriAuthority) {
 
         // Map(uri, Set(authority))
-        Map<String, Set<String>> uriAuthorityMap = getUriAuthoritiesOfUserRole(authentication).orElse(new HashMap<>(0));
+        Map<String, Set<String>> uriAuthorityOfUserRoleMap = getUriAuthoritiesOfUserRole(authentication).orElse(new HashMap<>(0));
 
-        Set<String> uriSet = uriAuthorityMap.keySet();
+        // requestUri 是否匹配(antPathMatcher)用户所拥有权限的 uri 且与 uri 相对应的 authorities set 包含 userAuthority
+        return uriAuthorityOfUserRoleMap.entrySet()
+                                        .stream()
+                                        .filter(entry -> antPathMatcher.match(entry.getKey(), requestUri))
+                                        .anyMatch(entry -> entry.getValue().contains(uriAuthority));
 
-        // uri 是否匹配
-        if (isUriContainsInUriSet(uriSet, requestUri))
-        {
-            return uriAuthorityMap.values().stream()
-                                  // 权限是否匹配
-                                  .anyMatch(authoritySet -> authoritySet.contains(uriAuthority));
-        }
-
-        return false;
     }
 
     /**
@@ -193,13 +188,13 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
          * 实现对 requestUri 的权限控制时, 要考虑纯正的 resetFul 风格的 api 是通过 GET/POST/PUT/DELETE 等来区别 curd 操作的情况;
          * 这里我们用 map(uri, Set(authority)) 来处理
          */
-        Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthorityMap.size());
+        Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthoritiesMap.size());
 
-        rolesAuthorityMap.entrySet()
-                        .stream()
-                        .filter(map -> roleSet.contains(map.getKey()))
-                        .map(Map.Entry::getValue)
-                        .forEach(map2mapConsumer(uriAuthoritiesMap));
+        rolesAuthoritiesMap.entrySet()
+                           .stream()
+                           .filter(map -> roleSet.contains(map.getKey()))
+                           .map(Map.Entry::getValue)
+                           .forEach(map2mapConsumer(uriAuthoritiesMap));
 
         return Optional.of(uriAuthoritiesMap);
     }
@@ -222,18 +217,12 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     public void updateRolesAuthorities() {
 
         synchronized (lock) {
-            Map<String, Map<String, UriResourcesDTO>> rolesAuthorityMap = getRolesAuthorities().orElse(new HashMap<>(0));
-            Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthorityMap.size());
-            rolesAuthorityMap.values().forEach(map2mapConsumer(uriAuthoritiesMap));
+            Map<String, Map<String, UriResourcesDTO>> rolesAuthoritiesMap = getRolesAuthorities().orElse(new HashMap<>(0));
+            Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthoritiesMap.size());
+            rolesAuthoritiesMap.values().forEach(map2mapConsumer(uriAuthoritiesMap));
             this.uriAuthoritiesMap = uriAuthoritiesMap;
-            this.rolesAuthorityMap = rolesAuthorityMap;
+            this.rolesAuthoritiesMap = rolesAuthoritiesMap;
         }
-
-    }
-
-    @Override
-    public Boolean isUriContainsInUriSet(Set<String> uriSet, final String requestUri) {
-        return uriSet.contains(requestUri) || uriSet.stream().anyMatch(uri -> antPathMatcher.match(uri, requestUri));
 
     }
 
@@ -270,7 +259,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
             return false;
         }
 
-        String permissionSuffix = PermissionSuffixType.getPermissionSuffix(requestMethod);
+        String permissionSuffix = PermissionSuffixType.getPermissionSuffix(HttpMethod.valueOf(requestMethod));
         if (permissionSuffix == null)
         {
             return false;
