@@ -26,7 +26,6 @@ package top.dcenter.ums.security.core.api.permission.service;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
-import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,7 +49,7 @@ public interface UriAuthorizeService {
     boolean match(String pattern, String requestUri);
 
     /**
-     * 根据 authentication 来判断 request 是否有 uriAuthority 访问权限. 用于自定义注解{@link top.dcenter.ums.security.core.permission.interceptor.UriAuthorizationAnnotationInterceptor}
+     * 根据 authentication 来判断 request 是否有 uriAuthority 访问权限. 用于自定义注解{@code @UriAuthorize("/test/permission/**:add")}
      * @param request           request
      * @param authentication    authentication
      * @param uriAuthority      uri 权限
@@ -59,7 +58,7 @@ public interface UriAuthorizeService {
     boolean hasPermission(HttpServletRequest request, Authentication authentication, String uriAuthority);
 
     /**
-     * 根据 authentication 来判断是否有 uriAuthority 访问权限, 用于 @PerAuthorize("hasPermission('/users', '/users:list')") 判断
+     * 根据 authentication 来判断是否有 uriAuthority 访问权限, 用于 {@code @PerAuthorize("hasPermission('/users', '/users:list')")} 判断
      * @param authentication    authentication
      * @param requestUri        不包含 ServletContextPath 的 requestUri
      * @param uriAuthority      uri 权限
@@ -69,7 +68,7 @@ public interface UriAuthorizeService {
 
     /**
      * 根据 authentication 来判断是否有 uriAuthority 访问权限, <br>
-     * 用于 httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication)") 判断
+     * 用于 {@code httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication)")} 判断
      * @param authentication    authentication
      * @param request           HttpServletRequest
      * @return  有访问权限则返回 true, 否则返回 false.
@@ -98,7 +97,7 @@ public interface UriAuthorizeService {
     void handlerError(int status, HttpServletResponse response);
 
     /**
-     * 获取角色的 uri 的权限 map.<br>
+     * 获取所有角色的 uri 的权限 map.<br>
      *     返回值为: Map(role, Map(uri, UriResourcesDTO))
      * @return Map(String, Map(String, String)) 的 key 为必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), value 为 UriResourcesDTO map
      * (key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为 UriResourcesDTO).
@@ -115,23 +114,5 @@ public interface UriAuthorizeService {
      * @return AntPathMatcher
      */
     AntPathMatcher getAntPathMatcher();
-
-    /**
-     * 遍历 uriSet, 测试 uri 是否有匹配 requestUri(去除 ServletContextPath).<br><br>
-     * @param uriSet        uriSet(可以是Ant通配符的 uri)
-     * @param requestUri    requestUri
-     * @return 通过 {@link AntPathMatcher } 测试 uri 是否有匹配 requestUri.
-     */
-    Boolean isUriContainsInUriSet(Set<String> uriSet, String requestUri);
-
-    /**
-     * 根据 uri 与 type 生成 uri 的权限字符串
-     * @param uri   去除 ServletContextPath 的 uri
-     * @param type  PermissionSuffixType
-     * @return  uri 的权限字符串
-     */
-    static String getPermission(String uri, PermissionSuffixType type) {
-        return String.format("%s%s", uri, type.getPermissionSuffix());
-    }
 
 }
