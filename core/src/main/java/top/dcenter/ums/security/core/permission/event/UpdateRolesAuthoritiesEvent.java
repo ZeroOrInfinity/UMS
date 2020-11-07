@@ -26,7 +26,7 @@ package top.dcenter.ums.security.core.permission.event;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * 更新角色权限时间
+ * 更新角色权限事件
  * @author YongWu zheng
  * @version V1.0  Created by 2020/10/2 19:14
  */
