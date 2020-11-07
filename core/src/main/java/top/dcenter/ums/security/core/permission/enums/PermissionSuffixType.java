@@ -36,7 +36,7 @@ public enum PermissionSuffixType {
     /**
      * 查询
      */
-    GET {
+    GET("查询权限") {
         @Override
         public String getPermissionSuffix() {
             return ":list";
@@ -45,7 +45,7 @@ public enum PermissionSuffixType {
     /**
      * 添加
      */
-    POST {
+    POST("添加权限") {
         @Override
         public String getPermissionSuffix() {
             return ":add";
@@ -54,7 +54,7 @@ public enum PermissionSuffixType {
     /**
      * 更新
      */
-    PUT {
+    PUT("更新权限") {
         @Override
         public String getPermissionSuffix() {
             return ":edit";
@@ -63,7 +63,7 @@ public enum PermissionSuffixType {
     /**
      * 删除
      */
-    DELETE {
+    DELETE("删除权限") {
         @Override
         public String getPermissionSuffix() {
             return ":del";
@@ -72,7 +72,7 @@ public enum PermissionSuffixType {
     /**
      * HEAD
      */
-    HEAD {
+    HEAD("HEAD权限") {
         @Override
         public String getPermissionSuffix() {
             return ":head";
@@ -81,7 +81,7 @@ public enum PermissionSuffixType {
     /**
      * PATCH
      */
-    PATCH {
+    PATCH("PATCH权限") {
         @Override
         public String getPermissionSuffix() {
             return ":patch";
@@ -90,7 +90,7 @@ public enum PermissionSuffixType {
     /**
      * OPTIONS
      */
-    OPTIONS {
+    OPTIONS("OPTIONS权限") {
         @Override
         public String getPermissionSuffix() {
             return ":options";
@@ -99,13 +99,25 @@ public enum PermissionSuffixType {
     /**
      * TRACE
      */
-    TRACE {
+    TRACE("TRACE权限") {
         @Override
         public String getPermissionSuffix() {
             return ":trace";
         }
     };
 
+    /**
+     * 权限描述
+     */
+    private String description;
+
+    PermissionSuffixType(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 
     /**
      * 获取权限后缀
