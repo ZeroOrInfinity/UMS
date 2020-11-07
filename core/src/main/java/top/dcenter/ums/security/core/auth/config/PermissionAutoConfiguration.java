@@ -27,9 +27,11 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.EnableAsync;
 import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
+import top.dcenter.ums.security.core.permission.aspect.RolePermissionsServiceAspect;
 import top.dcenter.ums.security.core.permission.evaluator.UriAuthoritiesPermissionEvaluator;
 import top.dcenter.ums.security.core.permission.listener.UpdateRolesAuthoritiesListener;
 import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeService;
@@ -43,6 +45,7 @@ import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeServi
  */
 @Configuration()
 @EnableAsync
+@EnableAspectJAutoProxy
 @Order(99)
 @AutoConfigureAfter({SecurityAutoConfiguration.class})
 public class PermissionAutoConfiguration {
@@ -50,6 +53,11 @@ public class PermissionAutoConfiguration {
     @Bean
     public UpdateRolesAuthoritiesListener updateRolesAuthoritiesListener(UriAuthorizeService uriAuthorizeService) {
         return new UpdateRolesAuthoritiesListener(uriAuthorizeService);
+    }
+
+    @Bean
+    public RolePermissionsServiceAspect rolePermissionsServiceAspect() {
+        return new RolePermissionsServiceAspect();
     }
 
     @Bean
