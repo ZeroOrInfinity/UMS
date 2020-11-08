@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package top.dcenter.ums.security.core.auth.config;
+package top.dcenter.ums.security.core.permission.config;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.vote.RoleHierarchyVoter;
+import top.dcenter.ums.security.core.auth.config.PropertiesAutoConfiguration;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 
 import java.util.List;

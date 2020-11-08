@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package top.dcenter.ums.security.core.auth.config;
+package top.dcenter.ums.security.core.permission.config;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -31,6 +31,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.EnableAsync;
 import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
+import top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration;
 import top.dcenter.ums.security.core.permission.aspect.RolePermissionsServiceAspect;
 import top.dcenter.ums.security.core.permission.evaluator.UriAuthoritiesPermissionEvaluator;
 import top.dcenter.ums.security.core.permission.listener.UpdateRolesAuthoritiesListener;

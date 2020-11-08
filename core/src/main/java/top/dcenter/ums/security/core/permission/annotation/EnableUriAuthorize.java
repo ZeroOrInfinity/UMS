@@ -21,10 +21,9 @@
  * SOFTWARE.
  */
 
-package top.dcenter.ums.security.core.permission.config;
+package top.dcenter.ums.security.core.permission.annotation;
 
 import org.springframework.context.annotation.Import;
-import top.dcenter.ums.security.core.permission.annotation.UriAuthorize;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -40,9 +39,9 @@ import java.lang.annotation.Target;
  * 注意: <br>
  *     1. 拦截器模式也可以使用
  *     <pre>
- *         &#64;PreAuthorize("hasPermission('/users', '/users:list')")
+ *         &#64;PreAuthorize("hasPermission('/users', 'list')")
  *         // equivalent to
- *         &#64;UriAuthorize("/users:list")
+ *         &#64;UriAuthorize("list")
  *     </pre>
  *
  * @author YongWu zheng

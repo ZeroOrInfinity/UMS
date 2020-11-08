@@ -21,12 +21,14 @@
  * SOFTWARE.
  */
 
-package top.dcenter.ums.security.core.permission.config;
+package top.dcenter.ums.security.core.permission.annotation;
 
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.Assert;
+import top.dcenter.ums.security.core.permission.config.UriAuthorizeInterceptorAutoConfiguration;
+import top.dcenter.ums.security.core.permission.config.UriAuthorizeWebMvcAutoConfigurer;
 
 import java.util.ArrayList;
 import java.util.List;
