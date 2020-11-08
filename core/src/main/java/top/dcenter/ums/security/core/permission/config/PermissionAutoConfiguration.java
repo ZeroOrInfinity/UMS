@@ -24,12 +24,14 @@
 package top.dcenter.ums.security.core.permission.config;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.EnableAsync;
+import top.dcenter.ums.security.core.api.permission.service.UpdateAuthoritiesService;
 import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
 import top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration;
 import top.dcenter.ums.security.core.permission.aspect.RolePermissionsServiceAspect;
@@ -52,11 +54,13 @@ import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeServi
 public class PermissionAutoConfiguration {
 
     @Bean
-    public UpdateRolesAuthoritiesListener updateRolesAuthoritiesListener(UriAuthorizeService uriAuthorizeService) {
-        return new UpdateRolesAuthoritiesListener(uriAuthorizeService);
+    @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.permission.service.UpdateAuthoritiesService")
+    public UpdateRolesAuthoritiesListener updateRolesAuthoritiesListener(UpdateAuthoritiesService updateAuthoritiesService) {
+        return new UpdateRolesAuthoritiesListener(updateAuthoritiesService);
     }
 
     @Bean
+    @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.permission.service.UpdateAuthoritiesService")
     public RolePermissionsServiceAspect rolePermissionsServiceAspect() {
         return new RolePermissionsServiceAspect();
     }
