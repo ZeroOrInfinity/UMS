@@ -25,7 +25,6 @@ package top.dcenter.ums.security.core.permission.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -47,7 +46,6 @@ import java.util.Set;
  */
 @Configuration
 @AutoConfigureAfter({PropertiesAutoConfiguration.class})
-@ConditionalOnMissingBean(type = {"org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration"})
 @Slf4j
 public class UriAuthorizeAutoConfigurerAware implements HttpSecurityAware {
 
