@@ -169,19 +169,38 @@ public class ClientProperties {
 
 
     /**
-     * 权限表达式, 默认为 hasPermission(request, authentication).<br>
-     * hasPermission 方法默认实现为 {@link UriAuthoritiesPermissionEvaluator}, 想自定义逻辑, 实现 {@link PermissionEvaluator} 即可替换.<br>
+     * 权限表达式, 当 {@code enableRestfulApi=false} 生效, 默认为 isAuthenticated(). <br>
      * 注意: 当开启注解 {@link EnableGlobalMethodSecurity} 时, 此配置失效.<br>
-     * 此配置等效于:
      * <pre>
-     * String accessExp = "hasPermission(request, authentication)";
-     * // or
-     * accessExp = "@yourService.hasPermission(request, authentication)";
-     * httpSecurity.authorizeRequests().anyRequest().access(accessExp);
+     * String accessExp = "isAuthenticated()";
+     * // 配置等效与
+     * httpSecurity.authorizeRequests().anyRequest().access(isAuthenticated());
      * </pre>
      */
     @Setter
-    public String accessExp = "hasPermission(request, authentication)";
+    private String accessExp = "isAuthenticated()";
+
+    /**
+     * 权限表达式, 当 {@code enableRestfulApi=true} 生效, 默认为 hasPermission(request, authentication).
+     * 此表达式生效的前提是: 前后台的交互接口为 restful 风格的 API; 如: 查询(GET),添加(POST),修改(PUT),删除(DELETE).<br>
+     * hasPermission 方法默认实现为 {@link UriAuthoritiesPermissionEvaluator}, 想自定义逻辑, 实现 {@link PermissionEvaluator} 即可替换.<br>
+     * 注意: 当开启注解 {@link EnableGlobalMethodSecurity} 时, 此配置失效.<br>
+     * <pre>
+     * String accessExp = "hasPermission(request, authentication)";
+     * // 配置等效与
+     * httpSecurity.authorizeRequests().anyRequest().access(hasPermission(request, authentication));
+     * </pre>
+     */
+    @Setter
+    private String restfulAccessExp = "hasPermission(request, authentication)";
+
+    /**
+     * 是否支持 restful Api (前后端交互接口的风格), 默认: true.<br>
+     * 当 {@code enableRestfulApi=false} 时 {@code accessExp} 权限表达式生效,
+     * 当 {@code enableRestfulApi=true} 时 {@code restfulAccessExp} 权限表达式生效,
+     */
+    @Setter
+    private Boolean enableRestfulApi = true;
 
     /**
      * 是否开启登录路由功能, 根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationRoutingUrl 和 authRedirectSuffixCondition

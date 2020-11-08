@@ -32,7 +32,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
-import top.dcenter.ums.security.core.auth.config.ValidateCodeBeanAutoConfiguration;
+import top.dcenter.ums.security.core.auth.config.PropertiesAutoConfiguration;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 
 import java.util.Collections;
@@ -41,12 +41,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 验证码相关配置
+ * 权限相关配置
  * @author YongWu zheng
  * @version V1.0  Created by 2020/5/15 21:59
  */
 @Configuration
-@AutoConfigureAfter({ValidateCodeBeanAutoConfiguration.class})
+@AutoConfigureAfter({PropertiesAutoConfiguration.class})
 @ConditionalOnMissingBean(type = {"org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration"})
 @Slf4j
 public class UriAuthorizeAutoConfigurerAware implements HttpSecurityAware {
@@ -82,7 +82,11 @@ public class UriAuthorizeAutoConfigurerAware implements HttpSecurityAware {
     public Map<String, Map<UriHttpMethodTuple, Set<String>>> getAuthorizeRequestMap() {
 
         final Map<UriHttpMethodTuple, Set<String>> accessMap = new HashMap<>(16);
+
         String accessExp = clientProperties.getAccessExp();
+        if (clientProperties.getEnableRestfulApi()) {
+            accessExp = clientProperties.getRestfulAccessExp();
+        }
 
         // 这里 tuple(null, accessExp) 的唯一作用是作为 key 值, 无实际意义
         accessMap.put(UriHttpMethodTuple.tuple(null, accessExp), Collections.singleton(accessExp));
