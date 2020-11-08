@@ -26,21 +26,23 @@ package top.dcenter.ums.security.core.permission.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
+import org.springframework.lang.NonNull;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
+import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
+import top.dcenter.ums.security.core.api.permission.service.UpdateAuthoritiesService;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
 
 /**
- * request 的 uri 访问权限控制服务.<br>
- * 实现 {@link AbstractUriAuthorizeService} 抽象类并注入 IOC 容器即可替换此类.
+ * request 的 uri 访问权限控制服务. 此类的目的是提示用户必须实现 {@link AbstractUriAuthorizeService} <br>
+ * 实现 {@link AbstractUriAuthorizeService} 抽象类并注入 IOC 容器即可替换此类. <br>
+ * 另外推荐实现 {@link AbstractUriAuthorizeService} 同时实现 {@link UpdateAuthoritiesService} 更新与缓存权限服务, 有助于提高授权服务性能.
  * @author YongWu zheng
  * @version V1.0  Created by 2020/9/8 21:54
  */
@@ -52,10 +54,25 @@ public class DefaultUriAuthorizeService extends AbstractUriAuthorizeService {
     private ObjectMapper objectMapper;
 
     @Override
-    public Optional<Map<String, Map<String, UriResourcesDTO>>> getRolesAuthorities() {
+    @NonNull
+    public Map<String, Map<String, Set<String>>> getRolesAuthorities() {
 
-        log.warn("AbstractUriAuthorizeService 抽象类未实现, 使用权限服务必须实现此抽象类.");
-        return Optional.empty();
+        log.error("使用基于 角色 的权限服务必须实现此接口.");
+        throw new RuntimeException("未实现获取所有角色的 uri(资源) 的权限");
+    }
+
+    @Override
+    @NonNull
+    public Map<String, Map<String, Set<String>>> getRolesAuthoritiesOfTenant(String tenantAuthority) {
+        log.error("使用 多租户 权限服务必须实现此接口.");
+        throw new RuntimeException("未实现获取多租户的所有角色的 uri(资源) 的权限");
+    }
+
+    @Override
+    @NonNull
+    public Map<String, Map<String, Set<String>>> getRolesAuthoritiesOfScope(Set<String> scopeSet) {
+        log.error("使用 SCOPE 权限服务必须实现此接口.");
+        throw new RuntimeException("未实现获取 SCOPE 的所有角色的 uri(资源) 的权限");
     }
 
     @Override
