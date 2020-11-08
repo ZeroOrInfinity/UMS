@@ -28,7 +28,6 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
 import org.springframework.security.access.PermissionEvaluator;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import top.dcenter.ums.security.common.enums.CsrfTokenRepositoryType;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
@@ -170,7 +169,6 @@ public class ClientProperties {
 
     /**
      * 权限表达式, 当 {@code enableRestfulApi=false} 生效, 默认为 isAuthenticated(). <br>
-     * 注意: 当开启注解 {@link EnableGlobalMethodSecurity} 时, 此配置失效.<br>
      * <pre>
      * String accessExp = "isAuthenticated()";
      * // 配置等效与
@@ -182,9 +180,7 @@ public class ClientProperties {
 
     /**
      * 权限表达式, 当 {@code enableRestfulApi=true} 生效, 默认为 hasPermission(request, authentication).
-     * 此表达式生效的前提是: 前后台的交互接口为 restful 风格的 API; 如: 查询(GET),添加(POST),修改(PUT),删除(DELETE).<br>
-     * hasPermission 方法默认实现为 {@link UriAuthoritiesPermissionEvaluator}, 想自定义逻辑, 实现 {@link PermissionEvaluator} 即可替换.<br>
-     * 注意: 当开启注解 {@link EnableGlobalMethodSecurity} 时, 此配置失效.<br>
+     * hasPermission 表达式默认实现为 {@link UriAuthoritiesPermissionEvaluator}, 想自定义逻辑, 实现 {@link PermissionEvaluator} 即可替换.<br>
      * <pre>
      * String accessExp = "hasPermission(request, authentication)";
      * // 配置等效与
@@ -195,9 +191,9 @@ public class ClientProperties {
     private String restfulAccessExp = "hasPermission(request, authentication)";
 
     /**
-     * 是否支持 restful Api (前后端交互接口的风格), 默认: true.<br>
+     * 是否支持 restful Api (前后端交互接口的风格; 如: 查询(GET),添加(POST),修改(PUT),删除(DELETE)), 默认: true.<br>
      * 当 {@code enableRestfulApi=false} 时 {@code accessExp} 权限表达式生效,
-     * 当 {@code enableRestfulApi=true} 时 {@code restfulAccessExp} 权限表达式生效,
+     * 当 {@code enableRestfulApi=true} 时 {@code restfulAccessExp} 权限表达式生效.
      */
     @Setter
     private Boolean enableRestfulApi = true;
