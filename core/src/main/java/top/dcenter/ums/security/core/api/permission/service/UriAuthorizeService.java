@@ -49,16 +49,7 @@ public interface UriAuthorizeService {
     boolean match(String pattern, String requestUri);
 
     /**
-     * 根据 authentication 来判断 request 是否有 uriAuthority 访问权限. 用于自定义注解{@code @UriAuthorize("/test/permission/**:add")}
-     * @param request           request
-     * @param authentication    authentication
-     * @param uriAuthority      uri 权限
-     * @return  有访问权限则返回 true, 否则返回 false.
-     */
-    boolean hasPermission(HttpServletRequest request, Authentication authentication, String uriAuthority);
-
-    /**
-     * 根据 authentication 来判断是否有 uriAuthority 访问权限, 用于 {@code @PerAuthorize("hasPermission('/users', '/users:list')")} 判断
+     * 根据 authentication 来判断是否有 uriAuthority 访问权限, 用于 {@code @PerAuthorize("hasPermission('/users', 'list')")} 判断
      * @param authentication    authentication
      * @param requestUri        不包含 ServletContextPath 的 requestUri
      * @param uriAuthority      uri 权限
@@ -99,7 +90,7 @@ public interface UriAuthorizeService {
     /**
      * 获取所有角色的 uri 的权限 map.<br>
      *     返回值为: Map(role, Map(uri, UriResourcesDTO))
-     * @return Map(String, Map(String, String)) 的 key 为必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), value 为 UriResourcesDTO map
+     * @return Map(String, Map(String, String)) 的 key 为必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), value 为 map
      * (key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为 UriResourcesDTO).
      */
     Optional<Map<String, Map<String, UriResourcesDTO>>> getRolesAuthorities();
