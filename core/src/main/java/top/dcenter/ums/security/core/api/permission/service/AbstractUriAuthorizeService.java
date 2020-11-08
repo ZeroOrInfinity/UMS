@@ -24,7 +24,6 @@
 package top.dcenter.ums.security.core.api.permission.service;
 
 import lombok.Getter;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -32,70 +31,51 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
-import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
 import top.dcenter.ums.security.core.permission.enums.PermissionType;
 import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeService;
-import top.dcenter.ums.security.core.util.ConvertUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * request 的 uri 访问权限控制服务.<br><br>
  * 实现 {@link AbstractUriAuthorizeService} 抽象类并注入 IOC 容器即可替换
  * {@link DefaultUriAuthorizeService}.<br><br>
+ * 注意: 另外推荐实现 {@link AbstractUriAuthorizeService} 同时实现 {@link UpdateAuthoritiesService} 更新与缓存权限服务,
+ * 有助于提高授权服务性能.
  *
  * @author YongWu zheng
  * @version V1.0  Created by 2020/9/8 15:09
  */
-public abstract class AbstractUriAuthorizeService implements UriAuthorizeService, InitializingBean {
+public abstract class AbstractUriAuthorizeService implements UriAuthorizeService {
 
 
     /**
      * 角色权限前缀
      */
-    private static final String DEFAULT_ROLE_PREFIX = "ROLE_";
+    public static final String DEFAULT_ROLE_PREFIX = "ROLE_";
     /**
      * 多租户权限前缀
      */
-    private static final String DEFAULT_TENANT_PREFIX = "TENANT_";
+    public static final String DEFAULT_TENANT_PREFIX = "TENANT_";
     /**
      * 资源权限前缀
      */
-    private static final String DEFAULT_SCOPE_PREFIX = "SCOPE_";
+    public static final String DEFAULT_SCOPE_PREFIX = "SCOPE_";
 
     /**
      * 权限分隔符
      */
     public static final String PERMISSION_DELIMITER = ",";
 
-    /**
-     * 所有角色 uri 权限 Map(role, map(uri, uriResourcesDTO))
-     */
-    protected volatile Map<String, Map<String, UriResourcesDTO>> rolesAuthoritiesMap;
-    /**
-     * 所有角色 uri 权限 Map(uri, Set(authority))
-     */
-    private volatile Map<String, Set<String>> uriAuthoritiesMap;
-
     @Getter
     protected AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-    private final Object lock = new Object();
-
-
-    @Override
-    public boolean match(String pattern, String requestUri) {
-        return antPathMatcher.match(pattern, requestUri);
-    }
 
     /**
      * 根据 authentication 来判断是否有 uriAuthority 访问权限, <br>
@@ -109,9 +89,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
         String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
 
-        // 基于用户 role 的 Map(uri, Set(authority))
-        final Map<String, Set<String>> uriAuthorityOfUserRoleMap =
-                getUriAuthoritiesOfUserRole(authentication).orElse(new HashMap<>(0));
+        final Map<String, Set<String>> uriAuthorityOfUserRoleMap = getUriAuthorityMapOfUserRole(authentication);
 
         final String method = request.getMethod();
 
@@ -134,8 +112,8 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     @Override
     public boolean hasPermission(Authentication authentication, final String requestUri, final String uriAuthority) {
 
-        // Map(uri, Set(authority))
-        Map<String, Set<String>> uriAuthorityOfUserRoleMap = getUriAuthoritiesOfUserRole(authentication).orElse(new HashMap<>(0));
+        // Map<uri, Set<permission>>
+        Map<String, Set<String>> uriAuthorityOfUserRoleMap = getUriAuthorityMapOfUserRole(authentication);
 
         // requestUri 是否匹配(antPathMatcher)用户所拥有权限的 uri 且与 uri 相对应的 authorities set 包含 userAuthority
         return uriAuthorityOfUserRoleMap.entrySet()
@@ -146,78 +124,90 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     }
 
     /**
-     * 根据 authentication 中 Authorities 的 roles 从 {@link #getRolesAuthorities()} 获取 uri 权限 map.<br><br>
-     * 实现对 uri 的权限控制时, 要考虑纯正的 restful 风格的 api 是通过 GET/POST/PUT/DELETE 等来区别 curd 操作的情况;
-     * 这里用 map(uri, Set(authority)) 来处理.
-     * @param authentication    authentication
-     * @return 用户角色的 uri 权限 Map(uri, Set(authority))
+     * 获取用户角色的 uri 权限 Map
+     * @param rolesAuthoritiesMap   所有角色 uri(资源) 权限 Map(role, map(uri, Set(permission)))
+     * @param userRoleSet           用户所拥有的角色集合
+     * @return 用户角色的 uri 权限 Map(uri, Set(permission))
      */
     @Override
-    public Optional<Map<String, Set<String>>> getUriAuthoritiesOfUserRole(Authentication authentication) {
+    @NonNull
+    public Map<String, Set<String>> getUriAuthoritiesOfUserRole(Map<String, Map<String, Set<String>>> rolesAuthoritiesMap,
+                                                                final Set<String> userRoleSet) {
 
-        if (authentication == null)
-        {
-            return Optional.of(Collections.emptyMap());
-        }
-        // 获取角色权限集合
-        Set<String> authoritySet = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
-
-        final Set<String> roleSet =
-                authoritySet.stream()
-                            .filter(authority -> authority.startsWith(DEFAULT_ROLE_PREFIX))
-                            .collect(Collectors.toSet());
-
-        /*
-         * 实现对 requestUri 的权限控制时, 要考虑纯正的 restful 风格的 api 是通过 GET/POST/PUT/DELETE 等来区别 curd 操作的情况;
-         * 这里我们用 map(uri, Set(authority)) 来处理
-         */
+        // Map<uri, Set<permission>>
         Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthoritiesMap.size());
 
         rolesAuthoritiesMap.entrySet()
                            .stream()
-                           .filter(entry -> roleSet.contains(entry.getKey()))
+                           .filter(entry -> userRoleSet.contains(entry.getKey()))
                            .map(Map.Entry::getValue)
                            .forEach(map2mapConsumer(uriAuthoritiesMap));
 
-        return Optional.of(uriAuthoritiesMap);
+        return uriAuthoritiesMap;
     }
 
     /**
-     * 从 {@link #getRolesAuthorities()} 中获取获取所有 roles 的 uri 权限 map(uri, Set(authority)).<br><br>
-     * @return 所有角色 uri 权限 Map(uri, Set(authority))
+     * 根据 authentication 获取用户所拥有的所有角色的 uri(资源) 权限. 这里包含了多租户 与 SCOPE 逻辑. <br>
+     * <pre>
+     * Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+     * // 此 authorities 可以包含:  [ROLE_A, ROLE_B, TENANT_110110, SCOPE_read, SCOPE_write]
+     * // 如上所示:
+     * //    1. 角色数量    >= 1
+     * //    2. SCOPE 数量 >= 1
+     * //    3. 多租户数量  = 1
+     * </pre>
+     * @param authentication    {@link Authentication}
+     * @return  用户所拥有的所有角色的 uri(资源) 权限 Map(uri, Set(permission))
      */
-    @Override
-    public Optional<Map<String, Set<String>>> getUriAuthoritiesOfAllRole() {
+    @NonNull
+    private Map<String, Set<String>> getUriAuthorityMapOfUserRole(@NonNull Authentication authentication) {
 
-        /*
-         * 从 #getRolesAuthorities() 中获取获取所有 roles 的 uri 权限 map(uri, Set(authority))
-         */
-        return Optional.of(this.uriAuthoritiesMap);
-    }
+        // 获取角色权限集合
+        Set<String> authoritySet = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
 
+        int size = authoritySet.size();
+        // 存储用户角色的集合
+        final Set<String> roleSet = new HashSet<>(size);
+        // 存储多组户 ID
+        final String[] tenantAuthority = new String[]{null};
+        // 存储 SCOPE 的集合
+        final Set<String> scopeSet = new HashSet<>(size);
 
-    @Override
-    public void updateRolesAuthorities() {
+        authoritySet.forEach(authority -> {
+            if (authority.startsWith(DEFAULT_ROLE_PREFIX)) {
+                roleSet.add(authority);
+            }
+            else if (authority.startsWith(DEFAULT_TENANT_PREFIX)) {
+                tenantAuthority[0] = authority;
+            }
+            else if (authority.startsWith(DEFAULT_SCOPE_PREFIX)) {
+                scopeSet.add(authority);
+            }
+        });
 
-        synchronized (lock) {
-            Map<String, Map<String, UriResourcesDTO>> rolesAuthoritiesMap = getRolesAuthorities().orElse(new HashMap<>(0));
-            Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthoritiesMap.size());
-            rolesAuthoritiesMap.values().forEach(map2mapConsumer(uriAuthoritiesMap));
-            this.uriAuthoritiesMap = uriAuthoritiesMap;
-            this.rolesAuthoritiesMap = rolesAuthoritiesMap;
+        // 用户所拥有的所有角色的 uri(资源) 权限 Map(uri, Set(permission))
+        final Map<String, Map<String, Set<String>>> rolesAuthorities;
+
+        if (null != tenantAuthority[0]) {
+            // 获取此租户 ID 的所有角色的资源权限的 Map
+            rolesAuthorities = getRolesAuthoritiesOfTenant(tenantAuthority[0]);
+        }
+        else if (scopeSet.size() > 0) {
+            // 获取此 scopeSet 的所有角色的资源权限的 Map
+            rolesAuthorities = getRolesAuthoritiesOfScope(scopeSet);
+        }
+        else {
+            // 获取所有角色的资源权限的 Map
+            rolesAuthorities = getRolesAuthorities();
         }
 
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        // 角色 uri 权限 Map(role, map(uri, uriResourcesDTO))
-        updateRolesAuthorities();
+        // 基于用户 roleSet 的 Map<uri, Set<permission>>
+        return getUriAuthoritiesOfUserRole(rolesAuthorities, roleSet);
 
     }
 
     @NonNull
-    private Consumer<Map<String, UriResourcesDTO>> map2mapConsumer(final Map<String, Set<String>> uriAuthoritiesMap) {
+    private Consumer<Map<String, Set<String>>> map2mapConsumer(final Map<String, Set<String>> uriAuthoritiesMap) {
         return map -> map.forEach(
                 (key, value) -> uriAuthoritiesMap.compute(key, (k, v) ->
                         {
@@ -225,7 +215,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
                             {
                                 v = new HashSet<>();
                             }
-                            v.addAll(ConvertUtil.string2Set(value.getPermission(), PERMISSION_DELIMITER));
+                            v.addAll(value);
                             return v;
                         }));
     }
