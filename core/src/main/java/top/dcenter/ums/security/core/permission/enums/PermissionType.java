@@ -28,127 +28,102 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 /**
- * 权限后缀类型
+ * 权限类型, 包含接口:
+ * 1. 获取对应的权限字符串.
+ * 2. 根据 HttpMethod 的 method 字符串获取权限类型.
+ * 3. 根据 HttpMethod 的 method 字符串获取权限字符串.
+ * 4. 获取对应的权限描述.
  * @author YongWu zheng
  * @version V1.0  Created by 2020/9/17 9:33
  */
-public enum PermissionSuffixType {
+public enum PermissionType {
     /**
      * 查询
      */
-    GET("查询权限") {
-        @Override
-        public String getPermissionSuffix() {
-            return ":list";
-        }
-    },
+    GET("list", "查询权限"),
     /**
      * 添加
      */
-    POST("添加权限") {
-        @Override
-        public String getPermissionSuffix() {
-            return ":add";
-        }
-    },
+    POST("add", "添加权限"),
     /**
      * 更新
      */
-    PUT("更新权限") {
-        @Override
-        public String getPermissionSuffix() {
-            return ":edit";
-        }
-    },
+    PUT("edit", "更新权限"),
     /**
      * 删除
      */
-    DELETE("删除权限") {
-        @Override
-        public String getPermissionSuffix() {
-            return ":del";
-        }
-    },
+    DELETE("delete", "删除权限"),
     /**
      * HEAD
      */
-    HEAD("HEAD权限") {
-        @Override
-        public String getPermissionSuffix() {
-            return ":head";
-        }
-    },
+    HEAD("head", "HEAD权限"),
     /**
      * PATCH
      */
-    PATCH("PATCH权限") {
-        @Override
-        public String getPermissionSuffix() {
-            return ":patch";
-        }
-    },
+    PATCH("patch", "PATCH权限"),
     /**
      * OPTIONS
      */
-    OPTIONS("OPTIONS权限") {
-        @Override
-        public String getPermissionSuffix() {
-            return ":options";
-        }
-    },
+    OPTIONS("options", "OPTIONS权限"),
     /**
      * TRACE
      */
-    TRACE("TRACE权限") {
-        @Override
-        public String getPermissionSuffix() {
-            return ":trace";
-        }
-    };
+    TRACE("trace", "TRACE权限");
 
     /**
      * 权限描述
      */
-    private String description;
+    private final String description;
+    /**
+     * 权限字符串
+     */
+    private final String permission;
 
-    PermissionSuffixType(String description) {
+    PermissionType(String permission, String description) {
+        this.permission = permission;
         this.description = description;
     }
 
+    /**
+     * 获取权限描述
+     * @return 返回权限描述
+     */
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     /**
-     * 获取权限后缀
-     * @return 返回权限后缀
+     * 获取权限字符串
+     * @return 返回权限字符串
      */
-    public abstract String getPermissionSuffix();
+    public String getPermission() {
+        return this.permission;
+    }
 
     /**
-     * 根据 requestMethod 获取权限后缀
+     * 根据 requestMethod 获取权限字符串
      * @param method    requestMethod
-     * @return  权限后缀, 如果 method 不匹配, 返回 null
+     * @return  返回 requestMethod 相对应的权限字符串, 如果 method 不匹配, 返回 null
      */
     @Nullable
-    public static String getPermissionSuffix(@NonNull HttpMethod method) {
-        PermissionSuffixType permissionType = getPermissionType(method);
+    public static String getPermission(@NonNull HttpMethod method) {
+        PermissionType permissionType = getPermissionType(method);
         if (permissionType == null)
         {
             return null;
         }
-        return permissionType.getPermissionSuffix();
+        return permissionType.getPermission();
     }
 
     /**
-     * 根据 requestMethod 获取权限后缀
+     * 根据 requestMethod 获取权限类型
      * @param method    requestMethod
-     * @return  权限后缀, 如果 method 不匹配, 返回 null
+     * @return  返回 requestMethod 相对应的权限类型, 如果 method 不匹配, 返回 null
      */
     @Nullable
-    public static PermissionSuffixType getPermissionType(@NonNull HttpMethod method) {
-        PermissionSuffixType[] types = values();
-        for (PermissionSuffixType type : types)
+    public static PermissionType getPermissionType(@NonNull HttpMethod method) {
+        PermissionType[] types = values();
+        for (PermissionType type : types)
         {
             if (type.name().equalsIgnoreCase(method.name()))
             {
