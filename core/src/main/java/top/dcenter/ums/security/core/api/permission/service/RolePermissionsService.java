@@ -25,22 +25,22 @@ package top.dcenter.ums.security.core.api.permission.service;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import top.dcenter.ums.security.core.exception.RolePermissionsException;
-import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
+import top.dcenter.ums.security.core.permission.enums.PermissionType;
 
 import java.util.List;
 
 /**
  * 角色资源服务接口. 主要用于给角色添加权限的操作.<br>
  * 注意: <br>
- * 1. 另外 {@link #generatePermission(String, PermissionSuffixType)} 用于在添加资源时, 规范权限的格式, 因为支持 resetFul 风格的Api,
- * 在授权时需要对 {@link HttpMethod} 与权限的后缀进行匹配判断<br>
+ * 1. 另外在添加资源时, 通过{@link PermissionType#getPermission()} 来规范的权限格式, 因为要支持 restful 风格的 Api,
+ * 在授权时需要对 {@link HttpMethod} 与对应的权限进行匹配判断<br>
  * 2. 修改或添加角色资源一定要更新 {@link UriAuthorizeService#updateRolesAuthorities()} 缓存, 有两种方式: 一种发布事件, 另一种是直接调用服务;<br>
  * <pre>
  *     // 1. 推荐用发布事件(异步执行)
  *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
  *     // 2. 直接调用服务
  *     abstractUriAuthorizeService.updateRolesAuthorities();
- *     // 3. 实现此接口的方法不需要执行上两种方法的操作, 已通过 AOP 实现发布 UpdateRolesAuthoritiesEvent 事件.
+ *     // 3. 实现此接口 {@link #updateResourcesOfRole(Long, Long...)} 方法不需要执行上两种方法的操作, 已通过 AOP 实现发布 UpdateRolesAuthoritiesEvent 事件.
  * </pre>
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/6 23:33
@@ -86,14 +86,4 @@ public interface RolePermissionsService<T> {
      */
     List<T> findAllResourcesByRole(String role) throws RolePermissionsException;
 
-    /**
-     * 根据 uri 与 {@link PermissionSuffixType} 生成 uri 的权限字符串. <br>
-     * 注意: 带权限后缀的权限字符串是支持 restFul API 的基础, 为了规范权限格式, 生成权限时必须调用此方法
-     * @param uri                       去除 ServletContextPath 的 uri
-     * @param permissionSuffixType      PermissionSuffixType
-     * @return  uri 的权限字符串
-     */
-    static String generatePermission(String uri, PermissionSuffixType permissionSuffixType) {
-        return String.format("%s%s", uri, permissionSuffixType.getPermissionSuffix());
-    }
 }
