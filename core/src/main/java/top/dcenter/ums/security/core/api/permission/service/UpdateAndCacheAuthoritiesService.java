@@ -27,7 +27,7 @@ package top.dcenter.ums.security.core.api.permission.service;
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/8 21:15
  */
-public interface UpdateAuthoritiesService {
+public interface UpdateAndCacheAuthoritiesService {
 
     /**
      * 用于基于 角色 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口

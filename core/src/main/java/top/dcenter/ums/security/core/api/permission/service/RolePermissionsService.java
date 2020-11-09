@@ -34,17 +34,17 @@ import java.util.List;
  * 注意: <br>
  * 1. 另外在添加资源时, 通过{@link PermissionType#getPermission()} 来规范的权限格式, 因为要支持 restful 风格的 Api,
  * 在授权时需要对 {@link HttpMethod} 与对应的权限进行匹配判断<br>
- * 2. 修改或添加角色资源时一定要调用 {@link UpdateAuthoritiesService} 对应的方法, 有两种方式: 一种发布事件, 另一种是直接调用对应服务;<br>
+ * 2. 修改或添加角色资源时一定要调用 {@link UpdateAndCacheAuthoritiesService} 对应的方法, 有两种方式: 一种发布事件, 另一种是直接调用对应服务;<br>
  * <pre>
  *     // 1. 推荐用发布事件(异步执行)
  *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
  *     // 2. 直接调用服务
  *     // 基于角色
- *     UpdateAuthoritiesService.updateAuthoritiesOfAllRoles();
+ *     UpdateAndCacheAuthoritiesService.updateAuthoritiesOfAllRoles();
  *     // 基于多租户
- *     UpdateAuthoritiesService.updateAuthoritiesOfAllTenant();
+ *     UpdateAndCacheAuthoritiesService.updateAuthoritiesOfAllTenant();
  *     // 基于 SCOPE
- *     UpdateAuthoritiesService.updateAuthoritiesOfAllScopes();
+ *     UpdateAndCacheAuthoritiesService.updateAuthoritiesOfAllScopes();
  *     // 3. 实现此接口 {@link #updateResourcesOfRole(Long, Long...)}, {@link #updateResourcesOfTenant(String, Long, Long...)},
  *     {@link #updateResourcesOfScope(String, Long, Long...)} 的方法不需要执行上两种方法的操作,
  *     已通过 AOP 实现发布 UpdateRolesAuthoritiesEvent 事件.
