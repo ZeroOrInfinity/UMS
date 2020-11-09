@@ -307,17 +307,23 @@ public class AuthenticationUtil {
         String redirectUrl = destinationUrl;
 
         String originalUrl = null;
+
+        String queryString = request.getQueryString();
+        if (StringUtils.hasText(queryString)) {
+            queryString = "?" + queryString;
+        }
+
         // 是否为 permitAll url
         if (isPermitUri(request, session, matcher))
         {
             // 设置跳转目标 url 为自己, 重新刷新 session
-            redirectUrl = request.getRequestURL().toString() + ofNullable(request.getQueryString()).orElse("");
+            redirectUrl = request.getRequestURL().toString() + ofNullable(queryString).orElse("");
         }
         else
         {
             // 获取原始请求的 url
             SavedRequest savedRequest = requestCache.getRequest(request, response);
-            originalUrl = request.getRequestURL().toString() + ofNullable(request.getQueryString()).orElse("");
+            originalUrl = request.getRequestURL().toString() + ofNullable(queryString).orElse("");
             if (savedRequest != null)
             {
                 originalUrl = ofNullable(savedRequest.getRedirectUrl()).orElse(originalUrl);
