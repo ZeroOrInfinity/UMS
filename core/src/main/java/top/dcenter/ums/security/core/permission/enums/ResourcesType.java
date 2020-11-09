@@ -20,30 +20,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package top.dcenter.ums.security.core.permission.enums;
 
-package top.dcenter.ums.security.core.permission.event;
-
-import lombok.Getter;
-import org.springframework.context.ApplicationEvent;
-import top.dcenter.ums.security.core.permission.enums.ResourcesType;
+import top.dcenter.ums.security.core.permission.event.UpdateRolesAuthoritiesEvent;
 
 /**
- * 更新角色权限事件
+ * 资源的类型, 用于 {@link UpdateRolesAuthoritiesEvent}
  * @author YongWu zheng
- * @version V1.0  Created by 2020/10/2 19:14
+ * @version V2.0  Created by 2020/11/9 10:47
  */
-public class UpdateRolesAuthoritiesEvent extends ApplicationEvent {
-    private static final long serialVersionUID = 6858134429988117542L;
-
-    @Getter
-    private final ResourcesType type;
+public enum ResourcesType {
     /**
-     * Create a new {@code ApplicationEvent}.
-     *
-     * @param isUpdate 是否更新
+     * 基于角色的资源类型
      */
-    public UpdateRolesAuthoritiesEvent(Boolean isUpdate, ResourcesType type) {
-        super(isUpdate);
-        this.type = type;
-    }
+    ROLE,
+    /**
+     * 基于多租户的资源类型
+     */
+    TENANT,
+    /**
+     * 基于 SCOPE 的多租户类型
+     */
+    SCOPE
 }

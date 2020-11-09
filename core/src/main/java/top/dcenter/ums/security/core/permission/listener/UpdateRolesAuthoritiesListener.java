@@ -45,12 +45,20 @@ public class UpdateRolesAuthoritiesListener implements ApplicationListener<Updat
     @Override
     public void onApplicationEvent(UpdateRolesAuthoritiesEvent event) {
         Object source = event.getSource();
-        if (source instanceof Boolean)
+        if (source instanceof Boolean && ((Boolean) source))
         {
-            Boolean isUpdate = ((Boolean) source);
-            if (isUpdate)
-            {
-                updateAndCacheAuthoritiesService.updateAuthoritiesOfAllRoles();
+            switch(event.getType()) {
+                case ROLE:
+                    this.updateAndCacheAuthoritiesService.updateAuthoritiesOfAllRoles();
+                    break;
+                case TENANT:
+                    this.updateAndCacheAuthoritiesService.updateAuthoritiesOfAllTenant();
+                    break;
+                case SCOPE:
+                    this.updateAndCacheAuthoritiesService.updateAuthoritiesOfAllScopes();
+                    break;
+                default:
+                    break;
             }
         }
     }

@@ -23,7 +23,9 @@
 package top.dcenter.ums.security.core.api.permission.service;
 
 /**
- * 用于更新或缓存所有角色的权限的服务接口, 每次更新 uri(资源)权限时,需要调用此接口
+ * 用于更新或缓存基于(角色/多租户/SCOPE)角色的权限的服务接口, 每次更新角色的 uri(资源)权限时,需要调用此接口,
+ * 推荐实现此 {@link RolePermissionsService} 接口, 会自动通过 AOP 方式实现发布 UpdateRolesAuthoritiesEvent 事件,
+ * 从而调用 {@link UpdateAndCacheAuthoritiesService} 对应的方法.
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/8 21:15
  */

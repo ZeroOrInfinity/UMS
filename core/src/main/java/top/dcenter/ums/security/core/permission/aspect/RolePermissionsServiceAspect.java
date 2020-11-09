@@ -31,6 +31,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
 import top.dcenter.ums.security.core.api.permission.service.RolePermissionsService;
+import top.dcenter.ums.security.core.permission.enums.ResourcesType;
 import top.dcenter.ums.security.core.permission.event.UpdateRolesAuthoritiesEvent;
 
 /**
@@ -49,7 +50,7 @@ public class RolePermissionsServiceAspect implements ApplicationContextAware {
     public void handlerUpdateRolesAuthoritiesMethod(JoinPoint jp, boolean result, Long roleId, Long... resourceIds) {
         if (jp.getTarget() instanceof RolePermissionsService) {
             if (result) {
-                applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
+                applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.ROLE));
             }
         }
     }
@@ -59,7 +60,7 @@ public class RolePermissionsServiceAspect implements ApplicationContextAware {
     public void handlerUpdateTenantsAuthoritiesMethod(JoinPoint jp, boolean result, String tenantAuthority, Long roleId, Long... resourceIds) {
         if (jp.getTarget() instanceof RolePermissionsService) {
             if (result) {
-                applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
+                applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.TENANT));
             }
         }
     }
@@ -69,7 +70,7 @@ public class RolePermissionsServiceAspect implements ApplicationContextAware {
     public void handlerUpdateScopesAuthoritiesMethod(JoinPoint jp, boolean result, String scopeAuthority, Long roleId, Long... resourceIds) {
         if (jp.getTarget() instanceof RolePermissionsService) {
             if (result) {
-                applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
+                applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.SCOPE));
             }
         }
     }

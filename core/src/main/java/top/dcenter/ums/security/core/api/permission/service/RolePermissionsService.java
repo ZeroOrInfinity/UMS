@@ -30,14 +30,17 @@ import top.dcenter.ums.security.core.permission.enums.PermissionType;
 import java.util.List;
 
 /**
- * 角色资源服务接口. 主要用于给角色添加权限的操作.<br>
+ * 更新与查询基于(角色/多租户/SCOPE)的角色资源服务接口. 主要用于给角色添加权限的操作.<br>
  * 注意: <br>
- * 1. 另外在添加资源时, 通过{@link PermissionType#getPermission()} 来规范的权限格式, 因为要支持 restful 风格的 Api,
+ * 1. 在添加资源时, 通过{@link PermissionType#getPermission()} 来规范的权限格式, 因为要支持 restful 风格的 Api,
  * 在授权时需要对 {@link HttpMethod} 与对应的权限进行匹配判断<br>
- * 2. 修改或添加角色资源时一定要调用 {@link UpdateAndCacheAuthoritiesService} 对应的方法, 有两种方式: 一种发布事件, 另一种是直接调用对应服务;<br>
+ * 2. 如果实现了 {@link UpdateAndCacheAuthoritiesService} 接口, 未实现 {@link RolePermissionsService} 接口, 修改或添加基于"角色/多租户/SCOPE
+ * "的资源权限时一定要调用 {@link UpdateAndCacheAuthoritiesService} 对应的方法, 有两种方式: 一种发布事件, 另一种是直接调用对应服务;<br>
  * <pre>
  *     // 1. 推荐用发布事件(异步执行)
- *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
+ *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.ROLE));
+ *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.TENANT));
+ *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.SCOPE));
  *     // 2. 直接调用服务
  *     // 基于角色
  *     UpdateAndCacheAuthoritiesService.updateAuthoritiesOfAllRoles();
@@ -45,10 +48,8 @@ import java.util.List;
  *     UpdateAndCacheAuthoritiesService.updateAuthoritiesOfAllTenant();
  *     // 基于 SCOPE
  *     UpdateAndCacheAuthoritiesService.updateAuthoritiesOfAllScopes();
- *     // 3. 实现此接口 {@link #updateResourcesOfRole(Long, Long...)}, {@link #updateResourcesOfTenant(String, Long, Long...)},
- *     {@link #updateResourcesOfScope(String, Long, Long...)} 的方法不需要执行上两种方法的操作,
- *     已通过 AOP 实现发布 UpdateRolesAuthoritiesEvent 事件.
  * </pre>
+ * 3. 实现此 {@link RolePermissionsService} 接口, 不需要执行上两种方法的操作, 已通过 AOP 方式实现发布 UpdateRolesAuthoritiesEvent 事件.
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/6 23:33
  */
