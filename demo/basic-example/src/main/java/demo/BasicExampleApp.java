@@ -28,7 +28,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
 
 /**
  * ums ums.client 简单配置
@@ -37,7 +36,6 @@ import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
  */
 @SpringBootApplication
 @Controller
-@EnableUriAuthorize()
 public class BasicExampleApp {
 
     public static void main(String[] args) {

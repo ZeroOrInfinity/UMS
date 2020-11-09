@@ -25,6 +25,7 @@ package demo.service.impl;
 
 import demo.dao.SysRoleResourcesJpaRepository;
 import demo.entity.SysRoleResources;
+import demo.entity.SysRoleResourcesKey;
 import demo.service.SysRoleResourcesService;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,7 @@ import java.util.List;
  * @version V1.0  Created by 2020/9/26 16:56
  */
 @Service("sysRoleResourcesService")
-public class SysRoleResourcesServiceImpl extends BaseServiceImpl<SysRoleResources, Long> implements SysRoleResourcesService {
+public class SysRoleResourcesServiceImpl extends BaseServiceImpl<SysRoleResources, SysRoleResourcesKey> implements SysRoleResourcesService {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -61,42 +62,44 @@ public class SysRoleResourcesServiceImpl extends BaseServiceImpl<SysRoleResource
 
     @Transactional(rollbackFor = {Error.class, Exception.class}, propagation = Propagation.REQUIRED)
     @Override
-    public void deleteByRoleResourcesId(Long roleResourcesId) {
-        repository.deleteById(roleResourcesId);
+    public void deleteByRoleResourcesId(SysRoleResourcesKey key) {
+        repository.deleteById(key);
     }
 
 
     @SuppressWarnings("AlibabaRemoveCommentedCode")
     @Transactional(rollbackFor = {Error.class, Exception.class}, propagation = Propagation.REQUIRED)
     @Override
-    public int batchDeleteByIds(List<Long> roleResourcesIds) {
+    public int batchDeleteByIds(List<SysRoleResourcesKey> roleResourcesIds) {
 
         StringBuilder sb = new StringBuilder();
         // 构建 ids 字符串，用逗号分隔
-        for(Long id : roleResourcesIds) {
-            sb.append(id).append(",");
+        for(SysRoleResourcesKey key : roleResourcesIds) {
+            sb.append(key.getWhere()).append(" OR ");
         }
-        sb.setLength(sb.length() - 1);
-        String ids = sb.toString();
+        sb.setLength(sb.length() - 4);
+        String whereKeys = sb.toString();
 
         // 构建查询 ids 是否存在语句并加行锁，防止在 delete 时因没有对应的记录而产生表锁。
         sb.setLength(0);
-        sb.append("select id from sys_role_resources where id in (");
-        sb.append(ids).append(") for update");
+        sb.append("select role_id, resources_id from sys_role_resources where ");
+        sb.append(whereKeys).append(" for update");
         String existsByIdsSql = sb.toString();
-        Query existsByIdsQuery = entityManager.createNativeQuery(existsByIdsSql);
-        //noinspection rawtypes
-        List resultList = existsByIdsQuery.getResultList();
 
-        sb.setLength(0);
-        sb.append("delete from sys_role_resources where id in (");
-        for(Object id : resultList) {
-            sb.append(id).append(",");
+        Query existsByIdsQuery = entityManager.createNativeQuery(existsByIdsSql, SysRoleResources.class);
+        //noinspection unchecked
+        final List<SysRoleResources> resultList = (List<SysRoleResources>) existsByIdsQuery.getResultList();
+
+        for(SysRoleResources sysRoleResources : resultList) {
+            if (!entityManager.contains(sysRoleResources)) {
+                entityManager.remove(entityManager.merge(sysRoleResources));
+            }
+            else {
+                entityManager.remove(sysRoleResources);
+            }
         }
-        sb.setLength(sb.length() - 1);
-        sb.append(")");
-        String deleteSql = sb.toString();
-        Query deleteQuery = entityManager.createNativeQuery(deleteSql);
-        return deleteQuery.executeUpdate();
+        entityManager.flush();
+        entityManager.close();
+        return resultList.size();
     }
 }

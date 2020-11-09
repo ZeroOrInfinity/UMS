@@ -66,15 +66,15 @@ server:
 ums:
   client:
 #    # ========= 放行权限 ==========
-#    # 权限表达式, 默认为 hasPermission(request, authentication). hasPermission
-#    # 方法默认实现为 {@link UriAuthoritiesPermissionEvaluator}, 想自定义逻辑, 实现 {@link PermissionEvaluator} 即可替换.
-#    # 注意: 当开启注解 {@link EnableGlobalMethodSecurity} 时, 此配置失效.
-#    # 此配置等效于:
-#    # String accessExp = "hasPermission(request, authentication)";
-#    # // or accessExp = "@yourService.hasPermission(request, authentication)";
-#    # httpSecurity.authorizeRequests().anyRequest().access(accessExp);
-#    # 默认: hasPermission(request, authentication)
+#    # 权限表达式, 当 enableRestfulApi=false 或者有 @EnableGlobalMethodSecurity 注释时生效, 默认为 isAuthenticated().
+#    # String accessExp = "isAuthenticated()";
+#    # // 配置等效与
+#    # httpSecurity.authorizeRequests().anyRequest().access(isAuthenticated());
 #    access-exp: permitAll()
+#    # 是否支持 restful Api (前后端交互接口的风格; 如: 查询(GET),添加(POST),修改(PUT),删除(DELETE)), 默认: true.
+#    # 当 {@code enableRestfulApi=false} 时 {@code accessExp} 权限表达式生效,
+#    # 当 {@code enableRestfulApi=true} 时 {@code restfulAccessExp} 权限表达式生效.
+#    enable-restful-api: false
     # 登录页
     login-page: /login
     # 登录失败页
@@ -165,9 +165,13 @@ spring:
     # redis-lettuce-pool
     lettuce:
       # 会影响应用关闭是时间, dev 模式设置为 0
-      shutdown-timeout: PT000S
+      shutdown-timeout: PT0S
   mvc:
     throw-exception-if-no-handler-found: true
+
+server:
+  servlet:
+    context-path: /demo
 
 logging:
   config: classpath:logback-spring.xml

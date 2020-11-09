@@ -25,12 +25,12 @@ package demo.service.impl;
 
 import demo.dao.SysResourcesJpaRepository;
 import demo.entity.SysResources;
+import demo.entity.UriResourcesDTO;
 import demo.service.SysResourcesService;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -115,14 +115,18 @@ public class SysResourcesServiceImpl extends BaseServiceImpl<SysResources, Long>
         {
             // rs.id, rs.role_id, s.id, s.url, s.permission
             uriResourcesDO = new UriResourcesDTO();
-            uriResourcesDO.setRoleResourcesId(Long.valueOf(arr[0]));
-            uriResourcesDO.setRoleId(Long.valueOf(arr[1]));
-            uriResourcesDO.setResourcesId(Long.valueOf(arr[2]));
-            uriResourcesDO.setUrl(arr[3]);
-            uriResourcesDO.setPermission(arr[4]);
+            uriResourcesDO.setRoleId(Long.valueOf(arr[0]));
+            uriResourcesDO.setResourcesId(Long.valueOf(arr[1]));
+            uriResourcesDO.setUrl(arr[2]);
+            uriResourcesDO.setPermission(arr[3]);
             result.add(uriResourcesDO);
         }
 
         return result;
+    }
+
+    @Override
+    public List<SysResources> findByRoleId(Long roleId) {
+        return repository.findByRoleId(roleId);
     }
 }

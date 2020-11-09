@@ -37,17 +37,28 @@ spring:
 
 
 ums:
+  # 验证码配置
+  codes:
+    # 验证码缓存类型, 默认: SESSION, 可选: REDIS/SESSION
+    validate-code-cache-type: session
   client:
     # ========= 权限表达式 ==========
-    # 权限表达式, 默认为 hasPermission(request, authentication). hasPermission
-    # 方法默认实现为 {@link UriAuthoritiesPermissionEvaluator}, 想自定义逻辑, 实现 {@link PermissionEvaluator} 即可替换.
-    # 注意: 当开启注解 {@link EnableGlobalMethodSecurity} 或 {@link EnableUriAuthorize}时, 此配置失效.
-    # 此配置等效于:
+    # 权限表达式, 当 enableRestfulApi=false 或者有 @EnableGlobalMethodSecurity 注释时生效, 默认为 isAuthenticated().
+    # String accessExp = "isAuthenticated()";
+    # // 配置等效与
+    # httpSecurity.authorizeRequests().anyRequest().access(isAuthenticated());
+    access-exp: isAuthenticated()
+    # 权限表达式, 当 enableRestfulApi=true 且没有 @EnableGlobalMethodSecurity 注释时生效, 默认为 hasPermission(request, authentication).
+    # hasPermission 表达式默认实现为 UriAuthoritiesPermissionEvaluator, 想自定义逻辑, 实现 PermissionEvaluator 即可替换.
     # String accessExp = "hasPermission(request, authentication)";
-    # // or accessExp = "@yourService.hasPermission(request, authentication)";
-    # httpSecurity.authorizeRequests().anyRequest().access(accessExp);
-    # 默认: hasPermission(request, authentication)
-    access-exp: 'hasPermission(request, authentication)'
+    # // 配置等效与
+    # httpSecurity.authorizeRequests().anyRequest().access(hasPermission(request, authentication));
+#    restful-access-exp: isAuthenticated()
+    restful-access-exp: hasPermission(request, authentication)
+    # 是否支持 restful Api (前后端交互接口的风格; 如: 查询(GET),添加(POST),修改(PUT),删除(DELETE)), 默认: true.
+    # 当 {@code enableRestfulApi=false} 时 {@code accessExp} 权限表达式生效,
+    # 当 {@code enableRestfulApi=true} 时 {@code restfulAccessExp} 权限表达式生效.
+    enable-restful-api: true
     # 用户角色层级配置，默认为 空. 分隔符为:" > ". 例如: ROLE_ADMIN 拥有 ROLE_USER 与 ROLE_VISIT 权限,
     # 可以表示为: ROLE_ADMIN > ROLE_USER > ROLE_VISIT 等价于下面的配置
     # 权限示例请看 permission-example 示例
@@ -70,8 +81,10 @@ ums:
     ignoring-urls:
       - /static/**
     permit-urls:
-      - /test/pass/**
-      - /addUser/**
+      - /test/pass/**:GET
+      - /addUser/**:GET
+      - /addPermissionData/**:GET
+      - /delPermissionData/**:GET
 
     # =============== login routing 功能: 解决跳转登录成功后不能跳转原始请求的问题 ===============
 
@@ -101,8 +114,32 @@ spring:
     generate-ddl: true
     show-sql: true
     database: mysql
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 500
+          batch_versioned_data: true
+          order_inserts: true
+          order_updates: true
+          order_removes: true
   thymeleaf:
     cache: false
+#  redis:
+#    host: 192.168.88.88
+#    port: 6379
+#    password:
+#    database: 0
+#    # 连接超时的时间
+#    timeout: 10000
+#    # redis-lettuce-pool
+#    lettuce:
+#      # 会影响应用关闭是时间, dev 模式设置为 0
+#      shutdown-timeout: PT0S
+#      pool:
+#        max-active: 8
+#        max-wait: PT10S
+#        max-idle: 8
+#        min-idle: 1
 
 logging:
   config: classpath:logback-spring.xml

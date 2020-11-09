@@ -57,7 +57,7 @@ public class UriAuthorizeConfigurerAware implements HttpSecurityAware {
     }
 
     @Override
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+    public void configure(AuthenticationManagerBuilder auth) {
         // TODO
 
     }
@@ -81,9 +81,9 @@ public class UriAuthorizeConfigurerAware implements HttpSecurityAware {
 
         final Map<UriHttpMethodTuple, Set<String>> permitAllMap = new HashMap<>(16);
         // 放行要测试 permission 的链接, 以免干扰 permission 测试.
-        permitAllMap.put(tuple(GET, "/test/permission/**"), null);
-        permitAllMap.put(tuple(GET, "/test/deny/**"), null);
-        permitAllMap.put(tuple(GET, "/test/pass/**"), null);
+        permitAllMap.put(tuple(GET, "/test/permission/*"), null);
+        permitAllMap.put(tuple(GET, "/test/deny/*"), null);
+        permitAllMap.put(tuple(GET, "/test/pass/*"), null);
 
         Map<String, Map<UriHttpMethodTuple, Set<String>>> resultMap = new HashMap<>(1);
 

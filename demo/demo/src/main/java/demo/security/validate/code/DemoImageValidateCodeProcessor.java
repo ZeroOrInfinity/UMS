@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGeneratorHolder;
-import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
+import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageValidateCodeProcessor;
 
@@ -54,9 +54,9 @@ import java.nio.file.StandardOpenOption;
 public class DemoImageValidateCodeProcessor extends ImageValidateCodeProcessor {
 
     public DemoImageValidateCodeProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
-                                          @NonNull ValidateCodeCacheType validateCodeCacheType,
+                                          @NonNull ValidateCodeProperties validateCodeProperties,
                                           @Nullable @Autowired(required = false) StringRedisTemplate stringRedisTemplate) {
-        super(validateCodeGeneratorHolder, validateCodeCacheType, stringRedisTemplate);
+        super(validateCodeGeneratorHolder, validateCodeProperties.getValidateCodeCacheType(), stringRedisTemplate);
     }
 
     @Override

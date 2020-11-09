@@ -24,6 +24,7 @@
 package demo.service;
 
 import demo.entity.SysRoleResources;
+import demo.entity.SysRoleResourcesKey;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
@@ -34,7 +35,7 @@ import java.util.List;
  * @version V1.0
  * Created by 2020/9/26 17:03
  */
-public interface SysRoleResourcesService extends BaseService<SysRoleResources, Long>  {
+public interface SysRoleResourcesService extends BaseService<SysRoleResources, SysRoleResourcesKey>  {
 
     /**
      * 根据 roleId 与 resourcesId 查询 SysRoleResources
@@ -46,14 +47,14 @@ public interface SysRoleResourcesService extends BaseService<SysRoleResources, L
 
     /**
      * 根据角色资源 Id 删除角色资源
-     * @param roleResourcesId   角色资源 id
+     * @param key   角色资源 id
      */
-    void deleteByRoleResourcesId(Long roleResourcesId);
+    void deleteByRoleResourcesId(SysRoleResourcesKey key);
 
     /**
      * 根据 roleResourcesIds 批量删除
-     * @param roleResourcesIds  roleResourcesIds
+     * @param keys  roleResourcesIds
      * @return  删除数量
      */
-    int batchDeleteByIds(List<Long> roleResourcesIds);
+    int batchDeleteByIds(List<SysRoleResourcesKey> keys);
 }

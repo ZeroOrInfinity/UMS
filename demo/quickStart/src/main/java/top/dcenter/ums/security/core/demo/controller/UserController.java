@@ -32,7 +32,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +43,6 @@ import java.util.Map;
  */
 @Controller
 @Slf4j
-@EnableUriAuthorize()
 public class UserController {
 
     @GetMapping("/login")

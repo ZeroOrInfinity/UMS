@@ -23,33 +23,57 @@
 
 package demo.permission.service;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
-import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import top.dcenter.ums.security.core.api.permission.service.RolePermissionsService;
+import top.dcenter.ums.security.core.permission.enums.PermissionType;
 
 /**
  * uri 权限服务
  * @author YongWu zheng
  * @version V1.0  Created by 2020-09-26 22:41
  */
-public interface UriPermissionService {
-
+public interface UriPermissionService<T> extends RolePermissionsService<T>{
 
     /**
-     * 给角色添加权限
+     * 测试用接口, 添加角色权限, 实际业务通过
+     * {@link demo.service.SysResourcesService#save(Object)} 与
+     * {@link RolePermissionsService#updateResourcesOfRole(Long, Long...)} 等实现,
+     * 在添加资源权限时, 必须通过 {@link PermissionType#getPermission()} 来生成权限;
+     * 因为支持 restful 风格的Api, 在授权时需要对 {@link HttpMethod} 与权限的后缀进行匹配判断<br>
      * @param role                      角色
      * @param uri                       注意: 此 uri 不包含 servletContextPath .
-     * @param permissionSuffixType      权限后缀类型列表
+     * @param permissionType      权限后缀类型列表
      * @return  是否添加成功
      */
     boolean addUriPermission(@NonNull String role, @NonNull String uri,
-                                    @NonNull PermissionSuffixType permissionSuffixType);
+                                    @NonNull PermissionType permissionType);
 
     /**
-     * 删除角色指定 uri 权限
+     * 测试用接口, 删除角色指定 uri 权限, 实际业务通过
+     * {@link demo.service.SysResourcesService#save(Object)} 与
+     * {@link RolePermissionsService#updateResourcesOfRole(Long, Long...)} 等实现.
      * @param role                      角色
      * @param uri                       注意: 此 uri 不包含 servletContextPath .
-     * @param permissionSuffixType      权限后缀类型列表
+     * @param permissionType      权限后缀类型列表
      * @return  是否删除成功
      */
-    boolean delUriPermission(String role, String uri, PermissionSuffixType permissionSuffixType);
+    @Transactional(rollbackFor = {Error.class, Exception.class}, propagation = Propagation.REQUIRED)
+    default boolean delUriPermission(String role, String uri, PermissionType permissionType) {
+        return delUriPermission(role, uri, permissionType.getPermission());
+    }
+
+    /**
+     * 测试用接口, 删除角色指定 uri 权限, 实际业务通过
+     * {@link demo.service.SysResourcesService#save(Object)} 与
+     * {@link RolePermissionsService#updateResourcesOfRole(Long, Long...)} 等实现.
+     * @param role                      角色
+     * @param uri                       去除 ServletContextPath 的 uri
+     * @param uriPermission             uri 权限
+     * @return  是否删除成功
+     */
+    boolean delUriPermission(String role, String uri, String uriPermission);
+
 }

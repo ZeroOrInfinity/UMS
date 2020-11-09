@@ -23,60 +23,62 @@
 
 package demo.permission.controller;
 
+import demo.entity.SysResources;
 import demo.permission.service.UriPermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.core.api.permission.service.RolePermissionsService;
+import top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheAuthoritiesService;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.permission.annotation.UriAuthorize;
-import top.dcenter.ums.security.core.permission.config.UriAuthorizeInterceptorAutoConfiguration;
-import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
+import top.dcenter.ums.security.core.permission.enums.PermissionType;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 
 /**
- * 权限测试控制器: <br>
+ * 权限测试控制器: 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例 <br>
  *
- * &#64;PreAuthorize 注解需要 @EnableGlobalMethodSecurity(prePostEnabled = true) 支持,
- * 在 @EnableUriAuthorize 中 {@link UriAuthorizeInterceptorAutoConfiguration}已配置, 不需要再次配置. <br>
- * &#64;UriAuthorize 注解需要 @EnableUriAuthorize 支持.<br>
+ * &#64;PreAuthorize 注解需要 @EnableGlobalMethodSecurity(prePostEnabled = true) 支持. <br>
  *
  * 注意: <br>
- *     <pre>
- *         &#64;PreAuthorize("hasPermission('/users', '/users:list')")
- *         // equivalent to
- *         &#64;UriAuthorize("/users:list")
- *     </pre>
- *     也就是说: 直接使用
- *     <pre>
- *         &#64;EnableGlobalMethodSecurity(prePostEnabled = true)
- *     </pre>
- *     即可.<br>
- *     2. 修改与添加权限后一定要更新一下角色的权限:
- *     <pre>
- *         // 修改或添加权限一定要更新 updateRolesAuthorities 缓存, 有两种方式：一种发布事件，另一种是直接调用服务；推荐用发布事件(异步执行)。
- *         // 1. 推荐用发布事件(异步执行)
- *         applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
- *         // 2. 直接调用服务
- *         abstractUriAuthorizeService.updateRolesAuthorities();
- *     </pre>
+ * 1. 在添加资源时, 通过{@link PermissionType#getPermission()} 来规范的权限格式, 因为要支持 restful 风格的 Api,
+ * 在授权时需要对 {@link HttpMethod} 与对应的权限进行匹配判断<br>
+ * 2. 如果实现了 {@link UpdateAndCacheAuthoritiesService} 接口, 未实现 {@link RolePermissionsService} 接口, 修改或添加基于"角色/多租户/SCOPE
+ * "的资源权限时一定要调用 {@link UpdateAndCacheAuthoritiesService} 对应的方法, 有两种方式: 一种发布事件, 另一种是直接调用对应服务;<br>
+ * <pre>
+ *     // 1. 推荐用发布事件(异步执行)
+ *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.ROLE));
+ *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.TENANT));
+ *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.SCOPE));
+ *     // 2. 直接调用服务
+ *     // 基于角色
+ *     UpdateAndCacheAuthoritiesService.updateAuthoritiesOfAllRoles();
+ *     // 基于多租户
+ *     UpdateAndCacheAuthoritiesService.updateAuthoritiesOfAllTenant();
+ *     // 基于 SCOPE
+ *     UpdateAndCacheAuthoritiesService.updateAuthoritiesOfAllScopes();
+ * </pre>
+ * 3. 实现此 {@link RolePermissionsService} 接口, 不需要执行上两种方法的操作, 已通过 AOP 方式实现发布 UpdateRolesAuthoritiesEvent 事件.
  * @author YongWu zheng
  * @version V1.0  Created by 2020/9/9 22:49
  */
 @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
 @RestController
 @Slf4j
-//@EnableUriAuthorize
 //@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class PermissionController {
 
     @Autowired
-    private UriPermissionService uriPermissionService;
+    private UriPermissionService<SysResources> uriPermissionService;
     @Autowired
     private UmsUserDetailsService userDetailsService;
 
@@ -124,7 +126,8 @@ public class PermissionController {
      */
     @GetMapping("/addPermissionData/{role}")
     public ResponseResult addPermissionData(@PathVariable String role, @NonNull String uri, @NonNull String restfulMethod) {
-        PermissionSuffixType permissionType = PermissionSuffixType.getPermissionType(restfulMethod);
+        PermissionType permissionType =
+                PermissionType.getPermissionType(HttpMethod.valueOf(restfulMethod.toUpperCase()));
         if (permissionType == null)
         {
             return ResponseResult.fail(ErrorCodeEnum.PARAMETER_ERROR, restfulMethod);
@@ -148,7 +151,8 @@ public class PermissionController {
     @GetMapping("/delPermissionData/{role}")
     public ResponseResult delPermissionData(@PathVariable String role, @NonNull String uri,
                                           @NonNull String restfulMethod) {
-        PermissionSuffixType permissionType = PermissionSuffixType.getPermissionType(restfulMethod);
+        PermissionType permissionType =
+                PermissionType.getPermissionType(HttpMethod.valueOf(restfulMethod.toUpperCase()));
         if (permissionType == null)
         {
             return ResponseResult.fail(ErrorCodeEnum.PARAMETER_ERROR, restfulMethod);
@@ -163,56 +167,103 @@ public class PermissionController {
     }
 
     /**
-     * 测试有 /test/permission:add 权限, 放行. <br>
+     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     *
+     * 测试有 add 权限, 放行. <br>
+     *
      */
-    @UriAuthorize("/test/permission/**:add")
+    @PreAuthorize("hasPermission('/test/permission/*', 'add')")
     @GetMapping("/test/permission/{id}")
     public String testPermission(@PathVariable("id") String id) {
         return "test permission: " + id;
     }
 
+    /**
+     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     *
+     * 测试 restful 风格的 API 访问权限 <br>
+     *
+     * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 自定义权限表达式失效,
+     */
+    @GetMapping("/test/restful/{id}")
+    public String testGetRestful(@PathVariable("id") String id) {
+        return "test restful Api: " + id;
+    }
 
     /**
-     * 测试不匹配 /test/deny:add 权限, 禁止访问. <br>
+     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     *
+     * 测试 restful 风格的 API 访问权限 <br>
+     *
+     * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 自定义权限表达式失效,
+     */
+    @PostMapping("/test/restful/{id}")
+    public String testPostRestful(@PathVariable("id") String id, String something) {
+        return "test restful Api: " + id + " POST: " + something;
+    }
+
+    /**
+     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     *
+     * 测试 restful 风格的 API 访问权限 <br>
+     *
+     * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 自定义权限表达式失效,
+     */
+    @PutMapping("/test/restful/{id}")
+    public String testPutRestful(@PathVariable("id") String id, String something) {
+        return "test restful Api: " + id+ " PUT: " + something;
+    }
+
+    /**
+     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     *
+     * 测试 restful 风格的 API 访问权限 <br>
+     *
+     * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 自定义权限表达式失效,
+     */
+    @DeleteMapping("/test/restful/{id}")
+    public String testPostRestful(@PathVariable("id") String id) {
+        return "test restful Api: DELETE id = " + id;
+    }
+
+
+
+    /**
+     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     *
+     * 有 @PreAuthorize 注解, 测试不匹配 add 权限, 禁止访问. <br>
      * <pre>
-     *      // 取消 @EnableUriAuthorize, 设置ClientProperties.accessExp = "hasPermission(request, authentication)"
+     *      // 取消 @PreAuthorize,
+     *      //ClientProperties.accessExp = "hasPermission(request, authentication)"
      *      // 等效于下面代码
      *      String accessExp = "hasPermission(request, authentication)";
      *      httpSecurity.authorizeRequests().anyRequest().access(accessExp);
-     *      // 直接放行, 因为 ROLE_USER 添加了 uri="/test/deny/**" 的 "/test/deny/**:list" 权限
+     *      // 直接放行, 因为 ROLE_USER 添加了 uri="/test/deny/*" 的 "list" 权限
      * </pre>
      */
-    @UriAuthorize("/test/deny/**:add")
+    @PreAuthorize("hasPermission('/test/deny/*', 'add')")
     @GetMapping("/test/deny/{id}")
     public String testDeny(@PathVariable("id") String id) {
         return "test deny: " + id;
     }
 
     /**
-     * 此 uri 已经设置 PERMIT_ALL, 不用登录验证.<br>
-     * <pre>
-     *      // 取消 @EnableUriAuthorize, ClientProperties.accessExp = "hasPermission(request, authentication)"
-     *      String accessExp = "hasPermission(request, authentication)";
-     *      httpSecurity.authorizeRequests().anyRequest().access(accessExp);
-     *      // 直接放行 因为设置了 PERMIT_ALL,
-     * </pre>
+     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
      *
-     * 没有注解 @UriAuthorize 直接放行. <br>
-     * 没有注解 @PreAuthorize("hasPermission('/test/pass/**', '/test/pass/**:list')") 直接访问. <br>
+     * 此 uri 已经设置 PERMIT_ALL, 不用登录验证.<br>
+     *
+     * 没有注解 @PreAuthorize("hasPermission('/test/pass/*', 'list')") 直接访问. <br>
      * 有注解时, 禁止访问:<br>
-     *     <pre>
-     *         &#64;PreAuthorize("hasPermission('/test/pass/**', '/test/pass/**:list')")
-     *         // equivalent to
-     *         &#64;UriAuthorize("/test/pass/**:list")
-     *     </pre>
      */
-    @PreAuthorize("hasPermission('/test/pass/**', '/test/pass/**:list')")
+    @PreAuthorize("hasPermission('/test/pass/*', 'list')")
     @GetMapping("/test/pass/{id}")
     public String testPass(@PathVariable("id") String id) {
         return "test pass: " + id;
     }
 
     /**
+     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     *
      * 用户的 AuthorityList("admin, ROLE_USER"),
      * 有注解 @PreAuthorize("HAS_ROLE('admin')") 没有 admin role, 禁止访问. <br>
      */
@@ -223,6 +274,8 @@ public class PermissionController {
     }
 
     /**
+     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     *
      * 用户的 AuthorityList("admin, ROLE_USER"),
      * 有注解 @PreAuthorize("HAS_ROLE('USER')"), 有 USER role, 直接放行. <br>
      */
@@ -233,6 +286,8 @@ public class PermissionController {
     }
 
     /**
+     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     *
      * 用户的 AuthorityList("admin, ROLE_USER"),
      * 有注解 @PreAuthorize("HAS_AUTHORITY('admin')"), 有 admin authority, 直接放行. <br>
      */

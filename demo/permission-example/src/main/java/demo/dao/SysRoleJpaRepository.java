@@ -50,9 +50,9 @@ public interface SysRoleJpaRepository extends CrudRepository<SysRole, Long> {
      * @return  list
      */
     @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
-    @Query("select r.name, s.url, s.permission " +
-            "from SysRole r " +
-            "inner join SysRoleResources rs on r.id = rs.roleId " +
-            "inner join SysResources s on s.id = rs.resourcesId")
+    @Query(value = "select r.name, s.url, s.permission " +
+            "from sys_role r " +
+            "inner join sys_role_resources rs on r.id = rs.role_id " +
+            "inner join sys_resources s on s.id = rs.resources_id", nativeQuery = true)
     List<String[]> findAuthoritiesByRoles();
 }

@@ -64,8 +64,8 @@ public interface SysResourcesJpaRepository extends CrudRepository<SysResources, 
      * @return  uri 权限资源列表
      */
     @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
-    @Query(value = "select srs.rs_id, srs.role_id, s.id, s.url, s.permission " +
-            "from (select id as rs_id, role_id, resources_id from sys_role_resources rs where role_id = :roleId) srs " +
+    @Query(value = "select srs.role_id, s.id, s.url, s.permission " +
+            "from (select role_id, resources_id from sys_role_resources rs where role_id = :roleId) srs " +
             "inner join sys_resources s on srs.resources_id = s.id where s.url = :url", nativeQuery = true)
     List<String[]> findUriResourcesDtoByRoleIdAndUrl(@Param("roleId") Long roleId, @Param("url") String url);
 
@@ -90,4 +90,18 @@ public interface SysResourcesJpaRepository extends CrudRepository<SysResources, 
     @Query("update SysResources set permission = :p where id = :id")
     void updatePermissionById(@Param("p") String permission, @Param("id") Long id);
 
+    /**
+     * 根据角色 ID 获取资源列表
+     * @param roleId    角色 ID
+     * @return  资源列表
+     */
+    @Query(value = "select * " +
+            "from sys_resources " +
+            "inner join " +
+            "(select role_id, resources_id " +
+            "from sys_role_resources " +
+            "where role_id = :roleId) sr " +
+            "on sys_resources.id = sr.resources_id " +
+            "where sr.role_id = :roleId", nativeQuery = true)
+    List<SysResources> findByRoleId(@Param("roleId") Long roleId);
 }

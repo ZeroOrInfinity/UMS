@@ -26,7 +26,6 @@ package demo.security;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.RestController;
-import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
 
 /**
  * UMS 脚手架演示类
@@ -36,7 +35,6 @@ import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
  */
 @SpringBootApplication
 @RestController
-@EnableUriAuthorize()
 public class DemoApplication {
 
     public static void main(String[] args) {

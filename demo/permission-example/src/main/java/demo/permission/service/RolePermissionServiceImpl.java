@@ -20,39 +20,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package demo.permission.service;
 
-package demo.entity;
+import org.springframework.stereotype.Component;
+import top.dcenter.ums.security.core.api.permission.service.RolePermissionsService;
+import top.dcenter.ums.security.core.exception.RolePermissionsException;
 
-import lombok.Data;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Transient;
-import java.io.Serializable;
-import java.util.Date;
+import java.util.List;
 
 /**
- * 角色资源
+ * 测试角色权限服务接口切面是否生效
  * @author YongWu zheng
- * @version V1.0  Created by 2020-09-26 15:46
+ * @version V2.0  Created by 2020/11/7 19:25
  */
-@Data
-@IdClass(SysRoleResourcesKey.class)
-@Entity(name = "sys_role_resources")
-public class SysRoleResources implements Serializable {
-    private static final long serialVersionUID = -4426152457773441387L;
-    @Id
-    @Column(name = "role_id")
-    private Long roleId;
-    @Id
-    @Column(name="resources_id")
-    private Long resourcesId;
-    @Transient
-    @Column(name = "create_time", columnDefinition = "timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建记录时间'")
-    private Date createTime;
-    @Transient
-    @Column(name = "update_time", columnDefinition = "timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新记录时间'")
-    private Date updateTime;
+@Component
+public class RolePermissionServiceImpl implements RolePermissionsService<Object> {
+
+    @Override
+    public boolean updateResourcesOfRole(Long roleId, Long... resourceIds) throws RolePermissionsException {
+        // 测试 RolePermissionServiceAspect  是否生效
+        return true;
+    }
+
+    @Override
+    public List<Object> findAllResourcesByRole(String role) throws RolePermissionsException {
+        // do nothing
+        return null;
+    }
 }

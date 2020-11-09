@@ -24,8 +24,8 @@
 package demo.service;
 
 import demo.entity.SysRole;
+import demo.entity.UriResourcesDTO;
 import org.springframework.lang.NonNull;
-import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
 
 import java.util.Map;
 

@@ -25,12 +25,12 @@ package demo.service.impl;
 
 import demo.dao.SysRoleJpaRepository;
 import demo.entity.SysRole;
+import demo.entity.UriResourcesDTO;
 import demo.service.SysRoleService;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
 
 import java.util.HashMap;
 import java.util.List;

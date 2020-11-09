@@ -26,6 +26,8 @@ package demo.permission.service.impl;
 import demo.entity.SysResources;
 import demo.entity.SysRole;
 import demo.entity.SysRoleResources;
+import demo.entity.SysRoleResourcesKey;
+import demo.entity.UriResourcesDTO;
 import demo.permission.service.UriPermissionService;
 import demo.service.SysResourcesService;
 import demo.service.SysRoleResourcesService;
@@ -34,21 +36,28 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
-import top.dcenter.ums.security.core.permission.enums.PermissionSuffixType;
+import top.dcenter.ums.security.core.api.permission.service.RolePermissionsService;
+import top.dcenter.ums.security.core.exception.RolePermissionsException;
+import top.dcenter.ums.security.core.permission.enums.PermissionType;
+import top.dcenter.ums.security.core.permission.enums.ResourcesType;
 import top.dcenter.ums.security.core.permission.event.UpdateRolesAuthoritiesEvent;
 import top.dcenter.ums.security.core.util.ConvertUtil;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import static top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService.PERMISSION_DELIMITER;
-import static top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService.getPermission;
 
 /**
  * uri 权限服务.<br><br>
@@ -56,7 +65,7 @@ import static top.dcenter.ums.security.core.api.permission.service.UriAuthorizeS
  * <pre>
  *     // 修改或添加权限一定要更新 updateRolesAuthorities 缓存, 有两种方式：一种发布事件，另一种是直接调用服务；推荐用发布事件(异步执行)。
  *     // 1. 推荐用发布事件(异步执行)
- *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
+ *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.ROLE));
  *     // 2. 直接调用服务
  *     abstractUriAuthorizeService.updateRolesAuthorities();
  * </pre>
@@ -66,7 +75,7 @@ import static top.dcenter.ums.security.core.api.permission.service.UriAuthorizeS
  */
 @Service
 @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
-public class UriPermissionServiceImpl implements UriPermissionService, ApplicationContextAware {
+public class UriPermissionServiceImpl implements UriPermissionService<SysResources>, ApplicationContextAware {
 
     @Autowired
     private SysRoleService sysRoleService;
@@ -75,6 +84,9 @@ public class UriPermissionServiceImpl implements UriPermissionService, Applicati
     @Autowired
     private SysRoleResourcesService sysRoleResourcesService;
 
+    @Autowired
+    private RoleHierarchy roleHierarchy;
+
     private ApplicationContext applicationContext;
 
     @Override
@@ -82,17 +94,57 @@ public class UriPermissionServiceImpl implements UriPermissionService, Applicati
         this.applicationContext = applicationContext;
     }
 
+    @Override
+    public boolean updateResourcesOfRole(Long roleId, Long... resourceIds) throws RolePermissionsException {
+        // do nothing
+        return false;
+    }
+
+    @Override
+    public List<SysResources> findAllResourcesByRole(String role) {
+        // 1. 获取角色
+        SysRole sysRole = sysRoleService.findByName(role);
+
+        // 角色不存在
+        if (sysRole == null) {
+            return new ArrayList<>();
+        }
+
+        // start: 判断是否有权限获取此角色
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return new ArrayList<>();
+        }
+        // 根据角色的 authorities 获取所有的继承角色, 包含本角色
+        final Collection<? extends GrantedAuthority> authorities =
+                roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities());
+        // 是否包含在权限继承链中.
+        final boolean isInclude =
+                authorities.stream().anyMatch(authority -> authority.getAuthority().equals(sysRole.getName()));
+        if (!isInclude) {
+            return new ArrayList<>();
+        }
+        // end: 判断是否有权限获取此角色
+
+        // 2. 获取角色 uri 的对应权限资源,
+        return sysResourcesService.findByRoleId(sysRole.getId());
+    }
+
     /**
-     * 给角色添加权限
+     * 测试用接口, 添加角色权限, 实际业务通过
+     * {@link demo.service.SysResourcesService#save(Object)} 与
+     * {@link RolePermissionsService#updateResourcesOfRole(Long, Long...)} 实现,
+     * 在添加资源权限时, 必须通过 {@link PermissionType#getPermission()} 来生成权限;
+     * 因为支持 restful 风格的Api, 在授权时需要对 {@link HttpMethod} 与权限的后缀进行匹配判断<br>
      * @param role                      角色
      * @param uri                       注意: 此 uri 不包含 servletContextPath .
-     * @param permissionSuffixType      权限后缀类型列表
+     * @param permissionType      权限后缀类型列表
      * @return  是否添加成功
      */
     @Transactional(rollbackFor = {Error.class, Exception.class}, propagation = Propagation.REQUIRED)
     @Override
     public boolean addUriPermission(@NonNull String role, @NonNull String uri,
-                                    @NonNull PermissionSuffixType permissionSuffixType) {
+                                    @NonNull PermissionType permissionType) {
 
         // 1. 获取角色
         SysRole sysRole = sysRoleService.findByName(role);
@@ -111,7 +163,7 @@ public class UriPermissionServiceImpl implements UriPermissionService, Applicati
         List<SysResources> sysResourcesList = sysResourcesService.findByRoleIdAndUrl(sysRole.getId(), uri);
 
         // 3. 新增权限资源
-        String newPermission = getPermission(uri, permissionSuffixType);
+        String newPermission = permissionType.getPermission();
         if (sysResourcesList.size() < 1)
         {
 
@@ -149,21 +201,21 @@ public class UriPermissionServiceImpl implements UriPermissionService, Applicati
         }
 
         // 5. 修改或添加权限一定要更新 updateRolesAuthorities 缓存
-        applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
+        applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.ROLE));
 
         return true;
     }
 
     /**
-     * @param role                     角色
-     * @param uri                      注意: 此 uri 不包含 servletContextPath .
-     * @param permissionSuffixType     权限后缀类型列表
-     * @return  是否成功
+     * 测试用接口, 删除角色指定 uri 权限.
+     * @param role                      角色
+     * @param uri                       去除 ServletContextPath 的 uri
+     * @param uriPermission             uri 权限
+     * @return  是否删除成功
      */
     @Transactional(rollbackFor = {Error.class, Exception.class}, propagation = Propagation.REQUIRED)
     @Override
-    public boolean delUriPermission(String role, String uri, PermissionSuffixType permissionSuffixType) {
-
+    public boolean delUriPermission(String role, String uri, String uriPermission) {
         // 1. 获取角色
         SysRole sysRole = sysRoleService.findByName(role);
         if (sysRole == null)
@@ -181,21 +233,21 @@ public class UriPermissionServiceImpl implements UriPermissionService, Applicati
         }
 
         // 3. 删除权限
-        List<Long> roleResourcesIds = new ArrayList<>();
+        List<SysRoleResourcesKey> roleResourcesIds = new ArrayList<>();
         for (UriResourcesDTO uriResourcesDTO : uriResourcesDTOList)
         {
-            if (uriResourcesDTO.getPermission().endsWith(permissionSuffixType.getPermissionSuffix()))
+            if (uriResourcesDTO.getPermission().equals(uriPermission))
             {
-                roleResourcesIds.add(uriResourcesDTO.getRoleResourcesId());
+                roleResourcesIds.add(new SysRoleResourcesKey(sysRole.getId(), uriResourcesDTO.getResourcesId()));
             }
         }
         // 删除角色与资源的关联
         sysRoleResourcesService.batchDeleteByIds(roleResourcesIds);
 
         // 4. 修改或添加权限一定要更新 updateRolesAuthorities 缓存
-        applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
+        applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.ROLE));
 
         return true;
-
     }
+
 }

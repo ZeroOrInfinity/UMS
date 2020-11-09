@@ -21,37 +21,49 @@
  * SOFTWARE.
  */
 
-package top.dcenter.ums.security.core.permission.annotation;
+package demo.entity;
 
-import org.springframework.context.annotation.Import;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import lombok.Data;
 
 /**
- * 启用访问权限控制. <br><br>
- * 拦截器模式, 在方法上注解 {@link UriAuthorize} 或 {@link org.springframework.security.access.prepost.PreAuthorize} 方式进行
- * uri 权限控制.<br>
- * 注意: <br>
- *     1. 拦截器模式也可以使用
- *     <pre>
- *         &#64;PreAuthorize("hasPermission('/users', 'list')")
- *         // equivalent to
- *         &#64;UriAuthorize("list")
- *     </pre>
- *
+ * uri 权限资源实体
  * @author YongWu zheng
- * @version V1.0  Created by 2020/9/16 18:52
  */
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-@Inherited
-@Documented
-@Import({UriAuthorizeSelector.class})
-public @interface EnableUriAuthorize {
+@Data
+public class UriResourcesDTO {
+
+
+    public UriResourcesDTO() {
+    }
+
+    public UriResourcesDTO(String url, String permission) {
+        this.url = url;
+        this.permission = permission;
+    }
+
+    public UriResourcesDTO(Long roleId, Long resourcesId, String url, String permission) {
+        this.roleId = roleId;
+        this.resourcesId = resourcesId;
+        this.url = url;
+        this.permission = permission;
+    }
+
+    /**
+     * 角色 Id
+     */
+    private Long roleId;
+    /**
+     * 资源 Id
+     */
+    private Long resourcesId;
+
+    /**
+     * uri
+     */
+    private String url;
+    /**
+     * 权限, 多个权限用逗号分隔
+     */
+    private String permission;
 
 }

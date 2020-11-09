@@ -25,16 +25,17 @@ package demo.security.permission.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
 import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
 /**
  * request 的 uri 访问权限控制服务.<br>
@@ -46,21 +47,23 @@ import java.util.Optional;
 public class DemoUriAuthorizeService extends AbstractUriAuthorizeService {
 
     @Override
-    public Optional<Map<String, Map<String, UriResourcesDTO>>> getRolesAuthorities() {
+    @NonNull
+    public Map<String, Map<String, Set<String>>> getRolesAuthorities() {
 
         // 生产环境: 从数据源获取 RolesAuthorities
 
         // 示例代码
-        Map<String, Map<String, UriResourcesDTO>> rolesAuthorities = new HashMap<>(2);
-        Map<String, UriResourcesDTO> uriAuthority = new HashMap<>(1);
-        UriResourcesDTO uriResourcesDTO = new UriResourcesDTO("/test/permission/**", "/test/permission:add");
+        Map<String, Map<String, Set<String>>> rolesAuthorities = new HashMap<>(2);
+        Map<String, Set<String>> uriAuthority = new HashMap<>(1);
+        Set<String> permissions = new HashSet<>();
+        permissions.add("add");
 
-        uriAuthority.put("/test/permission/**", uriResourcesDTO);
-        uriAuthority.put("/test/pass/**", uriResourcesDTO);
+        uriAuthority.put("/test/permission/*", permissions);
+        uriAuthority.put("/test/pass/*", permissions);
 
         rolesAuthorities.put("ROLE_USER", uriAuthority);
         rolesAuthorities.put("ROLE_ANONYMOUS", uriAuthority);
-        return Optional.of(rolesAuthorities);
+        return rolesAuthorities;
     }
 
     @Override

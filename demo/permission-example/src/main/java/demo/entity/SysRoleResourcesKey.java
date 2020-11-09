@@ -20,56 +20,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package demo.entity;
 
-package top.dcenter.ums.security.core.api.permission.entity;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import lombok.Data;
+import java.io.Serializable;
 
 /**
- * uri 权限资源实体
+ * {SysRoleResources} 的主键
  * @author YongWu zheng
+ * @version V2.0  Created by 2020/11/7 13:16
  */
-@Data
-public class UriResourcesDTO {
-
-
-    public UriResourcesDTO() {
-    }
-
-    public UriResourcesDTO(String url, String permission) {
-        this.url = url;
-        this.permission = permission;
-    }
-
-    public UriResourcesDTO(Long roleId, Long resourcesId, Long roleResourcesId, String url, String permission) {
-        this.roleId = roleId;
-        this.resourcesId = resourcesId;
-        this.roleResourcesId = roleResourcesId;
-        this.url = url;
-        this.permission = permission;
-    }
-
-    /**
-     * 角色 Id
-     */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class SysRoleResourcesKey implements Serializable {
     private Long roleId;
-    /**
-     * 资源 Id
-     */
     private Long resourcesId;
 
     /**
-     * 角色资源 Id
+     * 返回格式: (role_id=roleId AND resources_id=resourcesId)
+     * @return 返回格式: (role_id=roleId AND resources_id=resourcesId)
      */
-    private Long roleResourcesId;
-
-    /**
-     * uri
-     */
-    private String url;
-    /**
-     * 权限, 多个权限用逗号分隔
-     */
-    private String permission;
-
+    public String getWhere() {
+        return "(role_id=" + roleId + " AND resources_id=" + resourcesId + ')';
+    }
 }

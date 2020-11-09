@@ -24,6 +24,7 @@
 package demo.dao;
 
 import demo.entity.SysRoleResources;
+import demo.entity.SysRoleResourcesKey;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -32,7 +33,7 @@ import org.springframework.stereotype.Repository;
  * @version V1.0  Created by 2020/9/26 16:41
  */
 @Repository
-public interface SysRoleResourcesJpaRepository extends CrudRepository<SysRoleResources, Long> {
+public interface SysRoleResourcesJpaRepository extends CrudRepository<SysRoleResources, SysRoleResourcesKey> {
     /**
      * 根据 roleId 与 resourcesId 查询 SysRoleResources
      * @param roleId        roleId

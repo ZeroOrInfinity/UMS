@@ -28,7 +28,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import top.dcenter.ums.security.core.permission.config.EnableUriAuthorize;
 import top.dcenter.ums.security.core.sign.config.EnableSign;
 
 /**
@@ -38,7 +37,6 @@ import top.dcenter.ums.security.core.sign.config.EnableSign;
  */
 @SpringBootApplication
 @Controller
-@EnableUriAuthorize()
 @EnableSign
 public class BasicDetailExampleApp {
 

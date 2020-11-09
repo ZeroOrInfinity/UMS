@@ -24,8 +24,8 @@
 package demo.service;
 
 import demo.entity.SysResources;
+import demo.entity.UriResourcesDTO;
 import org.springframework.lang.NonNull;
-import top.dcenter.ums.security.core.api.permission.entity.UriResourcesDTO;
 
 import java.util.List;
 
@@ -72,4 +72,11 @@ public interface SysResourcesService extends BaseService<SysResources, Long> {
      * @return  URI 权限资源列表
      */
     List<UriResourcesDTO> findUriResourcesDtoByRoleIdAndUrl(Long roleId, String url);
+
+    /**
+     * 根据角色 ID 获取资源列表
+     * @param roleId    角色 ID
+     * @return  资源列表
+     */
+    List<SysResources> findByRoleId(Long roleId);
 }
