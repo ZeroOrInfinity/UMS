@@ -94,8 +94,11 @@ public class DefaultImageCodeFactory implements ImageCodeFactory {
 
     @PostConstruct
     public void init() {
-        // 从缓存中读取滑块验证码或者重新创建滑块验证码缓存
-        readOrCreateCacheImageCodes();
+        // 判断是否配置了图片验证码
+        if (this.validateCodeProperties.getImage().getAuthUrls().size() > 0) {
+            // 从缓存中读取滑块验证码或者重新创建滑块验证码缓存
+            readOrCreateCacheImageCodes();
+        }
     }
 
     @Override
@@ -183,6 +186,11 @@ public class DefaultImageCodeFactory implements ImageCodeFactory {
     @SuppressWarnings("ConstantConditions")
     @Override
     public void refreshValidateCodeJob() {
+
+        // 没有配置图片验证码直接返回
+        if (this.validateCodeProperties.getImage().getAuthUrls().size() < 1) {
+            return;
+        }
 
         final Instant now = Instant.now();
         String[] oldImageCodePaths = this.imageCodePaths;

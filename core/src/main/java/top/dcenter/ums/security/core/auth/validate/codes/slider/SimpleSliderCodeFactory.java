@@ -141,8 +141,11 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
 
     @PostConstruct
     public void init() {
-        // 从缓存中读取滑块验证码或者重新创建滑块验证码缓存
-        readOrCreateCacheImageCodes();
+        // 判断是否配置了图片验证码
+        if (validateCodeProperties.getSlider().getAuthUrls().size() > 0) {
+            // 从缓存中读取滑块验证码或者重新创建滑块验证码缓存
+            readOrCreateCacheImageCodes();
+        }
     }
 
     @Override
@@ -151,41 +154,29 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
         try
         {
             final ThreadLocalRandom random = ThreadLocalRandom.current();
-            final String srcImageAbsPath = codeImagePaths[random.nextInt(totalImages)];
-            final String markImageAbsPath = getMarkImageAbsPath(srcImageAbsPath);
-            final byte[] srcImageBytes = Files.readAllBytes(Paths.get(srcImageAbsPath));
-            final byte[] markImageBytes = Files.readAllBytes(Paths.get(markImageAbsPath));
+            if (codeImagePaths != null) {
+                // 从缓存中获取验证码
+                final String srcImageAbsPath = codeImagePaths[random.nextInt(totalImages)];
+                final String markImageAbsPath = getMarkImageAbsPath(srcImageAbsPath);
+                final byte[] srcImageBytes = Files.readAllBytes(Paths.get(srcImageAbsPath));
+                final byte[] markImageBytes = Files.readAllBytes(Paths.get(markImageAbsPath));
 
-            // 获取文件名称, 格式: x_y_w_h_token.temp
-            final String srcImageFileName = getFileName(srcImageAbsPath);
-            if (!StringUtils.hasText(srcImageFileName)) {
-                throw new ValidateCodeException(ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE, null, null);
+                // 获取文件名称, 格式: x_y_w_h_token.temp
+                final String srcImageFileName = getFileName(srcImageAbsPath);
+                if (!StringUtils.hasText(srcImageFileName)) {
+                    throw new ValidateCodeException(ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE, null, null);
+                }
+
+                return getSliderCode(srcImageBytes, markImageBytes, srcImageFileName);
             }
-            // 0 1 2 3 4
-            // x_y_w_h_token.temp
-            final String[] split = srcImageFileName.split(IMAGE_NAME_DELIMITER, IMAGE_NAME_SPLIT_LIMIT);
-            if (split.length != IMAGE_NAME_SPLIT_LIMIT) {
-                throw new ValidateCodeException(ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE, null, null);
-            }
 
-            // 获取 token
-            String token = split[4];
-            token = token.substring(0, token.lastIndexOf("."));
-
-            int locationX = Integer.parseInt(split[0]);
-            int locationY = Integer.parseInt(split[1]);
-            int width = Integer.parseInt(split[2]);
-            int height = Integer.parseInt(split[3]);
-
-            return new SliderCode(null,
-                                  expireIn,
-                                  token,
-                                  new String(markImageBytes, StandardCharsets.UTF_8),
-                                  new String(srcImageBytes, StandardCharsets.UTF_8),
-                                  locationX,
-                                  locationY,
-                                  width,
-                                  height);
+            // 实时生成逻辑
+            final ImageInfo imageInfo = generateSliderImage(random, "");
+            final byte[] srcImageBytes = getImageByteBASE64(imageInfo.sliderCodeInfo.srcImage);
+            final byte[] markImageBytes = getImageByteBASE64(imageInfo.sliderCodeInfo.markImage);
+            return getSliderCode(srcImageBytes,
+                                 markImageBytes,
+                                 imageInfo.srcImageAbsPath.substring(PATH_SEPARATOR.length()));
 
         }
         catch (Exception e)
@@ -195,8 +186,43 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
         }
     }
 
+    @NonNull
+    private SliderCode getSliderCode(byte[] srcImageBytes, byte[] markImageBytes, String srcImageFileName) {
+        // 0 1 2 3 4
+        // x_y_w_h_token.temp
+        final String[] split = srcImageFileName.split(IMAGE_NAME_DELIMITER, IMAGE_NAME_SPLIT_LIMIT);
+        if (split.length != IMAGE_NAME_SPLIT_LIMIT) {
+            throw new ValidateCodeException(ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE, null, null);
+        }
+
+        // 获取 token
+        String token = split[4];
+        token = token.substring(0, token.lastIndexOf("."));
+
+        int locationX = Integer.parseInt(split[0]);
+        int locationY = Integer.parseInt(split[1]);
+        int width = Integer.parseInt(split[2]);
+        int height = Integer.parseInt(split[3]);
+
+        return new SliderCode(null,
+                              expireIn,
+                              token,
+                              new String(markImageBytes, StandardCharsets.UTF_8),
+                              new String(srcImageBytes, StandardCharsets.UTF_8),
+                              locationX,
+                              locationY,
+                              width,
+                              height);
+    }
+
     @Override
     public void refreshValidateCodeJob() {
+
+        // 是否配置滑块验证码, 没有配置验证码直接忽视定时刷新任务
+        if (this.validateCodeProperties.getSlider().getAuthUrls().size() < 1) {
+            return;
+        }
+
         final Instant now = Instant.now();
         final ThreadLocalRandom random = ThreadLocalRandom.current();
         String[] oldCodeImagePaths = this.codeImagePaths;

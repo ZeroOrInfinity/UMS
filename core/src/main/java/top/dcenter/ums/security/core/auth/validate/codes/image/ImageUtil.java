@@ -204,9 +204,9 @@ public class ImageUtil {
         shear(g2, width, height, c, random);
 
         g2.setColor(getRandColor(100, 160, random));
-        int yPending = (int) (height * 0.05F);
+        int yPending = (int) (height * 0.1F);
         int fontSize = height - yPending;
-        Font font = new Font("Arial", Font.ITALIC, fontSize);
+        Font font = new Font("DejaVu Sans Mono", Font.ITALIC, fontSize);
         g2.setFont(font);
         char[] chars = code.toCharArray();
         for (int i = 0; i < verifySize; i++) {
