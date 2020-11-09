@@ -24,9 +24,14 @@
 package top.dcenter.ums.security.core.permission.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
@@ -47,9 +52,10 @@ import java.util.Set;
 @Configuration
 @AutoConfigureAfter({PropertiesAutoConfiguration.class})
 @Slf4j
-public class UriAuthorizeAutoConfigurerAware implements HttpSecurityAware {
+public class UriAuthorizeAutoConfigurerAware implements HttpSecurityAware, ApplicationContextAware {
 
     private final ClientProperties  clientProperties;
+    private ApplicationContext applicationContext;
 
     public UriAuthorizeAutoConfigurerAware(ClientProperties clientProperties) {
         this.clientProperties = clientProperties;
@@ -86,6 +92,16 @@ public class UriAuthorizeAutoConfigurerAware implements HttpSecurityAware {
             accessExp = clientProperties.getRestfulAccessExp();
         }
 
+        try {
+            // 判断是否有 @EnableGlobalMethodSecurity 注释
+            this.applicationContext.getBean(GlobalMethodSecurityConfiguration.class);
+            // 有 @EnableGlobalMethodSecurity 注释, 直接用 accessExp 表达式, restfulAccessExp 失效
+            accessExp = clientProperties.getAccessExp();
+        }
+        catch (Exception e) {
+            // 没有 @EnableGlobalMethodSecurity 注释, do nothing
+        }
+
         // 这里 tuple(null, accessExp) 的唯一作用是作为 key 值, 无实际意义
         accessMap.put(UriHttpMethodTuple.tuple(null, accessExp), Collections.singleton(accessExp));
 
@@ -94,5 +110,11 @@ public class UriAuthorizeAutoConfigurerAware implements HttpSecurityAware {
         resultMap.put(HttpSecurityAware.ACCESS, accessMap);
 
         return resultMap;
+    }
+
+    @Override
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+
     }
 }

@@ -168,7 +168,7 @@ public class ClientProperties {
 
 
     /**
-     * 权限表达式, 当 {@code enableRestfulApi=false} 生效, 默认为 isAuthenticated(). <br>
+     * 权限表达式, 当 {@code enableRestfulApi=false} 或者有 @EnableGlobalMethodSecurity 注释时生效, 默认为 isAuthenticated(). <br>
      * <pre>
      * String accessExp = "isAuthenticated()";
      * // 配置等效与
@@ -179,7 +179,7 @@ public class ClientProperties {
     private String accessExp = "isAuthenticated()";
 
     /**
-     * 权限表达式, 当 {@code enableRestfulApi=true} 生效, 默认为 hasPermission(request, authentication).
+     * 权限表达式, 当 {@code enableRestfulApi=true} 且没有 @EnableGlobalMethodSecurity 注释时生效, 默认为 hasPermission(request, authentication).
      * hasPermission 表达式默认实现为 {@link UriAuthoritiesPermissionEvaluator}, 想自定义逻辑, 实现 {@link PermissionEvaluator} 即可替换.<br>
      * <pre>
      * String accessExp = "hasPermission(request, authentication)";
