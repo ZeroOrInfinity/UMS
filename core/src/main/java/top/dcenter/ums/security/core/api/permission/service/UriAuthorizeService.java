@@ -52,7 +52,8 @@ public interface UriAuthorizeService {
 
     /**
      * 根据 authentication 来判断是否有 uriAuthority 访问权限, <br>
-     * 用于 {@code httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication)")} 判断
+     * 用于 {@code httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication)")} 判断,
+     * 使用此接口的前提条件是: restful 风格的 API.
      * @param authentication    authentication
      * @param request           HttpServletRequest
      * @return  有访问权限则返回 true, 否则返回 false.

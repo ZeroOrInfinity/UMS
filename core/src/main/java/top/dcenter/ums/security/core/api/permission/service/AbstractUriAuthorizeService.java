@@ -32,6 +32,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
 import top.dcenter.ums.security.core.permission.enums.PermissionType;
+import top.dcenter.ums.security.core.permission.evaluator.UriAuthoritiesPermissionEvaluator;
 import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeService;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
@@ -43,11 +44,26 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 /**
- * request 的 uri 访问权限控制服务.<br><br>
+ * uri(资源) 访问权限控制服务接口抽象类, 定义了基于(角色/多租户/SCOPE)的访问权限控制逻辑.<br>
  * 实现 {@link AbstractUriAuthorizeService} 抽象类并注入 IOC 容器即可替换
  * {@link DefaultUriAuthorizeService}.<br><br>
- * 注意: 另外推荐实现 {@link AbstractUriAuthorizeService} 同时实现 {@link UpdateAndCacheAuthoritiesService} 更新与缓存权限服务,
- * 有助于提高授权服务性能.
+ * 注意:
+ * 1. 推荐实现 {@link AbstractUriAuthorizeService} 同时实现 {@link UpdateAndCacheAuthoritiesService} 更新与缓存权限服务,
+ * 有助于提高授权服务性能.<br>
+ * 2. 对传入的 {@link Authentication} 的 authorities 硬性要求: <br>
+ * <pre>
+ * // 此 authorities 可以包含:  [ROLE_A, ROLE_B, TENANT_110110, SCOPE_read, SCOPE_write]
+ * // 如上所示:
+ * //    1. 角色数量    >= 1
+ * //    2. SCOPE 数量 >= 0
+ * //    3. 多租户数量  = 1 或 0
+ * Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+ * </pre>
+ * 3. 此框架默认实现 {@link #hasPermission(Authentication, HttpServletRequest)} 方法访问权限控制, 通过
+ * {@link UriAuthoritiesPermissionEvaluator} 实现, 使用此接口的前提条件是: 应用使用的是 restful 风格的 API; <br>
+ * 如果不是 restful 风格的 API, 请使用 {@link #hasPermission(Authentication, String, String)} 接口的访问权限控制, 此接口使用注解的方式 {@code @PerAuthorize("hasPermission('/users', 'list')")} 来实现,
+ * 使用注解需开启 {@code @EnableGlobalMethodSecurity(prePostEnabled = true)} 注解.<br>
+ *
  *
  * @author YongWu zheng
  * @version V1.0  Created by 2020/9/8 15:09
@@ -78,8 +94,9 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
 
     /**
-     * 根据 authentication 来判断是否有 uriAuthority 访问权限, <br>
-     * 用于 {@code httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication)")} 判断
+     * 根据 authentication 来判断是否有 uri(资源) Authority 访问权限, <br>
+     * 用于 {@code httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication)")} 判断,
+     * 使用此接口的前提条件是: restful 风格的 API.
      * @param authentication    authentication
      * @param request           HttpServletRequest
      * @return  有访问权限则返回 true, 否则返回 false.
@@ -88,8 +105,8 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     public boolean hasPermission(Authentication authentication, HttpServletRequest request) {
 
         String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
-
-        final Map<String, Set<String>> uriAuthorityOfUserRoleMap = getUriAuthorityMapOfUserRole(authentication);
+        // Map<uri, Set<permission>>
+        final Map<String, Set<String>> uriAuthorityOfUserRoleMap = getUriAuthorityMapOfUser(authentication);
 
         final String method = request.getMethod();
 
@@ -103,7 +120,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     }
 
     /**
-     * 根据 authentication 来判断是否有 uriAuthority 访问权限, 用于 {@code @PerAuthorize("hasPermission('/users', 'list')")} 判断
+     * 根据 authentication 来判断是否有 uri(资源) Authority 访问权限, 用于 {@code @PerAuthorize("hasPermission('/users', 'list')")} 判断
      * @param authentication    authentication
      * @param requestUri        不包含 ServletContextPath 的 requestUri
      * @param uriAuthority      uri 权限
@@ -113,12 +130,13 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     public boolean hasPermission(Authentication authentication, final String requestUri, final String uriAuthority) {
 
         // Map<uri, Set<permission>>
-        Map<String, Set<String>> uriAuthorityOfUserRoleMap = getUriAuthorityMapOfUserRole(authentication);
+        Map<String, Set<String>> uriAuthorityOfUserRoleMap = getUriAuthorityMapOfUser(authentication);
 
-        // requestUri 是否匹配(antPathMatcher)用户所拥有权限的 uri 且与 uri 相对应的 authorities set 包含 userAuthority
         return uriAuthorityOfUserRoleMap.entrySet()
                                         .stream()
+                                        // requestUri 是否匹配(antPathMatcher)用户所拥有权限的 uri
                                         .filter(entry -> antPathMatcher.match(entry.getKey(), requestUri))
+                                        // uri 相对应的 authorities set 是否包含 userAuthority
                                         .anyMatch(entry -> entry.getValue().contains(uriAuthority));
 
     }
@@ -160,7 +178,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
      * @return  用户所拥有的所有角色的 uri(资源) 权限 Map(uri, Set(permission))
      */
     @NonNull
-    private Map<String, Set<String>> getUriAuthorityMapOfUserRole(@NonNull Authentication authentication) {
+    private Map<String, Set<String>> getUriAuthorityMapOfUser(@NonNull Authentication authentication) {
 
         // 获取角色权限集合
         Set<String> authoritySet = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
@@ -238,8 +256,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
             return false;
         }
 
-        return userAuthoritySet.stream()
-                .anyMatch(authority -> authority.equals(permission));
+        return userAuthoritySet.stream().anyMatch(authority -> authority.equals(permission));
     }
 
 }
