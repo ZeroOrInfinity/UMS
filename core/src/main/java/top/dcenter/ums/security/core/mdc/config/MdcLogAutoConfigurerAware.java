@@ -24,18 +24,19 @@ package top.dcenter.ums.security.core.mdc.config;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
+import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
-import top.dcenter.ums.security.core.mdc.interceptor.MdcLogInterceptor;
+import top.dcenter.ums.security.core.mdc.interceptor.MdcLogFilter;
 import top.dcenter.ums.security.core.mdc.properties.MdcProperties;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 基于SLF4J MDC机制实现日志的链路追踪: MVC配置
@@ -45,33 +46,41 @@ import java.util.List;
 @Configuration
 @ConditionalOnProperty(prefix = "ums.mdc", name = "enable", havingValue = "true")
 @AutoConfigureAfter(value = {MdcPropertiesAutoConfiguration.class})
-public class MdcLogWebMvcConfigurer implements WebMvcConfigurer {
+public class MdcLogAutoConfigurerAware implements HttpSecurityAware {
 
     private final MdcProperties mdcProperties;
-    private final List<String> excludeUrls;
+    private final ClientProperties clientProperties;
 
-    public MdcLogWebMvcConfigurer(MdcProperties mdcProperties, ClientProperties clientProperties) {
+    public MdcLogAutoConfigurerAware(MdcProperties mdcProperties, ClientProperties clientProperties) {
         this.mdcProperties = mdcProperties;
-        this.excludeUrls = new ArrayList<>();
-        final String[] ignoringUrls = clientProperties.getIgnoringUrls();
-        if (null != ignoringUrls) {
-            this.excludeUrls.addAll(Arrays.asList(ignoringUrls));
-        }
-        final List<String> excludeUrls = mdcProperties.getExcludeUrls();
-        if (null != excludeUrls) {
-            this.excludeUrls.addAll(excludeUrls);
-        }
+        this.clientProperties = clientProperties;
     }
 
     @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(mdcLogInterceptor())
-                .addPathPatterns(this.mdcProperties.getIncludeUrls())
-                .excludePathPatterns(this.excludeUrls);
+    public void configure(WebSecurity web) {
+        // do nothing
     }
 
-    @Bean
-    public HandlerInterceptor mdcLogInterceptor() {
-        return new MdcLogInterceptor();
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) {
+        // do nothing
+    }
+
+    @Override
+    public void preConfigure(HttpSecurity http) {
+        // do nothing
+    }
+
+    @Override
+    public void postConfigure(HttpSecurity http) {
+        // 基于 MDC 机制实现日志的链路追踪过滤器
+        http.addFilterBefore(new MdcLogFilter(this.mdcProperties, this.clientProperties),
+                             WebAsyncManagerIntegrationFilter.class);
+    }
+
+    @Override
+    public Map<String, Map<UriHttpMethodTuple, Set<String>>> getAuthorizeRequestMap() {
+        // do nothing
+        return null;
     }
 }
