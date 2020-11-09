@@ -64,10 +64,10 @@ import java.io.IOException;
  * <p>
  * The default base {@code URI} {@code /auth2/authorization} may be overridden via the
  * constructor
- * {@link Auth2DefaultRequestRedirectFilter(String)},
+ * {@link #Auth2DefaultRequestRedirectFilter(String, Auth2StateCoder)},
  * or alternatively, an {@code Auth2DefaultRequestResolver} may be provided to the
  * constructor
- * {@link Auth2DefaultRequestRedirectFilter(Auth2DefaultRequestResolver)}
+ * {@link #Auth2DefaultRequestRedirectFilter(Auth2DefaultRequestResolver, Auth2StateCoder)}}
  * to override the resolving of authorization requests.
  *
  * @author Joe Grandja

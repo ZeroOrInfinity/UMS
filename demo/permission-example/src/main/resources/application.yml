@@ -109,7 +109,7 @@ spring:
   profiles: dev
   mvc:
     throw-exception-if-no-handler-found: true
-  # 权限功能: jpa 配置
+  # 此配置其实与权限设置无关. 只是 permission-example 示例用到了 jpa, 在这里配置了一下
   jpa:
     generate-ddl: true
     show-sql: true

@@ -101,7 +101,7 @@ public class SecuritySessionAutoConfiguration {
     }
 
     /**
-     * 根据 {@link org.springframework.boot.autoconfigure.session.StoreType} 类型(同时要添加相应Spring session的依赖), 生产不同的
+     * 根据 {@code org.springframework.boot.autoconfigure.session.StoreType} 类型(同时要添加相应Spring session的依赖), 生产不同的
      * {@link SessionRegistry}
      * @param applicationContext applicationContext
      * @return {@link SessionRegistry}

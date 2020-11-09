@@ -505,7 +505,7 @@ public class TemporaryUser implements UserDetails, CredentialsContainer {
 		/**
 		 * Populates the authUser. This authUser is required.
 		 * @param authUser  第三方用户信息
-		 * @returnhe {@link UserBuilder} for method chaining (i.e. to populate
+		 * @return {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional authUser for this user)
 		 */
 		public UserBuilder authUser(AuthUser authUser) {
@@ -515,8 +515,8 @@ public class TemporaryUser implements UserDetails, CredentialsContainer {
 
 		/**
 		 * Populates the encodeState. This encodeState is required.
-		 * @param authUser  第三方授权登录的流程中加密后的 state 参数
-		 * @returnhe {@link UserBuilder} for method chaining (i.e. to populate
+		 * @param encodeState  第三方授权登录的流程中加密后的 state 参数
+		 * @return {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional encodeState for this user)
 		 */
 		public UserBuilder encodeState(String encodeState) {
