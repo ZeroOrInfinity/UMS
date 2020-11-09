@@ -52,7 +52,7 @@ import java.util.function.Consumer;
  * 有助于提高授权服务性能.<br>
  * 2. 对传入的 {@link Authentication} 的 authorities 硬性要求: <br>
  * <pre>
- * // 此 authorities 可以包含:  [ROLE_A, ROLE_B, TENANT_110110, SCOPE_read, SCOPE_write]
+ * // 此 authorities 可以包含:  [ROLE_A, ROLE_B, ROLE_xxx TENANT_110110, SCOPE_read, SCOPE_write, SCOPE_xxx]
  * // 如上所示:
  * //    1. 角色数量    >= 1
  * //    2. SCOPE 数量 >= 0
