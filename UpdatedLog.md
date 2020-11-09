@@ -1,3 +1,24 @@
+## 2.0.7
+### Fixes and Improvements:
+1. 修复: session 失效后跳转的 url 如果带 queryString 信息时, 缺失 ? 的bug.
+2. 修复: 不能对部分通过 Filter 实现的逻辑进行 MDC 日志链路追踪的 bug, 如: 第三方授权登录, 因为 interceptor 拦截在 Filter 之后, 犯了低价错误.
+3. 删除: 注解 UriAuthorize 相关功能, 故删除对应的 UriAuthorizeService 的 hasPermission(..) 接口.
+4. 特性: 新增 多租户与SCOPE 的权限控制逻辑. 以及优化基于角色的权限控制逻辑.
+5. 新增: RolePermissionsService 角色资源服务接口. 主要用于给角色添加权限的操作; 新增 RolePermissionsException
+    与 对应的异常处理器, 以及错误响应码; 新增 RolePermissionsServiceAspect 角色权限服务接口切面: 主要功能是基于 角色/多租户/SCOPE 的资源权限更新时, 发布更新角色权限事件. 
+6. 新增: UpdateAndCacheAuthoritiesService 权限的更新与缓存服务接口.
+7. 新增: 新增 ResourcesType 枚举来区分 角色/多租户/SCOPE 的类型.
+8. 改进: 添加 enableRestfulApi 与 restfulAccessExp 属性, 当 enableRestfulApi=false 或者有 @EnableGlobalMethodSecurity 注释时 accessExp
+    权限表达式生效; 当 enableRestfulApi=true 时且没有 @EnableGlobalMethodSecurity 注释时 restfulAccessExp
+     权限表达式生效; 去除 UriAuthorizeAutoConfigurerAware 的 ConditionalOnMissingBean 条件.
+9. 改进: UriAuthorizeService 添加 多租户 与 SCOPE 的角色资源服务接口, 移除不必要的接口 getPermission 与 isUriContainsInUriSet
+10. 优化: 提示用户必须实现 AbstractUriAuthorizeService 的方式: 日志提醒改成抛异常.
+11. 优化: 从 SecurityAutoConfiguration 中分离出相关的权限配置, 创建单独的权限配置文件 PermissionAutoConfiguration, 移动权限配置类到 permission
+ 包. 优化: 重命名 PermissionSuffixType 的枚举类名称为 PermissionType, 修改枚举类型使其完全跟 HttpMethod 相同, 使 HttpMethod 与 权限直接一一对应, 以适应 restful 风格的 API, 增加权限描述字段, 方便前端展示.
+12. 改进: 图片验证码生成算法, 改变字体为 DejaVu Sans Mono, 使其更容易识别; 优化图片验证码与滑块验证码缓存与定时任务, 使其只有在验证码生效的情况下会执行, 优化从构造方法中去除初始化缓存逻辑, 放入初始化方法.
+13. 示例: 更新
+
+
 ## 2.0.6
 ### Fixes and Improvements:
 1. 特性: 添加定时刷新验证码图片缓存的定时任务功能与相应的属性配置.

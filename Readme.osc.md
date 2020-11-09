@@ -23,7 +23,7 @@
       - 支持定时刷新 accessToken, 支持分布式定时任务。
       - 支持第三方授权登录的用户信息表与 token 信息表的缓存功能。
       - 支持第三方绑定与解绑及查询接口(top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository).
-  - 访问权限控制功能。
+  - 访问权限控制功能, 支持多租户。
   - 简化 session、remember me、csrf 等配置。
   - 根据设置的响应方式（JSON 与 REDIRECT）返回 json 或 html 数据。
   - 签到功能。
@@ -67,7 +67,6 @@
 ## 三、`TODO List`:
 
 - 1. 准备基于 spring-security5.4 添加 JWT, OAuth2 authenticate server
-- 2. 添加多租户权限控制
 ------
 ## 四、`快速开始`：
 
@@ -81,28 +80,81 @@
 1. 用户服务: `必须实现`
     - [UmsUserDetailsService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/service/UmsUserDetailsService.java)    
 
-2. 图片验证码: 如果不实现就会使用默认图片验证码, 实时产生验证码图片, 没有缓存功能
+2. 图片验证码: 已实现缓存功能, 支持定时刷新缓存功能, 可以自定义缓存验证码图片的输出路径与缓存数量
     - [ImageCodeFactory](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/image/ImageCodeFactory.java)
 
 3. 短信验证码: `默认空实现`
     - [SmsCodeSender](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/sms/SmsCodeSender.java)
 
-4. 滑块验证码: 如果不实现就会使用默认滑块验证码, 实时产生验证码图片, 没有缓存功能
+4. 滑块验证码: 已实现缓存功能, 支持定时刷新缓存功能, 可以自定义缓存验证码图片的输出路径与缓存数量, 支持自定义源图片路径与模板图片路径
     - [SimpleSliderCodeFactory](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/slider/SliderCodeFactory.java) 
 
 5. 自定义验证码:
     - [AbstractValidateCodeProcessor](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/AbstractValidateCodeProcessor.java)
     - [ValidateCodeGenerator](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/ValidateCodeGenerator.java)
 
-6. 访问权限控制功能: 基于 RBAC 的访问权限控制, 增加了更加细粒度的权限控制, 支持 restfulApi; 如: 对菜单与按钮的权限控制
-    - [AbstractUriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java):
-        - `AbstractUriAuthorizeService` 类中的方法`getRolesAuthorities()`;
-          `getRolesAuthorities()`返回值: Map<`role`, Map<`uri`, `UriResourcesDTO`>> 中`UriResourcesDTO`字段 `uri` 
-          与 `permission` 必须有值. 
-        - 默认实现了 `hasPermission(..)` 表达式, 实现 `AbstractUriAuthorizeService` 即生效,
-          1. 默认启用 httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication)"); 方式. 
-          2. 如果开启注解方式( @UriAuthorize 或 @EnableGlobalMethodSecurity(prePostEnabled = true) ): 则通过注解 @PerAuthority
-          ("hasPermission('/users/**', '/users/**:list')") 方式生效.
+6. 访问权限控制功能: 基于 RBAC 的访问权限控制: 支持多租户与SCOPE
+    - [UriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/UriAuthorizeService.java): `推荐通过实现 AbstractUriAuthorizeService 来实现此接口`
+    - [AbstractUriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java): `必须实现`
+
+        - uri(资源) 访问权限控制服务接口抽象类, 定义了基于(角色/多租户/SCOPE)的访问权限控制逻辑. 实现 AbstractUriAuthorizeService 抽象类并注入 IOC
+         容器即可替换 DefaultUriAuthorizeService.  
+        - 注意: 
+        
+          1\. 推荐实现 AbstractUriAuthorizeService 同时实现 UpdateAndCacheAuthoritiesService 更新与缓存权限服务, 有助于提高授权服务性能. 
+          
+          2\. 对传入的 Authentication 的 authorities 硬性要求: 
+          ```java
+           // 此 authorities 可以包含:  [ROLE_A, ROLE_B, ROLE_xxx TENANT_110110, SCOPE_read, SCOPE_write, SCOPE_xxx]
+           // 如上所示:
+           //    1. 角色数量    >= 1
+           //    2. SCOPE 数量 >= 0
+           //    3. 多租户数量  = 1 或 0
+           Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+          ```          
+          3\. 此框架默认实现 `hasPermission(Authentication, HttpServletRequest)` 
+          方法访问权限控制, 通过 `UriAuthoritiesPermissionEvaluator` 实现, 使用此接口的前提条件是: 应用使用的是 restful 风格的 API; 
+          如果不是 restful 风格的 API, 请使用 `hasPermission(Authentication, String, String)` 接口的访问权限控制, 
+          此接口使用注解的方式 `@PerAuthorize("hasPermission('/users', 'list')")` 来实现, 使用注解需先开启 `@EnableGlobalMethodSecurity(prePostEnabled = true)` 注解.
+
+    - [UpdateAndCacheAuthoritiesService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/UpdateAndCacheAuthoritiesService.java):
+    
+        - 用于更新或缓存基于(角色/多租户/SCOPE)角色的权限的服务接口, 每次更新角色的 uri(资源)权限时,需要调用此接口, 推荐实现此 RolePermissionsService 接口, 会自动通过 AOP
+         方式实现发布 UpdateRolesAuthoritiesEvent 事件, 从而调用 UpdateAndCacheAuthoritiesService 对应的方法.
+        - 建议:
+         
+            1\. 基于 角色 的权限控制: 实现所有角色 uri(资源) 的权限 Map(role, map(uri, Set(permission))) 的更新与缓存本机内存. 
+            
+            2\. 基于 SCOPE 的权限控制: 情况复杂一点, 但 SCOPE 类型比较少, 也还可以像 1 的方式实现缓存本机内存与更新. 
+            
+            3\. 基于 多租户 的权限控制: 情况比较复杂, 租户很少的情况下, 也还可以全部缓存在本机内存, 通常情况下全部缓存内存不现实, 只能借助于类似 redis 等的内存缓存.
+          
+    - [RolePermissionsService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/RolePermissionsService.java):
+
+        - 更新与查询基于(角色/多租户/SCOPE)的角色资源服务接口. 主要用于给角色添加权限的操作. 
+        - 注意: 
+        
+            1\. 在添加资源时, 通过PermissionType.getPermission() 来规范的权限格式, 因为要支持 restful 风格的 Api, 
+                在授权时需要对 HttpMethod 与对应的权限进行匹配判断 
+            
+            2\. 如果实现了 UpdateAndCacheAuthoritiesService 接口, 未实现 RolePermissionsService 接口, 
+                修改或添加基于"角色/多租户/SCOPE "的资源权限时一定要调用 UpdateAndCacheAuthoritiesService 对应的方法, 有两种方式: 一种发布事件, 另一种是直接调用对应服务; 
+            ```java
+            // 1. 推荐用发布事件(异步执行)
+            applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.ROLE));
+            applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.TENANT));
+            applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.SCOPE));
+            // 2. 直接调用服务
+            // 基于角色
+            UpdateAndCacheAuthoritiesService.updateAuthoritiesOfAllRoles();
+            // 基于多租户
+            UpdateAndCacheAuthoritiesService.updateAuthoritiesOfAllTenant();
+            // 基于 SCOPE
+            UpdateAndCacheAuthoritiesService.updateAuthoritiesOfAllScopes();
+            ```
+             
+            3\. 实现此 RolePermissionsService 接口, 不需要执行上两种方法的操作, 已通过 AOP 方式实现发布 UpdateRolesAuthoritiesEvent 事件.
+
 
 7. [Auth2StateCoder](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/state/service/Auth2StateCoder.java): `用户需要时实现`, 对第三方授权登录流程中的 state 进行自定义编解码. 可以传递必要的信息, 
      如: 第三方登录成功的跳转地址等 注意此接口的两个方法必须同时实现对应的编解码逻辑, 实现此接口后注入 IOC 容器即可, 如有前端向后端获取 authorizeUrl
@@ -144,14 +196,7 @@
 
 ## 七、[`注意事项`](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926456&doc_id=984605):
 
-### 1\. 基于 RBAC 的 uri 访问权限控制
-
-- **更新角色权限时必须调用** [AbstractUriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java)`#updateRolesAuthorities()` 方法来**刷新权限**, 即可实时刷新角色权限.
-    - **刷新权限**有两种方式：一种发布事件，另一种是直接调用服务；推荐用发布事件(异步执行)。
-        1. 推荐用发布事件(异步执行): `applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));`
-        2. 直接调用服务: `abstractUriAuthorizeService.updateRolesAuthorities();`
-
-### 2\. HttpSecurity 配置问题：UMS 中的 [HttpSecurityAware](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java) 配置与应用中的 HttpSecurity 配置冲突问题：
+### 1\. HttpSecurity 配置问题：UMS 中的 [HttpSecurityAware](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java) 配置与应用中的 HttpSecurity 配置冲突问题：
 
 1. 如果是新建应用添加 HttpSecurity 配置, 通过下面的接口即可:
     - [HttpSecurityAware](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java)
@@ -159,21 +204,21 @@
     - 添加 HttpSecurity 配置, 通过下面的接口即可: `HttpSecurityAware`
     - 已有的 HttpSecurity 配置, 让原有的 HttpSecurity 配置实现此接口进行配置: `top.dcenter.security.core.api.config.HttpSecurityAware`
 
-### 3\. 在 ServletContext 中存储的属性:
+### 2\. 在 ServletContext 中存储的属性:
 
 - 属性名称: SecurityConstants.SERVLET_CONTEXT_PERMIT_ALL_SET_KEY
 - 属性值: Set<UriHttpMethodTuple>, 把权限类型为 PERMIT_ALL 的 Set 存储在 servletContext .
 
-### 4\. servletContextPath 的值存储在 [MvcUtil](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/util/MvcUtil.java)`.servletContextPath` :
+### 3\. servletContextPath 的值存储在 [MvcUtil](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/util/MvcUtil.java)`.servletContextPath` :
 
 - 通过静态方法获取 `MvcUtil.getServletContextPath()`
 - `MvcUtil.servletContextPath` 的值是通过: [SecurityAutoConfiguration](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/config/SecurityAutoConfiguration.java)`#afterPropertiesSet()` 接口注入
 
-### 5\. 验证码优先级:
+### 4\. 验证码优先级:
 
 - 同一个 uri 由多种验证码同时配置, **优先级**如下: `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
 
-### 6\. Jackson 序列化与反序列化
+### 5\. Jackson 序列化与反序列化
 
 - 添加一些 Authentication 与 UserDetails 子类的反序列化器, 以解决 redis 缓存不能反序列化此类型的问题,
 具体配置 redis 反序列器的配置请看 [RedisCacheAutoConfiguration.getJackson2JsonRedisSerializer()](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/oauth/config/RedisCacheAutoConfiguration.java) 方法.
@@ -233,7 +278,6 @@ jackson2JsonRedisSerializer.setObjectMapper(om);
 | [登录路由](doc/SequenceDiagram/securityRouter.png)           |
 | [session](doc/SequenceDiagram/session.png)                   |
 | [手机登录](doc/SequenceDiagram/SmsCodeLogin.png)             |
-| [权限控制](doc/SequenceDiagram/uriAuthorize.png)             |
 | [过时:第三方绑定与解绑](doc/SequenceDiagram/OAuth2Banding.png)    |
 | [过时:第三方授权登录](doc/SequenceDiagram/OAuth2Login.png)        |
 | [过时:第三方授权登录注册](doc/SequenceDiagram/OAuth2SignUp.png)   |
