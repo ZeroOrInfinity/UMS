@@ -45,7 +45,7 @@ public class RolePermissionsServiceAspect implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
     @AfterReturning(pointcut = "execution(boolean *..updateResourcesOfRole(..)) && args(roleId, resourceIds)",
-                    returning = "result", argNames = "jp, result,roleId,resourceIds")
+                    returning = "result", argNames = "jp, result, roleId, resourceIds")
     public void handlerUpdateRolesAuthoritiesMethod(JoinPoint jp, boolean result, Long roleId, Long... resourceIds) {
         if (jp.getTarget() instanceof RolePermissionsService) {
             if (result) {
@@ -54,6 +54,25 @@ public class RolePermissionsServiceAspect implements ApplicationContextAware {
         }
     }
 
+    @AfterReturning(pointcut = "execution(boolean *..updateAuthoritiesOfAllTenant(..)) && args(tenantAuthority, roleId, resourceIds)",
+                    returning = "result", argNames = "jp, result, tenantAuthority, roleId, resourceIds")
+    public void handlerUpdateTenantsAuthoritiesMethod(JoinPoint jp, boolean result, String tenantAuthority, Long roleId, Long... resourceIds) {
+        if (jp.getTarget() instanceof RolePermissionsService) {
+            if (result) {
+                applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
+            }
+        }
+    }
+
+    @AfterReturning(pointcut = "execution(boolean *..updateAuthoritiesOfAllScopes(..)) && args(scopeAuthority, roleId, resourceIds)",
+                    returning = "result", argNames = "jp, result, scopeAuthority, roleId, resourceIds")
+    public void handlerUpdateScopesAuthoritiesMethod(JoinPoint jp, boolean result, String scopeAuthority, Long roleId, Long... resourceIds) {
+        if (jp.getTarget() instanceof RolePermissionsService) {
+            if (result) {
+                applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true));
+            }
+        }
+    }
 
     @Override
     public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
