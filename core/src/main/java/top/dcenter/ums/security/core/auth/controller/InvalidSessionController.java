@@ -72,7 +72,7 @@ public class InvalidSessionController implements InitializingBean {
     }
 
 
-    @RequestMapping(value = "${ums.client.invalidSessionUrl}")
+    @RequestMapping(value = "/session/invalid")
     @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
     public void invalidSessionHandler(HttpServletRequest request, HttpServletResponse response) {
 
