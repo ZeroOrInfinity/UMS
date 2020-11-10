@@ -38,7 +38,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -68,7 +67,7 @@ public class MdcLogFilter extends OncePerRequestFilter {
         if (null != ignoringUrls) {
             this.excludeUrls.addAll(Arrays.asList(ignoringUrls));
         }
-        final List<String> excludeUrls = mdcProperties.getExcludeUrls();
+        final Set<String> excludeUrls = mdcProperties.getExcludeUrls();
         if (null != excludeUrls) {
             this.excludeUrls.addAll(excludeUrls);
         }
