@@ -13,23 +13,15 @@
     <version>2.0.1</version>
     <packaging>pom</packaging>
 
-    <!--<modules>
-        <module>quickStart</module>
-        <module>basic-example</module>
-        <module>basic-detail-example</module>
-        <module>session-detail-example</module>
-        <module>social-simple-example</module>
-        <module>social-detail-example</module>
-        <module>validate-code-example</module>
-        <module>permission-example</module>
-        <module>demo</module>
-    </modules>-->
-
 
     <url>https://github.com/ZeroOrInfinity/UMS/tree/master/demo</url>
 
     <name>ums-demo</name>
     <description>用户管理脚手架(ums) ums-demo: 详细的 example 请查看各个子模块</description>
+
+    <properties>
+        <top.dcenter.version>2.0.8</top.dcenter.version>
+    </properties>
 
     <dependencies>
         <dependency>

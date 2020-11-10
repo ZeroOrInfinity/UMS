@@ -1,3 +1,11 @@
+## 2.0.8
+### Fixes and Improvements:
+1. 修复: 某些环境启动时可能提示 Could not resolve placeholder 的 bug. 感谢:振兴(吉他手&键盘手&鼠标手)
+2. 修复: 修复未配置滑块验证码时, 自动加载原图片与模板图片出错的问题. 感谢:振兴(吉他手&键盘手&鼠标手)
+3. 修复: 示例 Error reading assemblies: Error locating assembly descriptor: assembly.xml 问题.
+4. 优化: mdc includeUrls 与 excludeUrls 属性用 Set 集合接收.
+
+
 ## 2.0.7
 ### Fixes and Improvements:
 1. 修复: session 失效后跳转的 url 如果带 queryString 信息时, 缺失 ? 的bug.
