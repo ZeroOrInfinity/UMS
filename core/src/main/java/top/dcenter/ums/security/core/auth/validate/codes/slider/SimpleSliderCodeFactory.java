@@ -135,8 +135,14 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
         this.grayscale = slider.getGrayscale();
         this.totalImages = validateCodeProperties.getTotalImages();
         this.expireIn = slider.getExpire();
-        this.templateImagePaths = getImagesAbsPaths(slider.getTemplateImageDirectory(), slider.getImageSuffix());
-        this.originalImagePaths = getImagesAbsPaths(slider.getOriginalImageDirectory(), slider.getImageSuffix());
+        if (slider.getAuthUrls().size() > 0) {
+            this.templateImagePaths = getImagesAbsPaths(slider.getTemplateImageDirectory(), slider.getImageSuffix());
+            this.originalImagePaths = getImagesAbsPaths(slider.getOriginalImageDirectory(), slider.getImageSuffix());
+        }
+        else {
+            this.templateImagePaths = null;
+            this.originalImagePaths = null;
+        }
     }
 
     @PostConstruct
