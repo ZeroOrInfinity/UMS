@@ -32,7 +32,7 @@ import org.springframework.security.web.context.request.async.WebAsyncManagerInt
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
-import top.dcenter.ums.security.core.mdc.interceptor.MdcLogFilter;
+import top.dcenter.ums.security.core.mdc.filter.MdcLogFilter;
 import top.dcenter.ums.security.core.mdc.properties.MdcProperties;
 
 import java.util.Map;

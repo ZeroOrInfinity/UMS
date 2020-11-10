@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package top.dcenter.ums.security.core.mdc.interceptor;
+package top.dcenter.ums.security.core.mdc.filter;
 
 import me.zhyd.oauth.utils.UuidUtils;
 import org.slf4j.MDC;
