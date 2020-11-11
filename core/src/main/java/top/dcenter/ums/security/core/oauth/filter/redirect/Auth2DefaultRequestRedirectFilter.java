@@ -27,12 +27,14 @@ import org.springframework.security.oauth2.client.web.AuthorizationRequestReposi
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.ThrowableAnalyzer;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.core.api.oauth.state.service.Auth2StateCoder;
+import top.dcenter.ums.security.core.exception.Auth2Exception;
 import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
 
 import javax.servlet.FilterChain;
@@ -64,10 +66,10 @@ import java.io.IOException;
  * <p>
  * The default base {@code URI} {@code /auth2/authorization} may be overridden via the
  * constructor
- * {@link #Auth2DefaultRequestRedirectFilter(String, Auth2StateCoder)},
+ * {@link #Auth2DefaultRequestRedirectFilter(String, Auth2StateCoder, SimpleUrlAuthenticationFailureHandler)},
  * or alternatively, an {@code Auth2DefaultRequestResolver} may be provided to the
  * constructor
- * {@link #Auth2DefaultRequestRedirectFilter(Auth2DefaultRequestResolver, Auth2StateCoder)}}
+ * {@link #Auth2DefaultRequestRedirectFilter(Auth2DefaultRequestResolver, Auth2StateCoder, SimpleUrlAuthenticationFailureHandler)}}
  * to override the resolving of authorization requests.
  *
  * @author Joe Grandja
@@ -101,7 +103,10 @@ public class Auth2DefaultRequestRedirectFilter extends OncePerRequestFilter {
 
 	private final Auth2StateCoder auth2StateCoder;
 
+	private final SimpleUrlAuthenticationFailureHandler authenticationFailureHandler;
+
 	private RequestCache requestCache = new HttpSessionRequestCache();
+
 
 	/**
 	 * Constructs an {@code Auth2DefaultRequestRedirectFilter} using the provided
@@ -111,10 +116,12 @@ public class Auth2DefaultRequestRedirectFilter extends OncePerRequestFilter {
 	 * @param auth2StateCoder             state 的编解码器
 	 */
 	public Auth2DefaultRequestRedirectFilter(@NonNull String authorizationRequestBaseUri,
-	                                         @Nullable Auth2StateCoder auth2StateCoder) {
+	                                         @Nullable Auth2StateCoder auth2StateCoder,
+	                                         @NonNull SimpleUrlAuthenticationFailureHandler authenticationFailureHandler) {
 		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
 		this.authorizationRequestResolver = new Auth2DefaultRequestResolver(authorizationRequestBaseUri);
 		this.auth2StateCoder = auth2StateCoder;
+		this.authenticationFailureHandler = authenticationFailureHandler;
 	}
 
 	/**
@@ -125,11 +132,13 @@ public class Auth2DefaultRequestRedirectFilter extends OncePerRequestFilter {
 	 * @param auth2StateCoder             state 的编解码器
 	 * @since 5.1
 	 */
-	public Auth2DefaultRequestRedirectFilter(Auth2DefaultRequestResolver authorizationRequestResolver,
-	                                         @Nullable Auth2StateCoder auth2StateCoder) {
+	public Auth2DefaultRequestRedirectFilter(@NonNull Auth2DefaultRequestResolver authorizationRequestResolver,
+	                                         @Nullable Auth2StateCoder auth2StateCoder,
+	                                         @NonNull SimpleUrlAuthenticationFailureHandler authenticationFailureHandler) {
 		Assert.notNull(authorizationRequestResolver, "authorizationRequestResolver cannot be null");
 		this.authorizationRequestResolver = authorizationRequestResolver;
 		this.auth2StateCoder = auth2StateCoder;
+		this.authenticationFailureHandler = authenticationFailureHandler;
 	}
 
 	/**
@@ -152,6 +161,10 @@ public class Auth2DefaultRequestRedirectFilter extends OncePerRequestFilter {
 				this.sendRedirectForAuthorization(request, response, authorizationRequest);
 				return;
 			}
+		}
+		catch (Auth2Exception ex) {
+			this.authenticationFailureHandler.onAuthenticationFailure(request, response, ex);
+			return;
 		}
 		catch (Exception ex) {
 			this.unsuccessfulRedirectForAuthorization(request, response, ex);

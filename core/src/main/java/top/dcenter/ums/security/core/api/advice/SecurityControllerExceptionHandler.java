@@ -40,6 +40,13 @@ import top.dcenter.ums.security.core.vo.ResponseResult;
  */
 public class SecurityControllerExceptionHandler {
 
+    @ExceptionHandler(Auth2Exception.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
+    public ResponseResult auth2Exception(Auth2Exception ex) {
+        return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), ex.getData());
+    }
+
     @ExceptionHandler(RolePermissionsException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.FORBIDDEN)

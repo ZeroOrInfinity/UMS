@@ -58,6 +58,8 @@ public enum ErrorCodeEnum {
     UPDATE_CONNECTION_DATA_FAILURE(940, "更新第三方授权登录用户信息失败"),
     REFRESH_TOKEN_FAILURE(950, "refresh Token 刷新失败"),
 
+    AUTH2_PROVIDER_NOT_SUPPORT(960, "此服务商的第三方授权登录不支持"),
+
     ACCOUNT_DISABLED(981, "账号无效"),
     ACCOUNT_EXPIRED(982, "账号过期"),
     ACCOUNT_LOCKED(983, "账号已锁定"),
