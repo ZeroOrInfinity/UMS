@@ -57,22 +57,22 @@ public class DefaultUriAuthorizeService extends AbstractUriAuthorizeService {
     @NonNull
     public Map<String, Map<String, Set<String>>> getRolesAuthorities() {
 
-        log.error("使用基于 角色 的权限服务必须实现此接口.");
-        throw new RuntimeException("未实现获取所有角色的 uri(资源) 的权限");
+        log.error("使用基于 角色 的权限服务必须实现此接口 AbstractUriAuthorizeService 或 UriAuthorizeService.");
+        throw new RuntimeException("未实现获取所有角色的 uri(资源) 的权限的接口 AbstractUriAuthorizeService 或 UriAuthorizeService");
     }
 
     @Override
     @NonNull
     public Map<String, Map<String, Set<String>>> getRolesAuthoritiesOfTenant(String tenantAuthority) {
-        log.error("使用 多租户 权限服务必须实现此接口.");
-        throw new RuntimeException("未实现获取多租户的所有角色的 uri(资源) 的权限");
+        log.error("使用 多租户 权限服务必须实现此接口 AbstractUriAuthorizeService 或 UriAuthorizeService.");
+        throw new RuntimeException("未实现获取多租户的所有角色的 uri(资源) 的权限的接口 AbstractUriAuthorizeService 或 UriAuthorizeService");
     }
 
     @Override
     @NonNull
     public Map<String, Map<String, Set<String>>> getRolesAuthoritiesOfScope(Set<String> scopeSet) {
-        log.error("使用 SCOPE 权限服务必须实现此接口.");
-        throw new RuntimeException("未实现获取 SCOPE 的所有角色的 uri(资源) 的权限");
+        log.error("使用 SCOPE 权限服务必须实现此接口 AbstractUriAuthorizeService 或 UriAuthorizeService.");
+        throw new RuntimeException("未实现获取 SCOPE 的所有角色的 uri(资源) 的权限的接口 AbstractUriAuthorizeService 或 UriAuthorizeService");
     }
 
     @Override
