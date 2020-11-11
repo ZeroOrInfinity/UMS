@@ -48,7 +48,7 @@ public class MdcProperties {
      */
     @Setter
     @Getter
-    private Boolean enable = true;
+    private Boolean enable = Boolean.TRUE;
 
     /**
      * 需要添加 MDC 日志的链路追踪的 url, 默认: /**, 并在日志文件的 pattern 中添加 %X{MDC_TRACE_ID}

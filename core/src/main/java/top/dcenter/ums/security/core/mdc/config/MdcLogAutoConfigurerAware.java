@@ -23,7 +23,6 @@
 package top.dcenter.ums.security.core.mdc.config;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -44,7 +43,6 @@ import java.util.Set;
  * @version V2.0  Created by 2020/10/31 18:15
  */
 @Configuration
-@ConditionalOnProperty(prefix = "ums.mdc", name = "enable", havingValue = "true")
 @AutoConfigureAfter(value = {MdcPropertiesAutoConfiguration.class})
 public class MdcLogAutoConfigurerAware implements HttpSecurityAware {
 
@@ -73,9 +71,11 @@ public class MdcLogAutoConfigurerAware implements HttpSecurityAware {
 
     @Override
     public void postConfigure(HttpSecurity http) {
-        // 基于 MDC 机制实现日志的链路追踪过滤器
-        http.addFilterBefore(new MdcLogFilter(this.mdcProperties, this.clientProperties),
-                             WebAsyncManagerIntegrationFilter.class);
+        if (this.mdcProperties.getEnable()) {
+            // 基于 MDC 机制实现日志的链路追踪过滤器
+            http.addFilterBefore(new MdcLogFilter(this.mdcProperties, this.clientProperties),
+                                 WebAsyncManagerIntegrationFilter.class);
+        }
     }
 
     @Override

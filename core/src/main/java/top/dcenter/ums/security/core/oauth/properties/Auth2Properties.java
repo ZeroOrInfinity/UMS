@@ -31,9 +31,12 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.validation.annotation.Validated;
 import top.dcenter.ums.security.core.oauth.filter.login.Auth2LoginAuthenticationFilter;
+import top.dcenter.ums.security.core.oauth.job.RefreshTokenJob;
 import top.dcenter.ums.security.core.oauth.userdetails.TemporaryUser;
 
+import javax.validation.constraints.NotNull;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.time.Duration;
@@ -44,6 +47,7 @@ import java.time.Duration;
  */
 @SuppressWarnings({"jol"})
 @Getter
+@Validated
 @ConfigurationProperties("ums.oauth")
 public class Auth2Properties {
 
@@ -188,10 +192,11 @@ public class Auth2Properties {
     
     // =================== OAuth2 属性 ===================
     /**
-     * 是否支持第三方授权登录功能, 默认: true
+     * 是否支持第三方授权登录功能, 默认: 空, 必须明确配置是否支持
      */
     @Setter
-    private Boolean enabled = true;
+    @NotNull(message = "ums.oauth.enabled 值必须设置为: true 或 false")
+    private Boolean enabled;
 
     /**
      * 第三方授权登录后如未注册用户是否支持自动注册功能, 默认: true<br>
@@ -262,7 +267,8 @@ public class Auth2Properties {
     private String refreshTokenJobCron = "0 * 2 * * ?";
 
     /**
-     * 是否支持定时刷新 AccessToken 定时任务. 默认: false.<br>
+     * 是否支持定时刷新 AccessToken 定时任务, 考虑到很多应用都有自己的定时任务应用, 默认: false.
+     * {@link RefreshTokenJob} 接口的实现已注入 IOC 容器, 方便自定义定时任务接口时调用. <br>
      * 支持分布式(分布式 IOC 容器中必须有 {@link RedisConnectionFactory}, 也就是说,
      * 是否分布式执行依据 IOC 容器中是否有 {@link RedisConnectionFactory})
      */
