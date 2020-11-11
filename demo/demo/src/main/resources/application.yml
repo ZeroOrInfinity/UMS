@@ -41,6 +41,8 @@ server:
         name: SID
 
 ums:
+  oauth:
+    enabled: false
   client:
     # 登录页(必须自己实现)
     login-page: /login
@@ -105,6 +107,7 @@ ums:
       remember-me-parameter: REMEMBER_ME
       # 当为 true 时 REMEMBER_ME 只能用于 https, 默认为 false
       use-secure-cookie: false
+      enable: true
 
     # session 设置
     session:
@@ -175,13 +178,13 @@ ums:
     # 验证码缓存类型, 默认: SESSION, 可选: REDIS/SESSION
     validate-code-cache-type: session
     # 获取验证码的 url 的前缀, 默认: /code
-    get-validate-code-url-prefix: /code
+    validate-code-url-prefix: /code
     # ===== 刷新图片验证码与滑块验证码缓存 定时任务 属性 =====
     # A cron-like expression.
     # 0 * 4 * * ? 分别对应: second/minute/hour/day of month/month/day of week
     # 默认为: "0 * 4 * * ?", 凌晨四点
     refresh-validate-code-job-cron: 0 * 4 * * ?
-    # 是否支持定时刷新 validateCodeJob 定时任务. 默认: true.
+    # 是否支持定时刷新 validateCodeJob 定时任务, 考虑到很多应用都有自己的定时任务应用, 默认: false. RefreshValidateCodeCacheJob 接口的实现已注入 IOC 容器, 方便自定义定时任务接口时调用.
     enable-refresh-validate-code-job: true
     # 定时刷新 validateCodeJob 任务时, 需要缓存的验证码图片数. 默认: 100;
     # 注意: 这里为了方便开发而设置的值, 生产环境根据情况直接设置
@@ -291,7 +294,7 @@ spring:
     throw-exception-if-no-handler-found: true
   thymeleaf:
     cache: false
-debug: true
+#debug: true
 
 server:
   port: 9090

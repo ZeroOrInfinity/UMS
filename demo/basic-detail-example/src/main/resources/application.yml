@@ -53,7 +53,21 @@ spring:
   # =============== end: 第三方登录时用的数据库表 user_connection 与 auth_token 添加 redis cache ===============
 
 ums:
+  oauth:
+    # 是否支持第三方授权登录功能, 默认: 空, 必须明确配置是否支持
+    enabled: false
   client:
+    # ========= 放行权限 ==========
+    # 权限表达式, 当 enableRestfulApi=true 且没有 @EnableGlobalMethodSecurity 注释时生效, 默认为 hasPermission(request, authentication).
+    # hasPermission 表达式默认实现为 UriAuthoritiesPermissionEvaluator, 想自定义逻辑, 实现 PermissionEvaluator 即可替换.
+    # String accessExp = "hasPermission(request, authentication)";
+    # // 配置等效与
+    # httpSecurity.authorizeRequests().anyRequest().access(hasPermission(request, authentication));
+    restful-access-exp: permitAll()
+    # 是否支持 restful Api (前后端交互接口的风格; 如: 查询(GET),添加(POST),修改(PUT),删除(DELETE)), 默认: true.
+    # 当 {@code enableRestfulApi=false} 时 {@code accessExp} 权限表达式生效,
+    # 当 {@code enableRestfulApi=true} 时 {@code restfulAccessExp} 权限表达式生效.
+    enable-restful-api: true
     # 登录页(必须自己实现)
     login-page: /login
     # 登录失败页(必须自己实现)
@@ -194,7 +208,7 @@ spring:
       # 会影响应用关闭是时间, dev 模式设置为 0
       shutdown-timeout: PT0S
 
-debug: true
+#debug: true
 server:
   servlet:
     context-path: /demo

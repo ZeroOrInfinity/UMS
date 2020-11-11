@@ -30,7 +30,21 @@ spring:
     timeout: PT300s
 
 ums:
+  oauth:
+    # 是否支持第三方授权登录功能, 默认: 空, 必须明确配置是否支持
+    enabled: false
   client:
+    # ========= 放行权限 ==========
+    # 权限表达式, 当 enableRestfulApi=true 且没有 @EnableGlobalMethodSecurity 注释时生效, 默认为 hasPermission(request, authentication).
+    # hasPermission 表达式默认实现为 UriAuthoritiesPermissionEvaluator, 想自定义逻辑, 实现 PermissionEvaluator 即可替换.
+    # String accessExp = "hasPermission(request, authentication)";
+    # // 配置等效与
+    # httpSecurity.authorizeRequests().anyRequest().access(hasPermission(request, authentication));
+    restful-access-exp: permitAll()
+    # 是否支持 restful Api (前后端交互接口的风格; 如: 查询(GET),添加(POST),修改(PUT),删除(DELETE)), 默认: true.
+    # 当 {@code enableRestfulApi=false} 时 {@code accessExp} 权限表达式生效,
+    # 当 {@code enableRestfulApi=true} 时 {@code restfulAccessExp} 权限表达式生效.
+    enable-restful-api: true
     # 登录页
     login-page: /login
     # 登录失败页
@@ -84,13 +98,13 @@ ums:
     # 验证码缓存类型, 默认: SESSION, 可选: REDIS/SESSION
     validate-code-cache-type: session
     # 获取验证码的 url 的前缀, 默认: /code
-    get-validate-code-url-prefix: /code
+    validate-code-url-prefix: /code
     # ===== 刷新图片验证码与滑块验证码缓存 定时任务 属性 =====
     # A cron-like expression.
     # 0 * 4 * * ? 分别对应: second/minute/hour/day of month/month/day of week
     # 默认为: "0 * 4 * * ?", 凌晨四点
     refresh-validate-code-job-cron: 0 * 4 * * ?
-    # 是否支持定时刷新 validateCodeJob 定时任务. 默认: true.
+    # 是否支持定时刷新 validateCodeJob 定时任务, 考虑到很多应用都有自己的定时任务应用, 默认: false. RefreshValidateCodeCacheJob 接口的实现已注入 IOC 容器, 方便自定义定时任务接口时调用.
     enable-refresh-validate-code-job: true
     # 定时刷新 validateCodeJob 任务时, 需要缓存的验证码图片数. 默认: 100;
     # 注意: 这里为了方便开发而设置的值, 生产环境根据情况直接设置

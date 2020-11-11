@@ -74,7 +74,7 @@ import top.dcenter.ums.security.core.vo.ResponseResult;
 @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
 @RestController
 @Slf4j
-//@EnableGlobalMethodSecurity(prePostEnabled = true)
+//@EnableGlobalMethodSecurity(prePostEnabled = true, order = Ordered.HIGHEST_PRECEDENCE)
 public class PermissionController {
 
     @Autowired
@@ -96,15 +96,24 @@ public class PermissionController {
 
     /**
      * 用户注册, 默认添加角色(admin,ROLE_USER), 权限放行,不需要登录, 默认密码: admin
+     * <pre>
+     * // 添加用户, 默认密码: admin
+     * http://localhost:9090/demo/addUser/ROLE_USER/13322221111
+     * http://localhost:9090/demo/addUser/ROLE_ADMIN/13322221112
+     * http://localhost:9090/demo/addUser/ROLE_VOTE/13322221113
+     *
+     * // 登录 13322221111 用户
+     * </pre>
      * @param mobile    mobile
      * @return ResponseResult
      */
-    @GetMapping("/addUser/{mobile}")
-    public ResponseResult addUser(@PathVariable String mobile) {
+    @GetMapping("/addUser/{role}/{mobile}")
+    public ResponseResult addUser(@PathVariable("mobile") String mobile, @PathVariable("role") String role) {
 
         try
         {
-            UserDetails userDetails = userDetailsService.registerUser(mobile);
+            // 为了测试方便直接用 role_mobile 传递参数
+            UserDetails userDetails = userDetailsService.registerUser(role + "," + mobile);
 
             // 测试用例, 会返回密码, 生产上禁用
             return ResponseResult.success(null, userDetails);
@@ -118,7 +127,27 @@ public class PermissionController {
     }
 
     /**
-     * 添加 role 的 uri 的权限, role 不存在自动创建, resources 不存在自动创建
+     * 添加 role 的 uri 的权限, role 不存在自动创建, resources 不存在自动创建.<br>
+     * 通过{@link PermissionType#getPermission(HttpMethod)}} 来规范的权限格式:
+     * <pre>
+     *     HttpMethod       permission
+     *     get              list
+     *     post             add
+     *     put              edit
+     *     delete           delete
+     *
+     * // 测试 @EnableGlobalMethodSecurity(prePostEnabled = true) 访问权限控制需要执行的 url
+     * http://localhost:9090/demo/addPermissionData/ROLE_USER?uri=/test/permission/*&restfulMethod=post
+     *
+     * // 测试 restful 风格的 API restfulAccessExp 表达式访问权限控制需要执行的 url
+     * http://localhost:9090/demo/addPermissionData/ROLE_USER?uri=/test/restful/*&restfulMethod=get
+     * http://localhost:9090/demo/addPermissionData/ROLE_USER?uri=/test/restful/*&restfulMethod=post
+     * http://localhost:9090/demo/addPermissionData/ROLE_USER?uri=/test/restful/*&restfulMethod=put
+     * http://localhost:9090/demo/addPermissionData/ROLE_USER?uri=/test/restful/*&restfulMethod=delete
+     *
+     * // 登录 13322221111 用户
+     * </pre>
+     *
      * @param role          role
      * @param uri           uri
      * @param restfulMethod request method
@@ -167,23 +196,18 @@ public class PermissionController {
     }
 
     /**
-     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
-     *
-     * 测试有 add 权限, 放行. <br>
-     *
+     * 测试 restful 风格的 API 表达式访问权限控制 , 禁止 <br>
+     * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 表达式访问权限控制失效,
      */
-    @PreAuthorize("hasPermission('/test/permission/*', 'add')")
-    @GetMapping("/test/permission/{id}")
-    public String testPermission(@PathVariable("id") String id) {
-        return "test permission: " + id;
+    @GetMapping("/test/restful/deny/{id}")
+    public String testGetRestfulDeny(@PathVariable("id") String id) {
+        return "test restful Api: " + id;
     }
 
     /**
-     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
-     *
-     * 测试 restful 风格的 API 访问权限 <br>
-     *
-     * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 自定义权限表达式失效,
+     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 测试 restful 风格的 API 表达式访问权限控制 , 放行 <br>
+     * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 表达式访问权限控制失效,
      */
     @GetMapping("/test/restful/{id}")
     public String testGetRestful(@PathVariable("id") String id) {
@@ -191,11 +215,10 @@ public class PermissionController {
     }
 
     /**
-     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 测试 restful 风格的 API 表达式访问权限控制 , 放行 <br>
      *
-     * 测试 restful 风格的 API 访问权限 <br>
-     *
-     * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 自定义权限表达式失效,
+     * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 表达式访问权限控制失效,
      */
     @PostMapping("/test/restful/{id}")
     public String testPostRestful(@PathVariable("id") String id, String something) {
@@ -203,11 +226,10 @@ public class PermissionController {
     }
 
     /**
-     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 测试 restful 风格的 API 表达式访问权限控制 , 放行 <br>
      *
-     * 测试 restful 风格的 API 访问权限 <br>
-     *
-     * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 自定义权限表达式失效,
+     * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 表达式访问权限控制失效,
      */
     @PutMapping("/test/restful/{id}")
     public String testPutRestful(@PathVariable("id") String id, String something) {
@@ -215,31 +237,32 @@ public class PermissionController {
     }
 
     /**
-     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 测试 restful 风格的 API 表达式访问权限控制 , 放行 <br>
      *
-     * 测试 restful 风格的 API 访问权限 <br>
-     *
-     * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 自定义权限表达式失效,
+     * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 表达式访问权限控制失效,
      */
     @DeleteMapping("/test/restful/{id}")
     public String testPostRestful(@PathVariable("id") String id) {
         return "test restful Api: DELETE id = " + id;
     }
 
+    /**
+     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 需要打开 @EnableGlobalMethodSecurity(prePostEnabled = true)<br>
+     * 测试有 add 权限, 放行. <br>
+     */
+    @PreAuthorize("hasPermission('/test/permission/*', 'add')")
+    @GetMapping("/test/permission/{id}")
+    public String testPermission(@PathVariable("id") String id) {
+        return "test permission: " + id;
+    }
 
 
     /**
-     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
-     *
+     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 需要打开 @EnableGlobalMethodSecurity(prePostEnabled = true)<br>
      * 有 @PreAuthorize 注解, 测试不匹配 add 权限, 禁止访问. <br>
-     * <pre>
-     *      // 取消 @PreAuthorize,
-     *      //ClientProperties.accessExp = "hasPermission(request, authentication)"
-     *      // 等效于下面代码
-     *      String accessExp = "hasPermission(request, authentication)";
-     *      httpSecurity.authorizeRequests().anyRequest().access(accessExp);
-     *      // 直接放行, 因为 ROLE_USER 添加了 uri="/test/deny/*" 的 "list" 权限
-     * </pre>
      */
     @PreAuthorize("hasPermission('/test/deny/*', 'add')")
     @GetMapping("/test/deny/{id}")
@@ -248,24 +271,21 @@ public class PermissionController {
     }
 
     /**
-     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
      *
      * 此 uri 已经设置 PERMIT_ALL, 不用登录验证.<br>
      *
-     * 没有注解 @PreAuthorize("hasPermission('/test/pass/*', 'list')") 直接访问. <br>
-     * 有注解时, 禁止访问:<br>
      */
-    @PreAuthorize("hasPermission('/test/pass/*', 'list')")
     @GetMapping("/test/pass/{id}")
     public String testPass(@PathVariable("id") String id) {
         return "test pass: " + id;
     }
 
     /**
-     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     *     需要打开 @EnableGlobalMethodSecurity(prePostEnabled = true)<br>
      *
-     * 用户的 AuthorityList("admin, ROLE_USER"),
-     * 有注解 @PreAuthorize("HAS_ROLE('admin')") 没有 admin role, 禁止访问. <br>
+     * 有注解 @PreAuthorize("HAS_ROLE('admin')") 没有 ROLE_admin , 禁止访问. <br>
      */
     @PreAuthorize("hasRole('admin')")
     @GetMapping("/test/role/admin/{id}")
@@ -274,10 +294,10 @@ public class PermissionController {
     }
 
     /**
-     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     *     需要打开 @EnableGlobalMethodSecurity(prePostEnabled = true)<br>
      *
-     * 用户的 AuthorityList("admin, ROLE_USER"),
-     * 有注解 @PreAuthorize("HAS_ROLE('USER')"), 有 USER role, 直接放行. <br>
+     * 有注解 @PreAuthorize("HAS_ROLE('USER')"), 有 ROLE_USER, 直接放行. <br>
      */
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/test/role/user/{id}")
@@ -286,9 +306,9 @@ public class PermissionController {
     }
 
     /**
-     * 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例. <br>
+     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     *     需要打开 @EnableGlobalMethodSecurity(prePostEnabled = true)<br>
      *
-     * 用户的 AuthorityList("admin, ROLE_USER"),
      * 有注解 @PreAuthorize("HAS_AUTHORITY('admin')"), 有 admin authority, 直接放行. <br>
      */
     @PreAuthorize("hasAuthority('admin')")

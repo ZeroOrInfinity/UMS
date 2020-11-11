@@ -37,6 +37,9 @@ spring:
 
 
 ums:
+  oauth:
+    # 是否支持第三方授权登录功能, 默认: 空, 必须明确配置是否支持
+    enabled: false
   # 验证码配置
   codes:
     # 验证码缓存类型, 默认: SESSION, 可选: REDIS/SESSION
@@ -53,7 +56,6 @@ ums:
     # String accessExp = "hasPermission(request, authentication)";
     # // 配置等效与
     # httpSecurity.authorizeRequests().anyRequest().access(hasPermission(request, authentication));
-#    restful-access-exp: isAuthenticated()
     restful-access-exp: hasPermission(request, authentication)
     # 是否支持 restful Api (前后端交互接口的风格; 如: 查询(GET),添加(POST),修改(PUT),删除(DELETE)), 默认: true.
     # 当 {@code enableRestfulApi=false} 时 {@code accessExp} 权限表达式生效,
@@ -103,6 +105,8 @@ ums:
       - '/order/**=/login'
       - '/file/**=/login'
       - '/social/**=/signIn.html'
+#  mdc:
+#    enable: true
 
 ---
 spring:
@@ -144,7 +148,7 @@ spring:
 logging:
   config: classpath:logback-spring.xml
 
-debug: true
+#debug: true
 
 server:
   servlet:

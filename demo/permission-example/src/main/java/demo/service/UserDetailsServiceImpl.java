@@ -151,11 +151,14 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
             throw new RegisterUserFailureException(ErrorCodeEnum.MOBILE_NOT_EMPTY, null);
         }
 
+        // 为了测试方便直接用 role_mobile 传递参数
+        final String[] splits = mobile.split(",");
+
         SysUser sysUser= new SysUser();
-        sysUser.setAuthorities("admin,ROLE_USER");
+        sysUser.setAuthorities("admin," + splits[0]);
         sysUser.setPassword(passwordEncoder.encode("admin"));
-        sysUser.setMobile(mobile);
-        sysUser.setUsername(mobile);
+        sysUser.setMobile(splits[1]);
+        sysUser.setUsername(splits[1]);
         sysUser.setUserType(UserType.USER.ordinal());
         sysUser.setStatus(UserStatusType.NORMAL.ordinal());
 
@@ -165,7 +168,7 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
             sysUser = sysUserService.save(sysUser);
 
             // 添加用户角色权限
-            addUserRole(sysUser, "ROLE_USER");
+            addUserRole(sysUser, splits[0]);
 
             log.info("Demo ======>: 手机短信登录用户 {}：注册成功", mobile);
 
@@ -299,7 +302,7 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
         {
             SysRole role = new SysRole();
             role.setAvailable(true);
-            role.setDescription("普通用户角色");
+            role.setDescription(roleName);
             role.setName(roleName);
             sysRole = sysRoleService.save(role);
         }

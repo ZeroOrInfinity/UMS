@@ -31,7 +31,7 @@ spring:
 ums:
   # ================ 第三方授权登录相关配置 ================
   oauth:
-    # 是否支持第三方授权登录功能, 默认: true
+    # 是否支持第三方授权登录功能, 默认: 空, 必须明确配置是否支持
     enabled: true
     # 第三方服务商: providerId
     github:
@@ -40,7 +40,7 @@ ums:
       client-secret: 953ddbe871a08d6924053531e89ecc01d87195a8
     gitee:
       client-id: dcc38c801ee88f43cfc1d5c52ec579751c12610c37b87428331bd6694056648e
-      client-secret: e60a110a2f6e7c930c2d416f802bec6061e19bfa0ceb0df9f6b182b05d8f5a58
+      client-secret: f7384969d0e93088cdab546a1cea026442c16e2476cedec02e202cc89ee773ae
     # 第三方登录授权登录 url 前缀, 不包含 ServletContextPath，默认为 /auth2/authorization.
     auth-login-url-prefix: /auth2/authorization
     # 第三方登录回调处理 url 前缀 ，也就是 RedirectUrl 的前缀, 不包含 ServletContextPath，默认为 /auth2/login.
@@ -54,8 +54,19 @@ ums:
       # 用于国外网站代理(HttpClient)超时, 默认 PT15S
       foreign-timeout: PT150S
 
-  # ================ 密码登录, session, remember-me, csrf等配置 ================
   client:
+    # ========= 放行权限 ==========
+    # 权限表达式, 当 enableRestfulApi=true 且没有 @EnableGlobalMethodSecurity 注释时生效, 默认为 hasPermission(request, authentication).
+    # hasPermission 表达式默认实现为 UriAuthoritiesPermissionEvaluator, 想自定义逻辑, 实现 PermissionEvaluator 即可替换.
+    # String accessExp = "hasPermission(request, authentication)";
+    # // 配置等效与
+    # httpSecurity.authorizeRequests().anyRequest().access(hasPermission(request, authentication));
+    restful-access-exp: permitAll()
+    # 是否支持 restful Api (前后端交互接口的风格; 如: 查询(GET),添加(POST),修改(PUT),删除(DELETE)), 默认: true.
+    # 当 {@code enableRestfulApi=false} 时 {@code accessExp} 权限表达式生效,
+    # 当 {@code enableRestfulApi=true} 时 {@code restfulAccessExp} 权限表达式生效.
+    enable-restful-api: true
+    # ================ 密码登录, session, remember-me, csrf等配置 ================
     # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
     login-process-type: redirect
     # 登录页(必须自己实现)
