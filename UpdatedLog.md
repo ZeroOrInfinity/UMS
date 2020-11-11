@@ -1,3 +1,16 @@
+## 2.0.9
+### Fixes and Improvements:
+1. 修复: 注释 @ConditionalOnProperty 在配置文件未配置对应属性时失效的 bug; 例如: @ConditionalOnProperty(prefix = "ums.oauth", name = "enabled", havingValue = "true"), 当 ums.oauth.enabled 在配置文件未配置, 但在 Auth2Properties 中所需值默认为 true 时, 配置还是不生效.
+   另外对 Auth2Properties 中的 ums.oauth.enabled 属性增加校验, 即用户必须在配置文件显示配置是否支持第三方授权登录.
+2. 修复: 定时任务处理器实现定时任务接口的大 bug, 需要抽自己一嘴巴 :(
+3. 改进: 考虑到很多应用都有自己的定时任务应用, 提取 Executor 配置放入 executor 包, 从定时任务 RefreshAccessTokenJob 中拆分出 RefreshAccessTokenJobHandler
+, RefreshTokenJob 接口的实现已注入 IOC 容器, 方便自定义定时任务接口时调用.
+4. 改进: 因 Auth2Properties 增加了 JSR-303 校验, 会对 Auth2Properties 进行多层代理, 所以改进 Auth2RequestHolder 的放射逻辑.
+5. 优化: 第三方授权登录获取授权链接时, 如果请求的第三方不在应用支持第三方服务商范围内, 跳转授权失败处理器处理.
+6. 优化: Auth2DefaultRequest 获取逻辑
+7. 重命名: 重命名 RefreshValidateCodeJob 为 RefreshValidateCodeCacheJob, 见名之意.
+8. 依赖: 更新 spring-security:5.4.1, spring-session:2.4.1, spring-boot:2.3.5
+
 ## 2.0.8
 ### Fixes and Improvements:
 1. 修复: 某些环境启动时可能提示 Could not resolve placeholder 的 bug. 感谢:振兴(吉他手&键盘手&鼠标手)

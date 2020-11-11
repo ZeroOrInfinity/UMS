@@ -4,9 +4,9 @@
 ![Maven](https://img.shields.io/badge/Maven-3.6.3-green.svg)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7.27-green.svg)
 ![Redis](https://img.shields.io/badge/Redis-5.0.3-green.svg)
-![SpringBoot](https://img.shields.io/badge/SpringBoot-2.3.4-green.svg)
-![SpringSecurity](https://img.shields.io/badge/SpringSecurity-5.4-green.svg)
-![SpringSession](https://img.shields.io/badge/SpringSession-2.3.1-green.svg)
+![SpringBoot](https://img.shields.io/badge/SpringBoot-2.3.5-green.svg)
+![SpringSecurity](https://img.shields.io/badge/SpringSecurity-5.4.1-green.svg)
+![SpringSession](https://img.shields.io/badge/SpringSession-2.4.1-green.svg)
 ![license](https://img.shields.io/badge/license-MIT-yellow.svg)
 
 用户管理脚手架集成：用户密码登录、手机登录、支持所有 JustAuth 支持的第三方授权登录、验证码、基于 RBAC 的 uri 访问权限控制功能、签到等功能。
