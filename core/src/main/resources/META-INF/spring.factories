@@ -3,6 +3,7 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   top.dcenter.ums.security.core.auth.config.PropertiesAutoConfiguration,\
   top.dcenter.ums.security.core.oauth.config.Auth2PropertiesAutoConfiguration,\
   top.dcenter.ums.security.core.mdc.config.MdcPropertiesAutoConfiguration,\
+  top.dcenter.ums.security.core.executor.config.ExecutorPropertiesAutoConfiguration,\
   top.dcenter.ums.security.core.mdc.config.MdcLogAutoConfigurerAware,\
   top.dcenter.ums.security.core.auth.config.ClientAutoConfigurerAware,\
   top.dcenter.ums.security.core.permission.config.RoleHierarchyAutoConfiguration,\
@@ -22,6 +23,6 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   top.dcenter.ums.security.core.oauth.config.Auth2AutoConfiguration,\
   top.dcenter.ums.security.core.oauth.config.Auth2AutoConfigurer,\
   top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration,\
-  top.dcenter.ums.security.core.oauth.config.ScheduleAutoConfiguration,\
+  top.dcenter.ums.security.core.executor.config.ExecutorAutoConfiguration,\
   top.dcenter.ums.security.core.oauth.config.Auth2AutoHttpSecurityAware,\
   top.dcenter.ums.security.common.config.SecurityCoreAutoConfigurer

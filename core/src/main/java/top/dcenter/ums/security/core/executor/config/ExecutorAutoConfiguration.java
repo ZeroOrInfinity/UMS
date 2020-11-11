@@ -21,11 +21,10 @@
  * SOFTWARE.
  */
 
-package top.dcenter.ums.security.core.oauth.config;
+package top.dcenter.ums.security.core.executor.config;
 
 import org.slf4j.MDC;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -34,12 +33,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
-import top.dcenter.ums.security.core.oauth.job.RefreshTokenJob;
-import top.dcenter.ums.security.core.oauth.job.RefreshTokenJobImpl;
-import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
-import top.dcenter.ums.security.core.oauth.properties.ExecutorProperties;
-import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
-import top.dcenter.ums.security.core.oauth.repository.UsersConnectionTokenRepository;
+import top.dcenter.ums.security.core.executor.properties.ExecutorProperties;
 
 import java.util.Collection;
 import java.util.List;
@@ -56,34 +50,22 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings({"unused"})
 @Configuration
-@AutoConfigureAfter(value = {Auth2AutoConfiguration.class})
+@AutoConfigureAfter(value = {ExecutorPropertiesAutoConfiguration.class})
 @EnableScheduling
-public class ScheduleAutoConfiguration implements SchedulingConfigurer, DisposableBean {
+public class ExecutorAutoConfiguration implements SchedulingConfigurer, DisposableBean {
 
-    private final Auth2Properties auth2Properties;
     private final ExecutorProperties executorProperties;
     private ScheduledExecutorService jobTaskScheduledExecutor;
     private ExecutorService updateConnectionExecutorService;
     private ExecutorService refreshTokenExecutorService;
 
-    public ScheduleAutoConfiguration(Auth2Properties auth2Properties, ExecutorProperties executorProperties) {
-        this.auth2Properties = auth2Properties;
+    public ExecutorAutoConfiguration(ExecutorProperties executorProperties) {
         this.executorProperties = executorProperties;
     }
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
         taskRegistrar.setScheduler(jobTaskScheduledExecutor);
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-refresh-token-job", havingValue = "true")
-    public RefreshTokenJob refreshTokenJob(UsersConnectionTokenRepository usersConnectionTokenRepository,
-                                           UsersConnectionRepository usersConnectionRepository,
-                                           @Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor,
-                                           @Qualifier("refreshTokenTaskExecutor") ExecutorService refreshTokenTaskExecutor) {
-        return new RefreshTokenJobImpl(usersConnectionRepository, usersConnectionTokenRepository,
-                                       auth2Properties, jobTaskScheduledExecutor,refreshTokenTaskExecutor);
     }
 
     @Bean()
@@ -101,7 +83,7 @@ public class ScheduleAutoConfiguration implements SchedulingConfigurer, Disposab
     }
 
     @Bean()
-    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-refresh-token-job", havingValue = "true")
+    @ConditionalOnProperty(prefix = "ums.oauth", name = "enabled", havingValue = "true")
     public ExecutorService refreshTokenTaskExecutor() {
         ExecutorProperties.RefreshTokenExecutorProperties refreshToken = executorProperties.getRefreshToken();
         ThreadPoolExecutor threadPoolExecutor =

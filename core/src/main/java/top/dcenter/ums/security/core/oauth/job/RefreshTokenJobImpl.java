@@ -25,14 +25,12 @@ package top.dcenter.ums.security.core.oauth.job;
 
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.exception.AuthException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -42,7 +40,6 @@ import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
 import top.dcenter.ums.security.core.oauth.repository.UsersConnectionTokenRepository;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -50,18 +47,16 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static top.dcenter.ums.security.core.oauth.enums.EnableRefresh.NO;
 
 /**
- * 刷新 token 定时任务实现, 前提条件, {@link AuthTokenPo} auth_token 表的 id 为 Long 类型
+ * 刷新第三方授权登录的 accessToken 有效期的定时任务实现, 前提条件, {@link AuthTokenPo} auth_token 表的 id 为 Long 类型
  * @author YongWu zheng
  * @version V2.0  Created by 2020/10/14 14:03
  */
 @Slf4j
-public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
+public class RefreshTokenJobImpl implements RefreshTokenJob {
 
     /**
      * refresh token 定时任务锁的 redis key
@@ -75,7 +70,6 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
     private final UsersConnectionRepository usersConnectionRepository;
     private final UsersConnectionTokenRepository usersConnectionTokenRepository;
     private final Auth2Properties auth2Properties;
-    private final ScheduledExecutorService jobTaskScheduledExecutor;
     private final ExecutorService refreshTokenTaskExecutor;
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired(required = false)
@@ -84,15 +78,12 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
     public RefreshTokenJobImpl(UsersConnectionRepository usersConnectionRepository,
                                UsersConnectionTokenRepository usersConnectionTokenRepository,
                                Auth2Properties auth2Properties,
-                               @Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor,
                                @Qualifier("refreshTokenTaskExecutor") ExecutorService refreshTokenTaskExecutor) {
-        Assert.notNull(jobTaskScheduledExecutor, "jobTaskScheduledExecutor cannot be null");
         Assert.notNull(refreshTokenTaskExecutor, "refreshTokenTaskExecutor cannot be null");
         Assert.notNull(usersConnectionRepository, "usersConnectionRepository cannot be null");
         Assert.notNull(usersConnectionTokenRepository, "usersConnectionTokenRepository cannot be null");
         Assert.notNull(auth2Properties, "auth2Properties cannot be null");
 
-        this.jobTaskScheduledExecutor = jobTaskScheduledExecutor;
         this.refreshTokenTaskExecutor = refreshTokenTaskExecutor;
         this.usersConnectionRepository = usersConnectionRepository;
         this.usersConnectionTokenRepository = usersConnectionTokenRepository;
@@ -101,21 +92,17 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
 
 
     @Override
-    @Scheduled(cron = "0 * 3 * * ?")
     public void refreshTokenJob() {
-        jobTaskScheduledExecutor.schedule(() -> {
-            if (this.redisConnectionFactory != null)
-            {
-                // 分布式
-                distributedRefreshToken();
-            }
-            else
-            {
-                // 单机
-                refreshToken();
-            }
-
-        }, 10, TimeUnit.MILLISECONDS);
+        if (this.redisConnectionFactory != null)
+        {
+            // 分布式
+            distributedRefreshToken();
+        }
+        else
+        {
+            // 单机
+            refreshToken();
+        }
     }
 
     /**
@@ -292,13 +279,4 @@ public class RefreshTokenJobImpl implements RefreshTokenJob, InitializingBean {
         usersConnectionRepository.updateConnectionByTokenId(token);
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        // 3. 动态注入 refreshTokenJob() Scheduled 的映射 cron
-        String methodName = "refreshTokenJob";
-        if (auth2Properties.getEnableRefreshTokenJob())
-        {
-            MvcUtil.setScheduledCron(methodName, auth2Properties.getRefreshTokenJobCron(), this.getClass());
-        }
-    }
 }

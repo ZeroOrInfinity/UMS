@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package top.dcenter.ums.security.core.oauth.properties;
+package top.dcenter.ums.security.core.executor.properties;
 
 import lombok.Getter;
 import lombok.Setter;

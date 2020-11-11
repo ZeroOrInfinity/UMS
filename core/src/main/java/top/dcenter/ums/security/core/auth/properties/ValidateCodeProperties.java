@@ -28,6 +28,7 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
+import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeCacheJob;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,10 +84,11 @@ public class ValidateCodeProperties {
     private String refreshValidateCodeJobCron = "0 * 4 * * ?";
 
     /**
-     * 是否支持定时刷新 validateCodeJob 定时任务. 默认: true.
+     * 是否支持定时刷新 validateCodeJob 定时任务, 考虑到很多应用都有自己的定时任务应用, 默认: false.<br>
+     * {@link RefreshValidateCodeCacheJob} 接口的实现已注入 IOC 容器, 方便自定义定时任务接口时调用. <br>
      */
     @Setter
-    private Boolean enableRefreshValidateCodeJob = true;
+    private Boolean enableRefreshValidateCodeJob = false;
 
     /**
      * 定时刷新 validateCodeJob 任务时, 需要缓存的验证码图片数. 默认: 100;<br>
