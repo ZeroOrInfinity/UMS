@@ -33,6 +33,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import top.dcenter.ums.security.core.oauth.justauth.cache.AuthStateRedisCache;
 import top.dcenter.ums.security.core.oauth.justauth.cache.AuthStateSessionCache;
 import top.dcenter.ums.security.core.oauth.justauth.enums.StateCacheType;
@@ -92,8 +93,9 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
     /**
      * 根据 providerId 获取 {@link Auth2DefaultRequest}
      * @param providerId    providerId
-     * @return  {@link Auth2DefaultRequest}
+     * @return  返回 {@link Auth2DefaultRequest},  当没有对应的 {@link Auth2DefaultRequest} 时, 返回 null
      */
+    @Nullable
     public static Auth2DefaultRequest getAuth2DefaultRequest(String providerId) {
         if (PROVIDER_ID_AUTH_REQUEST_MAP.size() < 1 || providerId == null)
         {
