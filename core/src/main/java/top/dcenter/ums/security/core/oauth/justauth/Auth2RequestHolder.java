@@ -28,6 +28,7 @@ import me.zhyd.oauth.cache.AuthDefaultStateCache;
 import me.zhyd.oauth.cache.AuthStateCache;
 import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.config.AuthDefaultSource;
+import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
@@ -155,12 +156,13 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
          *  2. 以此获取所有 BaseAuth2Properties 子类对象, 检查其字段是否带有有效的 clientId 与 clientSecret 值,
          *     如果有效, 则存储再 PROVIDER_ID_AUTH_REQUEST_MAP 中.
          */
-        Class<? extends Auth2Properties> aClass = auth2Properties.getClass();
+        Class<Auth2Properties> aClass = Auth2Properties.class;
         Field[] declaredFields = aClass.getDeclaredFields();
         for (Field field : declaredFields)
         {
             field.setAccessible(true);
-            Object baseProperties = field.get(auth2Properties);
+            final Auth2Properties oriAuth2Properties = (Auth2Properties) AopProxyUtils.getSingletonTarget(auth2Properties);
+            Object baseProperties = field.get(oriAuth2Properties);
             if (baseProperties instanceof BaseAuth2Properties)
             {
                 String providerId = field.getName();
@@ -172,7 +174,8 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
                 BaseAuth2Properties baseAuth2Properties = ((BaseAuth2Properties) baseProperties);
                 if (baseAuth2Properties.getClientId() != null && baseAuth2Properties.getClientSecret() != null)
                 {
-                    Auth2DefaultRequest auth2DefaultRequest = getAuth2DefaultRequest(source, auth2Properties, authStateCache);
+                    //noinspection ConstantConditions
+                    Auth2DefaultRequest auth2DefaultRequest = getAuth2DefaultRequest(source, oriAuth2Properties, authStateCache);
                     PROVIDER_ID_AUTH_REQUEST_MAP.put(providerId, auth2DefaultRequest);
                 }
             }
