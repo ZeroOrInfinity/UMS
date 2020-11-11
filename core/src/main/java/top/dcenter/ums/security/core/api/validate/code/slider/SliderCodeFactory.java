@@ -23,7 +23,7 @@
 
 package top.dcenter.ums.security.core.api.validate.code.slider;
 
-import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeJob;
+import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeCacheJob;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCode;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 
@@ -33,7 +33,7 @@ import top.dcenter.ums.security.core.exception.ValidateCodeException;
  * @version V1.0
  * Created by 2020/9/21 21:19
  */
-public interface SliderCodeFactory extends RefreshValidateCodeJob {
+public interface SliderCodeFactory extends RefreshValidateCodeCacheJob {
 
     /**
      * 获取滑块验证码对象

@@ -22,14 +22,14 @@
  */
 package top.dcenter.ums.security.core.api.validate.code.job;
 
-import top.dcenter.ums.security.core.auth.validate.codes.job.DefaultRefreshValidateCodeJobImpl;
+import top.dcenter.ums.security.core.auth.validate.codes.job.RefreshValidateCodeCacheJobHandler;
 
 /**
- * 刷新验证码缓存的的定时任务, 实现此接口注入 IOC 容器即可替换 {@link DefaultRefreshValidateCodeJobImpl}
+ * 刷新验证码缓存的的定时任务, 实现此接口注入 IOC 容器即可替换 {@link RefreshValidateCodeCacheJobHandler}
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/2 10:26
  */
-public interface RefreshValidateCodeJob {
+public interface RefreshValidateCodeCacheJob {
     /**
      * 刷新验证码缓存的的定时任务
      */

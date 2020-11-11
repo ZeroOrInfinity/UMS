@@ -23,7 +23,7 @@
 
 package top.dcenter.ums.security.core.api.validate.code.image;
 
-import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeJob;
+import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeCacheJob;
 import top.dcenter.ums.security.core.auth.validate.codes.image.DefaultImageCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCode;
 
@@ -36,7 +36,7 @@ import javax.servlet.ServletRequest;
  * @version V1.0
  * Created by 2020/5/22 11:14
  */
-public interface ImageCodeFactory extends RefreshValidateCodeJob {
+public interface ImageCodeFactory extends RefreshValidateCodeCacheJob {
     /**
      * 获取图片验证码. <br><br>
      * @param request                   request
