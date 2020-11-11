@@ -75,7 +75,7 @@ public final class Auth2DefaultRequestResolver implements Auth2AuthorizationRequ
 		if (registrationId == null) {
 			return null;
 		}
-		return resolve(request, registrationId);
+		return Auth2RequestHolder.getAuth2DefaultRequest(registrationId);
 	}
 
 	@Override
