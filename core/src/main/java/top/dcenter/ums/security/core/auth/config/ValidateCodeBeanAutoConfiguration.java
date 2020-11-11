@@ -31,7 +31,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -39,7 +38,6 @@ import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticati
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessorHolder;
 import top.dcenter.ums.security.core.api.validate.code.image.ImageCodeFactory;
-import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeJob;
 import top.dcenter.ums.security.core.api.validate.code.slider.SliderCodeFactory;
 import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.auth.controller.ValidateCodeController;
@@ -48,7 +46,7 @@ import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeFilter;
 import top.dcenter.ums.security.core.auth.validate.codes.image.DefaultImageCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageValidateCodeProcessor;
-import top.dcenter.ums.security.core.auth.validate.codes.job.DefaultRefreshValidateCodeJobImpl;
+import top.dcenter.ums.security.core.auth.validate.codes.job.RefreshValidateCodeCacheJobHandler;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SimpleSliderCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCoderProcessor;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderValidateCodeGenerator;
@@ -68,10 +66,6 @@ import java.util.concurrent.ScheduledExecutorService;
 @AutoConfigureAfter({SecurityAutoConfiguration.class})
 @Slf4j
 public class ValidateCodeBeanAutoConfiguration {
-
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired
-    private GenericApplicationContext applicationContext;
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator")
@@ -142,10 +136,10 @@ public class ValidateCodeBeanAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty(prefix = "ums.codes", name = "enable-refresh-validate-code-job", havingValue = "true")
-    public RefreshValidateCodeJob refreshValidateCodeJob(ValidateCodeProperties validateCodeProperties,
-                                                         @Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor) {
+    public RefreshValidateCodeCacheJobHandler refreshValidateCodeJobHandler(ValidateCodeProperties validateCodeProperties,
+                                                                            @Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor) {
 
-        return new DefaultRefreshValidateCodeJobImpl(validateCodeProperties, jobTaskScheduledExecutor);
+        return new RefreshValidateCodeCacheJobHandler(validateCodeProperties, jobTaskScheduledExecutor);
     }
 
 

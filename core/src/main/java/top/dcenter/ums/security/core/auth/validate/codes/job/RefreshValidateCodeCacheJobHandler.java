@@ -26,7 +26,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
-import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeJob;
+import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeCacheJob;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 
 import java.util.Collection;
@@ -41,32 +41,30 @@ import static top.dcenter.ums.security.core.util.MvcUtil.setScheduledCron;
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/2 10:28
  */
-public class DefaultRefreshValidateCodeJobImpl implements RefreshValidateCodeJob, InitializingBean {
+public class RefreshValidateCodeCacheJobHandler implements InitializingBean {
 
     private final ValidateCodeProperties validateCodeProperties;
 
     private final ScheduledExecutorService jobTaskScheduledExecutor;
 
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
-    private Map<String, RefreshValidateCodeJob> refreshValidateCodeJobMap;
+    private Map<String, RefreshValidateCodeCacheJob> refreshValidateCodeJobMap;
 
-    public DefaultRefreshValidateCodeJobImpl(ValidateCodeProperties validateCodeProperties,
-                                             @Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor) {
+    public RefreshValidateCodeCacheJobHandler(ValidateCodeProperties validateCodeProperties,
+                                              @Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor) {
         this.validateCodeProperties = validateCodeProperties;
         this.jobTaskScheduledExecutor = jobTaskScheduledExecutor;
     }
 
-    @Override
     @Scheduled(cron = "0 * 4 * * ?")
     public void refreshValidateCodeJob() {
         this.jobTaskScheduledExecutor.schedule(() -> {
             if (this.refreshValidateCodeJobMap == null) {
                 return;
             }
-            Collection<RefreshValidateCodeJob> validateCodeJobs = this.refreshValidateCodeJobMap.values();
+            Collection<RefreshValidateCodeCacheJob> validateCodeJobs = this.refreshValidateCodeJobMap.values();
             // 刷新验证码缓存
-            validateCodeJobs.forEach(RefreshValidateCodeJob::refreshValidateCodeJob);
+            validateCodeJobs.forEach(RefreshValidateCodeCacheJob::refreshValidateCodeJob);
         }, 10, TimeUnit.MILLISECONDS);
     }
 
