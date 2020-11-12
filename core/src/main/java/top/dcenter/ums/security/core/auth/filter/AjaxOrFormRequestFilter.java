@@ -23,8 +23,6 @@
 
 package top.dcenter.ums.security.core.auth.filter;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -32,6 +30,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.core.util.ConvertUtil;
+import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ReadListener;
@@ -71,22 +70,17 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
      */
     public static final String VALIDATE_JSON_PREFIX  = "{";
 
-    private final ObjectMapper objectMapper;
-
     /**
      * Creates a new instance.
-     *
-     * @param objectMapper  objectMapper
      */
-    public AjaxOrFormRequestFilter(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    public AjaxOrFormRequestFilter() {
     }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        filterChain.doFilter(new AjaxOrFormRequest(request, objectMapper), response);
+        filterChain.doFilter(new AjaxOrFormRequest(request), response);
     }
 
     @Slf4j
@@ -98,7 +92,7 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
         @Getter
         private final Map<String, Object> formMap;
 
-        AjaxOrFormRequest(HttpServletRequest request, ObjectMapper objectMapper) {
+        AjaxOrFormRequest(HttpServletRequest request) {
             super(request);
             String contentType = request.getContentType();
             String method = request.getMethod();
@@ -120,7 +114,7 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
                         if (jsonData.startsWith(VALIDATE_JSON_PREFIX))
                         {
                             //noinspection unchecked
-                            map = objectMapper.readValue(jsonData, Map.class);
+                            map = MvcUtil.json2Object(jsonData, Map.class);
                         } else
                         {
                             map = ConvertUtil.string2JsonMap(jsonData, SecurityConstants.URL_PARAMETER_SEPARATOR,

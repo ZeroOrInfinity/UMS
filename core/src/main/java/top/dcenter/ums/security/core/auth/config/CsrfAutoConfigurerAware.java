@@ -23,18 +23,14 @@
 
 package top.dcenter.ums.security.core.auth.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
-import org.springframework.security.web.csrf.CsrfFilter;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
-import top.dcenter.ums.security.core.auth.filter.AjaxOrFormRequestFilter;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 
 import java.util.Map;
@@ -50,11 +46,9 @@ import java.util.Set;
 public class CsrfAutoConfigurerAware implements HttpSecurityAware {
 
     private final ClientProperties clientProperties;
-    private final ObjectMapper objectMapper;
 
-    public CsrfAutoConfigurerAware(ClientProperties clientProperties, ObjectMapper objectMapper) {
+    public CsrfAutoConfigurerAware(ClientProperties clientProperties) {
         this.clientProperties = clientProperties;
-        this.objectMapper = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
@@ -71,8 +65,7 @@ public class CsrfAutoConfigurerAware implements HttpSecurityAware {
     @SuppressWarnings("RedundantThrows")
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
-        // 添加 AjaxOrFormRequestFilter 增加对 Ajax 格式与 form 格式的解析,
-        http.addFilterBefore(new AjaxOrFormRequestFilter(objectMapper), CsrfFilter.class);
+        // dto nothing
     }
 
     @Override

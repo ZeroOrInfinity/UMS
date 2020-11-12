@@ -46,17 +46,17 @@ SecurityCoreAutoConfigurer --> SecurityCoreAutoConfigurer: 1.2 configure(Authent
 执行 configurer.configure(auth);
 end
 
-opt preConfigure
-SecurityCoreAutoConfigurer --> SecurityCoreAutoConfigurer: 2 \n\
+SecurityCoreAutoConfigurer --> SecurityCoreAutoConfigurer: 1.3 \n\
 *. groupingAuthorizeRequestUris(..)\n\
 对所有的AuthorizeRequestUris 按权限进行分类，放入 Map\n\
 *. 对: PERMIT_ALL, DENY_ALL, ANONYMOUS,\nAUTHENTICATED, FULLY_AUTHENTICATED, REMEMBER_ME\n\
 转换为**tuple数组**:set2ArrayByType(..)\n\
 *. 对: HAS_ROLE, HAS_ANY_ROLE, HAS_AUTHORITY, \nHAS_ANY_AUTHORITY, HAS_IP_ADDRESS\n\
 转换为**分类的Map**:toMapPlusByType(..)
-activate SecurityCoreAutoConfigurer
+opt preConfigure
 participant "HttpSecurityAware" #1565c0
-SecurityCoreAutoConfigurer -> HttpSecurityAware: 2.1 对所有的\nHttpSecurityAware\n进行遍历
+SecurityCoreAutoConfigurer -> HttpSecurityAware: 2 对所有的\nHttpSecurityAware\n进行遍历
+activate SecurityCoreAutoConfigurer
 activate HttpSecurityAware
 note right : 实现类:\n\
 ClientAutoConfigurerAware\n\
@@ -68,14 +68,14 @@ ValidateCodeAutoConfigurerAware\n\
 MdcLogAutoConfigurerAware\n\
 Auth2AutoHttpSecurityAware\n\
 UriAuthorizeAutoConfigurerAware
-HttpSecurityAware -> HttpSecurity: 2.1.1 preConfigure(http)
+HttpSecurityAware -> HttpSecurity: 2.1 preConfigure(http)
 activate HttpSecurity
-HttpSecurity --> HttpSecurity: 2.1.2 http.apply(config)\n这里对所有的\n config进行配置
-note right : SmsCodeLoginAutoAuthenticationConfigurer\n\
+HttpSecurity --> HttpSecurity: 2.2 http.apply(configurer)\n对所有的 configurer 进行配置,\n等前缀配置
+note right HttpSecurity: SmsCodeLoginAutoAuthenticationConfigurer\n\
 Auth2AutoConfigurer
-HttpSecurity --> HttpSecurityAware: 2.1.3 把HttpSecurityAware中\n所有的AuthorizeRequestUris\n 按权限进行分类，放入对应的 Set
+HttpSecurity --> HttpSecurityAware: 2.3 返回
 deactivate HttpSecurity
-HttpSecurityAware --> SecurityCoreAutoConfigurer: 2.1.4 返回
+HttpSecurityAware --> SecurityCoreAutoConfigurer: 2.4 返回
 deactivate SecurityCoreAutoConfigurer
 deactivate HttpSecurityAware
 end
@@ -91,7 +91,7 @@ activate SecurityCoreAutoConfigurer
 activate HttpSecurity
 HttpSecurity --> HttpSecurity: 3.2 antMatchers(..)\n对所有的AuthorizeRequestUris\n 已按权限分类的所有Set\n\
 进行对应设置 urlAuthorizationConfigurer
-note right : .antMatchers(permitAllArray).permitAll()\n\
+note right HttpSecurity: .antMatchers(..).permitAll()\n\
 .antMatchers(..).denyAll()\n\
 .antMatchers(..).anonymous()\n\
 .antMatchers(..).authenticated()\n\
@@ -116,9 +116,13 @@ activate SecurityCoreAutoConfigurer
 activate HttpSecurityAware
 HttpSecurityAware -> HttpSecurity: 4.1 postConfigure(http)
 activate HttpSecurity
-HttpSecurity --> HttpSecurity: 4.2 http.apply(config)\n这里对所有的\n config进行配置
-note right : SmsCodeLoginAutoAuthenticationConfigurer\n\
-Auth2AutoConfigurer
+HttpSecurity --> HttpSecurity: 4.2 http.addFilterBefore(..) 等后缀配置\n\
+这些 Filter 不一定都在这个方法配置, \n也可能在preConfigure(http)配置,\n\
+写在这里为了方便归类.
+note right HttpSecurity: AjaxOrFormRequestFilter\n\
+MdcLogFilter\n\
+MdcLogFilter\n\
+ValidateCodeFilter
 HttpSecurity --> HttpSecurityAware: 4.3 返回
 deactivate HttpSecurity
 
