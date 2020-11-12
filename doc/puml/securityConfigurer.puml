@@ -17,82 +17,115 @@ ActorFontColor DeepSkyBlue
 ActorFontSize 17
 ActorFontName Aapex
 }
-participant "SocialCoreConfig"  #1565c0
-participant "RememberMeAutoConfigurerAware"  #1565c0
-
-participant "BaseSocialConfigurerAdapter"  #1565c0
 
 participant "SecurityCoreAutoConfigurer" #1565c0
-SecurityCoreAutoConfigurer -> SecurityCoreAutoConfigurer: 安全配置流程开始
 note right SecurityCoreAutoConfigurer: 基本配置:\n SecurityCoreAutoConfigurer: \n\
- social模块 SocialAutoConfiguration\n core模块 SecurityAutoConfiguration\n\
-               ValidateCodeBeanAutoConfiguration\n               SecurityRememberMeAutoConfiguration\n\
-               PropertiesAutoConfiguration\n\                SecuritySessionAutoConfiguration\n\
-               SecurityCsrfAutoConfiguration\n\                UriAuthorizeInterceptorAutoConfiguration\n\
-               UriAuthorizeWebMvcAutoConfigurer\n\                UriAuthorizeFilterAutoConfiguration
-alt afterPropertiesSet
-RememberMeAutoConfigurerAware --> RememberMeAutoConfigurerAware: 1 afterPropertiesSet()
-RememberMeAutoConfigurerAware --> RememberMeAutoConfigurerAware: 1.1 检查数据库是否存在\n persistent_logins\n session表\没有创建\n有就什么都不做
-end
+               PropertiesAutoConfiguration\n               SecurityAutoConfiguration\n\
+               SecurityCsrfAutoConfiguration\n               SecurityRememberMeAutoConfiguration\n\
+               SecuritySessionAutoConfiguration\n\                SmsCodeLoginAutoAuthenticationConfigurer\n\
+               ValidateCodeBeanAutoConfiguration\n\                Auth2AutoConfiguration\n\
+               Auth2AutoConfigurer\n\                Auth2PropertiesAutoConfiguration\n\
+               RedisCacheAutoConfiguration\n\                PermissionAutoConfiguration\n\
+               MdcPropertiesAutoConfiguration\n\                ExecutorAutoConfiguration\n\
+               ExecutorPropertiesAutoConfiguration\n\                RoleHierarchyAutoConfiguration\n\
+               SignAutoConfiguration
+
+SecurityCoreAutoConfigurer -> SecurityCoreAutoConfigurer: 安全配置流程开始
+
 activate SecurityCoreAutoConfigurer
+
+opt configure(WebSecurity web)
+SecurityCoreAutoConfigurer --> SecurityCoreAutoConfigurer: 1 configure(WebSecurity web)\n\
+对所有的HttpSecurityAware遍历\n\
+执行 configurer.configure(web);
+end
+
+opt configure(AuthenticationManagerBuilder auth)
+SecurityCoreAutoConfigurer --> SecurityCoreAutoConfigurer: 1.2 configure(AuthenticationManagerBuilder auth)\n\
+对所有的HttpSecurityAware遍历\n\
+执行 configurer.configure(auth);
+end
+
 opt preConfigure
-SecurityCoreAutoConfigurer --> SecurityCoreAutoConfigurer: 2 groupingAuthorizeRequestUris(..)\n 对所有的AuthorizeRequestUris\n 按权限进行分类，放入 Map
+SecurityCoreAutoConfigurer --> SecurityCoreAutoConfigurer: 2 \n\
+*. groupingAuthorizeRequestUris(..)\n\
+对所有的AuthorizeRequestUris 按权限进行分类，放入 Map\n\
+*. 对: PERMIT_ALL, DENY_ALL, ANONYMOUS,\nAUTHENTICATED, FULLY_AUTHENTICATED, REMEMBER_ME\n\
+转换为**tuple数组**:set2ArrayByType(..)\n\
+*. 对: HAS_ROLE, HAS_ANY_ROLE, HAS_AUTHORITY, \nHAS_ANY_AUTHORITY, HAS_IP_ADDRESS\n\
+转换为**分类的Map**:toMapPlusByType(..)
 activate SecurityCoreAutoConfigurer
 participant "HttpSecurityAware" #1565c0
 SecurityCoreAutoConfigurer -> HttpSecurityAware: 2.1 对所有的\nHttpSecurityAware\n进行遍历
 activate HttpSecurityAware
 note right : 实现类:\n\
-SmsCodeLoginAuthenticationAutoConfigurerAware\n\
-ValidateCodeAutoConfigurerAware\n\
-SocialSecurityAutoConfigurerAware\n\
-SocialAuthenticationSignUpAutoConfigurerAware\n\
-RememberMeAutoConfigurerAware\n\
-SessionAutoConfigurerAware\n\
 ClientAutoConfigurerAware\n\
 CsrfAutoConfigurerAware\n\
+RememberMeAutoConfigurerAware\n\
+SessionAutoConfigurerAware\n\
+SmsCodeLoginAuthenticationAutoConfigurerAware\n\
+ValidateCodeAutoConfigurerAware\n\
+MdcLogAutoConfigurerAware\n\
+Auth2AutoHttpSecurityAware\n\
 UriAuthorizeAutoConfigurerAware
 HttpSecurityAware -> HttpSecurity: 2.1.1 preConfigure(http)
 activate HttpSecurity
 HttpSecurity --> HttpSecurity: 2.1.2 http.apply(config)\n这里对所有的\n config进行配置
 note right : SmsCodeLoginAutoAuthenticationConfigurer\n\
-SocialAuthenticationSignUpAutoConfig\n\
-SocialCoreConfig
-HttpSecurity --> HttpSecurityAware: 2.1.3 把HttpSecurityAware中\n所有的AuthorizeRequestUris\n 按权限进行分类，放入对应的 Set\n包括SecurityCoreAutoConfigurer中
+Auth2AutoConfigurer
+HttpSecurity --> HttpSecurityAware: 2.1.3 把HttpSecurityAware中\n所有的AuthorizeRequestUris\n 按权限进行分类，放入对应的 Set
 deactivate HttpSecurity
 HttpSecurityAware --> SecurityCoreAutoConfigurer: 2.1.4 返回
+deactivate SecurityCoreAutoConfigurer
+deactivate HttpSecurityAware
 end
+opt 权限分类配置
+SecurityCoreAutoConfigurer -> HttpSecurityAware: 3 根据分类的**tuple数组**与**分类的Map** 按权限进行分类配置\n\
+配置 权限 验证 授权 信息\n\
+urlAuthorizationConfigurer(..)
+HttpSecurityAware -> HttpSecurity: 3.1 \n\
+setAuthorizeRequest(..)\n\
+setAuthorizeRequestPlus(..)
+activate HttpSecurityAware
+activate SecurityCoreAutoConfigurer
+activate HttpSecurity
+HttpSecurity --> HttpSecurity: 3.2 antMatchers(..)\n对所有的AuthorizeRequestUris\n 已按权限分类的所有Set\n\
+进行对应设置 urlAuthorizationConfigurer
+note right : .antMatchers(permitAllArray).permitAll()\n\
+.antMatchers(..).denyAll()\n\
+.antMatchers(..).anonymous()\n\
+.antMatchers(..).authenticated()\n\
+.antMatchers(..).fullyAuthenticated\n\
+.antMatchers(..).rememberMe()\n\
+.antMatchers(..).hasRole(role)\n\
+.antMatchers(..).hasAnyRole(roleArr)\n\
+.antMatchers(..).hasAuthority(authority)\n\
+.antMatchers(..).hasAnyAuthority(authorities)\n\
+.antMatchers(..).hasIpAddress(ip)\n\
+.anyRequest().access(accessExp)
+HttpSecurity --> HttpSecurityAware: 3.3 返回
+deactivate HttpSecurity
+HttpSecurityAware --> SecurityCoreAutoConfigurer: 3.4 返回
 deactivate HttpSecurityAware
 deactivate SecurityCoreAutoConfigurer
-opt http.formLogin等配置
-SecurityCoreAutoConfigurer -> HttpSecurity: 3 http formLogin authorizeRequests logout csrf等配置
-activate HttpSecurity
-HttpSecurity --> HttpSecurity: .. 设置
-HttpSecurity --> HttpSecurity: 3.1 antMatchers(..)\n对所有的AuthorizeRequestUris\n 已按权限分类的所有Set\n进行对应设置
-note right : .antMatchers(permitAllArray).permitAll()\n\
-.antMatchers(denyAllArray).denyAll()\n\
-.antMatchers(anonymousArray).anonymous()\n\
-.antMatchers(authenticatedArray).authenticated()\n\
-.antMatchers(fullyAuthenticatedArray).fullyAuthent\n\
-.antMatchers(rememberMeArray).rememberMe()
-HttpSecurity --> HttpSecurity: .. 设置
-HttpSecurity --> SecurityCoreAutoConfigurer: 3.2 返回
 end
-deactivate HttpSecurity
 activate SecurityCoreAutoConfigurer
 opt postConfigure
 SecurityCoreAutoConfigurer -> HttpSecurityAware: 4 对所有的\nHttpSecurityAware\n进行遍历
+activate SecurityCoreAutoConfigurer
 activate HttpSecurityAware
-activate HttpSecurity
 HttpSecurityAware -> HttpSecurity: 4.1 postConfigure(http)
+activate HttpSecurity
 HttpSecurity --> HttpSecurity: 4.2 http.apply(config)\n这里对所有的\n config进行配置
 note right : SmsCodeLoginAutoAuthenticationConfigurer\n\
-SocialAuthenticationSignUpAutoConfig\n\
-SocialCoreConfig
-
-HttpSecurityAware --> SecurityCoreAutoConfigurer: 4.3 返回
-end
+Auth2AutoConfigurer
+HttpSecurity --> HttpSecurityAware: 4.3 返回
 deactivate HttpSecurity
+
+HttpSecurityAware --> SecurityCoreAutoConfigurer: 4.4 返回
+deactivate SecurityCoreAutoConfigurer
 deactivate HttpSecurityAware
+end
 deactivate SecurityCoreAutoConfigurer
 
 deactivate SecurityCoreAutoConfigurer
@@ -103,10 +136,6 @@ SecurityCoreAutoConfigurer -> SecurityCoreAutoConfigurer: 安全配置流程结�
 opt 配置文件相关的 API
 note over SecurityCoreAutoConfigurer: 所有 HttpSecurity\n最终都通过此配置\n如非必要勿修改
 note over HttpSecurityAware: 对 HttpSecurity 的配置\n推荐使用此接口\n实现此接口注入IOC容器即可
-
-note over BaseSocialConfigurerAdapter: 第三方API\n 与 Social的适配器\n添加第三方登录API时继承
-note over BaseSocialConfigurerAdapter: 目前有三个子类\nGiteeAutoConfiguration\nQqAutoConfiguration\nWeixinAutoConfiguration
-note over SocialCoreConfig: social 核心配置最终通过\nSocialSecurityAutoConfigurerAware\n配置，如非必要勿修改
 
 end
 

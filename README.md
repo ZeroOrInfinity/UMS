@@ -207,6 +207,8 @@ validate code, RBAC-based uri access control function, sign etc...
     - 添加 HttpSecurity 配置, 通过下面的接口即可: `HttpSecurityAware`
     - 已有的 HttpSecurity 配置, 让原有的 HttpSecurity 配置实现此接口进行配置: `top.dcenter.security.core.api.config.HttpSecurityAware`
 
+![核心配置逻辑](doc/SequenceDiagram/securityConfigurer.png) 
+
 ### 2\. 在 ServletContext 中存储的属性: 
 
 - 属性名称: SecurityConstants.SERVLET_CONTEXT_PERMIT_ALL_SET_KEY

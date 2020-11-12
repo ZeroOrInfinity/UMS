@@ -1,0 +1,46 @@
+@startuml
+
+skinparam backgroundColor #EEEBDC
+skinparam handwritten true
+skinparam sequence {
+ArrowColor DeepSkyBlue
+ActorBorderColor DeepSkyBlue
+LifeLineBorderColor blue
+LifeLineBackgroundColor #A9DCDF
+ParticipantBorderColor DeepSkyBlue
+ParticipantBackgroundColor #00897b
+ParticipantFontName Impact
+ParticipantFontSize 17
+ParticipantFontColor #A9DCDF
+ActorBackgroundColor aqua
+ActorFontColor DeepSkyBlue
+ActorFontSize 17
+ActorFontName Aapex
+}
+
+participant "SERVER"
+note right SERVER: 服务器启动\n\
+* 获取属性 **ums.client.roleHierarchy** 角色的层级\n\
+  如: ROLE_ADMIN > ROLE_USER > ROLE_VOTE\n\
+* 加载 **UriAuthoritiesPermissionEvaluator**\n\
+* 设置默认权限表达式 **hasPermission(request, authentication)**:\n\
+  httpSecurity.authorizeRequests().anyRequest()\n\
+  .access("hasPermission(request, authentication)")\n\
+* 如果用户实现 **UpdateAndCacheAuthoritiesService** 则加载:\n\
+  **UpdateRolesAuthoritiesListener** 用于监听资源更新事件\n\
+* 如果用户实现 **RolePermissionsService** 则加载:\n\
+  **RolePermissionsServiceAspect** 用于监控\n\
+  **RolePermissionsService** 更新角色权限资源时, 发布资源更新事件\n\
+* 此时序图以 permission-example 示例为原型
+
+
+participant "UriAuthoritiesPermissionEvaluator" #1565c0
+participant "AbstractUriAuthorizeService" #1565c0
+participant "PermissionController"
+participant "RolePermissionsService" #1565c0
+participant "RolePermissionsServiceAspect"
+participant "UpdateRolesAuthoritiesListener"
+participant "UpdateAndCacheAuthoritiesService" #1565c0
+
+
+@enduml
