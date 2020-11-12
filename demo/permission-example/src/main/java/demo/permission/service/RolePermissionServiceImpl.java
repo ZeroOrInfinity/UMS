@@ -22,6 +22,7 @@
  */
 package demo.permission.service;
 
+import demo.entity.SysResources;
 import org.springframework.stereotype.Component;
 import top.dcenter.ums.security.core.api.permission.service.RolePermissionsService;
 import top.dcenter.ums.security.core.exception.RolePermissionsException;
@@ -34,7 +35,7 @@ import java.util.List;
  * @version V2.0  Created by 2020/11/7 19:25
  */
 @Component
-public class RolePermissionServiceImpl implements RolePermissionsService<Object> {
+public class RolePermissionServiceImpl implements RolePermissionsService<SysResources> {
 
     @Override
     public boolean updateResourcesOfRole(Long roleId, Long... resourceIds) throws RolePermissionsException {
@@ -43,7 +44,7 @@ public class RolePermissionServiceImpl implements RolePermissionsService<Object>
     }
 
     @Override
-    public List<Object> findAllResourcesByRole(String role) throws RolePermissionsException {
+    public List<SysResources> findAllResourcesByRole(String role) throws RolePermissionsException {
         // do nothing
         return null;
     }

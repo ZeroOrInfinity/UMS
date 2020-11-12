@@ -60,7 +60,7 @@ import java.util.Set;
 import static top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService.PERMISSION_DELIMITER;
 
 /**
- * uri 权限服务.<br><br>
+ * uri 权限服务.<br> 此实现只是为了测试方便, 实际项目中建议实现 {@link RolePermissionsService} 接口来实现角色的资源权限的增删改查<br>
  * 注意：<br>
  * <pre>
  *     // 修改或添加权限一定要更新 updateRolesAuthorities 缓存, 有两种方式：一种发布事件，另一种是直接调用服务；推荐用发布事件(异步执行)。

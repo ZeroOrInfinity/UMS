@@ -35,7 +35,7 @@ import top.dcenter.ums.security.core.permission.enums.ResourcesType;
 import top.dcenter.ums.security.core.permission.event.UpdateRolesAuthoritiesEvent;
 
 /**
- * 角色权限服务接口切面: 主要功能是当角色更新权限时, 发布更新角色权限事件.
+ * 角色权限服务接口切面: 主要功能是当 {@link RolePermissionsService} 角色更新权限时, 发布更新角色权限事件.
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/7 18:41
  */

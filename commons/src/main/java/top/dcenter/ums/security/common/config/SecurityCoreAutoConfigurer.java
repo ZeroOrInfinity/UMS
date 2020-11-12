@@ -73,9 +73,9 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) {
         if (webSecurityConfigurerMap != null)
         {
-            for (HttpSecurityAware postConfigurer : webSecurityConfigurerMap.values())
+            for (HttpSecurityAware configurer : webSecurityConfigurerMap.values())
             {
-                postConfigurer.configure(web);
+                configurer.configure(web);
             }
         }
     }
@@ -84,9 +84,9 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         if (webSecurityConfigurerMap != null)
         {
-            for (HttpSecurityAware postConfigurer : webSecurityConfigurerMap.values())
+            for (HttpSecurityAware configurer : webSecurityConfigurerMap.values())
             {
-                postConfigurer.configure(auth);
+                configurer.configure(auth);
             }
         }
     }
@@ -233,31 +233,31 @@ public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
                 });
                 break;
             case HAS_AUTHORITY:
-                uriHttpMethodTupleMap.forEach((tuple, roleArr) -> {
-                    for (String role : roleArr)
+                uriHttpMethodTupleMap.forEach((tuple, authorities) -> {
+                    for (String authority : authorities)
                     {
                         HttpMethod method = tuple.getMethod();
                         if (method == null)
                         {
-                            registry.antMatchers(tuple.getUri()).hasAuthority(role);
+                            registry.antMatchers(tuple.getUri()).hasAuthority(authority);
                         }
                         else
                         {
-                            registry.antMatchers(method, tuple.getUri()).hasAuthority(role);
+                            registry.antMatchers(method, tuple.getUri()).hasAuthority(authority);
                         }
                     }
                 });
                 break;
             case HAS_ANY_AUTHORITY:
-                uriHttpMethodTupleMap.forEach((tuple, roleArr) -> {
+                uriHttpMethodTupleMap.forEach((tuple, authorities) -> {
                     HttpMethod method = tuple.getMethod();
                     if (method == null)
                     {
-                        registry.antMatchers(tuple.getUri()).hasAnyAuthority(roleArr);
+                        registry.antMatchers(tuple.getUri()).hasAnyAuthority(authorities);
                     }
                     else
                     {
-                        registry.antMatchers(method, tuple.getUri()).hasAnyAuthority(roleArr);
+                        registry.antMatchers(method, tuple.getUri()).hasAnyAuthority(authorities);
                     }
                 });
                 break;

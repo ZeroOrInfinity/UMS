@@ -10,17 +10,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ums-demo</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
     <packaging>pom</packaging>
-
-
-    <url>https://github.com/ZeroOrInfinity/UMS/tree/master/demo</url>
 
     <name>ums-demo</name>
     <description>用户管理脚手架(ums) ums-demo: 详细的 example 请查看各个子模块</description>
 
+
+    <url>https://github.com/ZeroOrInfinity/UMS/tree/master/demo</url>
+
+
     <properties>
-        <top.dcenter.version>2.1.0</top.dcenter.version>
+        <top.dcenter.version>2.1.1</top.dcenter.version>
     </properties>
 
     <dependencies>
