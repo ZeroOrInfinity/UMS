@@ -29,7 +29,6 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
-import top.dcenter.ums.security.core.util.ConvertUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.FilterChain;
@@ -50,41 +49,36 @@ import static java.util.Optional.ofNullable;
 import static top.dcenter.ums.security.core.util.RequestUtil.readAllBytes;
 
 /**
- * 增加对 Ajax 格式与 form 格式的解析, 解析数据时默认使用 UTF-8 格式, 覆写了
+ * 增加对 Json 格式的解析, 解析数据时默认使用 UTF-8 格式, 覆写了
  * <pre>
- *     AjaxOrFormRequest#getParameter(String);
- *     AjaxOrFormRequest#getInputStream();
+ *     JsonRequest#getParameter(String);
+ *     JsonRequest#getInputStream();
  * </pre>, 添加了
  * <pre>
- *     AjaxOrFormRequest#getFormMap();
- *     AjaxOrFormRequest#getBody();
+ *     JsonRequest#getFormMap();
+ *     JsonRequest#getBody();
  * </pre><br><br>
- * 解决  Ajax 格式与 form 格式的请求被读取一次后, 不能在次读取的问题.
+ * 解决  Json 格式的{@code getInputStream()}被读取一次后, 不能再次读取的问题.
  * @author YongWu zheng
  * @version V1.0  Created by 2020/6/9 14:01
  */
-public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
-
-    /**
-     * 验证 request 中参数是否是 json 的字符串的前缀,
-     */
-    public static final String VALIDATE_JSON_PREFIX  = "{";
+public class JsonRequestFilter extends OncePerRequestFilter {
 
     /**
      * Creates a new instance.
      */
-    public AjaxOrFormRequestFilter() {
+    public JsonRequestFilter() {
     }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        filterChain.doFilter(new AjaxOrFormRequest(request), response);
+        filterChain.doFilter(new JsonRequest(request), response);
     }
 
     @Slf4j
-    public static class AjaxOrFormRequest extends HttpServletRequestWrapper {
+    public static class JsonRequest extends HttpServletRequestWrapper {
 
         @Getter
         private final byte[] body;
@@ -92,14 +86,13 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
         @Getter
         private final Map<String, Object> formMap;
 
-        AjaxOrFormRequest(HttpServletRequest request) {
+        JsonRequest(HttpServletRequest request) {
             super(request);
             String contentType = request.getContentType();
             String method = request.getMethod();
             boolean isPostOrPutRequest = SecurityConstants.POST_METHOD.equalsIgnoreCase(method) || SecurityConstants.PUT_METHOD.equalsIgnoreCase(method);
-            boolean isJsonOrFormContentType =
-                    contentType != null && (contentType.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE) || contentType.contains(MediaType.APPLICATION_JSON_VALUE));
-            if (isPostOrPutRequest && isJsonOrFormContentType)
+            boolean isJsonContentType = contentType != null && contentType.contains(MediaType.APPLICATION_JSON_VALUE);
+            if (isPostOrPutRequest && isJsonContentType)
             {
                 Map<String, Object> map = null;
                 byte[] bytes = null;
@@ -111,15 +104,8 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
                     {
                         String jsonData = new String(bytes, StandardCharsets.UTF_8).trim();
                         // 转换为 map 类型, 并放入 request 域方便下次调用
-                        if (jsonData.startsWith(VALIDATE_JSON_PREFIX))
-                        {
-                            //noinspection unchecked
-                            map = MvcUtil.json2Object(jsonData, Map.class);
-                        } else
-                        {
-                            map = ConvertUtil.string2JsonMap(jsonData, SecurityConstants.URL_PARAMETER_SEPARATOR,
-                                                             SecurityConstants.KEY_VALUE_SEPARATOR);
-                        }
+                        //noinspection unchecked
+                        map = MvcUtil.json2Object(jsonData, Map.class);
                     }
                 }
                 catch (Exception e) {
@@ -145,13 +131,12 @@ public class AjaxOrFormRequestFilter extends OncePerRequestFilter {
 
         @Override
         public String getParameter(String name) {
-            if (formMap == null)
-            {
-                return super.getParameter(name);
+            String parameter = super.getParameter(name);
+            if (parameter == null && formMap != null) {
+                return (String) formMap.get(name);
             }
-            return (String) formMap.get(name);
+            return parameter;
         }
-
 
     }
 
