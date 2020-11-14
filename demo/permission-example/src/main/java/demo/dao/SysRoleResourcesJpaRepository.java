@@ -28,7 +28,10 @@ import demo.entity.SysRoleResourcesKey;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
+ * 角色权限资源 DAO
  * @author YongWu zheng
  * @version V1.0  Created by 2020/9/26 16:41
  */
@@ -42,4 +45,10 @@ public interface SysRoleResourcesJpaRepository extends CrudRepository<SysRoleRes
      */
     SysRoleResources findByRoleIdAndResourcesId(Long roleId, Long resourcesId);
 
+    /**
+     * 根据 roleId 查询 角色的权限资源
+     * @param roleId    角色 ID
+     * @return  角色的权限资源
+     */
+    List<SysRoleResources> findByRoleId(Long roleId);
 }

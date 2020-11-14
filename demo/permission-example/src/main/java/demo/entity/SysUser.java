@@ -24,14 +24,16 @@
 package demo.entity;
 
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -63,10 +65,16 @@ public class SysUser implements Serializable {
     private String email;
     private String qq;
     private Date birthday;
+    /**
+     * 性别: 1为男, 0为女, 其他未知
+     */
     private Integer gender;
+    /**
+     * 头像
+     */
     private String avatar;
     /**
-     * 超级管理员(2)、管理员(1)、普通用户(0)
+     * 用户类型: 超级管理员(2)、管理员(1)、普通用户(0)
      */
     private Integer userType;
     private String company;
@@ -102,11 +110,12 @@ public class SysUser implements Serializable {
     private Integer loginCount;
     private String remark;
     /**
-     * 用户状态
+     * 用户状态: 0 为 正常, 1 为删除
      */
+    @Column(name = "status", columnDefinition = "tinyint(4) DEFAULT '0' COMMENT '用户状态: 0 为 正常, 1 为删除'")
     private Integer status;
-    @Transient
+    @CreationTimestamp
     private Date createTime;
-    @Transient
+    @UpdateTimestamp
     private Date updateTime;
 }

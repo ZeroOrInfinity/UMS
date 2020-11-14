@@ -24,10 +24,10 @@
 package demo.service;
 
 import demo.entity.SysRole;
-import demo.entity.UriResourcesDTO;
 import org.springframework.lang.NonNull;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 角色服务
@@ -46,7 +46,8 @@ public interface SysRoleService extends BaseService<SysRole, Long> {
 
     /**
      * 获取所有角色的权限
-     * @return  Map(String, Map(String, String)) 的 key 为必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), value 为 UriResourcesDTO map (key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为 UriResourcesDTO).
+     * @return  Map(String, Map(String, Set(String))) 的 key 为必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), value 为 
+     * map (key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为 permission Set).
      */
-    Map<String, Map<String, UriResourcesDTO>> getRolesAuthorities();
+    Map<String, Map<String, Set<String>>> getRolesAuthorities();
 }

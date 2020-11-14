@@ -24,12 +24,15 @@
 package demo.entity;
 
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
-import javax.persistence.Transient;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -41,6 +44,7 @@ import java.util.Date;
 @Data
 @IdClass(SysRoleResourcesKey.class)
 @Entity(name = "sys_role_resources")
+@Table(name = "sys_role_resources", indexes = {@Index(name = "idx_role_id", columnList="role_id")})
 public class SysRoleResources implements Serializable {
     private static final long serialVersionUID = -4426152457773441387L;
     @Id
@@ -49,10 +53,8 @@ public class SysRoleResources implements Serializable {
     @Id
     @Column(name="resources_id")
     private Long resourcesId;
-    @Transient
-    @Column(name = "create_time", columnDefinition = "timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建记录时间'")
+    @CreationTimestamp
     private Date createTime;
-    @Transient
-    @Column(name = "update_time", columnDefinition = "timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新记录时间'")
+    @UpdateTimestamp
     private Date updateTime;
 }

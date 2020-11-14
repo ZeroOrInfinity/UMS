@@ -44,6 +44,23 @@ ums:
   codes:
     # 验证码缓存类型, 默认: SESSION, 可选: REDIS/SESSION
     validate-code-cache-type: session
+    # 短信验证码
+    sms:
+      # 设置需要短信验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “，”号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
+      auth-urls:
+        - /authentication/mobile
+      request-param-mobile-name: mobile
+      request-param-sms-code-name: smsCode
+
+  # ================ 手机登录配置 ================
+  mobile:
+    login:
+      # 手机验证码登录是否开启, 默认 false，
+      # 手机验证码登录开启后 必须配置 ums.codes.sms.auth-urls=/authentication/mobile
+      sms-code-login-is-open: true
+      # 手机验证码登录请求处理url, 默认 /authentication/mobile
+      login-processing-url-mobile: /authentication/mobile
+
   client:
     # ========= 权限表达式 ==========
     # 权限表达式, 当 enableRestfulApi=false 或者有 @EnableGlobalMethodSecurity 注释时生效, 默认为 isAuthenticated().
@@ -85,8 +102,8 @@ ums:
     permit-urls:
       - /test/pass/**:GET
       - /addUser/**:GET
+      - /addResource/**:GET
       - /addPermissionData/**:GET
-      - /delPermissionData/**:GET
 
     # =============== login routing 功能: 解决跳转登录成功后不能跳转原始请求的问题 ===============
 
@@ -126,6 +143,8 @@ spring:
           order_inserts: true
           order_updates: true
           order_removes: true
+    hibernate:
+      ddl-auto: update
   thymeleaf:
     cache: false
 #  redis:

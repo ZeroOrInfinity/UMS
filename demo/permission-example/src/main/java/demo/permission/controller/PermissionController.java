@@ -24,11 +24,11 @@
 package demo.permission.controller;
 
 import demo.entity.SysResources;
-import demo.permission.service.UriPermissionService;
+import demo.service.SysResourcesService;
+import demo.service.SysRoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.permission.service.RolePermissionsService;
@@ -43,6 +44,8 @@ import top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheAuthor
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.permission.enums.PermissionType;
 import top.dcenter.ums.security.core.vo.ResponseResult;
+
+import java.util.Map;
 
 /**
  * 权限测试控制器: 访问权限逻辑优化迭代中, 有点乱, 可能与描述不符的情况, 目前 UMS 还没开发完成, 等完成再来优化示例 <br>
@@ -78,9 +81,13 @@ import top.dcenter.ums.security.core.vo.ResponseResult;
 public class PermissionController {
 
     @Autowired
-    private UriPermissionService<SysResources> uriPermissionService;
+    private RolePermissionsService<SysResources> rolePermissionService;
     @Autowired
     private UmsUserDetailsService userDetailsService;
+    @Autowired
+    private SysResourcesService sysResourcesService;
+    @Autowired
+    private SysRoleService sysRoleService;
 
 
     @PreAuthorize("hasRole('USER')")
@@ -127,8 +134,7 @@ public class PermissionController {
     }
 
     /**
-     * 添加 role 的 uri 的权限, role 不存在自动创建, resources 不存在自动创建.<br>
-     * 通过{@link PermissionType#getPermission(HttpMethod)}} 来规范的权限格式:
+     * 为了测试方便,直接用 GET 方法接收添加权限资源
      * <pre>
      *     HttpMethod       permission
      *     get              list
@@ -136,64 +142,79 @@ public class PermissionController {
      *     put              edit
      *     delete           delete
      *
-     * // 测试 @EnableGlobalMethodSecurity(prePostEnabled = true) 访问权限控制需要执行的 url
-     * http://localhost:9090/demo/addPermissionData/ROLE_USER?uri=/test/permission/*&restfulMethod=post
+     * // 测试 @EnableGlobalMethodSecurity(prePostEnabled = true) 访问权限控制需要的资源
+     * http://localhost:9090/demo/addResource?uri=/test/permission/*&restfulMethod=post
      *
-     * // 测试 restful 风格的 API restfulAccessExp 表达式访问权限控制需要执行的 url
-     * http://localhost:9090/demo/addPermissionData/ROLE_USER?uri=/test/restful/*&restfulMethod=get
-     * http://localhost:9090/demo/addPermissionData/ROLE_USER?uri=/test/restful/*&restfulMethod=post
-     * http://localhost:9090/demo/addPermissionData/ROLE_USER?uri=/test/restful/*&restfulMethod=put
-     * http://localhost:9090/demo/addPermissionData/ROLE_USER?uri=/test/restful/*&restfulMethod=delete
-     *
-     * // 登录 13322221111 用户
+     * // 测试 restful 风格的 API restfulAccessExp 表达式访问权限控制需要的资源
+     * http://localhost:9090/demo/addResource?uri=/test/restful/*&restfulMethod=get
+     * http://localhost:9090/demo/addResource?uri=/test/restful/*&restfulMethod=post
+     * http://localhost:9090/demo/addResource?uri=/test/restful/*&restfulMethod=put
+     * http://localhost:9090/demo/addResource?uri=/test/restful/*&restfulMethod=delete
      * </pre>
-     *
-     * @param role          role
-     * @param uri           uri
-     * @param restfulMethod request method
+     * @param uri               资源
+     * @param restfulMethod     HttpMethod 方法名称
      * @return  ResponseResult
      */
-    @GetMapping("/addPermissionData/{role}")
-    public ResponseResult addPermissionData(@PathVariable String role, @NonNull String uri, @NonNull String restfulMethod) {
-        PermissionType permissionType =
-                PermissionType.getPermissionType(HttpMethod.valueOf(restfulMethod.toUpperCase()));
-        if (permissionType == null)
-        {
-            return ResponseResult.fail(ErrorCodeEnum.PARAMETER_ERROR, restfulMethod);
-        }
-        boolean result = uriPermissionService.addUriPermission(role, uri, permissionType);
-        if (!result)
-        {
-            return ResponseResult.fail(ErrorCodeEnum.ADD_PERMISSION_FAILURE);
-        }
+    @GetMapping("/addResource")
+    public ResponseResult addResources(String uri, String restfulMethod) {
+        try {
+            // 新增权限资源
+            final HttpMethod method = HttpMethod.resolve(restfulMethod.toUpperCase());
 
-        return ResponseResult.success();
+            if (method == null) {
+                return ResponseResult.fail(ErrorCodeEnum.ADD_RESOURCE_METHOD_FORMAT_ERROR, restfulMethod);
+            }
+
+            String newPermission = PermissionType.getPermission(method);
+            SysResources sysResources = new SysResources();
+            sysResources.setPermission(newPermission);
+            sysResources.setUrl(uri);
+            sysResources.setAvailable(true);
+            // ...
+
+            // 存入数据库
+            sysResources = sysResourcesService.save(sysResources);
+
+            return ResponseResult.success("添加资源成功: 资源 id=" + sysResources.getId());
+
+        }
+        catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return ResponseResult.fail(ErrorCodeEnum.ADD_RESOURCE_FAILURE, restfulMethod);
+        }
     }
 
     /**
-     * 删除 role 的 uri 的权限, role 不存在自动创建, resources 不存在自动创建.<br>
-     * @param role          role
-     * @param uri           uri
-     * @param restfulMethod request method
+     * 添加 roleId 的权限资源.<br>
+     * <pre>
+     * // 测试 @EnableGlobalMethodSecurity(prePostEnabled = true) 访问权限控制需要执行的 url
+     * // 假设: ROLE_USER 的 角色 ID=1, 权限资源 ID: 1,2,3,4,5 . 注意测试的时候根据实际 id 值替换
+     * http://localhost:9090/demo/addPermissionData/1?resourceIds=1,2,3,4,5
+     *
+     * </pre>
+     *
+     * @param roleId            角色 ID
+     * @param resourceIds       权限资源的 ids
      * @return  ResponseResult
      */
-    @GetMapping("/delPermissionData/{role}")
-    public ResponseResult delPermissionData(@PathVariable String role, @NonNull String uri,
-                                          @NonNull String restfulMethod) {
-        PermissionType permissionType =
-                PermissionType.getPermissionType(HttpMethod.valueOf(restfulMethod.toUpperCase()));
-        if (permissionType == null)
-        {
-            return ResponseResult.fail(ErrorCodeEnum.PARAMETER_ERROR, restfulMethod);
+    @GetMapping("/addPermissionData/{roleId}")
+    public ResponseResult updateResourcesOfRole(@PathVariable("roleId") Long roleId, Long... resourceIds) {
+        try {
+            final boolean isUpdated = rolePermissionService.updateResourcesOfRole(roleId, resourceIds);
+            if (!isUpdated)
+            {
+                return ResponseResult.fail(ErrorCodeEnum.ADD_ROLE_PERMISSION_FAILURE);
+            }
         }
-        boolean result = uriPermissionService.delUriPermission(role, uri, permissionType);
-        if (!result)
-        {
-            return ResponseResult.fail(ErrorCodeEnum.DEL_PERMISSION_FAILURE);
+        catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return ResponseResult.fail(ErrorCodeEnum.ADD_ROLE_PERMISSION_FAILURE);
         }
 
         return ResponseResult.success();
     }
+
+
 
     /**
      * 测试 restful 风格的 API 表达式访问权限控制 , 禁止 <br>
@@ -205,7 +226,7 @@ public class PermissionController {
     }
 
     /**
-     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 先执行 {@link #addUser(String, String)} {@link #addResources(String, String)} 与 {@link #updateResourcesOfRole(Long, Long...)} 注释上的连接. 并登录<br>
      * 测试 restful 风格的 API 表达式访问权限控制 , 放行 <br>
      * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 表达式访问权限控制失效,
      */
@@ -215,18 +236,19 @@ public class PermissionController {
     }
 
     /**
-     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 先执行 {@link #addUser(String, String)} {@link #addResources(String, String)} 与 {@link #updateResourcesOfRole(Long, Long...)} 注释上的连接. 并登录<br>
      * 测试 restful 风格的 API 表达式访问权限控制 , 放行 <br>
      *
      * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 表达式访问权限控制失效,
      */
     @PostMapping("/test/restful/{id}")
-    public String testPostRestful(@PathVariable("id") String id, String something) {
+    public String testPostRestful(@PathVariable("id") String id,
+                                  @RequestParam Map<String, String> something) {
         return "test restful Api: " + id + " POST: " + something;
     }
 
     /**
-     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 先执行 {@link #addUser(String, String)} {@link #addResources(String, String)} 与 {@link #updateResourcesOfRole(Long, Long...)} 注释上的连接. 并登录<br>
      * 测试 restful 风格的 API 表达式访问权限控制 , 放行 <br>
      *
      * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 表达式访问权限控制失效,
@@ -237,7 +259,7 @@ public class PermissionController {
     }
 
     /**
-     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 先执行 {@link #addUser(String, String)} {@link #addResources(String, String)} 与 {@link #updateResourcesOfRole(Long, Long...)} 注释上的连接. 并登录<br>
      * 测试 restful 风格的 API 表达式访问权限控制 , 放行 <br>
      *
      * 开启 @EnableGlobalMethodSecurity(prePostEnabled = true) 注释, restfulAccessExp 表达式访问权限控制失效,
@@ -247,10 +269,11 @@ public class PermissionController {
         return "test restful Api: DELETE id = " + id;
     }
 
+
     /**
-     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 先执行 {@link #addUser(String, String)} {@link #addResources(String, String)} 与 {@link #updateResourcesOfRole(Long, Long...)} 注释上的连接. 并登录<br>
      * 需要打开 @EnableGlobalMethodSecurity(prePostEnabled = true)<br>
-     * 测试有 add 权限, 放行. <br>
+     * 测试有 add({@link PermissionType#getPermissions()} 可查看所有的权限) 权限, 放行. <br>
      */
     @PreAuthorize("hasPermission('/test/permission/*', 'add')")
     @GetMapping("/test/permission/{id}")
@@ -260,7 +283,7 @@ public class PermissionController {
 
 
     /**
-     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 先执行 {@link #addUser(String, String)} {@link #addResources(String, String)} 与 {@link #updateResourcesOfRole(Long, Long...)} 注释上的连接. 并登录<br>
      * 需要打开 @EnableGlobalMethodSecurity(prePostEnabled = true)<br>
      * 有 @PreAuthorize 注解, 测试不匹配 add 权限, 禁止访问. <br>
      */
@@ -271,7 +294,7 @@ public class PermissionController {
     }
 
     /**
-     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 先执行 {@link #addUser(String, String)} {@link #addResources(String, String)} 与 {@link #updateResourcesOfRole(Long, Long...)} 注释上的连接. 并登录<br>
      *
      * 此 uri 已经设置 PERMIT_ALL, 不用登录验证.<br>
      *
@@ -282,7 +305,7 @@ public class PermissionController {
     }
 
     /**
-     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 先执行 {@link #addUser(String, String)} {@link #addResources(String, String)} 与 {@link #updateResourcesOfRole(Long, Long...)} 注释上的连接. 并登录<br>
      *     需要打开 @EnableGlobalMethodSecurity(prePostEnabled = true)<br>
      *
      * 有注解 @PreAuthorize("HAS_ROLE('admin')") 没有 ROLE_admin , 禁止访问. <br>
@@ -294,7 +317,7 @@ public class PermissionController {
     }
 
     /**
-     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 先执行 {@link #addUser(String, String)} {@link #addResources(String, String)} 与 {@link #updateResourcesOfRole(Long, Long...)} 注释上的连接. 并登录<br>
      *     需要打开 @EnableGlobalMethodSecurity(prePostEnabled = true)<br>
      *
      * 有注解 @PreAuthorize("HAS_ROLE('USER')"), 有 ROLE_USER, 直接放行. <br>
@@ -306,7 +329,7 @@ public class PermissionController {
     }
 
     /**
-     * 先执行 {@link #addUser(String, String)} 与 {@link #addPermissionData(String, String, String)} 注释上的连接. 并登录<br>
+     * 先执行 {@link #addUser(String, String)} {@link #addResources(String, String)} 与 {@link #updateResourcesOfRole(Long, Long...)} 注释上的连接. 并登录<br>
      *     需要打开 @EnableGlobalMethodSecurity(prePostEnabled = true)<br>
      *
      * 有注解 @PreAuthorize("HAS_AUTHORITY('admin')"), 有 admin authority, 直接放行. <br>

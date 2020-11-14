@@ -24,6 +24,8 @@
 package demo.entity;
 
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,7 +33,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -79,9 +80,9 @@ public class SysResources implements Serializable {
      * 菜单图标
      */
     private String icon;
-    @Transient
+    @CreationTimestamp
     private Date createTime;
-    @Transient
+    @UpdateTimestamp
     private Date updateTime;
 
 }

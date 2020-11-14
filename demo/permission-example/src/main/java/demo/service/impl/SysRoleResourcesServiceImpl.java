@@ -102,4 +102,9 @@ public class SysRoleResourcesServiceImpl extends BaseServiceImpl<SysRoleResource
         entityManager.close();
         return resultList.size();
     }
+
+    @Override
+    public List<SysRoleResources> findByRoleId(Long roleId) {
+        return repository.findByRoleId(roleId);
+    }
 }

@@ -41,13 +41,6 @@ public class UriResourcesDTO {
         this.permission = permission;
     }
 
-    public UriResourcesDTO(Long roleId, Long resourcesId, String url, String permission) {
-        this.roleId = roleId;
-        this.resourcesId = resourcesId;
-        this.url = url;
-        this.permission = permission;
-    }
-
     /**
      * 角色 Id
      */

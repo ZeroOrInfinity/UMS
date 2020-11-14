@@ -25,16 +25,20 @@ package demo.service.impl;
 
 import demo.dao.SysRoleJpaRepository;
 import demo.entity.SysRole;
-import demo.entity.UriResourcesDTO;
 import demo.service.SysRoleService;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import top.dcenter.ums.security.core.util.ConvertUtil;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService.PERMISSION_DELIMITER;
 
 /**
  * 资源服务
@@ -61,13 +65,13 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRole, Long> implement
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     @Override
-    public Map<String, Map<String, UriResourcesDTO>> getRolesAuthorities() {
+    public Map<String, Map<String, Set<String>>> getRolesAuthorities() {
         // 获取所有角色的 uri 的权限
         List<String[]> authoritiesByRoles = repository.findAuthoritiesByRoles();
 
         int size = authoritiesByRoles.size();
 
-        Map<String, Map<String, UriResourcesDTO>> result = new HashMap<>(size);
+        Map<String, Map<String, Set<String>>> result = new HashMap<>(size);
         if (size < 1)
         {
             return result;
@@ -75,13 +79,19 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRole, Long> implement
 
         // r.name, s.url, s.permission
         authoritiesByRoles.forEach(arr -> {
-            final UriResourcesDTO uriResourcesDO = new UriResourcesDTO(arr[1], arr[2]);
             result.compute(arr[0], (k, v) -> {
                 if (v == null)
                 {
                     v = new HashMap<>(1);
                 }
-                v.put(uriResourcesDO.getUrl(), uriResourcesDO);
+                v.compute(arr[1], (key, value) -> {
+                    if (value == null) {
+                        value = new HashSet<>(1);
+                    }
+                    Set<String> permissionSet = ConvertUtil.string2Set(arr[2], PERMISSION_DELIMITER);
+                    value.addAll(permissionSet);
+                    return value;
+                });
                 return v;
             });
         });

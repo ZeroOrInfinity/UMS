@@ -22,10 +22,8 @@
  */
 package demo.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.io.Serializable;
 
@@ -34,11 +32,11 @@ import java.io.Serializable;
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/7 13:16
  */
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class SysRoleResourcesKey implements Serializable {
+    private static final long serialVersionUID = 8659476817389414117L;
+
     private Long roleId;
     private Long resourcesId;
 

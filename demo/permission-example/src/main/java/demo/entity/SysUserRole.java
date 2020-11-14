@@ -24,13 +24,14 @@
 package demo.entity;
 
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -49,8 +50,8 @@ public class SysUserRole implements Serializable {
     private Long id;
     private Long userId;
     private Long roleId;
-    @Transient
+    @CreationTimestamp
     private Date createTime;
-    @Transient
+    @UpdateTimestamp
     private Date updateTime;
 }

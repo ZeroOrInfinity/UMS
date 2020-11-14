@@ -30,7 +30,7 @@ import org.springframework.lang.NonNull;
 import java.util.List;
 
 /**
- * 角色资源服务
+ * 角色权限资源服务
  * @author YongWu zheng
  * @version V1.0
  * Created by 2020/9/26 17:03
@@ -46,8 +46,8 @@ public interface SysRoleResourcesService extends BaseService<SysRoleResources, S
     SysRoleResources findByRoleIdAndResourcesId(@NonNull Long roleId, @NonNull Long resourcesId);
 
     /**
-     * 根据角色资源 Id 删除角色资源
-     * @param key   角色资源 id
+     * 根据角色资源 Id 删除角色权限资源
+     * @param key   角色权限资源 id
      */
     void deleteByRoleResourcesId(SysRoleResourcesKey key);
 
@@ -57,4 +57,11 @@ public interface SysRoleResourcesService extends BaseService<SysRoleResources, S
      * @return  删除数量
      */
     int batchDeleteByIds(List<SysRoleResourcesKey> keys);
+
+    /**
+     * 根据 roleId 查询 角色的权限资源
+     * @param roleId    角色 ID
+     * @return  角色的权限资源
+     */
+    List<SysRoleResources> findByRoleId(Long roleId);
 }

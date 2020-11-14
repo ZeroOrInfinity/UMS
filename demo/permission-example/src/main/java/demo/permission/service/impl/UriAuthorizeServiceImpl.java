@@ -23,7 +23,6 @@
 
 package demo.permission.service.impl;
 
-import demo.entity.UriResourcesDTO;
 import demo.service.SysRoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -33,12 +32,10 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
 import top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheAuthoritiesService;
-import top.dcenter.ums.security.core.util.ConvertUtil;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -131,25 +128,12 @@ public class UriAuthorizeServiceImpl extends AbstractUriAuthorizeService impleme
     private Map<String, Map<String, Set<String>>> updateRolesAuthorities() {
 
         // 从数据源获取所有角色的权限
-        final Map<String, Map<String, UriResourcesDTO>> rolesAuthoritiesMap = sysRoleService.getRolesAuthorities();
-        final Map<String, Map<String, Set<String>>> rolesAuthorities = new HashMap<>(rolesAuthoritiesMap.size());
-        rolesAuthoritiesMap.forEach((key, value) -> rolesAuthorities.compute(key, (k, v) ->
-        {
-            if (v == null) {
-                v = new HashMap<>(value.size());
-            }
-            final Map<String, Set<String>> finalV = v;
-            value.forEach((uri, dto) ->
-                                  finalV.put(uri,
-                                             ConvertUtil.string2Set(dto.getPermission(),
-                                                                    PERMISSION_DELIMITER)));
-            v = finalV;
-            return v;
-        }));
+        final Map<String, Map<String, Set<String>>> rolesAuthoritiesMap = sysRoleService.getRolesAuthorities();
 
-        this.rolesAuthoritiesMap = rolesAuthorities;
 
-        return rolesAuthorities;
+        this.rolesAuthoritiesMap = rolesAuthoritiesMap;
+
+        return rolesAuthoritiesMap;
     }
 
 }
