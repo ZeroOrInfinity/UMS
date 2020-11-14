@@ -20,32 +20,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package demo.permission.service;
+package top.dcenter.ums.security.common.consts;
 
-import demo.entity.SysResources;
-import org.springframework.stereotype.Component;
-import top.dcenter.ums.security.core.api.permission.service.RolePermissionsService;
-import top.dcenter.ums.security.core.exception.RolePermissionsException;
-
-import java.util.List;
+import org.springframework.core.annotation.Order;
 
 /**
- * 测试角色权限服务接口切面是否生效
+ * 关于事务的优先级常量.
  * @author YongWu zheng
- * @version V2.0  Created by 2020/11/7 19:25
+ * @version V2.0  Created by 2020/11/13 17:22
  */
-@Component
-public class RolePermissionServiceImpl implements RolePermissionsService<SysResources> {
+public interface TransactionalConstants {
+    /**
+     * {@link Order} 值为 1, 方便调整 AOP 执行顺序
+     */
+    int ONE_PRECEDENCE = 1;
+    /**
+     * 事务的 {@link Order} 默认值 - 2, 方便调整 AOP 执行顺序
+     */
+    int TRANSACTIONAL_PRECEDENCE_BEFORE2 = 998;
+    /**
+     * 事务的 {@link Order} 默认值 - 1, 方便调整 AOP 执行顺序
+     */
+    int TRANSACTIONAL_PRECEDENCE_BEFORE = 999;
+    /**
+     * 事务的 {@link Order} 默认值, 方便调整 AOP 执行顺序
+     */
+    int TRANSACTIONAL_DEFAULT_PRECEDENCE = 1000;
 
-    @Override
-    public boolean updateResourcesOfRole(Long roleId, Long... resourceIds) throws RolePermissionsException {
-        // 测试 RolePermissionServiceAspect  是否生效
-        return true;
-    }
+    /**
+     * 事务的 {@link Order} 默认值 + 1, 方便调整 AOP 执行顺序
+     */
+    int TRANSACTIONAL_PRECEDENCE_AFTER = 1001;
 
-    @Override
-    public List<SysResources> findAllResourcesByRole(String role) throws RolePermissionsException {
-        // do nothing
-        return null;
-    }
+    /**
+     * 事务的 {@link Order} 默认值 + 2, 方便调整 AOP 执行顺序
+     */
+    int TRANSACTIONAL_PRECEDENCE_AFTER2 = 1002;
+    /**
+     * {@link Order} 值为 {@code Integer.MAX_VALUE}, 方便调整 AOP 执行顺序
+     */
+    int MAX_VALUE_PRECEDENCE = Integer.MAX_VALUE;
+
 }
