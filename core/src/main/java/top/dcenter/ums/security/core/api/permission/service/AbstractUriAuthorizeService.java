@@ -49,7 +49,7 @@ import java.util.function.Predicate;
  * 实现 {@link AbstractUriAuthorizeService} 抽象类并注入 IOC 容器即可替换
  * {@link DefaultUriAuthorizeService}.<br><br>
  * 注意:
- * 1. 推荐实现 {@link AbstractUriAuthorizeService} 同时实现 {@link UpdateAndCacheAuthoritiesService} 更新与缓存权限服务,
+ * 1. 推荐实现 {@link AbstractUriAuthorizeService} 同时实现 {@link UpdateAndCacheRolesResourcesService} 更新与缓存权限服务,
  * 有助于提高授权服务性能.<br>
  * 2. 对传入的 {@link Authentication} 的 authorities 硬性要求: <br>
  * <pre>

@@ -25,37 +25,37 @@ package top.dcenter.ums.security.core.permission.listener;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
-import top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheAuthoritiesService;
-import top.dcenter.ums.security.core.permission.event.UpdateRolesAuthoritiesEvent;
+import top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheRolesResourcesService;
+import top.dcenter.ums.security.core.permission.event.UpdateRolesResourcesEvent;
 
 /**
  * uri 权限更新监听器
  * @author YongWu zheng
  * @version V1.0  Created by 2020/10/2 19:53
  */
-public class UpdateRolesAuthoritiesListener implements ApplicationListener<UpdateRolesAuthoritiesEvent> {
+public class UpdateRolesResourcesListener implements ApplicationListener<UpdateRolesResourcesEvent> {
 
-    private final UpdateAndCacheAuthoritiesService updateAndCacheAuthoritiesService;
+    private final UpdateAndCacheRolesResourcesService updateAndCacheRolesResourcesService;
 
-    public UpdateRolesAuthoritiesListener(UpdateAndCacheAuthoritiesService updateAndCacheAuthoritiesService) {
-        this.updateAndCacheAuthoritiesService = updateAndCacheAuthoritiesService;
+    public UpdateRolesResourcesListener(UpdateAndCacheRolesResourcesService updateAndCacheRolesResourcesService) {
+        this.updateAndCacheRolesResourcesService = updateAndCacheRolesResourcesService;
     }
 
     @Async
     @Override
-    public void onApplicationEvent(UpdateRolesAuthoritiesEvent event) {
+    public void onApplicationEvent(UpdateRolesResourcesEvent event) {
         Object source = event.getSource();
         if (source instanceof Boolean && ((Boolean) source))
         {
             switch(event.getType()) {
                 case ROLE:
-                    this.updateAndCacheAuthoritiesService.updateAuthoritiesOfAllRoles();
+                    this.updateAndCacheRolesResourcesService.updateAuthoritiesOfAllRoles();
                     break;
                 case TENANT:
-                    this.updateAndCacheAuthoritiesService.updateAuthoritiesOfAllTenant();
+                    this.updateAndCacheRolesResourcesService.updateAuthoritiesOfAllTenant();
                     break;
                 case SCOPE:
-                    this.updateAndCacheAuthoritiesService.updateAuthoritiesOfAllScopes();
+                    this.updateAndCacheRolesResourcesService.updateAuthoritiesOfAllScopes();
                     break;
                 default:
                     break;

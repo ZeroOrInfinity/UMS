@@ -50,7 +50,7 @@ import java.util.List;
  * <pre>
  *     // 修改或添加权限一定要更新 updateRolesAuthorities 缓存, 有两种方式：一种发布事件，另一种是直接调用服务；推荐用发布事件(异步执行)。
  *     // 1. 推荐用发布事件(异步执行)
- *     applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.ROLE));
+ *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.ROLE));
  *     // 2. 直接调用服务
  *     abstractUriAuthorizeService.updateRolesAuthorities();
  * </pre>

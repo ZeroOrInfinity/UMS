@@ -31,12 +31,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.EnableAsync;
-import top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheAuthoritiesService;
+import top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheRolesResourcesService;
 import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
 import top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration;
 import top.dcenter.ums.security.core.permission.aspect.RolePermissionsServiceAspect;
 import top.dcenter.ums.security.core.permission.evaluator.UriAuthoritiesPermissionEvaluator;
-import top.dcenter.ums.security.core.permission.listener.UpdateRolesAuthoritiesListener;
+import top.dcenter.ums.security.core.permission.listener.UpdateRolesResourcesListener;
 import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeService;
 
 /**
@@ -54,13 +54,13 @@ import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeServi
 public class PermissionAutoConfiguration {
 
     @Bean
-    @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheAuthoritiesService")
-    public UpdateRolesAuthoritiesListener updateRolesAuthoritiesListener(UpdateAndCacheAuthoritiesService updateAndCacheAuthoritiesService) {
-        return new UpdateRolesAuthoritiesListener(updateAndCacheAuthoritiesService);
+    @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheRolesResourcesService")
+    public UpdateRolesResourcesListener updateRolesAuthoritiesListener(UpdateAndCacheRolesResourcesService updateAndCacheRolesResourcesService) {
+        return new UpdateRolesResourcesListener(updateAndCacheRolesResourcesService);
     }
 
     @Bean
-    @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheAuthoritiesService")
+    @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheRolesResourcesService")
     public RolePermissionsServiceAspect rolePermissionsServiceAspect() {
         return new RolePermissionsServiceAspect();
     }

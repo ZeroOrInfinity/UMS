@@ -22,10 +22,10 @@
  */
 package top.dcenter.ums.security.core.permission.enums;
 
-import top.dcenter.ums.security.core.permission.event.UpdateRolesAuthoritiesEvent;
+import top.dcenter.ums.security.core.permission.event.UpdateRolesResourcesEvent;
 
 /**
- * 资源的类型, 用于 {@link UpdateRolesAuthoritiesEvent}
+ * 资源的类型, 用于 {@link UpdateRolesResourcesEvent}
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/9 10:47
  */

@@ -32,7 +32,7 @@ import top.dcenter.ums.security.core.permission.enums.ResourcesType;
  * @author YongWu zheng
  * @version V1.0  Created by 2020/10/2 19:14
  */
-public class UpdateRolesAuthoritiesEvent extends ApplicationEvent {
+public class UpdateRolesResourcesEvent extends ApplicationEvent {
     private static final long serialVersionUID = 6858134429988117542L;
 
     @Getter
@@ -42,7 +42,7 @@ public class UpdateRolesAuthoritiesEvent extends ApplicationEvent {
      *
      * @param isUpdate 是否更新
      */
-    public UpdateRolesAuthoritiesEvent(Boolean isUpdate, ResourcesType type) {
+    public UpdateRolesResourcesEvent(Boolean isUpdate, ResourcesType type) {
         super(isUpdate);
         this.type = type;
     }

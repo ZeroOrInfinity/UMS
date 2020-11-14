@@ -33,14 +33,14 @@ import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;
 import top.dcenter.ums.security.core.api.permission.service.RolePermissionsService;
 import top.dcenter.ums.security.core.permission.enums.ResourcesType;
-import top.dcenter.ums.security.core.permission.event.UpdateRolesAuthoritiesEvent;
+import top.dcenter.ums.security.core.permission.event.UpdateRolesResourcesEvent;
 
 import static top.dcenter.ums.security.common.consts.TransactionalConstants.ONE_PRECEDENCE;
 
 /**
  * 角色权限服务接口切面: 主要功能是当 {@link RolePermissionsService} 角色更新权限时, 发布更新角色权限事件.<br>
- * 注意: 此切面生效前提, 事务的 {@link Order} 的值必须 大于 1, 如果默认事务(优先级为 Integer.MAX_VALUE)不必关心这个值,
- * 如果是自定义事务, 如果设置 {@link Order} 的值时必须 大于 1.
+ * 注意: 此切面生效前提, 事务的 {@link Order} 的值必须 大于 1, 如果是默认事务(优先级为 Integer.MAX_VALUE)不必关心这个值,
+ * 如果是自定义事务, 且设置了 {@link Order} 的值, 那么值必须 大于 1.
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/7 18:41
  */
@@ -56,7 +56,7 @@ public class RolePermissionsServiceAspect implements ApplicationContextAware {
     public void handlerUpdateRolesAuthoritiesMethod(JoinPoint jp, boolean result, Long roleId, Long... resourceIds) {
         if (jp.getTarget() instanceof RolePermissionsService) {
             if (result) {
-                applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.ROLE));
+                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.ROLE));
             }
         }
     }
@@ -67,7 +67,7 @@ public class RolePermissionsServiceAspect implements ApplicationContextAware {
     public void handlerUpdateTenantsAuthoritiesMethod(JoinPoint jp, boolean result, String tenantAuthority, Long roleId, Long... resourceIds) {
         if (jp.getTarget() instanceof RolePermissionsService) {
             if (result) {
-                applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.TENANT));
+                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.TENANT));
             }
         }
     }
@@ -77,7 +77,7 @@ public class RolePermissionsServiceAspect implements ApplicationContextAware {
     public void handlerUpdateScopesAuthoritiesMethod(JoinPoint jp, boolean result, String scopeAuthority, Long roleId, Long... resourceIds) {
         if (jp.getTarget() instanceof RolePermissionsService) {
             if (result) {
-                applicationContext.publishEvent(new UpdateRolesAuthoritiesEvent(true, ResourcesType.SCOPE));
+                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.SCOPE));
             }
         }
     }

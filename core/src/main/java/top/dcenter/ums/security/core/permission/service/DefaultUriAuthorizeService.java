@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
-import top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheAuthoritiesService;
+import top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheRolesResourcesService;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 
 import javax.servlet.http.HttpServletResponse;
@@ -42,7 +42,7 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWith
 /**
  * request 的 uri 访问权限控制服务. 此类的目的是提示用户必须实现 {@link AbstractUriAuthorizeService} <br>
  * 实现 {@link AbstractUriAuthorizeService} 抽象类并注入 IOC 容器即可替换此类. <br>
- * 另外推荐实现 {@link AbstractUriAuthorizeService} 同时实现 {@link UpdateAndCacheAuthoritiesService} 更新与缓存权限服务, 有助于提高授权服务性能.
+ * 另外推荐实现 {@link AbstractUriAuthorizeService} 同时实现 {@link UpdateAndCacheRolesResourcesService} 更新与缓存权限服务, 有助于提高授权服务性能.
  * @author YongWu zheng
  * @version V1.0  Created by 2020/9/8 21:54
  */
