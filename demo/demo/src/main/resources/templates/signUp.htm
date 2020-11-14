@@ -121,6 +121,7 @@
             data: JSON.stringify($('#social-form').serializeObject()),
             type: "POST",
             dataType: "json",
+                contentType: 'application/json; charset=UTF-8',
             beforeSend: function (request) {
                 request.setRequestHeader("JSON", "json");
             },

@@ -14,8 +14,7 @@
     <table>
         <tr>
             <td>用户名：</td>
-            <td><input type="text" name="username" value="admin" ><p style="color: #ff0000"
-                                                                           id="error-name"></p></td>
+            <td><input type="text" name="username" value="13322221111" ><p style="color: #ff0000" id="error-name"></p></td>
         </tr>
         <tr>
             <td>密码：</td>
@@ -26,19 +25,6 @@
             <td>
                 <input type="text" name="imageCode">
                 <img class="img" th:src="@{/code/image}" style="width: 67px; height: 23px">
-            </td>
-        </tr>
-        <tr>
-            <td>手机号码：</td>
-            <td>
-                <input type="tel" name="mobile" value="13345678980">
-                <a th:href="@{/code/sms?mobile=13345678980}" >发送验证码</a>
-            </td>
-        </tr>
-        <tr>
-            <td>手机验证码：</td>
-            <td>
-                <input type="text" name="smsCode">
             </td>
         </tr>
         <tr>
@@ -58,9 +44,11 @@
         <tr>
             <td>手机号码：</td>
             <td>
-                <input type="tel" name="mobile" value="13345678980"><p style="color: #ff0000"
+                <input type="tel" name="mobile" value="13322221111"><p style="color: #ff0000"
                                                                        id="error-name-mobile"></p>
-                <a th:href="@{/code/sms?mobile=13345678980}" >发送验证码</a>
+            </td>
+            <td>
+                <a th:href="@{/code/sms?mobile=13322221111}" > 发送验证码</a>
             </td>
         </tr>
         <tr>
@@ -126,6 +114,7 @@
                 data: JSON.stringify($(formId).serializeObject()),
                 type: "POST",
                 dataType: "json",
+                contentType: 'application/json; charset=UTF-8',
                 success: function (data) {
                     $(errorNameId).text("")
                     $(errorCodeId).text("")
