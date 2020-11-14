@@ -71,7 +71,7 @@ public class ValidateCodeController implements InitializingBean {
 
     /**
      * 获取图片验证码, 根据验证码类型不同，调用不同的 {@link ValidateCodeProcessor} 接口实现
-     * @param request request 中的 width 的值如果小于 height * 45 / 10, 则 width = height * 45 / 10
+     * @param request request
      * @param response  {@link HttpServletResponse}
      */
     @RequestMapping("/code/{type}")
