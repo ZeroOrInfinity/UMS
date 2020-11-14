@@ -5,12 +5,12 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>2.1.0</version>
+        <version>2.1.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ums-demo</artifactId>
-    <version>2.1.1</version>
+    <version>2.1.2</version>
     <packaging>pom</packaging>
 
     <name>ums-demo</name>
@@ -19,10 +19,6 @@
 
     <url>https://github.com/ZeroOrInfinity/UMS/tree/master/demo</url>
 
-
-    <properties>
-        <top.dcenter.version>2.1.1</top.dcenter.version>
-    </properties>
 
     <dependencies>
         <dependency>
