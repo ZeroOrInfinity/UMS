@@ -30,8 +30,7 @@ note right SERVER: 服务器启动\n\
   **UpdateRolesAuthoritiesListener** 用于监听资源更新事件\n\
 * 如果用户实现 **RolePermissionsService** 则加载:\n\
   **RolePermissionsServiceAspect** 用于监控\n\
-  **RolePermissionsService** 更新角色权限资源时, 发布资源更新事件\n\
-* 此时序图以 permission-example 示例为原型
+  **RolePermissionsService** 更新角色权限资源时, 发布资源更新事件
 
 
 participant "UriAuthoritiesPermissionEvaluator" #1565c0
@@ -42,5 +41,9 @@ participant "RolePermissionsServiceAspect"
 participant "UpdateRolesAuthoritiesListener"
 participant "UpdateAndCacheAuthoritiesService" #1565c0
 
+opt 给角色添加或删除资源权限, 假设: 登录用户拥有角色(ROLE_USER), 角色ID=1, 现在添加资源权限(/test/restfulApi/*(ID=1), /test/annotation/*(ID=2)).
+
+SERVER -> PermissionController:
+end
 
 @enduml

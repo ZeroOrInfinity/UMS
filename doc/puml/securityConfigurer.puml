@@ -119,8 +119,7 @@ activate HttpSecurity
 HttpSecurity --> HttpSecurity: 4.2 http.addFilterBefore(..) 等后缀配置\n\
 这些 Filter 不一定都在这个方法配置, \n也可能在preConfigure(http)配置,\n\
 写在这里为了方便归类.
-note right HttpSecurity: AjaxOrFormRequestFilter\n\
-MdcLogFilter\n\
+note right HttpSecurity: MdcLogFilter\n\
 MdcLogFilter\n\
 ValidateCodeFilter
 HttpSecurity --> HttpSecurityAware: 4.3 返回
