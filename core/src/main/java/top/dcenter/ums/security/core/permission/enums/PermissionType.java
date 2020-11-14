@@ -27,12 +27,17 @@ import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * 权限类型, 包含接口:
  * 1. 获取对应的权限字符串.
  * 2. 根据 HttpMethod 的 method 字符串获取权限类型.
  * 3. 根据 HttpMethod 的 method 字符串获取权限字符串.
  * 4. 获取对应的权限描述.
+ * 5. 获取所有权限的集合.
+ *
  * @author YongWu zheng
  * @version V1.0  Created by 2020/9/17 9:33
  */
@@ -86,6 +91,7 @@ public enum PermissionType {
 
     /**
      * 获取权限描述
+     *
      * @return 返回权限描述
      */
     public String getDescription() {
@@ -94,6 +100,7 @@ public enum PermissionType {
 
     /**
      * 获取权限字符串
+     *
      * @return 返回权限字符串
      */
     public String getPermission() {
@@ -102,14 +109,14 @@ public enum PermissionType {
 
     /**
      * 根据 requestMethod 获取权限字符串
-     * @param method    requestMethod
-     * @return  返回 requestMethod 相对应的权限字符串, 如果 method 不匹配, 返回 null
+     *
+     * @param method requestMethod
+     * @return 返回 requestMethod 相对应的权限字符串, 如果 method 不匹配, 返回 null
      */
     @Nullable
     public static String getPermission(@NonNull HttpMethod method) {
         PermissionType permissionType = getPermissionType(method);
-        if (permissionType == null)
-        {
+        if (permissionType == null) {
             return null;
         }
         return permissionType.getPermission();
@@ -117,20 +124,46 @@ public enum PermissionType {
 
     /**
      * 根据 requestMethod 获取权限类型
-     * @param method    requestMethod
-     * @return  返回 requestMethod 相对应的权限类型, 如果 method 不匹配, 返回 null
+     *
+     * @param method requestMethod
+     * @return 返回 requestMethod 相对应的权限类型, 如果 method 不匹配, 返回 null
      */
     @Nullable
     public static PermissionType getPermissionType(@NonNull HttpMethod method) {
         PermissionType[] types = values();
-        for (PermissionType type : types)
-        {
-            if (type.name().equalsIgnoreCase(method.name()))
-            {
+        for (PermissionType type : types) {
+            if (type.name().equalsIgnoreCase(method.name())) {
                 return type;
             }
         }
         return null;
+    }
+
+    /**
+     * 所有的权限 Set
+     */
+    private volatile static Set<String> permissions;
+
+    /**
+     * 获取所有的权限集合
+     *
+     * @return 返回所有的权限集合
+     */
+    @NonNull
+    public static Set<String> getPermissions() {
+        if (permissions == null) {
+            synchronized (PermissionType.class) {
+                if (permissions == null) {
+                    PermissionType[] types = values();
+                    Set<String> permissionSet = new HashSet<>(types.length);
+                    for (PermissionType type : types) {
+                        permissionSet.add(type.getPermission());
+                    }
+                    permissions = permissionSet;
+                }
+            }
+        }
+        return permissions;
     }
 
 }
