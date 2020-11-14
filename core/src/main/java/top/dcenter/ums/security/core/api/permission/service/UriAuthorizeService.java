@@ -42,16 +42,16 @@ import java.util.Set;
 public interface UriAuthorizeService {
 
     /**
-     * 根据 authentication 来判断是否有 uriAuthority 访问权限, 用于 {@code @PerAuthorize("hasPermission('/users', 'list')")} 判断
+     * 根据 authentication 来判断是否有 requestUri(资源) 的访问权限(permission), 用于 {@code @PerAuthorize("hasPermission('/users', 'list')")} 判断
      * @param authentication    authentication
      * @param requestUri        不包含 ServletContextPath 的 requestUri
-     * @param uriAuthority      uri 权限
+     * @param permission      uri 权限
      * @return  有访问权限则返回 true, 否则返回 false.
      */
-    boolean hasPermission(Authentication authentication, String requestUri, String uriAuthority);
+    boolean hasPermission(Authentication authentication, String requestUri, String permission);
 
     /**
-     * 根据 authentication 来判断是否有 uriAuthority 访问权限, <br>
+     * 根据 authentication 来判断是否有 request 所代表的 资源 的访问权限, <br>
      * 用于 {@code httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication)")} 判断,
      * 使用此接口的前提条件是: restful 风格的 API.
      * @param authentication    authentication

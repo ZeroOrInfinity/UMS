@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * uri(资源) 访问权限控制服务接口抽象类, 定义了基于(角色/多租户/SCOPE)的访问权限控制逻辑.<br>
@@ -94,7 +95,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
 
     /**
-     * 根据 authentication 来判断是否有 uri(资源) Authority 访问权限, <br>
+     * 根据 authentication 来判断是否有 request 所代表的 资源 的访问权限, <br>
      * 用于 {@code httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication)")} 判断,
      * 使用此接口的前提条件是: restful 风格的 API.
      * @param authentication    authentication
@@ -104,41 +105,42 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     @Override
     public boolean hasPermission(Authentication authentication, HttpServletRequest request) {
 
-        String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
-        // Map<uri, Set<permission>>
-        final Map<String, Set<String>> uriAuthorityOfUserRoleMap = getUriAuthorityMapOfUser(authentication);
-
+        final String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
         final String method = request.getMethod();
 
+        // Map.Entry<uri, Set<permission>>, 根据 method 获取对应权限是否包含在 Set<permission> 中
+        final Predicate<Map.Entry<String, Set<String>>> predicate = entry -> isMatchByMethod(method, entry.getValue());
+
+        return hasPermission(authentication, requestUri, predicate);
+
+    }
+
+    /**
+     * 根据 authentication 来判断是否有 requestUri(资源) 的访问权限(permission), 用于 {@code @PerAuthorize("hasPermission('/users', 'list')")} 判断
+     * @param authentication    authentication
+     * @param requestUri        不包含 ServletContextPath 的 requestUri
+     * @param permission        uri 权限
+     * @return  有访问权限则返回 true, 否则返回 false.
+     */
+    @Override
+    public boolean hasPermission(Authentication authentication, final String requestUri, final String permission) {
+
+        // Map.Entry<uri, Set<permission>>,  Set<permission> 中是否包含此 permission
+        final Predicate<Map.Entry<String, Set<String>>> predicate = entry -> entry.getValue().contains(permission);
+
+        return hasPermission(authentication, requestUri, predicate);
+
+    }
+
+    private boolean hasPermission(Authentication authentication, String requestUri, Predicate<Map.Entry<String, Set<String>>> predicate) {
+        // Map<uri, Set<permission>>
+        final Map<String, Set<String>> uriAuthorityOfUserRoleMap = getUriAuthorityMapOfUser(authentication);
         return uriAuthorityOfUserRoleMap.entrySet()
                                         .stream()
                                         // 通过 antPathMatcher 检查用户权限集合中 uri 是否匹配 requestUri
                                         .filter(entry -> antPathMatcher.match(entry.getKey(), requestUri))
                                         // 用户的 authority 的 permission 是否 method 对应的 permission 后缀匹配
-                                        .anyMatch(entry -> isMatchByMethod(method, entry.getValue()));
-
-    }
-
-    /**
-     * 根据 authentication 来判断是否有 uri(资源) Authority 访问权限, 用于 {@code @PerAuthorize("hasPermission('/users', 'list')")} 判断
-     * @param authentication    authentication
-     * @param requestUri        不包含 ServletContextPath 的 requestUri
-     * @param uriAuthority      uri 权限
-     * @return  有访问权限则返回 true, 否则返回 false.
-     */
-    @Override
-    public boolean hasPermission(Authentication authentication, final String requestUri, final String uriAuthority) {
-
-        // Map<uri, Set<permission>>
-        Map<String, Set<String>> uriAuthorityOfUserRoleMap = getUriAuthorityMapOfUser(authentication);
-
-        return uriAuthorityOfUserRoleMap.entrySet()
-                                        .stream()
-                                        // requestUri 是否匹配(antPathMatcher)用户所拥有权限的 uri
-                                        .filter(entry -> antPathMatcher.match(entry.getKey(), requestUri))
-                                        // uri 相对应的 authorities set 是否包含 userAuthority
-                                        .anyMatch(entry -> entry.getValue().contains(uriAuthority));
-
+                                        .anyMatch(predicate);
     }
 
     /**
@@ -239,13 +241,13 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     }
 
     /**
-     * 检查 userAuthoritySet 中的权限后缀是否与 requestMethod 相匹配.
-     * @param requestMethod     requestMethod
-     * @param userAuthoritySet  userAuthoritySet
+     * 检查 userPermissionSet 中的权限后缀是否与 requestMethod 相匹配.
+     * @param requestMethod      requestMethod
+     * @param userPermissionSet  userPermissionSet
      * @return  是否匹配
      */
-    private boolean isMatchByMethod(@NonNull String requestMethod, @Nullable Set<String> userAuthoritySet) {
-        if (CollectionUtils.isEmpty(userAuthoritySet))
+    private boolean isMatchByMethod(@NonNull String requestMethod, @Nullable Set<String> userPermissionSet) {
+        if (CollectionUtils.isEmpty(userPermissionSet))
         {
             return false;
         }
@@ -256,7 +258,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
             return false;
         }
 
-        return userAuthoritySet.stream().anyMatch(authority -> authority.equals(permission));
+        return userPermissionSet.stream().anyMatch(authority -> authority.equals(permission));
     }
 
 }
