@@ -31,14 +31,14 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.auth.filter.AjaxOrFormRequestFilter;
+import top.dcenter.ums.security.core.auth.filter.JsonRequestFilter;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
 
@@ -137,8 +137,8 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
 
-        // 添加 AjaxOrFormRequestFilter 增加对 Ajax 格式与 form 格式的解析,
-        http.addFilterBefore(new AjaxOrFormRequestFilter(), CsrfFilter.class);
+        // 添加 JsonRequestFilter 增加对 Json 格式的解析,
+        http.addFilterBefore(new JsonRequestFilter(), LogoutFilter.class);
 
         // 判断是否开启根据不同的uri跳转到相对应的登录页, 假设开启
         String loginUnAuthenticationRoutingUrl = clientProperties.getLoginUnAuthenticationRoutingUrl();

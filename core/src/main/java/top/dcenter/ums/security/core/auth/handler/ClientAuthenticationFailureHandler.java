@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
-import top.dcenter.ums.security.core.auth.filter.AjaxOrFormRequestFilter;
+import top.dcenter.ums.security.core.auth.filter.JsonRequestFilter;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.ums.security.core.util.IpUtil;
@@ -71,10 +71,10 @@ public class ClientAuthenticationFailureHandler extends BaseAuthenticationFailur
         AbstractResponseJsonAuthenticationException e = getAbstractResponseJsonAuthenticationException(exception);
 
         String reqData;
-        if (request instanceof AjaxOrFormRequestFilter.AjaxOrFormRequest)
+        if (request instanceof JsonRequestFilter.JsonRequest)
         {
-            AjaxOrFormRequestFilter.AjaxOrFormRequest ajaxOrFormRequest = ((AjaxOrFormRequestFilter.AjaxOrFormRequest) request);
-            Map<String, Object> formMap = ajaxOrFormRequest.getFormMap();
+            JsonRequestFilter.JsonRequest jsonRequest = ((JsonRequestFilter.JsonRequest) request);
+            Map<String, Object> formMap = jsonRequest.getFormMap();
             if (formMap != null)
             {
                 formMap.computeIfPresent(clientProperties.passwordParameter, (k, v) -> v = "PROTECTED");
@@ -91,12 +91,14 @@ public class ClientAuthenticationFailureHandler extends BaseAuthenticationFailur
             parameterMap.computeIfPresent(clientProperties.passwordParameter, (k, v) -> v = new String[]{"PROTECTED"});
             reqData = parameterMap.toString();
         }
-        log.info("登录失败: user={}, ip={}, ua={}, sid={}, reqData={}",
+
+        log.info("登录失败: user={}, ip={}, ua={}, sid={}, reqData={}, errorMsg={}",
                  e == null ? null : e.getUid(),
                  IpUtil.getRealIp(request),
                  request.getHeader(SecurityConstants.HEADER_USER_AGENT),
                  request.getSession(true).getId(),
-                 reqData);
+                 reqData,
+                 exception.getMessage());
 
 
         // 检测是否接收 json 格式
