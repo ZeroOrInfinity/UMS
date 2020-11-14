@@ -100,9 +100,14 @@ public enum ErrorCodeEnum {
 
     PARAMETER_ERROR(700, "参数错误"),
 
-    ADD_PERMISSION_FAILURE(710, "添加权限失败"),
-    DEL_PERMISSION_FAILURE(720, "删除权限失败"),
-    PERMISSION_DENY(730, "您没有访问权限或未登录"),
+    ADD_ROLE_PERMISSION_FAILURE(710, "添加角色权限资源失败"),
+    DEL_ROLE_PERMISSION_FAILURE(720, "删除角色权限资源失败"),
+    UPDATE_ROLE_PERMISSION_FAILURE(730, "更新角色权限资源失败"),
+    PERMISSION_DENY(740, "您没有访问权限或未登录"),
+
+
+    ADD_RESOURCE_FAILURE(751, "添加权限资源失败"),
+    ADD_RESOURCE_METHOD_FORMAT_ERROR(752, "添加权限资源失败, 方法格式错误"),
 
 
     REDIRECT_URL_PARAMETER_ILLEGAL(800, "非法的回调地址"),
