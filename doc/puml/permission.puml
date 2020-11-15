@@ -104,15 +104,18 @@ activate FilterSecurityInterceptor
 activate AbstractSecurityInterceptor
 AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.1 **...**
 AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.2 attemptAuthorization\n\
-(object, attributes, authenticated);
+(object, attributes, authenticated);\n\
+security-5.4.1版本有此方法,以前的版本无此方法\n\
+此方法只是重构方法, 通用逻辑无变化
 activate AbstractSecurityInterceptor
 AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.3 **accessDecisionManager**\n\
-.decide(authenticated, object, attributes)\n**此处省略中间若干类调用**
+.decide(authenticated, object, attributes)\n**此处省略中间调用**
 activate AbstractSecurityInterceptor
 AbstractSecurityInterceptor -> UriAuthoritiesPermissionEvaluator: 5.3.1 **最终调用权限表达式**\n\
 hasPermission(request, authentication)\n\
 **对应的方法**\n\
-hasPermission(authentication,\n targetDomainObject,permission)
+hasPermission(authentication,\n targetDomainObject,permission)\n\
+<font color=red>可通过ums.client.restfulAccessExp自定义
 activate AbstractSecurityInterceptor
 activate UriAuthoritiesPermissionEvaluator
 UriAuthoritiesPermissionEvaluator --> UriAuthoritiesPermissionEvaluator: 5.3.1.1 判断 **targetDomainObject 类型**
@@ -146,24 +149,24 @@ deactivate AbstractSecurityInterceptor
 alt <font color=red>如果返回的是 false: 抛出异常 AccessDeniedException
 AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.4 抛出异常 AccessDeniedException
 AbstractSecurityInterceptor --> FilterSecurityInterceptor: 5.4.1  抛出异常 AccessDeniedException
-FilterSecurityInterceptor --> Advice: 5.4.2  抛出异常 AccessDeniedException
-Advice --> client: 5.4.2  异常处理: 返回 403
+FilterSecurityInterceptor --> Advice: 5.4.2  抛出异常 \nAccessDeniedException
+Advice --> client: 5.4.3  异常处理: \n返回 403
 else <font color=red>如果返回的是 true: 授权通过
 AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.5 授权通过
 deactivate AbstractSecurityInterceptor
 AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.7 **...**
-AbstractSecurityInterceptor --> FilterSecurityInterceptor: 5.8 返回 InterceptorStatusToken token\n
+AbstractSecurityInterceptor --> FilterSecurityInterceptor: 5.8 返回 InterceptorStatusToken token
 deactivate AbstractSecurityInterceptor
 deactivate FilterSecurityInterceptor
 
 FilterSecurityInterceptor --> FilterSecurityInterceptor: 6. filterInvocation.getChain()\n\
 .doFilter(filterInvocation.getRequest(), \n filterInvocation.getResponse());
 activate FilterSecurityInterceptor
-FilterSecurityInterceptor --> FilterSecurityInterceptor: 6.1 **此处省略中间若干类调用**
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 6.1 **此处省略中间调用**
 FilterSecurityInterceptor -> PermissionController: 6.2 最终调用**/test/restful/1**对应的方法
 activate FilterSecurityInterceptor
 activate PermissionController
-PermissionController -> FilterSecurityInterceptor: 6.3 返回结果
+PermissionController --> FilterSecurityInterceptor: 6.3 返回结果
 deactivate PermissionController
 deactivate FilterSecurityInterceptor
 FilterSecurityInterceptor --> FilterSecurityInterceptor: 6.4 **返回结果**
@@ -171,15 +174,186 @@ deactivate FilterSecurityInterceptor
 FilterSecurityInterceptor --> client: 6.5. 正常返回结果
 end
 
-FilterSecurityInterceptor --> FilterSecurityInterceptor: 7. super.finallyInvocation(token);
-FilterSecurityInterceptor --> FilterSecurityInterceptor: 8. super.afterInvocation(token, null);
+FilterSecurityInterceptor -> AbstractSecurityInterceptor: 7. super.finallyInvocation(token);
+activate FilterSecurityInterceptor
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> FilterSecurityInterceptor: 7.1 返回;
+deactivate FilterSecurityInterceptor
+deactivate AbstractSecurityInterceptor
+FilterSecurityInterceptor -> AbstractSecurityInterceptor: 8. super.afterInvocation(token, null);
+activate FilterSecurityInterceptor
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> FilterSecurityInterceptor: 8.1 返回;
+deactivate FilterSecurityInterceptor
+deactivate AbstractSecurityInterceptor
 end
 deactivate FilterSecurityInterceptor
 
 
-opt <font color=red>基于注解 @EnableGlobalMethodSecurity(prePostEnabled = true) 的权限控制
+opt <font color=red>基于注解 @EnableGlobalMethodSecurity(prePostEnabled = true) 的权限控制.
+client -> MethodSecurityInterceptor: 1. GET: /test/permission/1
+activate FilterSecurityInterceptor
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 2. isApplied(filterInvocation) \n\
+&& this.observeOncePerRequest\n\
+假如授权已经处理过且每次请求\n只需授权一次, 放行. 后续略..
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 3. filterInvocation.getRequest() != null\n\
+&& this.observeOncePerRequest\n\
+第一次调用此请求，因此请执行安全检查
+activate FilterSecurityInterceptor
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 4. filterInvocation.getRequest()\n\
+.setAttribute(FILTER_APPLIED, Boolean.TRUE);
+deactivate FilterSecurityInterceptor
+
+FilterSecurityInterceptor -> AbstractSecurityInterceptor: 5. super.beforeInvocation(filterInvocation);
+activate FilterSecurityInterceptor
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.1 **...**
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.2 attemptAuthorization\n\
+(object, attributes, authenticated);\n\
+security-5.4.1版本有此方法,以前的版本无此方法\n\
+此方法只是重构方法, 通用逻辑无变化
+
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.3 **accessDecisionManager**\n\
+.decide(authenticated, object, attributes)\n**此处省略中间调用**
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.3.1 **最终调用权限表达式**\n\
+isAuthenticated()\n\
+**对应的方法**\n\
+hasPermission(authentication,\n targetDomainObject,permission)\n\
+<font color=red>可通过ums.client.accessExp自定义\n\
+返回 true 或 false
+deactivate UriAuthoritiesPermissionEvaluator
+deactivate AbstractSecurityInterceptor
+deactivate AbstractSecurityInterceptor
+alt <font color=red>如果返回的是 false: 抛出异常 AccessDeniedException
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.4 抛出异常 AccessDeniedException
+AbstractSecurityInterceptor --> FilterSecurityInterceptor: 5.4.1  抛出异常 AccessDeniedException
+FilterSecurityInterceptor --> Advice: 5.4.2  抛出异常 \nAccessDeniedException
+Advice --> client: 5.4.3  异常处理: \n返回 403
+else <font color=red>如果返回的是 true: 授权通过
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.5 授权通过
+deactivate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.7 **...**
+AbstractSecurityInterceptor --> FilterSecurityInterceptor: 5.8 返回 InterceptorStatusToken token
+deactivate AbstractSecurityInterceptor
+deactivate FilterSecurityInterceptor
+
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 6. filterInvocation.getChain()\n\
+.doFilter(filterInvocation.getRequest(), \n filterInvocation.getResponse());
+activate FilterSecurityInterceptor
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 6.1 **此处省略中间调用**
+
+FilterSecurityInterceptor -> MethodSecurityInterceptor: 6.2 invoke(MethodInvocation mi)
+activate FilterSecurityInterceptor
+activate MethodSecurityInterceptor
+MethodSecurityInterceptor -> AbstractSecurityInterceptor: 6.2.1 super.beforeInvocation(mi);
+activate MethodSecurityInterceptor
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 6.2.1.1 **...**
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 6.2.1.2 attemptAuthorization\n\
+(object, attributes, authenticated);\n\
+security-5.4.1版本有此方法,以前的版本无此方法\n\
+此方法只是重构方法, 通用逻辑无变化
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 6.2.1.3 **accessDecisionManager**\n\
+.decide(authenticated, object, attributes)\n**此处省略中间调用**
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor -> UriAuthoritiesPermissionEvaluator: 6.2.1.4 **最终调用注释中的权限表达式**\n\
+<font color=red>@PreAuthorize("\n\
+<font color=red>hasPermission('/test/permission/*', 'add')")\n\
+**对应的方法**\n\
+hasPermission(authentication,\n targetDomainObject,permission)\n\
+
+activate AbstractSecurityInterceptor
+activate UriAuthoritiesPermissionEvaluator
+UriAuthoritiesPermissionEvaluator --> UriAuthoritiesPermissionEvaluator: 6.2.1.4.1 判断 **targetDomainObject 类型**
+alt <font color=red>targetDomainObject instanceof HttpServletRequest: \n\
+<font color=red>通过 anyRequest().access("hasPermission(request, authentication)调用, 此处略, 看基于权限表达式权限控制时序图
+UriAuthoritiesPermissionEvaluator --> UriAuthoritiesPermissionEvaluator: 6.2.1.4.2 **...**
+else <font color=red>targetDomainObject instanceof String: 如果是 String 类型, 通过注解调用
+UriAuthoritiesPermissionEvaluator -> AbstractUriAuthorizeService: 6.2.1.4.3 \n\
+hasPermission(authentication, requestUri, permission)
+
+activate UriAuthoritiesPermissionEvaluator
+activate AbstractUriAuthorizeService
+AbstractUriAuthorizeService --> AbstractUriAuthorizeService: 6.2.1.4.3.1 **Map<uri, Set<permission>>**\n\
+**uriPermissionOfUserRoleMap** =\n\
+getUriAuthorityMapOfUser(authentication)
+AbstractUriAuthorizeService --> AbstractUriAuthorizeService: 6.2.1.4.3.2 遍历**uriPermissionOfUserRoleMap**\n\
+通过 AntPathMatcher 检查Map中 \n**uri** 是否匹配 **requestUri**\n\
+且Set<permission>中的 **permission** \n\是否与 **permission** <font color=red>匹配
+
+AbstractUriAuthorizeService --> UriAuthoritiesPermissionEvaluator: 6.2.1.4.4 返回 true 或 false
+deactivate AbstractUriAuthorizeService
+deactivate UriAuthoritiesPermissionEvaluator
 
 end
+UriAuthoritiesPermissionEvaluator --> AbstractSecurityInterceptor: 6.2.1.5 返回 true 或 false
+deactivate UriAuthoritiesPermissionEvaluator
+deactivate AbstractSecurityInterceptor
+deactivate AbstractSecurityInterceptor
+deactivate AbstractSecurityInterceptor
+
+alt <font color=red>如果返回的是 false: 抛出异常 AccessDeniedException
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 6.2.1.6 如果返回的是 false: \n抛出异常 AccessDeniedException
+AbstractSecurityInterceptor --> MethodSecurityInterceptor: 6.2.2  抛出异常 AccessDeniedException
+MethodSecurityInterceptor --> FilterSecurityInterceptor: 6.2.2.1  抛出异常 AccessDeniedException
+FilterSecurityInterceptor --> Advice: 6.2.2.2  抛出异常 \nAccessDeniedException
+Advice --> client: 6.2.2.3  异常处理: \n返回 403
+else <font color=red>如果返回的是 true: 授权通过
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 6.2.1.7 如果返回的是 true: 授权通过
+AbstractSecurityInterceptor --> MethodSecurityInterceptor: 6.2.3 返回 InterceptorStatusToken token
+deactivate AbstractSecurityInterceptor
+
+MethodSecurityInterceptor -> MethodSecurityInterceptor: 6.2.4  mi.proceed()
+activate MethodSecurityInterceptor
+MethodSecurityInterceptor -> PermissionController: 6.2.4.1 最终调用**/test/permission/1**对应的方法
+activate MethodSecurityInterceptor
+activate PermissionController
+PermissionController --> MethodSecurityInterceptor: 6.2.4.2 返回结果 result
+deactivate MethodSecurityInterceptor
+deactivate PermissionController
+deactivate MethodSecurityInterceptor
+
+MethodSecurityInterceptor -> AbstractSecurityInterceptor: 6.2.5 super.finallyInvocation(token);
+activate MethodSecurityInterceptor
+activate AbstractSecurityInterceptor
+
+
+AbstractSecurityInterceptor --> MethodSecurityInterceptor: 6.2.5.1 返回;
+deactivate MethodSecurityInterceptor
+deactivate AbstractSecurityInterceptor
+MethodSecurityInterceptor -> AbstractSecurityInterceptor: 6.2.6 super.afterInvocation(token, result);
+activate MethodSecurityInterceptor
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> MethodSecurityInterceptor: 6.2.6.1 返回结果 result;
+deactivate MethodSecurityInterceptor
+deactivate AbstractSecurityInterceptor
+
+MethodSecurityInterceptor --> FilterSecurityInterceptor: 6.3 返回结果 result
+deactivate MethodSecurityInterceptor
+deactivate FilterSecurityInterceptor
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 6.4 **返回结果 result**
+deactivate FilterSecurityInterceptor
+FilterSecurityInterceptor --> client: 6.5. 正常返回结果\n       result
+end
+end
+
+FilterSecurityInterceptor -> AbstractSecurityInterceptor: 7. super.finallyInvocation(token);
+activate FilterSecurityInterceptor
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> FilterSecurityInterceptor: 7.1 返回;
+deactivate FilterSecurityInterceptor
+deactivate AbstractSecurityInterceptor
+FilterSecurityInterceptor -> AbstractSecurityInterceptor: 8. super.afterInvocation(token, null);
+activate FilterSecurityInterceptor
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> FilterSecurityInterceptor: 8.1 返回;
+deactivate FilterSecurityInterceptor
+deactivate AbstractSecurityInterceptor
+end
+deactivate FilterSecurityInterceptor
 
 
 @enduml
