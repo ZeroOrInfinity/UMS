@@ -61,7 +61,7 @@ public class UriAuthoritiesPermissionEvaluator  implements PermissionEvaluator {
             String uri = ((String) targetDomainObject);
             return hasPermission(authentication, null, uri, permission);
         }
-        // 如果是 HttpServletRequest 类型, 通过 spring security 内置权限处理器调用.
+        // 如果是 HttpServletRequest 类型, 通过 anyRequest().access("hasPermission(request, authentication)调用.
         else if (targetDomainObject instanceof HttpServletRequest)
         {
             HttpServletRequest request = (HttpServletRequest) targetDomainObject;

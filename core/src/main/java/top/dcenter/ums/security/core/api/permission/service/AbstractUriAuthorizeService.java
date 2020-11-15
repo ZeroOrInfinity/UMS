@@ -108,7 +108,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         final String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
         final String method = request.getMethod();
 
-        // Map.Entry<uri, Set<permission>>, 根据 method 获取对应权限是否包含在 Set<permission> 中
+        // Map.Entry<uri, Set<permission>>, 根据 method 获取对应权限是否包含在 entry 中的 Set<permission> 中
         final Predicate<Map.Entry<String, Set<String>>> predicate = entry -> isMatchByMethod(method, entry.getValue());
 
         return hasPermission(authentication, requestUri, predicate);
@@ -134,13 +134,13 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
     private boolean hasPermission(Authentication authentication, String requestUri, Predicate<Map.Entry<String, Set<String>>> predicate) {
         // Map<uri, Set<permission>>
-        final Map<String, Set<String>> uriAuthorityOfUserRoleMap = getUriAuthorityMapOfUser(authentication);
-        return uriAuthorityOfUserRoleMap.entrySet()
-                                        .stream()
-                                        // 通过 antPathMatcher 检查用户权限集合中 uri 是否匹配 requestUri
-                                        .filter(entry -> antPathMatcher.match(entry.getKey(), requestUri))
-                                        // 用户的 authority 的 permission 是否 method 对应的 permission 后缀匹配
-                                        .anyMatch(predicate);
+        final Map<String, Set<String>> uriPermissionOfUserRoleMap = getUriAuthorityMapOfUser(authentication);
+        return uriPermissionOfUserRoleMap.entrySet()
+                                         .stream()
+                                         // 通过 antPathMatcher 检查用户权限Map中 uri 是否匹配 requestUri
+                                         .filter(entry -> antPathMatcher.match(entry.getKey(), requestUri))
+                                         // 是否匹配 predicate
+                                         .anyMatch(predicate);
     }
 
     /**
