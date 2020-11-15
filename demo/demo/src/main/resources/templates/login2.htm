@@ -32,7 +32,8 @@
             display: none;
         }
         .imgBtn img{
-
+            opacity: 0;
+            filter: none;
         }
         .imgBg{
             position: relative;
@@ -309,6 +310,7 @@
         validateImageInit(uri);
         $(".refresh").click(function () {
             let uri = $(this).attr("data-uri");
+            $(".imgBtn img").css('opacity', 0);
             validateImageInit(uri);
         })
         $(".hkinnerWrap").mouseover(function(){
@@ -337,6 +339,7 @@
             mousedown: function(e) {
                 $(".huakuai").html("");
                 $(".hkinnerWrap").removeClass("red green")
+                $(".imgBtn img").css("opacity", 1)
                 var el = $(this);
                 var os = el.offset();
                 dx = e.pageX - os.left;

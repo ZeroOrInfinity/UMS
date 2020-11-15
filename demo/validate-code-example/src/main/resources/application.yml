@@ -189,6 +189,8 @@ spring:
   profiles: dev
   mvc:
     throw-exception-if-no-handler-found: true
+  thymeleaf:
+    cache: false
 #  redis:
 #    host: 192.168.88.88
 #    port: 6379

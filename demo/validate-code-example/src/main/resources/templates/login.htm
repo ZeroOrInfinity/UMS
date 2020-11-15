@@ -32,7 +32,8 @@
             display: none;
         }
         .imgBtn img{
-
+            opacity: 0;
+            filter: none;
         }
         .imgBg{
             position: relative;
@@ -83,6 +84,8 @@
 <h2>登录页面</h2>
 <h3>表单登录</h3>
 <h5>如果短信验证码与图片验证码同时配置时，优先使用短信验证码，图片验证码失效</h5>
+<h5>滑块验证码因与图片验证码对同一个链接进行验证, 滑块验证码优先级高于图片验证码, 图片验证码会失效: 在配置中注释滑块验证码 auth-urls: 可以使图片验证码生效; 注意验证码优先级.
+</h5>
 <!-- 通过 th:action 的方式支持 csrf 或者 添加隐藏域<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
 <form id="reg-form" th:action="@{/authentication/form}" method="post">
     <table>
@@ -308,6 +311,7 @@
         validateImageInit(uri);
         $(".refresh").click(function () {
             let uri = $(this).attr("data-uri");
+            $(".imgBtn img").css('opacity', 0);
             validateImageInit(uri);
         })
         $(".hkinnerWrap").mouseover(function(){
@@ -336,6 +340,7 @@
             mousedown: function(e) {
                 $(".huakuai").html("");
                 $(".hkinnerWrap").removeClass("red green")
+                $(".imgBtn img").css("opacity", 1)
                 var el = $(this);
                 var os = el.offset();
                 dx = e.pageX - os.left;
@@ -421,7 +426,7 @@
                 $(".huakuai").html("向右滑动滑块填充拼图");
                 $(".imgBg").css("background",'#fff url("data:image/jpg;base64,'+data.sourceImage+'")');
                 $(".imgBtn").css('top',data.locationY+'px');
-                $(".imgBtn").find("img").attr("src","data:image/png;base64,"+data.newImage)
+                $(".imgBtn").find("img").attr("src","data:image/png;base64,"+data.newImage);
                 tokenId=data.token;
                 y=data.locationY;
                 $(".hkinnerWrap").removeClass("red green");
