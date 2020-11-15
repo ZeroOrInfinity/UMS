@@ -121,7 +121,7 @@ ums:
   # ================ 签到配置 ================
   sign:
     # redis key(String) 转 byte[] 转换时所用的 charset, 默认: StandardCharsets.UTF_8
-    charset: UTF_8
+    charset: UTF-8
     # 用于 redis 签到 key 前缀，默认为： u:sign:
     sign-key-prefix: 'u:sign:'
     # 用于 redis 总签到 key 前缀，默认为： total:sign:
@@ -140,6 +140,22 @@ spring:
     throw-exception-if-no-handler-found: true
   thymeleaf:
     cache: false
+  redis:
+    host: 192.168.88.88
+    port: 6379
+    password:
+    database: 0
+    # 连接超时的时间
+    timeout: 10000
+    # redis-lettuce-pool
+    lettuce:
+      # 会影响应用关闭是时间, dev 模式设置为 0
+      shutdown-timeout: PT0S
+      pool:
+        max-active: 8
+        max-wait: PT10S
+        max-idle: 8
+        min-idle: 1
 
 #debug: true
 
