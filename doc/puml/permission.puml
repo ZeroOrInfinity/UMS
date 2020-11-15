@@ -18,32 +18,168 @@ ActorFontSize 17
 ActorFontName Aapex
 }
 
-participant "SERVER"
-note right SERVER: 服务器启动\n\
+participant "client"
+note right client: 服务器启动\n\
 * 获取属性 **ums.client.roleHierarchy** 角色的层级\n\
   如: ROLE_ADMIN > ROLE_USER > ROLE_VOTE\n\
 * 加载 **UriAuthoritiesPermissionEvaluator**\n\
 * 设置默认权限表达式 **hasPermission(request, authentication)**:\n\
   httpSecurity.authorizeRequests().anyRequest()\n\
   .access("hasPermission(request, authentication)")\n\
-* 如果用户实现 **UpdateAndCacheAuthoritiesService** 则加载:\n\
-  **UpdateRolesAuthoritiesListener** 用于监听资源更新事件\n\
+* 如果用户实现 **UpdateAndCacheRolesResourcesService** 则加载:\n\
+  **UpdateRolesResourcesListener** 用于监听资源更新事件\n\
 * 如果用户实现 **RolePermissionsService** 则加载:\n\
   **RolePermissionsServiceAspect** 用于监控\n\
-  **RolePermissionsService** 更新角色权限资源时, 发布资源更新事件
+  **RolePermissionsService** 更新角色权限资源时, 发布角色资源更新事件
 
 
-participant "UriAuthoritiesPermissionEvaluator" #1565c0
+participant "Advice"
+participant "FilterSecurityInterceptor"
+participant "MethodSecurityInterceptor"
+participant "AbstractSecurityInterceptor"
+participant "UriAuthoritiesPermissionEvaluator"
 participant "AbstractUriAuthorizeService" #1565c0
 participant "PermissionController"
 participant "RolePermissionsService" #1565c0
 participant "RolePermissionsServiceAspect"
-participant "UpdateRolesAuthoritiesListener"
-participant "UpdateAndCacheAuthoritiesService" #1565c0
+participant "UpdateRolesResourcesListener"
+participant "UpdateAndCacheRolesResourcesService" #1565c0
 
-opt 给角色添加或删除资源权限, 假设: 登录用户拥有角色(ROLE_USER), 角色ID=1, 现在添加资源权限(/test/restfulApi/*(ID=1), /test/annotation/*(ID=2)).
+note right RolePermissionsServiceAspect: **注意:**\n\
+此切面生效前提, 事务的 Order 的值必须 大于 1, \n\
+如果是默认事务(优先级为 Integer.MAX_VALUE)不必关心这个值, \n\
+如果是自定义事务, 且设置了 Order 的值, 那么值必须 大于 1.
 
-SERVER -> PermissionController:
+opt <font color=red>给角色添加或删除资源权限, 假设: 登录用户拥有角色(ROLE_USER), 角色ID=1, 现在添加资源权限(/test/restfulApi/*(ID=1), /test/annotation/*(ids=2,3,4,5)).
+client -> PermissionController: 1. /addPermissionData/1 \n postData: 1,2,3,4,5
+activate PermissionController
+PermissionController -> RolePermissionsService: 2. updateResourcesOfRole\n(roleId, resourceIds)
+activate RolePermissionsService
+RolePermissionsService --> RolePermissionsService: 2.1 更新角色的资源权限
+opt RolePermissionsServiceAspect 切面逻辑
+RolePermissionsService -> RolePermissionsServiceAspect: 3. AOP 切面监听到\n更新了角色的资源权限
+activate RolePermissionsService
+activate RolePermissionsServiceAspect
+RolePermissionsServiceAspect --> RolePermissionsServiceAspect: 4. 发布角色资源更新事件\n\
+publishEvent(\n\
+UpdateRolesResourcesEvent);
+RolePermissionsServiceAspect --> RolePermissionsService: 4.1 返回
+deactivate RolePermissionsService
+deactivate RolePermissionsServiceAspect
 end
+opt UpdateRolesResourcesListener 监听到角色资源权限更新事件
+RolePermissionsServiceAspect -> UpdateRolesResourcesListener: 接收到角色资源更新事件
+activate UpdateRolesResourcesListener
+UpdateRolesResourcesListener -> UpdateAndCacheRolesResourcesService: updateAuthoritiesOfAllRoles()
+activate UpdateAndCacheRolesResourcesService
+UpdateAndCacheRolesResourcesService --> UpdateAndCacheRolesResourcesService: 更新或缓存所有角色的资源权限
+UpdateAndCacheRolesResourcesService --> UpdateRolesResourcesListener: 返回
+deactivate UpdateAndCacheRolesResourcesService
+deactivate UpdateRolesResourcesListener
+end
+RolePermissionsService --> PermissionController: 5 返回
+deactivate RolePermissionsService
+PermissionController --> client: 6. 更新成功返回
+deactivate PermissionController
+end
+
+
+opt <font color=red>基于权限表达式 httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication) \
+的权限控制, 前提条件: restful 风格 API.
+client -> FilterSecurityInterceptor: 1. PUT: /test/restful/1
+activate FilterSecurityInterceptor
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 2. isApplied(filterInvocation) \n\
+&& this.observeOncePerRequest\n\
+假如授权已经处理过且每次请求\n只需授权一次, 放行. 后续略..
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 3. filterInvocation.getRequest() != null\n\
+&& this.observeOncePerRequest\n\
+第一次调用此请求，因此请执行安全检查
+activate FilterSecurityInterceptor
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 4. filterInvocation.getRequest()\n\
+.setAttribute(FILTER_APPLIED, Boolean.TRUE);
+deactivate FilterSecurityInterceptor
+
+FilterSecurityInterceptor -> AbstractSecurityInterceptor: 5. super.beforeInvocation(filterInvocation);
+activate FilterSecurityInterceptor
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.1 **...**
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.2 attemptAuthorization\n\
+(object, attributes, authenticated);
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.3 **accessDecisionManager**\n\
+.decide(authenticated, object, attributes)\n**此处省略中间若干类调用**
+activate AbstractSecurityInterceptor
+AbstractSecurityInterceptor -> UriAuthoritiesPermissionEvaluator: 5.3.1 **最终调用权限表达式**\n\
+hasPermission(request, authentication)\n\
+**对应的方法**\n\
+hasPermission(authentication,\n targetDomainObject,permission)
+activate AbstractSecurityInterceptor
+activate UriAuthoritiesPermissionEvaluator
+UriAuthoritiesPermissionEvaluator --> UriAuthoritiesPermissionEvaluator: 5.3.1.1 判断 **targetDomainObject 类型**
+alt <font color=red>targetDomainObject instanceof String: 如果是 String 类型, 通过注解调用, 此处略, 看注解时序图
+UriAuthoritiesPermissionEvaluator --> UriAuthoritiesPermissionEvaluator: 5.3.1.2 **...**
+else <font color=red>targetDomainObject instanceof HttpServletRequest: 通过 anyRequest().access("hasPermission(request, authentication)调用
+UriAuthoritiesPermissionEvaluator -> AbstractUriAuthorizeService: 5.3.1.3 hasPermission(authentication, request)
+activate UriAuthoritiesPermissionEvaluator
+activate AbstractUriAuthorizeService
+AbstractUriAuthorizeService --> AbstractUriAuthorizeService: 5.3.1.3.1 **requestUri** =\n\
+ getUrlPathHelper().\n getPathWithinApplication(request)
+AbstractUriAuthorizeService --> AbstractUriAuthorizeService: 5.3.1.3.2 **method** =\n\
+ request.getMethod()
+AbstractUriAuthorizeService --> AbstractUriAuthorizeService: 5.3.1.3.3 **Map<uri, Set<permission>>**\n\
+**uriPermissionOfUserRoleMap** =\n\
+getUriAuthorityMapOfUser(authentication)
+AbstractUriAuthorizeService --> AbstractUriAuthorizeService: 5.3.1.3.4 遍历**uriPermissionOfUserRoleMap**\n\
+通过 AntPathMatcher 检查Map中 \n**uri** 是否匹配 **requestUri**\n\
+且Set<permission>中的 **permission** \n\是否与 **method 对应的 permission** <font color=red>匹配
+
+
+
+AbstractUriAuthorizeService --> UriAuthoritiesPermissionEvaluator: 5.3.1.4 返回 true 或 false
+deactivate AbstractUriAuthorizeService
+deactivate UriAuthoritiesPermissionEvaluator
+end
+UriAuthoritiesPermissionEvaluator --> AbstractSecurityInterceptor: 5.3. 返回 true 或 false
+deactivate UriAuthoritiesPermissionEvaluator
+deactivate AbstractSecurityInterceptor
+deactivate AbstractSecurityInterceptor
+alt <font color=red>如果返回的是 false: 抛出异常 AccessDeniedException
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.4 抛出异常 AccessDeniedException
+AbstractSecurityInterceptor --> FilterSecurityInterceptor: 5.4.1  抛出异常 AccessDeniedException
+FilterSecurityInterceptor --> Advice: 5.4.2  抛出异常 AccessDeniedException
+Advice --> client: 5.4.2  异常处理: 返回 403
+else <font color=red>如果返回的是 true: 授权通过
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.5 授权通过
+deactivate AbstractSecurityInterceptor
+AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.7 **...**
+AbstractSecurityInterceptor --> FilterSecurityInterceptor: 5.8 返回 InterceptorStatusToken token\n
+deactivate AbstractSecurityInterceptor
+deactivate FilterSecurityInterceptor
+
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 6. filterInvocation.getChain()\n\
+.doFilter(filterInvocation.getRequest(), \n filterInvocation.getResponse());
+activate FilterSecurityInterceptor
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 6.1 **此处省略中间若干类调用**
+FilterSecurityInterceptor -> PermissionController: 6.2 最终调用**/test/restful/1**对应的方法
+activate FilterSecurityInterceptor
+activate PermissionController
+PermissionController -> FilterSecurityInterceptor: 6.3 返回结果
+deactivate PermissionController
+deactivate FilterSecurityInterceptor
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 6.4 **返回结果**
+deactivate FilterSecurityInterceptor
+FilterSecurityInterceptor --> client: 6.5. 正常返回结果
+end
+
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 7. super.finallyInvocation(token);
+FilterSecurityInterceptor --> FilterSecurityInterceptor: 8. super.afterInvocation(token, null);
+end
+deactivate FilterSecurityInterceptor
+
+
+opt <font color=red>基于注解 @EnableGlobalMethodSecurity(prePostEnabled = true) 的权限控制
+
+end
+
 
 @enduml
