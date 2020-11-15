@@ -1,3 +1,16 @@
+## 2.1.2
+### Fixes and Improvements:
+1. 修复: JsonRequestFilter对 ContentType: application/x-www-form-urlencoded 的格式进行解析后使 request.getParameterMap() 返回值不完整, request
+.getParameter(name) 逻辑错误, 有些情况不能正确返回值的 bug.
+2. 修复: ajax 提交时未设置 ContentType 为 json 格式, 但提交的数据为 json格式的 bug
+3. 修复: 因 AOP 切面的默认优先级与事务的 AOP 默认优先级相同, 在事务未提交就发布事件, 至所有角色更新权限资源不是更新后的权限资源 的bug; 修复后. 此切面生效前提, 事务的 Order 的值必须 大于 1
+, 如果默认事务(优先级为 Integer.MAX_VALUE)不必关心这个值, 如果是自定义事务, 如果设置 Order 的值时必须 大于 1.
+4. 改进: PermissionType 增加获取所有权限(permission)的集合.
+5. 示例: 更新 permission-example.
+6. 优化: 更新版本到 2.1.2, 优化内部模块依赖版本用版本表达式, 如: [2.1.0,), 方便维护.
+7. 文档: 更新 HttpSecurity 的配置时序图 与 授权流程时序图.
+8. 其他一下优化改进.
+
 ## 2.1.0
 ### Fixes and Improvements:
 1. 修复: 注释 @ConditionalOnProperty 在配置文件未配置对应属性时失效的 bug; 例如: @ConditionalOnProperty(prefix = "ums.oauth", name = "enabled", havingValue = "true"), 当 ums.oauth.enabled 在配置文件未配置, 但在 Auth2Properties 中所需值默认为 true 时, 配置还是不生效.
@@ -27,7 +40,7 @@
 4. 特性: 新增 多租户与SCOPE 的权限控制逻辑. 以及优化基于角色的权限控制逻辑.
 5. 新增: RolePermissionsService 角色资源服务接口. 主要用于给角色添加权限的操作; 新增 RolePermissionsException
     与 对应的异常处理器, 以及错误响应码; 新增 RolePermissionsServiceAspect 角色权限服务接口切面: 主要功能是基于 角色/多租户/SCOPE 的资源权限更新时, 发布更新角色权限事件. 
-6. 新增: UpdateAndCacheAuthoritiesService 权限的更新与缓存服务接口.
+6. 新增: UpdateAndCacheRolesResourcesService 权限的更新与缓存服务接口.
 7. 新增: 新增 ResourcesType 枚举来区分 角色/多租户/SCOPE 的类型.
 8. 改进: 添加 enableRestfulApi 与 restfulAccessExp 属性, 当 enableRestfulApi=false 或者有 @EnableGlobalMethodSecurity 注释时 accessExp
     权限表达式生效; 当 enableRestfulApi=true 时且没有 @EnableGlobalMethodSecurity 注释时 restfulAccessExp
