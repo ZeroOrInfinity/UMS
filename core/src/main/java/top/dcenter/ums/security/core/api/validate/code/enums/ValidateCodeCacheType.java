@@ -24,10 +24,10 @@ package top.dcenter.ums.security.core.api.validate.code.enums;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
 import top.dcenter.ums.security.core.util.IpUtil;
@@ -36,7 +36,9 @@ import top.dcenter.ums.security.core.util.MvcUtil;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * 验证码缓存类型
@@ -51,7 +53,7 @@ public enum ValidateCodeCacheType {
     SESSION() {
         @Override
         public boolean save(@NonNull ServletWebRequest request, @NonNull ValidateCode validateCode,
-                            @NonNull ValidateCodeType validateCodeType, @Nullable StringRedisTemplate stringRedisTemplate) {
+                            @NonNull ValidateCodeType validateCodeType, @Nullable RedisConnectionFactory redisConnectionFactory) {
             HttpServletRequest req = request.getRequest();
             try
             {
@@ -74,13 +76,13 @@ public enum ValidateCodeCacheType {
 
         @Override
         public ValidateCode getCodeInCache(@NonNull ServletWebRequest request, @NonNull ValidateCodeType validateCodeType,
-                                           @NonNull Class<? extends ValidateCode> clz, @Nullable StringRedisTemplate stringRedisTemplate) {
+                                           @NonNull Class<? extends ValidateCode> clz, @Nullable RedisConnectionFactory redisConnectionFactory) {
             return clz.cast(request.getRequest().getSession().getAttribute(validateCodeType.getKeyPrefix()));
         }
 
         @Override
         public void removeCache(@NonNull ServletWebRequest request, @NonNull ValidateCodeType validateCodeType,
-                                @Nullable StringRedisTemplate stringRedisTemplate) {
+                                @Nullable RedisConnectionFactory redisConnectionFactory) {
             request.getRequest().getSession().removeAttribute(validateCodeType.getKeyPrefix());
         }
 
@@ -91,17 +93,15 @@ public enum ValidateCodeCacheType {
     REDIS() {
         @Override
         public boolean save(@NonNull ServletWebRequest request, @NonNull ValidateCode validateCode,
-                            @NonNull ValidateCodeType validateCodeType, StringRedisTemplate stringRedisTemplate) {
+                            @NonNull ValidateCodeType validateCodeType,
+                            @Nullable RedisConnectionFactory redisConnectionFactory) {
 
-            Objects.requireNonNull(stringRedisTemplate, "stringRedisTemplate cannot be null");
+            Objects.requireNonNull(redisConnectionFactory, "stringRedisTemplate cannot be null");
+
             try {
                 removeUnnecessaryFieldValue(validateCode);
-                stringRedisTemplate.opsForValue().set(validateCodeType.getKeyPrefix() + request.getSessionId(),
-                                                      MvcUtil.toJsonString(validateCode),
-                                                      validateCodeType.getExpireIn(),
-                                                      TimeUnit.SECONDS);
             }
-            catch (Exception e) {
+            catch (IllegalAccessException e) {
                 String msg = String.format("验证码保存到 redis 失败: error=%s, ip=%s, code=%s",
                                            e.getMessage(),
                                            IpUtil.getRealIp(request.getRequest()),
@@ -109,63 +109,107 @@ public enum ValidateCodeCacheType {
                 log.error(msg, e);
                 return false;
             }
-            return true;
+
+            byte[] key = (validateCodeType.getKeyPrefix() + request.getSessionId()).getBytes(UTF_8);
+            byte[] value = MvcUtil.toJsonString(validateCode).getBytes(UTF_8);
+            try (RedisConnection connection = redisConnectionFactory.getConnection())
+            {
+                return Optional.ofNullable(connection.setEx(key, validateCodeType.getExpireIn(), value)).orElse(false);
+            }
+            catch (Exception e)
+            {
+                String msg = String.format("验证码保存到 redis 失败: error=%s, ip=%s, code=%s",
+                                           e.getMessage(),
+                                           IpUtil.getRealIp(request.getRequest()),
+                                           validateCode);
+                log.error(msg, e);
+                return false;
+            }
         }
 
         @Override
         public ValidateCode getCodeInCache(@NonNull ServletWebRequest request, @NonNull ValidateCodeType validateCodeType,
                                            @NonNull Class<? extends ValidateCode> clz,
-                                           StringRedisTemplate stringRedisTemplate) {
-            final String json = stringRedisTemplate.opsForValue().get(validateCodeType.getKeyPrefix() + request.getSessionId());
+                                           @Nullable RedisConnectionFactory redisConnectionFactory) {
 
-            if (!StringUtils.hasText(json)) {
+            Objects.requireNonNull(redisConnectionFactory, "stringRedisTemplate cannot be null");
+            byte[] key = (validateCodeType.getKeyPrefix() + request.getSessionId()).getBytes(UTF_8);
+            byte[] jsonBytes;
+            try (RedisConnection connection = redisConnectionFactory.getConnection())
+            {
+                jsonBytes = connection.get(key);
+            }
+            catch (Exception e)
+            {
+                String msg = String.format("从 redis 获取验证码失败: error=%s, ip=%s, sid=%s",
+                                           e.getMessage(),
+                                           IpUtil.getRealIp(request.getRequest()),
+                                           request.getSessionId());
+                log.error(msg, e);
                 return null;
             }
 
-            return MvcUtil.json2Object(json, clz);
+            if (null == jsonBytes) {
+                return null;
+            }
+
+            return MvcUtil.json2Object(new String(jsonBytes, UTF_8), clz);
         }
 
         @Override
         public void removeCache(@NonNull ServletWebRequest request, @NonNull ValidateCodeType validateCodeType,
-                                StringRedisTemplate stringRedisTemplate) {
+                                @Nullable RedisConnectionFactory redisConnectionFactory) {
 
-            stringRedisTemplate.delete(validateCodeType.getKeyPrefix() + request.getSessionId());
+            Objects.requireNonNull(redisConnectionFactory, "stringRedisTemplate cannot be null");
+            byte[] key = (validateCodeType.getKeyPrefix() + request.getSessionId()).getBytes(UTF_8);
+            try (RedisConnection connection = redisConnectionFactory.getConnection())
+            {
+                connection.del(key);
+            }
+            catch (Exception e)
+            {
+                String msg = String.format("从 redis 删除验证码失败: error=%s, ip=%s, sid=%s",
+                                           e.getMessage(),
+                                           IpUtil.getRealIp(request.getRequest()),
+                                           request.getSessionId());
+                log.error(msg, e);
+            }
 
         }
     };
 
     /**
      * 保存验证码到缓存
-     * @param request               {@link ServletWebRequest}
-     * @param validateCode          验证码
-     * @param validateCodeType      验证码类型
-     * @param stringRedisTemplate   stringRedisTemplate, 缓存类型不为 redis 时可以为 null
+     * @param request                   {@link ServletWebRequest}
+     * @param validateCode              验证码
+     * @param validateCodeType          验证码类型
+     * @param redisConnectionFactory    缓存类型不为 redis 时可以为 null
      * @return  返回是否成功保存验证码到缓存
      */
     public abstract boolean save(@NonNull ServletWebRequest request, @NonNull ValidateCode validateCode,
-                                 @NonNull ValidateCodeType validateCodeType, @Nullable StringRedisTemplate stringRedisTemplate);
+                                 @NonNull ValidateCodeType validateCodeType, @Nullable RedisConnectionFactory redisConnectionFactory);
 
     /**
      * 从缓存中获取验证码
-     * @param request               {@link ServletWebRequest}
-     * @param validateCodeType      验证码类型
-     * @param clz                   验证码的 class
-     * @param stringRedisTemplate   stringRedisTemplate, 缓存类型不为 redis 时可以为 null
+     * @param request                   {@link ServletWebRequest}
+     * @param validateCodeType          验证码类型
+     * @param clz                       验证码的 class
+     * @param redisConnectionFactory    缓存类型不为 redis 时可以为 null
      * @return  返回缓存中的验证码
      */
     public abstract ValidateCode getCodeInCache(@NonNull ServletWebRequest request,
                                                 @NonNull ValidateCodeType validateCodeType,
                                                 @NonNull Class<? extends ValidateCode> clz,
-                                                @Nullable StringRedisTemplate stringRedisTemplate);
+                                                @Nullable RedisConnectionFactory redisConnectionFactory);
 
     /**
      * 从缓存中移除验证码缓存
-     * @param request               {@link ServletWebRequest}
-     * @param validateCodeType      验证码类型
-     * @param stringRedisTemplate   stringRedisTemplate, 缓存类型不为 redis 时可以为 null
+     * @param request                   {@link ServletWebRequest}
+     * @param validateCodeType          验证码类型
+     * @param redisConnectionFactory    缓存类型不为 redis 时可以为 null
      */
     public abstract void removeCache(@NonNull ServletWebRequest request, @NonNull ValidateCodeType validateCodeType,
-                                     @Nullable StringRedisTemplate stringRedisTemplate);
+                                     @Nullable RedisConnectionFactory redisConnectionFactory);
 
     /**
      * 移除不必要的属性值
@@ -186,4 +230,5 @@ public enum ValidateCodeCacheType {
             }
         }
     }
+
 }

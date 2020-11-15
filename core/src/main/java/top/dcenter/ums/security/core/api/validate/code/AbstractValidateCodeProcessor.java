@@ -24,7 +24,7 @@
 package top.dcenter.ums.security.core.api.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -51,7 +51,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
 
     protected final ValidateCodeGeneratorHolder validateCodeGeneratorHolder;
 
-    protected final StringRedisTemplate stringRedisTemplate;
+    protected final RedisConnectionFactory redisConnectionFactory;
 
     protected final ValidateCodeCacheType validateCodeCacheType;
 
@@ -63,18 +63,18 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
      * @param validateCodeGeneratorHolder   validateCodeGeneratorHolder
      * @param validateCodeCacheType         验证码缓存类型
      * @param validateCodeClass             验证码 class
-     * @param stringRedisTemplate           stringRedisTemplate, 缓存类型不为 redis 时可以为 null
+     * @param redisConnectionFactory        缓存类型不为 redis 时可以为 null
      */
     public AbstractValidateCodeProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
                                          @NonNull ValidateCodeCacheType validateCodeCacheType,
                                          @NonNull Class<? extends ValidateCode> validateCodeClass,
-                                         @Nullable StringRedisTemplate stringRedisTemplate) {
+                                         @Nullable RedisConnectionFactory redisConnectionFactory) {
         this.validateCodeGeneratorHolder = validateCodeGeneratorHolder;
         this.validateCodeCacheType = validateCodeCacheType;
         this.validateCodeClass = validateCodeClass;
-        this.stringRedisTemplate = stringRedisTemplate;
+        this.redisConnectionFactory = redisConnectionFactory;
         if (ValidateCodeCacheType.REDIS.equals(validateCodeCacheType)) {
-            requireNonNull(stringRedisTemplate, "stringRedisTemplate cannot be null");
+            requireNonNull(redisConnectionFactory, "stringRedisTemplate cannot be null");
         }
     }
 
@@ -100,7 +100,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         }
         catch (Exception e)
         {
-            this.validateCodeCacheType.removeCache(request, getValidateCodeType(), this.stringRedisTemplate);
+            this.validateCodeCacheType.removeCache(request, getValidateCodeType(), this.redisConnectionFactory);
 
             if (e instanceof ValidateCodeException)
             {
@@ -148,7 +148,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         ValidateCodeType validateCodeType = getValidateCodeType();
         try
         {
-            return this.validateCodeCacheType.save(request, validateCode, validateCodeType, stringRedisTemplate);
+            return this.validateCodeCacheType.save(request, validateCode, validateCodeType, redisConnectionFactory);
         }
         catch (Exception e)
         {
@@ -195,7 +195,7 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
         ValidateCodeType validateCodeType = getValidateCodeType();
         ValidateCodeGenerator<?> validateCodeGenerator = getValidateCodeGenerator(validateCodeType);
         defaultValidate(request, validateCodeGenerator.getRequestParamValidateCodeName(),
-                        this.validateCodeClass, this.validateCodeCacheType,this.stringRedisTemplate);
+                        this.validateCodeClass, this.validateCodeCacheType,this.redisConnectionFactory);
 
     }
 

@@ -31,7 +31,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
@@ -95,20 +95,20 @@ public class ValidateCodeBeanAutoConfiguration {
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.image.ImageValidateCodeProcessor")
     public ImageValidateCodeProcessor imageValidateCodeProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
                                                                  @NonNull ValidateCodeProperties validateCodeProperties,
-                                                                 @Nullable @Autowired(required = false) StringRedisTemplate stringRedisTemplate) {
+                                                                 @Nullable @Autowired(required = false) RedisConnectionFactory redisConnectionFactory) {
         return new ImageValidateCodeProcessor(validateCodeGeneratorHolder,
                                               validateCodeProperties.getValidateCodeCacheType() ,
-                                              stringRedisTemplate);
+                                              redisConnectionFactory);
     }
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor")
     public SmsValidateCodeProcessor smsValidateCodeProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
                                                              @NonNull ValidateCodeProperties validateCodeProperties,
-                                                             @Nullable @Autowired(required = false) StringRedisTemplate stringRedisTemplate) {
+                                                             @Nullable @Autowired(required = false) RedisConnectionFactory redisConnectionFactory) {
         return new SmsValidateCodeProcessor(validateCodeGeneratorHolder,
                                             validateCodeProperties.getValidateCodeCacheType() ,
-                                            stringRedisTemplate);
+                                            redisConnectionFactory);
     }
 
     @Bean
@@ -128,10 +128,10 @@ public class ValidateCodeBeanAutoConfiguration {
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCoderProcessor")
     public SliderCoderProcessor sliderCoderProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
                                                      @NonNull ValidateCodeProperties validateCodeProperties,
-                                                     @Nullable @Autowired(required = false) StringRedisTemplate stringRedisTemplate) {
+                                                     @Nullable @Autowired(required = false) RedisConnectionFactory redisConnectionFactory) {
         return new SliderCoderProcessor(validateCodeGeneratorHolder,
                                         validateCodeProperties,
-                                        stringRedisTemplate);
+                                        redisConnectionFactory);
     }
 
     @Bean

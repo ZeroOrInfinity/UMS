@@ -23,7 +23,7 @@
 
 package top.dcenter.ums.security.core.api.validate.code;
 
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
@@ -98,19 +98,19 @@ public interface ValidateCodeProcessor {
      * @param requestParamValidateCodeName  验证码的请求参数名称
      * @param validateCodeClass             验证码 class
      * @param validateCodeCacheType         验证码缓存类型
-     * @param stringRedisTemplate           stringRedisTemplate, 缓存类型不为 redis 时可以为 null
+     * @param redisConnectionFactory        缓存类型不为 redis 时可以为 null
      * @throws ValidateCodeException    ValidateCodeException
      */
     default void defaultValidate(ServletWebRequest request, String requestParamValidateCodeName,
                                  Class<? extends ValidateCode> validateCodeClass,
                                  ValidateCodeCacheType validateCodeCacheType,
-                                 StringRedisTemplate stringRedisTemplate) throws ValidateCodeException {
+                                 RedisConnectionFactory redisConnectionFactory) throws ValidateCodeException {
         // 获取 session 中的验证码
         HttpServletRequest req = request.getRequest();
         ValidateCodeType validateCodeType = getValidateCodeType();
 
         ValidateCode codeInSession = validateCodeCacheType.getCodeInCache(request, validateCodeType,
-                                                                          validateCodeClass, stringRedisTemplate);
+                                                                          validateCodeClass, redisConnectionFactory);
         // 获取 request 中的验证码
         String codeInRequest = request.getParameter(requestParamValidateCodeName);
 
@@ -124,7 +124,7 @@ public interface ValidateCodeProcessor {
         if (!StringUtils.hasText(codeInRequest))
         {
             // 按照逻辑是前端过滤无效参数, 如果进入此逻辑, 按非正常访问处理
-            validateCodeCacheType.removeCache(request, validateCodeType, stringRedisTemplate);
+            validateCodeCacheType.removeCache(request, validateCodeType, redisConnectionFactory);
             throw new ValidateCodeException(VALIDATE_CODE_NOT_EMPTY, IpUtil.getRealIp(req), validateCodeType.name());
         }
 
@@ -133,7 +133,7 @@ public interface ValidateCodeProcessor {
         // 校验是否过期
         if (codeInSession.isExpired())
         {
-            validateCodeCacheType.removeCache(request, validateCodeType, stringRedisTemplate);
+            validateCodeCacheType.removeCache(request, validateCodeType, redisConnectionFactory);
             throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, IpUtil.getRealIp(req), codeInRequest);
         }
 
@@ -142,12 +142,12 @@ public interface ValidateCodeProcessor {
         {
             if (!codeInSession.getReuse())
             {
-                validateCodeCacheType.removeCache(request, validateCodeType, stringRedisTemplate);
+                validateCodeCacheType.removeCache(request, validateCodeType, redisConnectionFactory);
             }
             throw new ValidateCodeException(VALIDATE_CODE_ERROR, IpUtil.getRealIp(req), codeInRequest);
         }
 
-        validateCodeCacheType.removeCache(request, validateCodeType, stringRedisTemplate);
+        validateCodeCacheType.removeCache(request, validateCodeType, redisConnectionFactory);
 
     }
 }

@@ -24,7 +24,7 @@
 package top.dcenter.ums.security.core.auth.validate.codes.image;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -57,8 +57,8 @@ public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
 
     public ImageValidateCodeProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
                                       @NonNull ValidateCodeCacheType validateCodeCacheType,
-                                      @Nullable StringRedisTemplate stringRedisTemplate) {
-        super(validateCodeGeneratorHolder, validateCodeCacheType, ImageCode.class, stringRedisTemplate);
+                                      @Nullable RedisConnectionFactory redisConnectionFactory) {
+        super(validateCodeGeneratorHolder, validateCodeCacheType, ImageCode.class, redisConnectionFactory);
     }
 
     @Override

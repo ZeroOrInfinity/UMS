@@ -25,7 +25,7 @@ package top.dcenter.ums.security.core.auth.validate.codes.sms;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
@@ -66,8 +66,8 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
 
     public SmsValidateCodeProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
                                     @NonNull ValidateCodeCacheType validateCodeCacheType,
-                                    @Nullable StringRedisTemplate stringRedisTemplate) {
-        super(validateCodeGeneratorHolder, validateCodeCacheType, ValidateCode.class, stringRedisTemplate);
+                                    @Nullable RedisConnectionFactory redisConnectionFactory) {
+        super(validateCodeGeneratorHolder, validateCodeCacheType, ValidateCode.class, redisConnectionFactory);
     }
 
     /**

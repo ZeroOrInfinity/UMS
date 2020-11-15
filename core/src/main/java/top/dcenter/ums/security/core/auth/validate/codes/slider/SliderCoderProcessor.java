@@ -24,7 +24,7 @@
 package top.dcenter.ums.security.core.auth.validate.codes.slider;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -62,13 +62,13 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
      * 验证码处理逻辑的默认实现抽象类.<br><br>
      *  @param validateCodeGeneratorHolder  validateCodeGeneratorHolder
      * @param validateCodeProperties        validateCodeProperties
-     * @param stringRedisTemplate           stringRedisTemplate
+     * @param redisConnectionFactory        缓存类型不为 redis 时可以为 null
      */
     public SliderCoderProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
                                 @NonNull ValidateCodeProperties validateCodeProperties,
-                                @Nullable StringRedisTemplate stringRedisTemplate) {
+                                @Nullable RedisConnectionFactory redisConnectionFactory) {
         super(validateCodeGeneratorHolder, validateCodeProperties.getValidateCodeCacheType(),
-              SliderCode.class, stringRedisTemplate);
+              SliderCode.class, redisConnectionFactory);
         this.validateCodeProperties = validateCodeProperties;
     }
 
@@ -116,7 +116,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         ValidateCodeType sliderType = ValidateCodeType.SLIDER;
         SliderCode sliderCodeInSession =
                 (SliderCode) this.validateCodeCacheType.getCodeInCache(request, sliderType,
-                                                                       SliderCode.class, this.stringRedisTemplate);
+                                                                       SliderCode.class, this.redisConnectionFactory);
 
         // 检查 session 是否有值
         if (sliderCodeInSession == null)
@@ -128,7 +128,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         if (sliderCodeInSession.getSecondCheck())
         {
             defaultValidate(request, validateCodeProperties.getSlider().getTokenRequestParamName(),
-                            SliderCode.class, this.validateCodeCacheType, this.stringRedisTemplate);
+                            SliderCode.class, this.validateCodeCacheType, this.redisConnectionFactory);
             return;
         }
 
@@ -162,7 +162,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         {
             if (!sliderCodeInSession.getReuse())
             {
-                this.validateCodeCacheType.removeCache(request, sliderType, this.stringRedisTemplate);
+                this.validateCodeCacheType.removeCache(request, sliderType, this.redisConnectionFactory);
             }
             throw new ValidateCodeException(VALIDATE_CODE_FAILURE, IpUtil.getRealIp(req), token);
         }
@@ -174,7 +174,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         // 这里第一次校验通过, 第二次校验不需要使用复用功能, 不然第二次校验时不会清除 session 中的验证码缓存
         sliderCodeInSession.setReuse(false);
 
-        this.validateCodeCacheType.save(request, sliderCodeInSession, sliderType, this.stringRedisTemplate);
+        this.validateCodeCacheType.save(request, sliderCodeInSession, sliderType, this.redisConnectionFactory);
 
     }
 
@@ -192,7 +192,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         if (condition)
         {
             // 按照逻辑是前端过滤无效参数, 如果进入此逻辑, 按非正常访问处理
-            this.validateCodeCacheType.removeCache(request, sliderType, stringRedisTemplate);
+            this.validateCodeCacheType.removeCache(request, sliderType, this.redisConnectionFactory);
             throw new ValidateCodeException(errorCodeEnum, IpUtil.getRealIp(request.getRequest()), errorData);
         }
     }
