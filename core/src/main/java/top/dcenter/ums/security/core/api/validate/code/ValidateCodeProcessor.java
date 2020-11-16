@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_ERROR;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_EXPIRED;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EMPTY;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EXISTS_IN_CACHE;
 
 /**
  * 验证码处理逻辑接口
@@ -117,14 +118,17 @@ public interface ValidateCodeProcessor {
         // 检查 session 是否有值
         if (codeInSession == null)
         {
-            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, IpUtil.getRealIp(req), codeInRequest);
+            throw new ValidateCodeException(VALIDATE_CODE_NOT_EXISTS_IN_CACHE, IpUtil.getRealIp(req), codeInRequest);
         }
 
         // 校验参数是否有效
         if (!StringUtils.hasText(codeInRequest))
         {
             // 按照逻辑是前端过滤无效参数, 如果进入此逻辑, 按非正常访问处理
-            validateCodeCacheType.removeCache(request, validateCodeType, redisConnectionFactory);
+            if (!codeInSession.getReuse())
+            {
+                validateCodeCacheType.removeCache(request, validateCodeType, redisConnectionFactory);
+            }
             throw new ValidateCodeException(VALIDATE_CODE_NOT_EMPTY, IpUtil.getRealIp(req), validateCodeType.name());
         }
 

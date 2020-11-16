@@ -48,6 +48,7 @@ import javax.servlet.http.HttpServletResponse;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_EXPIRED;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_FAILURE;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EMPTY;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EXISTS_IN_CACHE;
 
 /**
  * 滑块验证码处理器, 自定义处理器请继承此类且注入 IOC 容器即可
@@ -121,7 +122,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         // 检查 session 是否有值
         if (sliderCodeInSession == null)
         {
-            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, IpUtil.getRealIp(req), request.getSessionId());
+            throw new ValidateCodeException(VALIDATE_CODE_NOT_EXISTS_IN_CACHE, IpUtil.getRealIp(req), request.getSessionId());
         }
 
         // 检测是否是第二此校验
@@ -143,9 +144,9 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         String y = request.getParameter(yRequestParamName);
 
         // 校验参数是否有效
-        checkParam(sliderType, request, !StringUtils.hasText(token), VALIDATE_CODE_NOT_EMPTY, tokenRequestParamName);
-        checkParam(sliderType, request, !StringUtils.hasText(x), VALIDATE_CODE_NOT_EMPTY, xRequestParamName);
-        checkParam(sliderType, request, !StringUtils.hasText(y), VALIDATE_CODE_NOT_EMPTY, yRequestParamName);
+        checkParam(sliderType, request, !StringUtils.hasText(token), VALIDATE_CODE_NOT_EMPTY, tokenRequestParamName, sliderCodeInSession);
+        checkParam(sliderType, request, !StringUtils.hasText(x), VALIDATE_CODE_NOT_EMPTY, xRequestParamName, sliderCodeInSession);
+        checkParam(sliderType, request, !StringUtils.hasText(y), VALIDATE_CODE_NOT_EMPTY, yRequestParamName, sliderCodeInSession);
 
         token = token.trim();
         Integer locationX = Integer.parseInt(x);
@@ -153,7 +154,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
 
 
         // 校验是否过期
-        checkParam(sliderType, request, sliderCodeInSession.isExpired(), VALIDATE_CODE_EXPIRED, token);
+        checkParam(sliderType, request, sliderCodeInSession.isExpired(), VALIDATE_CODE_EXPIRED, token, sliderCodeInSession);
 
         // 验证码校验
         boolean verify = sliderCodeInSession.getLocationY().equals(locationY)
@@ -182,17 +183,20 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
      * 根据 condition 是否删除 缓存中 指定的 Key 的缓存, 并抛出异常
      * @param sliderType        滑块验证码类型
      * @param request           {@link ServletWebRequest}
-     * @param condition         condition
+     * @param condition         参数是否有效的条件
      * @param errorCodeEnum     errorCodeEnum
-     * @param errorData         errorData
+     * @param errorData         返回前端的错误数据
+     * @param sliderCode        滑块验证码
      * @throws ValidateCodeException ValidateCodeException
      */
     private void checkParam(ValidateCodeType sliderType, ServletWebRequest request, boolean condition,
-                            ErrorCodeEnum errorCodeEnum, String errorData) throws ValidateCodeException {
+                            ErrorCodeEnum errorCodeEnum, String errorData, SliderCode sliderCode) throws ValidateCodeException {
         if (condition)
         {
-            // 按照逻辑是前端过滤无效参数, 如果进入此逻辑, 按非正常访问处理
-            this.validateCodeCacheType.removeCache(request, sliderType, this.redisConnectionFactory);
+            if (sliderCode.getReuse()) {
+                // 按照逻辑是前端过滤无效参数, 如果进入此逻辑, 按非正常访问处理
+                this.validateCodeCacheType.removeCache(request, sliderType, this.redisConnectionFactory);
+            }
             throw new ValidateCodeException(errorCodeEnum, IpUtil.getRealIp(request.getRequest()), errorData);
         }
     }
