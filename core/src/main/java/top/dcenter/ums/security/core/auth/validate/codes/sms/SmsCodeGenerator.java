@@ -52,7 +52,9 @@ public class SmsCodeGenerator implements ValidateCodeGenerator<ValidateCode> {
 
     @Override
     public ValidateCode generate(ServletRequest request) {
-        return smsCodeSender.getCode();
+        final ValidateCode validateCode = smsCodeSender.getCode();
+        validateCode.setReuse(true);
+        return validateCode;
     }
 
     @Override

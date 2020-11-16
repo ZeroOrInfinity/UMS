@@ -50,6 +50,10 @@ public class ValidateCode implements Serializable {
 
     private LocalDateTime expireTime;
     /**
+     * 过期时间, 单位: 秒
+     */
+    private Integer expireIn;
+    /**
      * 是否复用, 如果复用, 不会重新产生验证码, 仍使用验证码失败的验证码
      */
     private Boolean reuse;
@@ -57,16 +61,18 @@ public class ValidateCode implements Serializable {
     public ValidateCode() {
         this.code = null;
         this.expireTime = null;
+        this.expireIn = null;
         this.reuse = false;
     }
 
     /**
      * 验证码构造器: 默认 <pre>reuse = false;</pre> 不复用
      * @param code      验证码
-     * @param expireIn  秒
+     * @param expireIn  过期时间, 单位: 秒
      */
     public ValidateCode(String code, int expireIn) {
         this.code = code;
+        this.expireIn = expireIn;
         this.expireTime = LocalDateTime.now().plusSeconds(expireIn);
         reuse = false;
     }
@@ -78,17 +84,19 @@ public class ValidateCode implements Serializable {
     }
 
     public void setExpireTime(int expireIn) {
+        this.expireIn = expireIn;
         this.expireTime = LocalDateTime.now().plusSeconds(expireIn);
     }
 
     /**
      * 验证码构造器: 默认不复用
      * @param code      验证码
-     * @param expireIn  过期日期
+     * @param expireIn  过期时间, 单位: 秒
      * @param reuse     是否复用, 如果复用, 不会重新产生验证码, 仍使用验证失败的验证码, 默认: false 即不复用
      */
     public ValidateCode(String code, int expireIn, Boolean reuse) {
         this.code = code;
+        this.expireIn = expireIn;
         this.expireTime = LocalDateTime.now().plusSeconds(expireIn);
         this.reuse = reuse;
     }

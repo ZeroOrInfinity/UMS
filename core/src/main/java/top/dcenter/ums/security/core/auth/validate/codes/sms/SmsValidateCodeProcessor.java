@@ -40,14 +40,22 @@ import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheTy
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
+import top.dcenter.ums.security.core.exception.SmsCodeRepeatedRequestException;
 import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
 import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.regex.PatternSyntaxException;
 
+import static org.springframework.http.HttpStatus.OK;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.MOBILE_FORMAT_ERROR;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.MOBILE_PARAMETER_ERROR;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.SMS_CODE_REPEATED_REQUEST;
+import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
+import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
+import static top.dcenter.ums.security.core.vo.ResponseResult.success;
 
 
 /**
@@ -85,12 +93,30 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
         String uri = req.getRequestURI();
         try
         {
-            mobile = ServletRequestUtils.getRequiredStringParameter(req,
-                                                                    validateCodeProperties.getSms().getRequestParamMobileName());
+            mobile = ServletRequestUtils.getRequiredStringParameter(req, validateCodeProperties.getSms().getRequestParamMobileName());
+
             if (StringUtils.hasText(mobile) && mobile.matches(RegexConstants.MOBILE_PATTERN))
             {
-                return smsCodeSender.sendSms(mobile, validateCode.getCode());
+                ValidateCode codeInCache = super.validateCodeCacheType.getCodeInCache(request,
+                                                                                      getValidateCodeType(),
+                                                                                      ValidateCode.class,
+                                                                                      super.redisConnectionFactory);
+                if (null != codeInCache && !codeInCache.isExpired()) {
+                    throw new SmsCodeRepeatedRequestException(SMS_CODE_REPEATED_REQUEST, ip, mobile);
+                }
+
+                HttpServletResponse response = request.getResponse();
+                if (response == null)
+                {
+                    return false;
+                }
+
+                final boolean result = smsCodeSender.sendSms(mobile, validateCode.getCode());
+                responseWithJson(response, OK.value(), toJsonString(success("", validateCode.getExpireIn())));
+
+                return result;
             }
+
         }
         catch (ServletRequestBindingException e)
         {
@@ -104,6 +130,11 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
         catch (PatternSyntaxException e) {
             String msg = String.format("发送验证码失败-手机号格式不正确: error=%s, ip=%s, sid=%s, uri=%s, validateCode=%s",
                                           e.getMessage(), ip, sid, uri, validateCode.toString());
+            log.error(msg, e);
+        }
+        catch (IOException e) {
+            String msg = String.format("发送验证码成功, 响应失败: error=%s, ip=%s, sid=%s, uri=%s, validateCode=%s",
+                                       e.getMessage(), ip, sid, uri, validateCode.toString());
             log.error(msg, e);
         }
 

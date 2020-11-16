@@ -30,11 +30,10 @@ package top.dcenter.ums.security.common.consts;
  * @version V1.0  Created by 2020/5/6 13:41
  */
 public class RegexConstants {
-
     /**
      * 手机号正则表达式
      */
-    public static final String MOBILE_PATTERN = "1\\d{10}";
+    public static final String MOBILE_PATTERN = "^[1]([3-9])[0-9]{9}$";
     /**
      * RFC 6819 安全检查(https://oauth.net/advisories/2014-1-covert-redirect/)时, 使用的正则表达式
      */

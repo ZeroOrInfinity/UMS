@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <title>登录</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@1.11.1/dist/jquery.min.js"></script>
+    <style>
+        #sent_sms_btn{
+            background-color: #efefef
+        }
+    </style>
 </head>
 <body>
 <h2>登录页面 login</h2>
@@ -45,9 +50,9 @@
         <tr>
             <td>手机号码：</td>
             <td>
-                <input type="tel" name="mobile" value="13345678980"><p style="color: #ff0000"
-                                                                       id="error-name-mobile"></p>
-                <a th:href="@{/code/sms?mobile=13345678980}" >发送验证码</a>
+                <input type="tel" name="mobile" value="13345678980"><button type="button" id="sent_sms_btn">发送验证码</button>
+                <p style="color: #ff0000" id="error-name-mobile"></p>
+                <a th:href="@{/code/sms}" id="sms_uri" hidden="hidden" />
             </td>
         </tr>
         <tr>
@@ -62,8 +67,6 @@
         </tr>
         <tr>
             <td ><button id="btn-mobile" type="button">登录ajax</button></td>
-            <!-- 通过 form submit 不能接收错误信息, 通过 ajax 可接收错误信息 -->
-            <td ><button type="submit">登录</button></td>
         </tr>
     </table>
 </form>
@@ -103,6 +106,56 @@
         this.setAttribute('src', uri);
     });
 
+    $("#sent_sms_btn").click(function () {
+        let uri = $("#sms_uri").attr("href");
+        console.log(document.getElementById("sent_sms_btn").parentElement.getElementsByTagName("input")[0]);
+        let mobile =
+            document.getElementById("sent_sms_btn").parentElement.getElementsByTagName("input")[0].value;
+        console.log(mobile);
+        uri = uri + "?mobile=" + mobile;
+        console.log(uri);
+        $.ajax({
+            url: uri,
+            type: "GET",
+            dataType: "json",
+            contentType: 'application/json; charset=UTF-8',
+            success: function (data) {
+                console.log("==========发生短信验证码成功============")
+                // ...
+                console.log(data)
+                $("#error-name-mobile").text("")
+                $("#error-code-mobile").text("")
+                let expireIn = data.data
+                $("#sent_sms_btn:button:not(:disabled)").attr("di", "di").attr("disabled", true).css("background-color", "#c2c2c2");
+                let interval = setInterval(function () {
+                    $("#sent_sms_btn").text("剩余 " + (expireIn--) + " 秒")
+                    if (expireIn < 0) {
+                        $("#sent_sms_btn").text("发送验证码")
+                        $("#sent_sms_btn:button[di=di]").attr("disabled", false).removeAttr("di").css("background-color", "#efefef");
+                        window.clearInterval(interval);
+                    }
+                }, 1000);
+
+            },
+            error: function (data) {
+                console.log("==========发送短信验证码失败============")
+                console.log(data)
+                $("#error-name-mobile").text("")
+                $("#error-code-mobile").text("")
+                data = data.responseJSON
+                if (undefined !== data) {
+                    console.log(data);
+                    // 错误代码看ErrorCodeEnum
+                    if (data.code >= 900 && data.code < 1000) {
+                        $("#error-name-mobile").text(data.msg)
+                    } else if (data.code >= 600 && data.code < 700) {
+                        $("#error-code-mobile").text(data.msg)
+                    }
+                }
+            }
+        })
+
+    });
 
     function submitFormByAjax(url, formId, errorNameId, errorCodeId, imgId) {
         return function () {

@@ -78,12 +78,15 @@
             -ms-user-select: none;
             -webkit-touch-callout: none;
         }
+        #sent_sms_btn{
+            background-color: #efefef
+        }
     </style>
 </head>
 <body>
 <h2>登录页面 login2</h2>
 <h3>表单登录</h3>
-<h5>如果短信验证码与图片验证码同时配置时，优先使用短信验证码，图片验证码失效</h5>
+<h5>如果短信验证码与图片验证码同时配置同一 uri 时，优先使用短信验证码，图片验证码失效</h5>
 <h5>滑块验证码因与图片验证码对同一个链接进行验证, 滑块验证码优先级高于图片验证码, 图片验证码会失效: 在配置中注释滑块验证码 auth-urls: 可以使图片验证码生效; 注意验证码优先级.
 </h5>
 <!-- 通过 th:action 的方式支持 csrf 或者 添加隐藏域<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
@@ -103,19 +106,6 @@
             <td>
                 <input type="text" name="imageCode">
                 <img class="img" th:src="@{/code/image}" style="width: 67px; height: 23px">
-            </td>
-        </tr>
-        <tr>
-            <td>手机号码：</td>
-            <td>
-                <input type="tel" name="mobile" value="13345678980">
-                <a th:href="@{/code/sms?mobile=13345678980}" >发送验证码</a>
-            </td>
-        </tr>
-        <tr>
-            <td>手机验证码：</td>
-            <td>
-                <input type="text" name="smsCode">
             </td>
         </tr>
         <tr>
@@ -177,9 +167,9 @@
         <tr>
             <td>手机号码：</td>
             <td>
-                <input type="tel" name="mobile" value="13345678980"><p style="color: #ff0000"
-                                                                       id="error-name-mobile"></p>
-                <a th:href="@{/code/sms?mobile=13345678980}" >发送验证码</a>
+                <input type="tel" name="mobile" value="13345678980"><button type="button" id="sent_sms_btn">发送验证码</button>
+                <p style="color: #ff0000" id="error-name-mobile"></p>
+                <a th:href="@{/code/sms}" id="sms_uri" hidden="hidden" />
             </td>
         </tr>
         <tr>
@@ -194,8 +184,6 @@
         </tr>
         <tr>
             <td ><button id="btn-mobile" type="button">登录ajax</button></td>
-            <!-- 通过 form submit 不能接收错误信息, 通过 ajax 可接收错误信息 -->
-            <td ><button type="submit">登录</button></td>
         </tr>
     </table>
 </form>
@@ -237,6 +225,56 @@
         this.setAttribute('src', uri);
     });
 
+    $("#sent_sms_btn").click(function () {
+        let uri = $("#sms_uri").attr("href");
+        console.log(document.getElementById("sent_sms_btn").parentElement.getElementsByTagName("input")[0]);
+        let mobile =
+            document.getElementById("sent_sms_btn").parentElement.getElementsByTagName("input")[0].value;
+        console.log(mobile);
+        uri = uri + "?mobile=" + mobile;
+        console.log(uri);
+        $.ajax({
+            url: uri,
+            type: "GET",
+            dataType: "json",
+            contentType: 'application/json; charset=UTF-8',
+            success: function (data) {
+                console.log("==========发生短信验证码成功============")
+                // ...
+                console.log(data)
+                $("#error-name-mobile").text("")
+                $("#error-code-mobile").text("")
+                let expireIn = data.data
+                $("#sent_sms_btn:button:not(:disabled)").attr("di", "di").attr("disabled", true).css("background-color", "#c2c2c2");
+                let interval = setInterval(function () {
+                    $("#sent_sms_btn").text("剩余 " + (expireIn--) + " 秒")
+                    if (expireIn < 0) {
+                        $("#sent_sms_btn").text("发送验证码")
+                        $("#sent_sms_btn:button[di=di]").attr("disabled", false).removeAttr("di").css("background-color", "#efefef");
+                        window.clearInterval(interval);
+                    }
+                }, 1000);
+
+            },
+            error: function (data) {
+                console.log("==========发送短信验证码失败============")
+                console.log(data)
+                $("#error-name-mobile").text("")
+                $("#error-code-mobile").text("")
+                data = data.responseJSON
+                if (undefined !== data) {
+                    console.log(data);
+                    // 错误代码看ErrorCodeEnum
+                    if (data.code >= 900 && data.code < 1000) {
+                        $("#error-name-mobile").text(data.msg)
+                    } else if (data.code >= 600 && data.code < 700) {
+                        $("#error-code-mobile").text(data.msg)
+                    }
+                }
+            }
+        })
+
+    });
 
     function submitFormByAjax(url, formId, errorNameId, errorCodeId, imgId, refresh) {
         return function () {

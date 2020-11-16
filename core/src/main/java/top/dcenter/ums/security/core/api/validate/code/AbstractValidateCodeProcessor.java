@@ -106,16 +106,16 @@ public abstract class AbstractValidateCodeProcessor implements ValidateCodeProce
             {
                 ValidateCodeException exception = (ValidateCodeException) e;
                 String msg = String.format("生成验证码失败: error=%s, ip=%s, uid=%s, sid=%s, uri=%s, data=%s",
-                                              exception.getMessage(), ip, exception.getUid(), sid, uri, exception.getData());
-                log.warn(msg, exception);
+                                           exception.getMessage(), ip, exception.getUid(), sid, uri, exception.getData());
+                log.warn(msg);
                 throw exception;
             }
             else
             {
                 String msg = String.format("生成验证码失败: error=%s, ip=%s, sid=%s, uri=%s",
                                               e.getMessage(), ip, sid, uri);
-                log.warn(msg, e);
-                throw new ValidateCodeException(GET_VALIDATE_CODE_FAILURE, e, ip, uri);
+                log.warn(msg);
+                throw new ValidateCodeException(GET_VALIDATE_CODE_FAILURE, ip, uri);
             }
         }
         return true;

@@ -145,6 +145,18 @@ ums:
         - /test/permission:add
         - /test/permission:list
         - /test/pass/:list
+
+  codes:
+    # 短信验证码
+    sms:
+      # 设置需要短信验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “，”号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
+      auth-urls:
+        - /authentication/mobile
+      length: 6
+      expire: 120
+      request-param-mobile-name: mobile
+      request-param-sms-code-name: smsCode
+
   # ================ 手机登录配置 ================
   mobile:
     login:

@@ -26,21 +26,20 @@ package top.dcenter.ums.security.core.exception;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 
 /**
- * 验证码参数异常
- * @author zhailiang
- * @author  YongWu zheng
- * @version V1.0  Created by 2020/5/7 13:19
+ * 验证码处理异常
+ *
+ * @author YongWu zheng
+ * @version V1.0  Created by 2020/5/6 16:04
  */
-public class ValidateCodeParamErrorException extends ValidateCodeException {
+public class SmsCodeRepeatedRequestException extends ValidateCodeException {
 
-    private static final long serialVersionUID = 5071331297299386304L;
+    private static final long serialVersionUID = -1186543966394757028L;
 
-    public ValidateCodeParamErrorException(ErrorCodeEnum errorCodeEnum, String data, String ip) {
-        super(errorCodeEnum, ip, data);
+    public SmsCodeRepeatedRequestException(ErrorCodeEnum errorCodeEnum, String ip, String data) {
+        super(errorCodeEnum, data, ip);
     }
 
-    public ValidateCodeParamErrorException(ErrorCodeEnum errorCodeEnum, Throwable cause, String data,
-                                           String ip) {
-        super(errorCodeEnum, cause, ip, data);
+    public SmsCodeRepeatedRequestException(ErrorCodeEnum errorCodeEnum, Throwable cause, String ip, String data) {
+        super(errorCodeEnum, cause, data, ip);
     }
 }

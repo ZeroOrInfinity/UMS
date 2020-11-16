@@ -35,11 +35,10 @@ import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessor;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessorHolder;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
+import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCode;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.exception.ValidateCodeProcessException;
-import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
-import top.dcenter.ums.security.core.util.IpUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 import top.dcenter.ums.security.core.vo.ResponseResult;
 
@@ -49,6 +48,7 @@ import javax.servlet.http.HttpServletResponse;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.URL_SEPARATOR;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_CODE_TYPE;
+import static top.dcenter.ums.security.core.util.IpUtil.getRealIp;
 
 
 /**
@@ -86,11 +86,10 @@ public class ValidateCodeController implements InitializingBean {
             validateCodeProcessor = null;
         }
 
-        String ip = IpUtil.getRealIp(request);
-        String errorMsg = ILLEGAL_VALIDATE_CODE_TYPE.getMsg();
         if (validateCodeProcessor == null)
         {
-            log.warn("创建验证码错误: error={}, ip={}, type={}", errorMsg, ip, type);
+            String ip = getRealIp(request);
+            log.warn("创建验证码错误: error={}, ip={}, type={}", ILLEGAL_VALIDATE_CODE_TYPE.getMsg(), ip, type);
             throw new ValidateCodeException(ILLEGAL_VALIDATE_CODE_TYPE, ip, type);
         }
 
@@ -98,7 +97,8 @@ public class ValidateCodeController implements InitializingBean {
 
         if (!validateStatus)
         {
-            log.warn("发送验证码失败: error={}, ip={}, type={}", errorMsg, ip, type);
+            String ip = getRealIp(request);
+            log.warn("发送验证码失败: error={}, ip={}, type={}", ILLEGAL_VALIDATE_CODE_TYPE.getMsg(), ip, type);
             throw new ValidateCodeProcessException(GET_VALIDATE_CODE_FAILURE, ip, type);
         }
 
