@@ -71,7 +71,9 @@ validate code, RBAC-based uri access control function, sign etc...
 ## 三、`TODO List`:
 
 - 1. 准备基于 spring-security5.4 添加 JWT, OAuth2 authenticate server
+
 ------
+
 ## 四、`快速开始(Quick Start)`：
 
 - [Gitee 文档](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926257&doc_id=984605) | [Github 文档](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%9B%9B%E3%80%81%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B(Quick-Start))
@@ -262,6 +264,7 @@ jackson2JsonRedisSerializer.setObjectMapper(om);
 | [基于 SLF4J MDC 机制的日志链路追踪属性](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8) |
 | [第三方授权登录用户信息数据 redis 缓存配置(UserConnection Redis cache Properties)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8) |
 | [第三方授权登录用户信息表 user_connection sql 配置(UserConnection sql Properties)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%85%AB%E3%80%81%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E5%88%97%E8%A1%A8) |
+
 ------
 ## 九、参与贡献(Participate in contribution)
 
@@ -269,6 +272,7 @@ jackson2JsonRedisSerializer.setObjectMapper(om);
 2. 新建 Feat_xxx 分支
 3. 提交代码
 4. 新建 Pull Request
+
 ------
 ## 十、[流程图(Flow chart)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%8D%81%E3%80%81%E6%B5%81%E7%A8%8B%E5%9B%BE:-%E9%9A%8F%E7%9D%80%E7%89%88%E6%9C%AC%E8%BF%AD%E4%BB%A3%E4%BC%9A%E6%9C%89%E5%87%BA%E5%85%A5): 随着版本迭代会有出入
 
@@ -277,6 +281,7 @@ jackson2JsonRedisSerializer.setObjectMapper(om);
 ![sliderValidateCode](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/sliderFlow.png?raw=true)
 
 ------
+
 ## 十一、[时序图(Sequence Diagram)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%8D%81%E4%B8%80%E3%80%81%E6%97%B6%E5%BA%8F%E5%9B%BE:-%E9%9A%8F%E7%9D%80%E7%89%88%E6%9C%AC%E8%BF%AD%E4%BB%A3%E4%BC%9A%E6%9C%89%E5%87%BA%E5%85%A5): 随着版本迭代会有出入
 
 | **时序图**                                                   |
@@ -300,6 +305,7 @@ jackson2JsonRedisSerializer.setObjectMapper(om);
 ## 十二、基于 SLF4J MDC 机制的日志链路追踪功能
 
 - 使用此功能在日志配置文件中的 `pattern` 中添加 `%X{MDC_TRACE_ID}` 即可.
+
 ```xml
 <!-- 控制台 -->
 <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -315,9 +321,12 @@ jackson2JsonRedisSerializer.setObjectMapper(om);
     </filter>
 </appender>
 ```
+
 - 多线程使用问题: 父线程新建子线程之前调用 `MDC.getCopyOfContextMap()` 方法获取 `MDC context`, 子线程在执行操作前先调用 
 `MDC.setContextMap(context)` 方法将父线程的 `MDC context` 设置到子线程中. ThreadPoolTaskExecutor 的配置请参考 [ScheduleAutoConfiguration](https://github.com/ZeroOrInfinity/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/oauth/config/ScheduleAutoConfiguration.java).
+
 - 多线程传递 MDC context 简单示例:  
+
 ```java
 final Logger log = LoggerFactory.getLogger(this.getClass());
 // 获取父线程 MDC 中的内容
