@@ -219,8 +219,6 @@ AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.3 **accessDecisio
 activate AbstractSecurityInterceptor
 AbstractSecurityInterceptor --> AbstractSecurityInterceptor: 5.3.1 **最终调用权限表达式**\n\
 isAuthenticated()\n\
-**对应的方法**\n\
-hasPermission(authentication,\n targetDomainObject,permission)\n\
 <font color=red>可通过ums.client.accessExp自定义\n\
 返回 true 或 false
 deactivate UriAuthoritiesPermissionEvaluator
