@@ -1,6 +1,15 @@
+## 2.1.3
+### Fixes and Improvements:
+1. 增强: 添加统一的异常处理, 此异常处理器可通过继承并注入 IOC 容器替换.
+2. 改进: 改进短信验证码与手机登录逻辑, 以及相应的示例更改.
+3. 改进: 验证码校验逻辑.
+4. 优化: 验证码 redis 缓存参数 StringRedisTemplate 更改为更通用的 RedisConnectionFactory.
+5. 示例: 优化滑块验证码显示方式, 更新签到配置文件错误
+6. 文档: 更新权限控制时序图.
+
 ## 2.1.2
 ### Fixes and Improvements:
-1. 修复: JsonRequestFilter对 ContentType: application/x-www-form-urlencoded 的格式进行解析后使 request.getParameterMap() 返回值不完整, request
+1. 修复: JsonRequestFilter 对 ContentType: application/x-www-form-urlencoded 的格式进行解析后使 request.getParameterMap() 返回值不完整, request
 .getParameter(name) 逻辑错误, 有些情况不能正确返回值的 bug.
 2. 修复: ajax 提交时未设置 ContentType 为 json 格式, 但提交的数据为 json格式的 bug
 3. 修复: 因 AOP 切面的默认优先级与事务的 AOP 默认优先级相同, 在事务未提交就发布事件, 至所有角色更新权限资源不是更新后的权限资源 的bug; 修复后. 此切面生效前提, 事务的 Order 的值必须 大于 1
