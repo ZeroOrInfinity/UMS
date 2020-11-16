@@ -25,6 +25,7 @@ package top.dcenter.ums.security.core.api.advice;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -38,7 +39,16 @@ import top.dcenter.ums.security.core.vo.ResponseResult;
  * @author  YongWu zheng
  * @version V1.0  Created by 2020/5/2 15:35
  */
+
+@ControllerAdvice
 public class SecurityControllerExceptionHandler {
+
+    @ExceptionHandler(SmsCodeRepeatedRequestException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    public ResponseResult smsCodeRepeatedRequestException(SmsCodeRepeatedRequestException ex) {
+        return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), ex.getData());
+    }
 
     @ExceptionHandler(Auth2Exception.class)
     @ResponseBody
@@ -110,7 +120,7 @@ public class SecurityControllerExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult validateCodeException(ValidateCodeException ex) {
         String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
 
     @ExceptionHandler(ValidateCodeParamErrorException.class)
