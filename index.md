@@ -15,7 +15,7 @@
 User management scaffolding, integration: User password login, mobile login, Support all third-party authorized logins supported by JustAuth, 
 validate code, RBAC-based uri access control function, sign etc... 
 
-![ums-arch](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/ums-arch.png?raw=true)
+![ums-arch](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/ums-arch.png?raw=true)
 ------
 ## 一、`UMS 功能列表(UMS feature list)`：
 
@@ -165,7 +165,7 @@ validate code, RBAC-based uri access control function, sign etc...
                 
     - 时序图
     
-![时序图](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/permission.png?raw=true)  
+![时序图](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/permission.png?raw=true)  
 
 7. [Auth2StateCoder](https://github.com/ZeroOrInfinity/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/state/service/Auth2StateCoder.java): `用户需要时实现`, 对第三方授权登录流程中的 state 进行自定义编解码. 可以传递必要的信息, 
      如: 第三方登录成功的跳转地址等 注意此接口的两个方法必须同时实现对应的编解码逻辑, 实现此接口后注入 IOC 容器即可, 如有前端向后端获取 authorizeUrl
@@ -214,7 +214,7 @@ validate code, RBAC-based uri access control function, sign etc...
     - 添加 HttpSecurity 配置, 通过下面的接口即可: `HttpSecurityAware`
     - 已有的 HttpSecurity 配置, 让原有的 HttpSecurity 配置实现此接口进行配置: `top.dcenter.security.core.api.config.HttpSecurityAware`
 
-![核心配置逻辑](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/securityConfigurer.png?raw=true) 
+![核心配置逻辑](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/securityConfigurer.png?raw=true) 
 
 ### 2\. 在 ServletContext 中存储的属性: 
 
@@ -273,27 +273,27 @@ jackson2JsonRedisSerializer.setObjectMapper(om);
 
 ### 1. 滑块验证码(sliderValidateCode)
 
-![sliderValidateCode](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/sliderFlow.png?raw=true)
+![sliderValidateCode](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/sliderFlow.png?raw=true)
 
 ------
 ## 十一、[时序图(Sequence Diagram)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%8D%81%E4%B8%80%E3%80%81%E6%97%B6%E5%BA%8F%E5%9B%BE:-%E9%9A%8F%E7%9D%80%E7%89%88%E6%9C%AC%E8%BF%AD%E4%BB%A3%E4%BC%9A%E6%9C%89%E5%87%BA%E5%85%A5): 随着版本迭代会有出入
 
 | **时序图**                                                   |
 | ------------------------------------------------------------ |
-| [csrf](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/crsf.png?raw=true)                         |
-| [获取验证码逻辑](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/getValidateCode.png?raw=true)    |
-| [图片验证码逻辑](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/ImageValidateCodeLogin.png?raw=true) |
-| [logout](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/logout.png?raw=true)                     |
-| [第三方授权登录](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/OAuth2Login-justAuth.png?raw=true)        |
-| [rememberMe](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/rememberMe.png?raw=true)             |
-| [核心配置逻辑](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/securityConfigurer.png?raw=true)   |
-| [登录路由](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/securityRouter.png?raw=true)           |
-| [session](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/session.png?raw=true)                   |
-| [手机登录](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/SmsCodeLogin.png?raw=true)             |
-| [授权逻辑时序图](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/permission.png?raw=true)             |
-| [过时:第三方绑定与解绑](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/OAuth2Banding.png?raw=true)    |
-| [过时:第三方授权登录](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/OAuth2Login.png?raw=true)        |
-| [过时:第三方授权登录注册](https://github.com/ZeroOrInfinity/UMS/tree/master/doc/SequenceDiagram/OAuth2SignUp.png?raw=true)   |
+| [csrf](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/crsf.png?raw=true)                         |
+| [获取验证码逻辑](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/getValidateCode.png?raw=true)    |
+| [图片验证码逻辑](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/ImageValidateCodeLogin.png?raw=true) |
+| [logout](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/logout.png?raw=true)                     |
+| [第三方授权登录](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/OAuth2Login-justAuth.png?raw=true)        |
+| [rememberMe](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/rememberMe.png?raw=true)             |
+| [核心配置逻辑](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/securityConfigurer.png?raw=true)   |
+| [登录路由](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/securityRouter.png?raw=true)           |
+| [session](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/session.png?raw=true)                   |
+| [手机登录](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/SmsCodeLogin.png?raw=true)             |
+| [授权逻辑时序图](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/permission.png?raw=true)             |
+| [过时:第三方绑定与解绑](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/OAuth2Banding.png?raw=true)    |
+| [过时:第三方授权登录](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/OAuth2Login.png?raw=true)        |
+| [过时:第三方授权登录注册](https://github.com/ZeroOrInfinity/UMS/blob/master/doc/SequenceDiagram/OAuth2SignUp.png?raw=true)   |
 
 
 ## 十二、基于 SLF4J MDC 机制的日志链路追踪功能
