@@ -113,7 +113,7 @@ public class ValidateCodeUtil {
             }
             catch (IOException ex) {
                 final String msg = String.format("获取 %s 绝对路径失败: %s", imageDirectory, e.getMessage());
-                log.info(msg, ex);
+                log.error(msg);
                 throw new RuntimeException(msg, ex);
             }
         }

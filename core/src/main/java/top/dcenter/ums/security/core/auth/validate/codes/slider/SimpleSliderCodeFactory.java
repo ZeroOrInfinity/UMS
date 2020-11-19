@@ -187,7 +187,7 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
         }
         catch (Exception e)
         {
-            log.error(e.getMessage(), e);
+            log.error("获取验证码错误: " + e.getMessage());
             throw new ValidateCodeException(ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE, null, null);
         }
     }

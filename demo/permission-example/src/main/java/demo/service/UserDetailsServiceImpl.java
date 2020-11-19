@@ -182,7 +182,7 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
         }
         catch (Exception e) {
             String msg = String.format("Demo ======>: 手机号：%s, 注册失败: %s", mobile, e.getMessage());
-            log.error(msg, e);
+            log.error(msg);
             throw new RegisterUserFailureException(ErrorCodeEnum.USERNAME_USED, mobile);
         }
 
@@ -231,7 +231,7 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
         }
         catch (Exception e) {
             String msg = String.format("Demo ======>: 手机号：%s, 注册失败: %s", username, e.getMessage());
-            log.error(msg, e);
+            log.error(msg);
             throw new RegisterUserFailureException(ErrorCodeEnum.MOBILE_NOT_EMPTY, username);
         }
 
