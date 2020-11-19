@@ -7,13 +7,14 @@
 ![SpringBoot](https://img.shields.io/badge/SpringBoot-2.3.5-green.svg)
 ![SpringSecurity](https://img.shields.io/badge/SpringSecurity-5.4.1-green.svg)
 ![SpringSession](https://img.shields.io/badge/SpringSession-2.4.1-green.svg)
+![JustAuth](https://img.shields.io/badge/JustAuth-1.15.8-green.svg)
 ![license](https://img.shields.io/badge/license-MIT-yellow.svg)
 
-用户管理脚手架集成：用户密码登录、手机登录、支持 JustAuth 支持的所有第三方授权登录、验证码、基于 RBAC 的 uri 访问权限控制功能、签到等功能.
-通过配置文件与实现 用户服务, 短信发送服务, 获取角色权限服务 三个 API 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑.
+用户管理脚手架集成：用户密码登录、手机登录、支持 JustAuth 支持的所有第三方授权登录、验证码、基于 RBAC 的访问权限控制功能、JWT、SLF4J-MDC、签到等功能.
+通过配置文件与实现 **用户服务, 短信发送服务, 获取角色权限服务** 三个 API 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑.
 
-User management scaffolding, integration: User password login, mobile login, Support all third-party authorized logins supported by JustAuth, 
-validate code, RBAC-based uri access control function, sign etc... 
+User management scaffolding, integration: User password login, mobile login, OAuth2 login(Based on JustAuth), jwt
+, validate code(image, sms, sliderCode), RBAC, SLF4J-MDC, sign etc...
 
 ![ums-arch](doc/ums-arch.png)
 ------

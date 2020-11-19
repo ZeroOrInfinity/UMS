@@ -1,3 +1,10 @@
+## 2.1.4
+### Fixes and Improvements:
+1. 改进: 通过适配器模式对 AuthDefaultRequest 子类进行适配取代对 AuthDefaultRequest 子类的逐个继承的方式. 因 CSDN 与 FEISHU 不支持第三方授权登录故删除此第三方的支持.
+2. 优化: 日志重复记录异常调用链的问题.
+3. 文档: 更新权限时序图.
+
+
 ## 2.1.3
 ### Fixes and Improvements:
 1. 增强: 添加统一的异常处理, 此异常处理器可通过继承并注入 IOC 容器替换.
