@@ -23,6 +23,8 @@
 
 package top.dcenter.ums.security.core.auth.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,7 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
@@ -55,6 +58,7 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.redirectProc
  * @version V1.0  Created by 2020/5/3 17:43
  */
 @Slf4j
+@Api(tags = "session 失效后跳转处理")
 @ResponseBody
 public class InvalidSessionController implements InitializingBean {
 
@@ -72,7 +76,9 @@ public class InvalidSessionController implements InitializingBean {
     }
 
 
-    @RequestMapping(value = "/session/invalid")
+    @ApiOperation(value = "session 失效后跳转处理", notes = "获取原始请求 uri, 根据 LoginProcessType 进行跳转登录接口或返回相应 json 数据",
+                  httpMethod = "GET")
+    @RequestMapping(value = "/session/invalid", method = RequestMethod.GET)
     @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
     public void invalidSessionHandler(HttpServletRequest request, HttpServletResponse response) {
 

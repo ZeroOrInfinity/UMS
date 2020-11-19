@@ -23,6 +23,9 @@
 
 package top.dcenter.ums.security.core.auth.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +61,7 @@ import static top.dcenter.ums.security.core.util.IpUtil.getRealIp;
  * @version V1.0  Created by 2020/5/3 23:41
  */
 @Slf4j
+@Api(tags = "验证码")
 @ResponseBody
 public class ValidateCodeController implements InitializingBean {
 
@@ -71,23 +75,28 @@ public class ValidateCodeController implements InitializingBean {
 
     /**
      * 获取图片验证码, 根据验证码类型不同，调用不同的 {@link ValidateCodeProcessor} 接口实现
-     * @param request request
-     * @param response  {@link HttpServletResponse}
+     *
+     * @param request  request
+     * @param response {@link HttpServletResponse}
      */
-    @RequestMapping("/code/{type}")
-    public void createCode(@PathVariable("type") String type,
-                                     HttpServletRequest request, HttpServletResponse response) {
+    @ApiOperation(value = "根据 type 获取对应的验证码", notes = "根据不同的类型响应的方式不同, image 类型返回 png 图片," +
+            "sms 类型返回包含过期时间的 Json 数据, 滑块验证码返回 Json 数据(图片已转换成BASE64编码的字符串)", httpMethod = "GET")
+    @RequestMapping(value = "/code/{type}", method = RequestMethod.GET)
+    public void createCode(@ApiParam(name = "type", value = "验证码类型, 目前支持: image, sms, slider",
+                            allowableValues = "image, sms, track, slider, selection, customize",
+                            required = true, example = "image")
+                           @PathVariable("type") String type,
+                           HttpServletRequest request, HttpServletResponse response) {
 
         ValidateCodeProcessor validateCodeProcessor;
-        if (validateCodeProcessorHolder != null)
-        {
+        if (validateCodeProcessorHolder != null) {
             validateCodeProcessor = validateCodeProcessorHolder.findValidateCodeProcessor(type);
-        } else {
+        }
+        else {
             validateCodeProcessor = null;
         }
 
-        if (validateCodeProcessor == null)
-        {
+        if (validateCodeProcessor == null) {
             String ip = getRealIp(request);
             log.warn("创建验证码错误: error={}, ip={}, type={}", ILLEGAL_VALIDATE_CODE_TYPE.getMsg(), ip, type);
             throw new ValidateCodeException(ILLEGAL_VALIDATE_CODE_TYPE, ip, type);
@@ -95,8 +104,7 @@ public class ValidateCodeController implements InitializingBean {
 
         boolean validateStatus = validateCodeProcessor.produce(new ServletWebRequest(request, response));
 
-        if (!validateStatus)
-        {
+        if (!validateStatus) {
             String ip = getRealIp(request);
             log.warn("发送验证码失败: error={}, ip={}, type={}", ILLEGAL_VALIDATE_CODE_TYPE.getMsg(), ip, type);
             throw new ValidateCodeProcessException(GET_VALIDATE_CODE_FAILURE, ip, type);
@@ -112,6 +120,8 @@ public class ValidateCodeController implements InitializingBean {
      *
      * @return  ResponseResult
      */
+    @ApiOperation(value = "校验滑块验证码", notes = "所有验证逻辑都通过, 返回成功的 Json 详细, ", httpMethod = "POST",
+                  response = ResponseResult.class)
     @RequestMapping(value = {"/slider/check"}, method = RequestMethod.POST)
     public ResponseResult sliderCheck(HttpServletRequest request) {
         SliderCode sliderCode = (SliderCode) request.getSession().getAttribute(ValidateCodeType.SLIDER.getKeyPrefix());

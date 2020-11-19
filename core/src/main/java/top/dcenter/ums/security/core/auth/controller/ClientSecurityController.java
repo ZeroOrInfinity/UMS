@@ -23,6 +23,8 @@
 
 package top.dcenter.ums.security.core.auth.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,7 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.controller.BaseSecurityController;
@@ -60,6 +63,7 @@ import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
  * @version V1.0  Created by 2020/5/3 17:43
  */
 @Slf4j
+@Api(tags = "登录路由控制")
 @ResponseBody
 public class ClientSecurityController implements BaseSecurityController, InitializingBean {
 
@@ -88,7 +92,8 @@ public class ClientSecurityController implements BaseSecurityController, Initial
         this.clientProperties = clientProperties;
         this.requestCache = new HttpSessionRequestCache();
         this.redirectStrategy = new DefaultRedirectStrategy();
-        authRedirectUrls = clientProperties
+        // Map<requestUri, loginUri>
+        this.authRedirectUrls = clientProperties
                 .getAuthRedirectSuffixCondition()
                 .stream()
                 .map(pair -> pair.split("="))
@@ -96,8 +101,11 @@ public class ClientSecurityController implements BaseSecurityController, Initial
         pathMatcher = new AntPathMatcher();
     }
 
+    @ApiOperation(value = "登录路由控制", notes = "设置 uri 相对应的跳转登录页, 例如：key=/**: value=/login.html, 用等号隔开key与value, 如: /**=/login.html, 默认为空.\n" +
+            "支持通配符, 匹配规则： /user/aa/bb/cc.html 匹配 pattern：/us?r/**/*.html, /user/**, /user/*/bb/c?.html, /user/**/*.*.\n" +
+            "规则具体看 AntPathMatcher.match(pattern, path)", httpMethod = "GET")
     @Override
-    @RequestMapping(value = {"/authentication/require"})
+    @RequestMapping(value = "/authentication/require", method = RequestMethod.GET)
     public void requireAuthentication(HttpServletRequest request, HttpServletResponse response) {
         try
         {
