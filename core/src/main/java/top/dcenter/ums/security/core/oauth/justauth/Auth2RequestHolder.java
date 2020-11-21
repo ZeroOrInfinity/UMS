@@ -28,7 +28,7 @@ import me.zhyd.oauth.cache.AuthDefaultStateCache;
 import me.zhyd.oauth.cache.AuthStateCache;
 import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.config.AuthDefaultSource;
-import me.zhyd.oauth.request.*;
+import me.zhyd.oauth.request.AuthDefaultRequest;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -112,7 +112,7 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
     /**
      * 根据 {@link AuthDefaultSource} 获取 providerId
      * @param source    {@link AuthDefaultSource}
-     * @return  返回 providerId, 不符合添加则返回 null
+     * @return  返回 providerId, 没有对应的第三方则返回 null
      */
     public static String getProviderId(AuthDefaultSource source) {
         if (SOURCE_PROVIDER_ID_MAP.size() < 1 || null == source)
@@ -180,7 +180,9 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
                 {
                     //noinspection ConstantConditions
                     Auth2DefaultRequest auth2DefaultRequest = getAuth2DefaultRequest(source, oriAuth2Properties, authStateCache);
-                    PROVIDER_ID_AUTH_REQUEST_MAP.put(providerId, auth2DefaultRequest);
+                    if (null != auth2DefaultRequest) {
+                        PROVIDER_ID_AUTH_REQUEST_MAP.put(providerId, auth2DefaultRequest);
+                    }
                 }
             }
         }
@@ -192,10 +194,10 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
      *
      * @return {@link Auth2DefaultRequest}
      */
-    @SuppressWarnings({"AlibabaMethodTooLong"})
+    @Nullable
     private Auth2DefaultRequest getAuth2DefaultRequest(@NonNull AuthDefaultSource source,
                                                        @NonNull Auth2Properties auth2Properties,
-                                                       @NonNull AuthStateCache authStateCache) throws IllegalAccessException {
+                                                       @NonNull AuthStateCache authStateCache) throws IllegalAccessException, ClassNotFoundException {
 
         JustAuthProperties justAuth = auth2Properties.getJustAuth();
         AuthConfig config = getAuthConfig(auth2Properties, source);
@@ -207,87 +209,38 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
         // 设置是否忽略 state 检测
         config.setIgnoreCheckState(justAuth.getIgnoreCheckState());
 
+        // 是否支持第三方授权登录
+        boolean isNotSupport = false;
+
+        //noinspection AlibabaSwitchStatement
         switch (source) {
-            case GITHUB:
-                config.getHttpConfig().setTimeout((int) proxy.getForeignTimeout().toMillis());
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthGithubRequest.class);
-            case WEIBO:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthWeiboRequest.class);
-            case GITEE:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthGiteeRequest.class);
-            case DINGTALK:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthDingTalkRequest.class);
-            case BAIDU:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthBaiduRequest.class);
             case CODING:
                 config.setCodingGroupName(auth2Properties.getCoding().getCodingGroupName());
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthCodingRequest.class);
-            case OSCHINA:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthOschinaRequest.class);
+                break;
             case ALIPAY:
                 config.setAlipayPublicKey(auth2Properties.getAlipay().getAlipayPublicKey());
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthAlipayRequest.class);
+                break;
             case QQ:
                 config.setUnionId(auth2Properties.getQq().getUnionId());
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthQqRequest.class);
-            case WECHAT_OPEN:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthWeChatOpenRequest.class);
-            case WECHAT_MP:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthWeChatMpRequest.class);
-            case TAOBAO:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthTaobaoRequest.class);
-            case GOOGLE:
-                config.getHttpConfig().setTimeout((int) proxy.getForeignTimeout().toMillis());
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthGoogleRequest.class);
-            case FACEBOOK:
-                config.getHttpConfig().setTimeout((int) proxy.getForeignTimeout().toMillis());
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthFacebookRequest.class);
-            case DOUYIN:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthDouyinRequest.class);
-            case LINKEDIN:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthLinkedinRequest.class);
-            case MICROSOFT:
-                config.getHttpConfig().setTimeout((int) proxy.getForeignTimeout().toMillis());
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthMicrosoftRequest.class);
-            case MI:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthMiRequest.class);
-            case TOUTIAO:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthToutiaoRequest.class);
-            case TEAMBITION:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthTeambitionRequest.class);
-            case RENREN:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthRenrenRequest.class);
-            case PINTEREST:
-                config.getHttpConfig().setTimeout((int) proxy.getForeignTimeout().toMillis());
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthPinterestRequest.class);
-            case STACK_OVERFLOW:
-                config.getHttpConfig().setTimeout((int) proxy.getForeignTimeout().toMillis());
-                config.setStackOverflowKey(auth2Properties.getStackOverflow().getStackOverflowKey());
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthStackOverflowRequest.class);
-            case HUAWEI:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthHuaweiRequest.class);
+                break;
             case WECHAT_ENTERPRISE:
                 config.setAgentId(auth2Properties.getWechatEnterprise().getAgentId());
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthWeChatEnterpriseRequest.class);
-            case KUJIALE:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthKujialeRequest.class);
-            case GITLAB:
+                break;
+            case STACK_OVERFLOW:
+                config.setStackOverflowKey(auth2Properties.getStackOverflow().getStackOverflowKey());
+            case GITHUB: case GOOGLE: case FACEBOOK: case MICROSOFT: case PINTEREST: case GITLAB: case TWITTER:
                 config.getHttpConfig().setTimeout((int) proxy.getForeignTimeout().toMillis());
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthGitlabRequest.class);
-            case MEITUAN:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthMeituanRequest.class);
-            case ELEME:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthElemeRequest.class);
-            case TWITTER:
-                config.getHttpConfig().setTimeout((int) proxy.getForeignTimeout().toMillis());
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthTwitterRequest.class);
-            case JD:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthJdRequest.class);
-            case ALIYUN:
-                return this.getAuthDefaultRequestAdapter(config, source, authStateCache, AuthAliyunRequest.class);
+                break;
+            case CSDN: case FEISHU:
+                isNotSupport = true;
+                break;
             default:
-                return null;
         }
+
+        if (isNotSupport) {
+            return null;
+        }
+        return this.getAuthDefaultRequestAdapter(config, source, authStateCache);
     }
 
     /**
@@ -295,17 +248,17 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
      * @param config                {@link AuthDefaultRequest} 的 {@link AuthConfig}
      * @param source                {@link AuthDefaultRequest} 的 {@link AuthConfig}
      * @param authStateCache        {@link AuthDefaultRequest} 的 {@link AuthStateCache}
-     * @param clz                   {@link AuthDefaultRequest} 子类的 Class
      * @return                      {@link AuthDefaultRequest} 相对应的适配器
      */
+    @NonNull
     private AuthDefaultRequestAdapter getAuthDefaultRequestAdapter(@NonNull AuthConfig config,
                                                                    @NonNull AuthDefaultSource source,
-                                                                   @NonNull AuthStateCache authStateCache,
-                                                                   @NonNull Class<? extends AuthDefaultRequest> clz) {
+                                                                   @NonNull AuthStateCache authStateCache) throws ClassNotFoundException {
         final AuthDefaultRequestAdapter adapter = new AuthDefaultRequestAdapter(config, source, authStateCache);
         Class<?>[] argumentTypes = new Class[]{AuthConfig.class, AuthStateCache.class};
         Object[] arguments = new Object[]{config, authStateCache};
-        final AuthDefaultRequest proxyObject = createProxy(clz, argumentTypes, arguments, adapter);
+        final AuthDefaultRequest proxyObject = createProxy(getAuthRequestClassBySource(source),
+                                                           argumentTypes, arguments, adapter);
         adapter.setAuthDefaultRequest(proxyObject);
         return adapter;
     }
@@ -313,16 +266,21 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
     /**
      * 创建 {@code targetClass} 的代理对象, 主要是替换 {@link AuthDefaultRequest} 的 {@code getRealState(state)} 方法
      * 为 {@link AuthDefaultRequestAdapter#getRealState(String)} 方法.
-     * @param targetClass       代理的目标对象 Class
+     * @param targetClass       代理的目标对象 Class, 必须是 {@link AuthDefaultRequest} 的子类 Class
      * @param argumentTypes     目标对象构造参数类型数组
      * @param arguments         目标对象构造参数值数组与 argumentTypes 一一对应
      * @param adapter           {@link AuthDefaultRequestAdapter}
      * @return                  targetClass 的代理对象
      */
-    private AuthDefaultRequest createProxy(Class<? extends AuthDefaultRequest> targetClass,
+    @NonNull
+    private AuthDefaultRequest createProxy(Class<?> targetClass,
                                            Class<?>[] argumentTypes,
                                            Object[] arguments,
-                                           AuthDefaultRequestAdapter adapter) {
+                                           AuthDefaultRequestAdapter adapter) throws ClassNotFoundException {
+
+        if (!AuthDefaultRequest.class.isAssignableFrom(targetClass)) {
+            throw new ClassNotFoundException(targetClass.getName() + " 必须是 me.zhyd.oauth.request.AuthDefaultRequest 的子类");
+        }
 
         final Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(targetClass);
@@ -448,16 +406,85 @@ public class Auth2RequestHolder implements InitializingBean, ApplicationContextA
      */
     @SuppressWarnings("unused")
     public static String getProviderIdBySource(@NonNull AuthDefaultSource source) {
-        String fieldName;
-        String name = source.name().toLowerCase();
-        String[] splits = name.split(FIELD_SEPARATOR);
-        fieldName = name;
-        if (splits.length > 1)
-        {
-            String secondName = splits[1];
-            fieldName = splits[0] + secondName.substring(0, 1).toUpperCase() + secondName.substring(1);
+        String[] splits = source.name().split(FIELD_SEPARATOR);
+        return toProviderId(splits);
+    }
+
+    /**
+     * {@link AuthDefaultRequest} 子类的包名
+     */
+    public static final String AUTH_REQUEST_PACKAGE = "me.zhyd.oauth.request.";
+    /**
+     * {@link AuthDefaultRequest} 子类类名前缀
+     */
+    public static final String AUTH_REQUEST_PREFIX = "Auth";
+    /**
+     * {@link AuthDefaultRequest} 子类类名后缀
+     */
+    public static final String AUTH_REQUEST_SUFFIX = "Request";
+
+    /**
+     * 根据 {@link AuthDefaultSource} 获取对应的 {@link AuthDefaultRequest} 子类的 Class
+     * @param source    {@link AuthDefaultSource}
+     * @return  返回 {@link AuthDefaultSource} 对应的 {@link AuthDefaultRequest} 子类的 Class
+     */
+    @NonNull
+    public static Class<?> getAuthRequestClassBySource(@NonNull AuthDefaultSource source) throws ClassNotFoundException {
+        String[] splits = source.name().split(FIELD_SEPARATOR);
+        String authRequestClassName = AUTH_REQUEST_PACKAGE + toAuthRequestClassName(splits);
+        return Class.forName(authRequestClassName);
+    }
+
+    /**
+     * 根据传入的字符串数组转换为类名格式的字符串, 另外 DingTalk -> DingTalk, WECHAT -> WeChat.
+     * @param splits    字符串数组, 例如: [WECHAT, OPEN]
+     * @return  返回类名格式的字符串, 如传入的数组是: [STACK, OVERFLOW] 那么返回 AuthStackOverflowRequest
+     */
+    @NonNull
+    private static String toAuthRequestClassName(String[] splits) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(AUTH_REQUEST_PREFIX);
+        for (String split : splits) {
+            split = split.toLowerCase();
+            if (AuthDefaultSource.DINGTALK.name().equalsIgnoreCase(split)) {
+                sb.append("DingTalk");
+                continue;
+            }
+            if ("wechat".equalsIgnoreCase(split)) {
+                sb.append("WeChat");
+                continue;
+            }
+            if (split.length() > 1) {
+                sb.append(split.substring(0, 1).toUpperCase()).append(split.substring(1));
+            }
+            else {
+                sb.append(split.toUpperCase());
+            }
         }
-        return fieldName;
+        sb.append(AUTH_REQUEST_SUFFIX);
+        return sb.toString();
+    }
+
+    /**
+     * 根据传入的字符串数组转换为驼峰格式的字符串
+     * @param splits    字符串数组, 例如: [WECHAT, OPEN]
+     * @return  驼峰格式的字符串, 如传入的数组是: [WECHAT, OPEN] 那么返回 wechatOpen
+     */
+    @NonNull
+    private static String toProviderId(String[] splits) {
+        StringBuilder sb = new StringBuilder();
+        for (String split : splits) {
+            split = split.toLowerCase();
+            if (split.length() > 1) {
+                sb.append(split.substring(0, 1).toUpperCase()).append(split.substring(1));
+            }
+            else {
+                sb.append(split.toUpperCase());
+            }
+        }
+        String firstChar = String.valueOf(sb.charAt(0)).toLowerCase();
+        sb.replace(0, 1, firstChar);
+        return sb.toString();
     }
 
 }
