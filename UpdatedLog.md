@@ -1,3 +1,8 @@
+## 2.1.5
+### Fixes and Improvements:
+1. 优化: Auth2RequestHolder.getAuth2DefaultRequest(..) 与 Auth2RequestHolder.getProviderIdBySource(..) 方法.
+2. 增加: swagger3 API 注释.
+
 ## 2.1.4
 ### Fixes and Improvements:
 1. 改进: 通过适配器模式对 AuthDefaultRequest 子类进行适配取代对 AuthDefaultRequest 子类的逐个继承的方式. 因 CSDN 与 FEISHU 不支持第三方授权登录故删除此第三方的支持.
