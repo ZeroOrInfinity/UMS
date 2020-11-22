@@ -21,14 +21,11 @@
  * SOFTWARE.
  */
 
-package demo.security.service;
+package demo.service;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -37,7 +34,7 @@ import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -49,19 +46,16 @@ import top.dcenter.ums.security.core.exception.UserNotExistException;
 import java.util.List;
 
 /**
- * 用户密码与手机短信登录与 OAuth 登录与注册服务：<br><br>
- * 1. 用于第三方登录与手机短信登录逻辑。<br><br>
- * 2. 用于用户密码登录逻辑。<br><br>
- * 3. 用于 OAuth 用户注册逻辑。<br><br>
- *
- * @author zhailiang
- * @version V1.0  Created by 2020/5/3 14:15
+ *  用户密码与手机短信登录与注册服务：<br><br>
+ *  1. 用于第三方登录与手机短信登录逻辑。<br><br>
+ *  2. 用于用户密码登录逻辑。<br><br>
+ *  3. 用户注册逻辑。<br><br>
  * @author YongWu zheng
+ * @version V1.0  Created by 2020/9/20 11:06
  */
-@SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
+@Service
 @Slf4j
-@Component
-public class LoginSocialUserDetailsService implements UmsUserDetailsService {
+public class UserDetailsServiceImpl implements UmsUserDetailsService {
 
     /**
      * 用户名
@@ -73,10 +67,6 @@ public class LoginSocialUserDetailsService implements UmsUserDetailsService {
      */
     public static final String PARAM_PASSWORD = "password";
 
-    private final ObjectMapper objectMapper;
-
-    private final JdbcTemplate jdbcTemplate;
-
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
     private UserCache userCache;
@@ -86,12 +76,6 @@ public class LoginSocialUserDetailsService implements UmsUserDetailsService {
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    public LoginSocialUserDetailsService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
 
     @SuppressWarnings("AlibabaUndefineMagicConstant")
     @Override
@@ -263,14 +247,4 @@ public class LoginSocialUserDetailsService implements UmsUserDetailsService {
         return null;
     }
 
-    @Override
-    public String[] generateUsernames(AuthUser authUser) {
-        return new String[]{
-                authUser.getUsername(),
-                // providerId = authUser.getSource()
-                authUser.getUsername() + "_" + authUser.getSource(),
-                // providerUserId = authUser.getUuid()
-                authUser.getUsername() + "_" + authUser.getSource() + "_" + authUser.getUuid()
-        };
-    }
 }

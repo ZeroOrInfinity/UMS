@@ -27,15 +27,11 @@ import demo.service.SysRoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
 import top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheRolesResourcesService;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Set;
 
@@ -98,26 +94,6 @@ public class UriAuthorizeServiceImpl extends AbstractUriAuthorizeService impleme
             return updateRolesAuthorities();
         }
 
-    }
-
-    /**
-     * @param status   返回状态
-     * @param response response
-     */
-    @Override
-    public void handlerError(int status, HttpServletResponse response) {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.setStatus(status);
-        try (PrintWriter writer = response.getWriter())
-        {
-            writer.write("{\"msg\":\"demo: 您没有访问权限或未登录\"}");
-            writer.flush();
-        }
-        catch (IOException e)
-        {
-            log.error(e.getMessage(), e);
-        }
     }
 
     /**

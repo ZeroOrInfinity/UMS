@@ -24,14 +24,10 @@
 package demo.security.permission.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -44,7 +40,7 @@ import java.util.Set;
  */
 @Component
 @Slf4j
-public class DemoUriAuthorizeService extends AbstractUriAuthorizeService {
+public class DemoUriAuthorizeServiceImpl extends AbstractUriAuthorizeService {
 
     @Override
     @NonNull
@@ -64,22 +60,6 @@ public class DemoUriAuthorizeService extends AbstractUriAuthorizeService {
         rolesAuthorities.put("ROLE_USER", uriAuthority);
         rolesAuthorities.put("ROLE_ANONYMOUS", uriAuthority);
         return rolesAuthorities;
-    }
-
-    @Override
-    public void handlerError(int status, HttpServletResponse response) {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.setStatus(status);
-        try (PrintWriter writer = response.getWriter())
-        {
-            writer.write("{\"msg\":\"demo: 您没有访问权限或未登录\"}");
-            writer.flush();
-        }
-        catch (IOException e)
-        {
-            log.error(e.getMessage(), e);
-        }
     }
 
 }

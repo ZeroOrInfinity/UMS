@@ -23,12 +23,9 @@
 
 package demo.service;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -58,7 +55,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class UserDetailsService implements UmsUserDetailsService {
+public class UserDetailsServiceImpl implements UmsUserDetailsService {
 
     /**
      * 用户名
@@ -70,10 +67,6 @@ public class UserDetailsService implements UmsUserDetailsService {
      */
     public static final String PARAM_PASSWORD = "password";
 
-    private final ObjectMapper objectMapper;
-
-    private final JdbcTemplate jdbcTemplate;
-
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
     private UserCache userCache;
@@ -83,12 +76,6 @@ public class UserDetailsService implements UmsUserDetailsService {
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    public UserDetailsService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
 
     @SuppressWarnings("AlibabaUndefineMagicConstant")
     @Override
@@ -124,7 +111,7 @@ public class UserDetailsService implements UmsUserDetailsService {
         catch (Exception e)
         {
             String msg = String.format("Demo ======>: 登录用户名：%s, 登录失败: %s", username, e.getMessage());
-            log.error(msg, e);
+            log.error(msg);
             throw new UserNotExistException(ErrorCodeEnum.QUERY_USER_INFO_ERROR, e, username);
         }
     }

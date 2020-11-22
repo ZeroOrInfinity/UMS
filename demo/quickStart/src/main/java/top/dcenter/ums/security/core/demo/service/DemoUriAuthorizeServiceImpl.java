@@ -22,21 +22,13 @@
  */
 package top.dcenter.ums.security.core.demo.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
-import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
-import top.dcenter.ums.security.core.vo.ResponseResult;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
 
 /**
  * @author YongWu zheng
@@ -44,23 +36,6 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWith
  */
 @Slf4j
 public class DemoUriAuthorizeServiceImpl extends AbstractUriAuthorizeService {
-
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Override
-    public void handlerError(int status, HttpServletResponse response) {
-
-        try
-        {
-            responseWithJson(response, status, objectMapper.writeValueAsString(ResponseResult.fail(ErrorCodeEnum.PERMISSION_DENY)));
-        }
-        catch (IOException e)
-        {
-            log.error(String.format("权限控制错误响应异常: status=%s, error=%s", status, e.getMessage()), e);
-        }
-    }
 
     @Override
     @NonNull

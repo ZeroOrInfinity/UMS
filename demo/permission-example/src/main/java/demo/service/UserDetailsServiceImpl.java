@@ -23,8 +23,6 @@
 
 package demo.service;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.entity.SysRole;
 import demo.entity.SysUser;
 import demo.entity.SysUserRole;
@@ -68,8 +66,6 @@ import java.util.List;
 @Slf4j
 public class UserDetailsServiceImpl implements UmsUserDetailsService {
 
-    private final ObjectMapper objectMapper;
-
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private ClientProperties clientProperties;
@@ -95,11 +91,6 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    public UserDetailsServiceImpl() {
-        this.objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
 
     @SuppressWarnings("AlibabaUndefineMagicConstant")
     @Override

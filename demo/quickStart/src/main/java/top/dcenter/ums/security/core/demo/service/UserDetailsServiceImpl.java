@@ -23,13 +23,10 @@
 
 package top.dcenter.ums.security.core.demo.service;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import me.zhyd.oauth.model.AuthUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -72,10 +69,6 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
      */
     public static final String PARAM_PASSWORD = "password";
 
-    private final ObjectMapper objectMapper;
-
-    private final JdbcTemplate jdbcTemplate;
-
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
     private UserCache userCache;
@@ -85,12 +78,6 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    public UserDetailsServiceImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
 
     @SuppressWarnings("AlibabaUndefineMagicConstant")
     @Override

@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import top.dcenter.ums.security.core.api.advice.SecurityControllerExceptionHandler;
+import top.dcenter.ums.security.core.api.advice.SecurityControllerAdviceHandler;
 import top.dcenter.ums.security.core.exception.ExpiredSessionDetectedException;
 import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
 import top.dcenter.ums.security.core.exception.ParameterErrorException;
@@ -47,7 +47,7 @@ import top.dcenter.ums.security.core.vo.ResponseResult;
  */
 @ControllerAdvice
 @Slf4j
-public class ControllerExceptionHandler extends SecurityControllerExceptionHandler {
+public class ControllerAdviceHandler extends SecurityControllerAdviceHandler {
 
     @Override
     @ExceptionHandler(UserNotExistException.class)
