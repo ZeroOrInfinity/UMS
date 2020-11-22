@@ -25,7 +25,7 @@ package demo.security.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -55,8 +55,8 @@ public class DemoImageValidateCodeProcessor extends ImageValidateCodeProcessor {
 
     public DemoImageValidateCodeProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
                                           @NonNull ValidateCodeProperties validateCodeProperties,
-                                          @Nullable @Autowired(required = false) StringRedisTemplate stringRedisTemplate) {
-        super(validateCodeGeneratorHolder, validateCodeProperties.getValidateCodeCacheType(), stringRedisTemplate);
+                                          @Nullable @Autowired(required = false) RedisConnectionFactory redisConnectionFactory) {
+        super(validateCodeGeneratorHolder, validateCodeProperties.getValidateCodeCacheType(), redisConnectionFactory);
     }
 
     @Override

@@ -26,7 +26,7 @@ package demo.security.validate.code;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -60,8 +60,8 @@ public class DemoSmsValidateCodeProcessor extends SmsValidateCodeProcessor {
 
     public DemoSmsValidateCodeProcessor(@NonNull ValidateCodeGeneratorHolder validateCodeGeneratorHolder,
                                         @NonNull ValidateCodeProperties validateCodeProperties,
-                                        @Nullable @Autowired(required = false) StringRedisTemplate stringRedisTemplate) {
-        super(validateCodeGeneratorHolder, validateCodeProperties.getValidateCodeCacheType(), stringRedisTemplate);
+                                        @Nullable @Autowired(required = false) RedisConnectionFactory redisConnectionFactory) {
+        super(validateCodeGeneratorHolder, validateCodeProperties.getValidateCodeCacheType(), redisConnectionFactory);
     }
 
     /**
