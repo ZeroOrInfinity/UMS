@@ -93,7 +93,6 @@ public class SecuritySessionAutoConfiguration {
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy")
     public EnhanceConcurrentControlAuthenticationStrategy enhanceConcurrentControlAuthenticationStrategy(SessionRegistry sessionRegistry) throws Exception {
         if (applicationContext == null) {
-            log.error("启动失败: {}", EnhanceConcurrentControlAuthenticationStrategy.class.getName());
             throw new Exception("启动失败: " + EnhanceConcurrentControlAuthenticationStrategy.class.getName());
         }
 

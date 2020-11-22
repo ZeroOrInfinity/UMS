@@ -182,8 +182,8 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
         }
         catch (Exception e) {
             String msg = String.format("Demo ======>: 手机号：%s, 注册失败: %s", mobile, e.getMessage());
-            log.error(msg);
-            throw new RegisterUserFailureException(ErrorCodeEnum.USERNAME_USED, mobile);
+            log.error(msg, e);
+            throw new RegisterUserFailureException(ErrorCodeEnum.USERNAME_USED, e, mobile);
         }
 
         // 把用户信息存入缓存
@@ -231,8 +231,8 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
         }
         catch (Exception e) {
             String msg = String.format("Demo ======>: 手机号：%s, 注册失败: %s", username, e.getMessage());
-            log.error(msg);
-            throw new RegisterUserFailureException(ErrorCodeEnum.MOBILE_NOT_EMPTY, username);
+            log.error(msg, e);
+            throw new RegisterUserFailureException(ErrorCodeEnum.MOBILE_NOT_EMPTY, e, username);
         }
 
         // 把用户信息存入缓存

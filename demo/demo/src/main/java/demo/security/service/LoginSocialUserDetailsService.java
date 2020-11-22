@@ -127,7 +127,7 @@ public class LoginSocialUserDetailsService implements UmsUserDetailsService {
         catch (Exception e)
         {
             String msg = String.format("Demo ======>: 登录用户名：%s, 登录失败: %s", username, e.getMessage());
-            log.error(msg);
+            log.error(msg, e);
             throw new UserNotExistException(ErrorCodeEnum.QUERY_USER_INFO_ERROR, e, username);
         }
     }

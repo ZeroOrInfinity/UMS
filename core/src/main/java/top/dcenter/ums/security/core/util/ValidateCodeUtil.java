@@ -112,8 +112,7 @@ public class ValidateCodeUtil {
                 return getAbsPath(imageDirectory);
             }
             catch (IOException ex) {
-                final String msg = String.format("获取 %s 绝对路径失败: %s", imageDirectory, e.getMessage());
-                log.error(msg);
+                String msg = String.format("获取 %s 绝对路径失败: %s", imageDirectory, e.getMessage());
                 throw new RuntimeException(msg, ex);
             }
         }

@@ -92,8 +92,7 @@ public class RememberMeAuthenticationTokenJsonDeserializer extends StdDeserializ
             principal = mapper.convertValue(principalNode, javaType);
         }
         catch (Exception e) {
-            final String msg = String.format("RememberMeAuthenticationToken Jackson 反序列化错误: principal 反序列化错误: %s", principalNode.toString());
-            log.error(msg);
+            String msg = String.format("RememberMeAuthenticationToken Jackson 反序列化错误: principal 反序列化错误: %s", principalNode.toString());
             throw new IOException(msg);
         }
 
@@ -108,8 +107,7 @@ public class RememberMeAuthenticationTokenJsonDeserializer extends StdDeserializ
         catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             final String msg = String.format("RememberMeAuthenticationToken Jackson 反序列化错误: principal 反序列化错误: %s",
                                              e.getMessage());
-            log.error(msg);
-            throw new IOException(msg);
+            throw new IOException(msg, e);
         }
 
         token.setAuthenticated(authenticated);

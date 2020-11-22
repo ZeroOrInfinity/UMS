@@ -82,8 +82,7 @@ public class AnonymousAuthenticationTokenJsonDeserializer extends StdDeserialize
         catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             final String msg = String.format("AnonymousAuthenticationToken Jackson 反序列化错误: principal 反序列化错误: %s",
                                              e.getMessage());
-            log.error(msg);
-            throw new IOException(msg);
+            throw new IOException(msg, e);
         }
 
         // 创建 details 对象

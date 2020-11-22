@@ -29,7 +29,6 @@ import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.config.AuthDefaultSource;
 import me.zhyd.oauth.enums.AuthResponseStatus;
 import me.zhyd.oauth.exception.AuthException;
-import me.zhyd.oauth.log.Log;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthResponse;
 import me.zhyd.oauth.model.AuthToken;
@@ -108,7 +107,7 @@ public class AuthDefaultRequestAdapter extends AuthDefaultRequest implements Aut
             AuthUser user = this.getUserInfo(authToken);
             return AuthResponse.builder().code(AuthResponseStatus.SUCCESS.getCode()).data(user).build();
         } catch (Exception e) {
-            Log.error("Failed to login with oauth authorization.", e);
+            log.error("Failed to login with oauth authorization. error: " + e.getMessage(), e);
             return Auth2DefaultRequest.responseError(e);
         }
     }
@@ -157,7 +156,6 @@ public class AuthDefaultRequestAdapter extends AuthDefaultRequest implements Aut
                 errMsg = invocationTargetException.getTargetException().getMessage();
             }
             String msg = "从第三方获取 accessToken 时方法调用异常: " + errMsg;
-            log.error(msg);
             throw new SimpleHttpException(msg, e);
         }
     }
@@ -185,7 +183,6 @@ public class AuthDefaultRequestAdapter extends AuthDefaultRequest implements Aut
                 errMsg = invocationTargetException.getTargetException().getMessage();
             }
             String msg = "从第三方获取用户信息时方法调用异常: " + errMsg;
-            log.error(msg);
             throw new SimpleHttpException(msg, e);
         }
     }

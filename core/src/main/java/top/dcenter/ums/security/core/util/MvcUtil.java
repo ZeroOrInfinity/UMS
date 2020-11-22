@@ -267,7 +267,6 @@ public class MvcUtil {
             String msg = String.format("设置 %s#%s() 方法的 requestMapping 映射值时发生错误.",
                                        clz.getName(),
                                        methodName);
-            log.error(msg);
             throw new RuntimeException(msg);
         }
     }
@@ -305,7 +304,6 @@ public class MvcUtil {
             String msg = String.format("设置 %s#%s() 方法的 cron 映射值时发生错误.",
                                        targetClass.getName(),
                                        methodName);
-            log.error(msg);
             throw new RuntimeException(msg);
         }
     }

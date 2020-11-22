@@ -90,9 +90,8 @@ public class UsernamePasswordAuthenticationTokenJsonDeserializer extends StdDese
             principal = mapper.convertValue(principalNode, javaType);
         }
         catch (Exception e) {
-            final String msg = String.format("UsernamePasswordAuthenticationToken Jackson 反序列化错误: principal 反序列化错误: %s", principalNode.toString());
-            log.error(msg);
-            throw new IOException(msg);
+            String msg = String.format("UsernamePasswordAuthenticationToken Jackson 反序列化错误: principal 反序列化错误: %s", principalNode.toString());
+            throw new IOException(msg, e);
         }
 
         UsernamePasswordAuthenticationToken token;
