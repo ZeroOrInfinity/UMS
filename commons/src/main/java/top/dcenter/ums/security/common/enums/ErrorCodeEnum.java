@@ -37,14 +37,16 @@ public enum ErrorCodeEnum {
 
     LOGOUT_SUCCESS(0, "登出成功"),
 
+    PERMISSION_DENY(403, "您没有访问权限或未登录"),
+
     NOT_FOUND(404, "not found"),
 
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "操作未授权"),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "您未登录 或 操作未授权"),
     INVALID_SESSION(HttpStatus.UNAUTHORIZED.value(), "session 失效"),
     EXPIRED_SESSION(HttpStatus.UNAUTHORIZED.value(), "session 过期"),
     CONCURRENT_SESSION(HttpStatus.UNAUTHORIZED.value(), "你的账号在其他客户端上登录, 此客户端退出登录状态, 如非本人, 请更改密码"),
     SESSION_ENHANCE_CHECK(HttpStatus.UNAUTHORIZED.value(), "session 非法"),
-    SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "功能还在开发中"),
+    SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "服务器异常 或 功能还在开发中"),
     INTERNAL_SERVER_ERROR(HttpStatus.NOT_FOUND.value(), SecurityConstants.INTERNAL_SERVER_ERROR_MSG),
 
     USERNAME_USED(900, "用户名已存在"),
@@ -64,11 +66,6 @@ public enum ErrorCodeEnum {
     ACCOUNT_EXPIRED(982, "账号过期"),
     ACCOUNT_LOCKED(983, "账号已锁定"),
     CREDENTIALS_EXPIRED(984, "凭证过期"),
-
-    UPDATE_ROLE_PERMISSIONS_FAILURE(990, "更新角色资源失败"),
-    UPDATE_ROLE_PERMISSIONS_ILLEGAL(991, "非法操作: 越权更新角色资源"),
-    QUERY_ROLE_PERMISSIONS_FAILURE(992, "查询角色资源信息失败"),
-    QUERY_ROLE_PERMISSIONS_ILLEGAL(993, "非法操作: 越权查询角色资源信息"),
 
 
     USER_REGISTER_OAUTH2_FAILURE(999, "本地用户注册成功, 第三方信息保存失败"),
@@ -103,14 +100,15 @@ public enum ErrorCodeEnum {
 
     PARAMETER_ERROR(700, "参数错误"),
 
-    ADD_ROLE_PERMISSION_FAILURE(710, "添加角色权限资源失败"),
-    DEL_ROLE_PERMISSION_FAILURE(720, "删除角色权限资源失败"),
-    UPDATE_ROLE_PERMISSION_FAILURE(730, "更新角色权限资源失败"),
-    PERMISSION_DENY(740, "您没有访问权限或未登录"),
+    ADD_ROLE_PERMISSION_FAILURE(710, "添加角色资源权限失败"),
+    DEL_ROLE_PERMISSION_FAILURE(720, "删除角色资源权限失败"),
+    UPDATE_ROLE_PERMISSIONS_FAILURE(730, "更新角色资源权限失败"),
+    UPDATE_ROLE_PERMISSIONS_ILLEGAL(731, "非法操作: 越权更新角色资源"),
+    QUERY_ROLE_PERMISSIONS_FAILURE(740, "查询角色资源信息失败"),
+    QUERY_ROLE_PERMISSIONS_ILLEGAL(741, "非法操作: 越权查询角色资源信息"),
 
-
-    ADD_RESOURCE_FAILURE(751, "添加权限资源失败"),
-    ADD_RESOURCE_METHOD_FORMAT_ERROR(752, "添加权限资源失败, 方法格式错误"),
+    ADD_RESOURCE_FAILURE(751, "添加资源权限失败"),
+    ADD_RESOURCE_METHOD_FORMAT_ERROR(752, "添加资源权限失败, 方法格式错误"),
 
 
     REDIRECT_URL_PARAMETER_ILLEGAL(800, "非法的回调地址"),
