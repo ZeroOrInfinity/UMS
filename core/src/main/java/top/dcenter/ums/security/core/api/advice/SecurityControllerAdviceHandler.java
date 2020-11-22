@@ -24,6 +24,7 @@
 package top.dcenter.ums.security.core.api.advice;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -41,7 +42,7 @@ import top.dcenter.ums.security.core.vo.ResponseResult;
  */
 
 @ControllerAdvice
-public class SecurityControllerExceptionHandler {
+public class SecurityControllerAdviceHandler {
 
     @ExceptionHandler(SmsCodeRepeatedRequestException.class)
     @ResponseBody
@@ -64,6 +65,7 @@ public class SecurityControllerExceptionHandler {
         return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), ex.getData());
     }
 
+    @SuppressWarnings("unused")
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
@@ -152,6 +154,21 @@ public class SecurityControllerExceptionHandler {
     public ResponseResult expiredSessionDetectedException(ExpiredSessionDetectedException ex) {
         String errorMsg = ex.getMessage();
         return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum());
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseResult expiredSessionDetectedException(AuthenticationException ex) {
+        String errorMsg = ex.getMessage();
+        return ResponseResult.fail(errorMsg, ErrorCodeEnum.UNAUTHORIZED);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseResult exceptionHandler(Exception ex){
+        return ResponseResult.fail(ex.getMessage(), ErrorCodeEnum.SERVER_ERROR);
     }
 
 }

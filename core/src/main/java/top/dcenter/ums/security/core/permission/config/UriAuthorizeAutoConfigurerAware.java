@@ -34,15 +34,20 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.auth.config.PropertiesAutoConfiguration;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
+import top.dcenter.ums.security.core.permission.exception.handler.UmsAccessDeniedHandlerImpl;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static org.springframework.http.HttpMethod.GET;
+import static top.dcenter.ums.security.common.bean.UriHttpMethodTuple.tuple;
 
 /**
  * 权限相关配置
@@ -73,8 +78,15 @@ public class UriAuthorizeAutoConfigurerAware implements HttpSecurityAware, Appli
     }
 
     @Override
-    public void postConfigure(HttpSecurity http) {
-        // dto nothing
+    public void postConfigure(HttpSecurity http) throws Exception {
+        // 设置授权异常处理器
+        http.exceptionHandling().accessDeniedHandler(new UmsAccessDeniedHandlerImpl());
+
+        // 设置授权异常页面
+        final String accessDenyPage = clientProperties.getAccessDenyPage();
+        if (StringUtils.hasText(accessDenyPage)) {
+            http.exceptionHandling().accessDeniedPage(accessDenyPage);
+        }
     }
 
     @Override
@@ -104,10 +116,15 @@ public class UriAuthorizeAutoConfigurerAware implements HttpSecurityAware, Appli
 
         // 这里 tuple(null, accessExp) 的唯一作用是作为 key 值, 无实际意义
         accessMap.put(UriHttpMethodTuple.tuple(null, accessExp), Collections.singleton(accessExp));
-
         Map<String, Map<UriHttpMethodTuple, Set<String>>> resultMap = new HashMap<>(1);
-
         resultMap.put(HttpSecurityAware.ACCESS, accessMap);
+
+        final String accessDenyPage = clientProperties.getAccessDenyPage();
+        if (StringUtils.hasText(accessDenyPage)) {
+            final Map<UriHttpMethodTuple, Set<String>> permitAllMap = new HashMap<>(1);
+            permitAllMap.put(tuple(GET, accessDenyPage), null);
+            resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
+        }
 
         return resultMap;
     }

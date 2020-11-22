@@ -100,6 +100,12 @@ public class ClientProperties {
     private String successUrl = "/";
 
     /**
+     * 403 页面, 默认 空
+     */
+    @Setter
+    private String accessDenyPage;
+
+    /**
      * 不需要认证的静态资源 urls, 通过以下方式配置: <br><br>
      * Example Usage:
      *
