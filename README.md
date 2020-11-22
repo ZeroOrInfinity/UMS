@@ -71,6 +71,7 @@ User management scaffolding, integration: User password login, mobile login, OAu
 ## 三、`TODO List`:
 
 - 1. 准备基于 spring-security5.4 添加 JWT, OAuth2 authenticate server
+- 2. 添加多租户注册功能与接口
 ------
 ## 四、`快速开始(Quick Start)`：
 
@@ -92,7 +93,7 @@ User management scaffolding, integration: User password login, mobile login, OAu
 3. 短信验证码(SMS validate code): `默认空实现`
     - [SmsCodeSender](https://github.com/ZeroOrInfinity/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/sms/SmsCodeSender.java)
 
-4. 滑块验证码(Slider validate code): 已实现缓存功能, 支持定时刷新缓存功能, 可以自定义缓存验证码图片的输出路径与缓存数量, 支持自定义源图片路径与模板图片路径
+4. 滑块验证码(Slider validate code): 已实现缓存功能, 支持定时刷新缓存功能, 可以自定义缓存验证码图片的输出路径与缓存数量, 支持自定义源图片路径与模板图片路径(源图片与模板图片参考[validate-code-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/validate-code-example))
     - [SimpleSliderCodeFactory](https://github.com/ZeroOrInfinity/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/slider/SliderCodeFactory.java) 
 
 5. 自定义验证码(customize validate code):

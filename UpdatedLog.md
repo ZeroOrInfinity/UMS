@@ -1,3 +1,12 @@
+## 2.1.6
+### Fixes and Improvements:
+1. 添加: 可处理 Json 与 Ajax 的自定义 AccessDeniedHandler 处理器, 自定义403页面可通过属性 ums.client.accessDenyPage 设置.
+2. 改进: 优化 UriAuthorizeService 接口, 优化 getUriAuthorityMapOfUser(authentication) 方法获取用户权限的逻辑, 为添加 JWT 功能做准备.
+3. 优化: responseWithJson(..)方法的响应逻辑, 对 HttpServletRequest 是否需要返回 json 的判断逻辑.
+4. 优化: 删除多余的错误页面属性或配置.
+5. 优化: ResponseResult 增加 timestamp 字段.
+6. 其他优化.
+
 ## 2.1.5
 ### Fixes and Improvements:
 1. 优化: Auth2RequestHolder.getAuth2DefaultRequest(..) 与 Auth2RequestHolder.getProviderIdBySource(..) 方法.
