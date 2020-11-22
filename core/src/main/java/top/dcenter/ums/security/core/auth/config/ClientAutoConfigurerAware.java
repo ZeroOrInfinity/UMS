@@ -181,9 +181,6 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
         permitAllMap.put(tuple(GET, clientProperties.getLoginPage()), null);
         permitAllMap.put(tuple(GET, clientProperties.getLoginUnAuthenticationRoutingUrl()), null);
         permitAllMap.put(tuple(POST, clientProperties.getLoginProcessingUrl()), null);
-        permitAllMap.put(tuple(GET, clientProperties.getErrorUrl()), null);
-        permitAllMap.put(tuple(GET, clientProperties.getError4Url()), null);
-        permitAllMap.put(tuple(GET, clientProperties.getError5Url()), null);
 
         Set<String> permitUrls = clientProperties.getPermitUrls();
         permitUrlsFillingPermitAllMap(permitUrls, permitAllMap);
