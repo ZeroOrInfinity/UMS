@@ -233,12 +233,14 @@ public class AuthenticationUtil {
      */
     public static void responseWithJson(HttpServletResponse response, int status,
                                          String result) throws IOException {
-        response.setStatus(status);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding(SecurityConstants.CHARSET_UTF8);
-        PrintWriter writer = response.getWriter();
-        writer.write(result);
-        writer.flush();
+        if (!response.isCommitted()) {
+            response.setStatus(status);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding(SecurityConstants.CHARSET_UTF8);
+            PrintWriter writer = response.getWriter();
+            writer.write(result);
+            writer.flush();
+        }
     }
 
     /**
@@ -394,12 +396,7 @@ public class AuthenticationUtil {
         if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
         {
             int status = HttpStatus.UNAUTHORIZED.value();
-            response.setStatus(status);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding(SecurityConstants.CHARSET_UTF8);
-
-            // 在 ResponseResult 中的 data 为请求头中的 referer
-            response.getWriter().write(toJsonString(ResponseResult.fail(errorCodeEnum, redirectUrl)));
+            responseWithJson(response, status, toJsonString(ResponseResult.fail(errorCodeEnum, redirectUrl)));
             return;
         }
 
