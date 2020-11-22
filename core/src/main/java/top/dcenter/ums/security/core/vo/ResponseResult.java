@@ -23,10 +23,15 @@
 
 package top.dcenter.ums.security.core.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+
+import java.time.LocalDateTime;
 
 /**
  * 简单的 Vo 对象封装, code = 0 表示处理成功信息，其他表示失败。<br><br>
@@ -44,11 +49,15 @@ public class ResponseResult {
     private int code;
     private String msg;
     private Object data;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime timestamp;
 
     public ResponseResult(int code, String msg) {
         this.code = code;
         this.msg = msg;
         this.data = null;
+        this.timestamp = LocalDateTime.now();
     }
 
     public ResponseResult(int code) {
@@ -99,7 +108,7 @@ public class ResponseResult {
      * @return  ResponseResult
      */
     public static ResponseResult fail(ErrorCodeEnum errorCodeEnum, Object data) {
-        return new ResponseResult(errorCodeEnum.getCode(), errorCodeEnum.getMsg(), data);
+        return new ResponseResult(errorCodeEnum.getCode(), errorCodeEnum.getMsg(), data, LocalDateTime.now());
     }
 
     /**
@@ -108,7 +117,7 @@ public class ResponseResult {
      * @return  ResponseResult
      */
     public static ResponseResult fail(String errorMsg, ErrorCodeEnum errorCodeEnum) {
-        return new ResponseResult(errorCodeEnum.getCode(), errorMsg, null);
+        return new ResponseResult(errorCodeEnum.getCode(), errorMsg, null, LocalDateTime.now());
     }
 
     /**
@@ -118,7 +127,7 @@ public class ResponseResult {
      * @return  ResponseResult
      */
     public static ResponseResult fail(String errorMsg, ErrorCodeEnum errorCodeEnum, Object data) {
-        return new ResponseResult(errorCodeEnum.getCode(), errorMsg, data);
+        return new ResponseResult(errorCodeEnum.getCode(), errorMsg, data, LocalDateTime.now());
     }
 
 }
