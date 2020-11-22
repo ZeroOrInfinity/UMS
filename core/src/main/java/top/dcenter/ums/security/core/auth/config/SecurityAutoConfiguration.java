@@ -36,7 +36,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.context.support.GenericWebApplicationContext;
-import top.dcenter.ums.security.core.api.advice.SecurityControllerExceptionHandler;
+import top.dcenter.ums.security.core.api.advice.SecurityControllerAdviceHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler;
@@ -110,9 +110,9 @@ public class SecurityAutoConfiguration implements InitializingBean {
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.advice.SecurityControllerExceptionHandler")
-    public SecurityControllerExceptionHandler securityControllerExceptionHandler() {
-        return new SecurityControllerExceptionHandler();
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.advice.SecurityControllerAdviceHandler")
+    public SecurityControllerAdviceHandler securityControllerExceptionHandler() {
+        return new SecurityControllerAdviceHandler();
     }
 
     @Bean

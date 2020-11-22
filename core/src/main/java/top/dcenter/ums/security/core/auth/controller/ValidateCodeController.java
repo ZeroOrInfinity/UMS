@@ -115,7 +115,7 @@ public class ValidateCodeController implements InitializingBean {
     /**
      * 验证方法, 所有验证逻辑都通过 {@link top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeFilter} 处理:<br>
      *     1. 验证不通过, 过滤器直接抛出 {@link top.dcenter.ums.security.core.exception.ValidateCodeException } ,
-     *        再通过 {@link top.dcenter.ums.security.core.api.advice.SecurityControllerExceptionHandler} 处理返回.
+     *        再通过 {@link top.dcenter.ums.security.core.api.advice.SecurityControllerAdviceHandler} 处理返回.
      *     2. 验证通过, 通过此方法返回.
      *
      * @return  ResponseResult
