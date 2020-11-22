@@ -29,7 +29,6 @@ import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.core.permission.enums.PermissionType;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -61,21 +60,20 @@ public interface UriAuthorizeService {
     boolean hasPermission(Authentication authentication, HttpServletRequest request);
 
     /**
-     * 获取用户角色的 uri 权限 Map
-     * @param rolesAuthoritiesMap   所有角色 uri(资源) 权限 Map(role, map(uri, Set(permission)))
-     * @param userRoleSet           用户所拥有的角色集合
-     * @return 用户角色的 uri 权限 Map(uri, Set(permission))
+     * 根据 authentication 获取用户所拥有的角色与 scope 的 uri(资源) 权限. 这里包含了多租户 与 SCOPE 逻辑. <br>
+     * <pre>
+     * Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+     * // 此 authorities 可以包含:  [ROLE_A, ROLE_B, TENANT_110110, SCOPE_read, SCOPE_write]
+     * // 如上所示:
+     * //    1. 角色数量    >= 1
+     * //    2. SCOPE 数量 >= 1
+     * //    3. 多租户数量  = 1
+     * </pre>
+     * @param authentication    {@link Authentication}
+     * @return  用户所拥有的角色与 scope 的 uri(资源) 权限 Map(uri, Set(permission))
      */
     @NonNull
-    Map<String, Set<String>> getUriAuthoritiesOfUserRole(Map<String, Map<String, Set<String>>> rolesAuthoritiesMap,
-                                                         Set<String> userRoleSet);
-
-    /**
-     * 当没有访问权限时的处理方式
-     * @param status    返回状态
-     * @param response  response
-     */
-    void handlerError(int status, HttpServletResponse response);
+    Map<String, Set<String>> getUriAuthoritiesOfUser(@NonNull Authentication authentication);
 
     /**
      * 获取所有角色的 uri(资源) 的权限 Map(role, Map(uri, Set(permission))).<br>
@@ -135,7 +133,8 @@ public interface UriAuthorizeService {
     }
 
     /**
-     * 获取指定 SCOPE 的所有角色的 uri(资源) 的权限 Map(role, Map(uri, Set(permission))).<br>
+     * 获取指定 scopeSet 的所有SCOPE的 uri(资源) 的权限 Map(scope, Map(uri, Set(permission))). 在微服务中, 对资源的权限控制有粗粒度权限控制
+     * 与细粒度权限控制, 使用粗粒度权限控制时: 一般通过网关或授权服务器进行权限控制, 此接口适用此模式.<br>
      * <pre>
      * // 当为 restful 风格的 Api 时, uri 与 permission 是一对一关系:
      *  uri         permission
@@ -153,12 +152,12 @@ public interface UriAuthorizeService {
      * // 但最终返回的结果时是一样的; Map{["user/*", Set[list,add,edit,delete]]..}
      * </pre>
      * @param scopeSet          包含 SCOPE_ 前缀的租户权限 Set, 例如: SCOPE_scope
-     * @return                  Map(role, Map(uri, Set(permission))): <br>
-     *     key: 必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), <br>
+     * @return                  Map(scope, Map(uri, Set(permission))): <br>
+     *     key: 必须包含"SCOPE_"前缀的角色名称(如: SCOPE_read), <br>
      *     value: map(key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为权限字符串({@link PermissionType#getPermission()}) Set).
      */
     @NonNull
-    default Map<String, Map<String, Set<String>>> getRolesAuthoritiesOfScope(Set<String> scopeSet) {
+    default Map<String, Map<String, Set<String>>> getScopeAuthoritiesOfScope(Set<String> scopeSet) {
         // 默认为空, SCOPE 使用者需自己实现此逻辑
         return Collections.emptyMap();
     }

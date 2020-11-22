@@ -71,7 +71,6 @@ import java.util.function.Predicate;
  */
 public abstract class AbstractUriAuthorizeService implements UriAuthorizeService {
 
-
     /**
      * 角色权限前缀
      */
@@ -134,40 +133,17 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
     private boolean hasPermission(Authentication authentication, String requestUri, Predicate<Map.Entry<String, Set<String>>> predicate) {
         // Map<uri, Set<permission>>
-        final Map<String, Set<String>> uriPermissionOfUserRoleMap = getUriAuthorityMapOfUser(authentication);
-        return uriPermissionOfUserRoleMap.entrySet()
-                                         .stream()
-                                         // 通过 antPathMatcher 检查用户权限Map中 uri 是否匹配 requestUri
-                                         .filter(entry -> antPathMatcher.match(entry.getKey(), requestUri))
-                                         // 是否匹配 predicate
-                                         .anyMatch(predicate);
+        final Map<String, Set<String>> uriPermissionsOfUser = getUriAuthoritiesOfUser(authentication);
+        return uriPermissionsOfUser.entrySet()
+                                   .stream()
+                                   // 通过 antPathMatcher 检查用户权限Map中 uri 是否匹配 requestUri
+                                   .filter(entry -> antPathMatcher.match(entry.getKey(), requestUri))
+                                   // 是否匹配 predicate
+                                   .anyMatch(predicate);
     }
 
     /**
-     * 获取用户角色的 uri 权限 Map
-     * @param rolesAuthoritiesMap   所有角色 uri(资源) 权限 Map(role, map(uri, Set(permission)))
-     * @param userRoleSet           用户所拥有的角色集合
-     * @return 用户角色的 uri 权限 Map(uri, Set(permission))
-     */
-    @Override
-    @NonNull
-    public Map<String, Set<String>> getUriAuthoritiesOfUserRole(Map<String, Map<String, Set<String>>> rolesAuthoritiesMap,
-                                                                final Set<String> userRoleSet) {
-
-        // Map<uri, Set<permission>>
-        Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthoritiesMap.size());
-
-        rolesAuthoritiesMap.entrySet()
-                           .stream()
-                           .filter(entry -> userRoleSet.contains(entry.getKey()))
-                           .map(Map.Entry::getValue)
-                           .forEach(map2mapConsumer(uriAuthoritiesMap));
-
-        return uriAuthoritiesMap;
-    }
-
-    /**
-     * 根据 authentication 获取用户所拥有的所有角色的 uri(资源) 权限. 这里包含了多租户 与 SCOPE 逻辑. <br>
+     * 根据 authentication 获取用户所拥有的角色与 scope 的 uri(资源) 权限. 这里包含了多租户 与 SCOPE 逻辑. <br>
      * <pre>
      * Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
      * // 此 authorities 可以包含:  [ROLE_A, ROLE_B, TENANT_110110, SCOPE_read, SCOPE_write]
@@ -177,10 +153,11 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
      * //    3. 多租户数量  = 1
      * </pre>
      * @param authentication    {@link Authentication}
-     * @return  用户所拥有的所有角色的 uri(资源) 权限 Map(uri, Set(permission))
+     * @return  用户所拥有的角色与 scope 的 uri(资源) 权限 Map(uri, Set(permission))
      */
+    @Override
     @NonNull
-    private Map<String, Set<String>> getUriAuthorityMapOfUser(@NonNull Authentication authentication) {
+    public Map<String, Set<String>> getUriAuthoritiesOfUser(@NonNull Authentication authentication) {
 
         // 获取角色权限集合
         Set<String> authoritySet = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
@@ -208,22 +185,48 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         // 用户所拥有的所有角色的 uri(资源) 权限 Map(uri, Set(permission))
         final Map<String, Map<String, Set<String>>> rolesAuthorities;
 
-        if (null != tenantAuthority[0]) {
-            // 获取此租户 ID 的所有角色的资源权限的 Map
-            rolesAuthorities = getRolesAuthoritiesOfTenant(tenantAuthority[0]);
-        }
-        else if (scopeSet.size() > 0) {
-            // 获取此 scopeSet 的所有角色的资源权限的 Map
-            rolesAuthorities = getRolesAuthoritiesOfScope(scopeSet);
-        }
-        else {
+        if (null == tenantAuthority[0]) {
             // 获取所有角色的资源权限的 Map
             rolesAuthorities = getRolesAuthorities();
         }
+        else {
+            // 获取此租户 ID 的所有角色的资源权限的 Map
+            rolesAuthorities = getRolesAuthoritiesOfTenant(tenantAuthority[0]);
+        }
 
         // 基于用户 roleSet 的 Map<uri, Set<permission>>
-        return getUriAuthoritiesOfUserRole(rolesAuthorities, roleSet);
+        final Map<String, Set<String>> uriPermissionsOfUserRole = getUriAuthoritiesOfUserRole(rolesAuthorities, roleSet);
 
+        if (scopeSet.size() > 0) {
+            // 获取此 scopeSet 的所有角色的资源权限的 Map<scope, Map<uri, Set<permission>>>
+            final Map<String, Map<String, Set<String>>> uriPermissionsOfScope = getScopeAuthoritiesOfScope(scopeSet);
+            // 把 scope 的资源权限与 role 资源权限合并
+            uriPermissionsOfScope.values().forEach(map2mapConsumer(uriPermissionsOfUserRole));
+        }
+        return uriPermissionsOfUserRole;
+
+    }
+
+    /**
+     * 获取用户角色的 uri 权限 Map
+     * @param rolesAuthoritiesMap   所有角色 uri(资源) 权限 Map(role, map(uri, Set(permission)))
+     * @param userRoleSet           用户所拥有的角色集合
+     * @return 用户角色的 uri 权限 Map(uri, Set(permission))
+     */
+    @NonNull
+    private Map<String, Set<String>> getUriAuthoritiesOfUserRole(Map<String, Map<String, Set<String>>> rolesAuthoritiesMap,
+                                                                 final Set<String> userRoleSet) {
+
+        // Map<uri, Set<permission>>
+        Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthoritiesMap.size());
+
+        rolesAuthoritiesMap.entrySet()
+                           .stream()
+                           .filter(entry -> userRoleSet.contains(entry.getKey()))
+                           .map(Map.Entry::getValue)
+                           .forEach(map2mapConsumer(uriAuthoritiesMap));
+
+        return uriAuthoritiesMap;
     }
 
     @NonNull
