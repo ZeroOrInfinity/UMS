@@ -26,7 +26,6 @@ package top.dcenter.ums.security.core.auth.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -48,6 +47,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 
+import static top.dcenter.ums.security.core.util.AuthenticationUtil.isAjaxOrJson;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
 import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
@@ -117,8 +117,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
             }
 
             // 判断 accept 是否要求返回 json
-            String acceptHeader = request.getHeader(SecurityConstants.HEADER_ACCEPT);
-            if (StringUtils.hasText(acceptHeader) && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
+            if (isAjaxOrJson(request))
             {
                 clearAuthenticationAttributes(request);
                 responseWithJson(response, HttpStatus.OK.value(),

@@ -100,12 +100,8 @@ public class ClientAuthenticationFailureHandler extends BaseAuthenticationFailur
                  reqData,
                  exception.getMessage());
 
-
-        // 检测是否接收 json 格式
-        String acceptHeader = request.getHeader(SecurityConstants.HEADER_ACCEPT);
-
-        // 返回 json 格式
-        if (authenticationFailureProcessing(response, exception, e, acceptHeader, clientProperties))
+        // 检测是否接收 json 格式并返回 json 格式
+        if (authenticationFailureProcessing(response, request, exception, e, clientProperties))
         {
             // 进行必要的清理
             return;

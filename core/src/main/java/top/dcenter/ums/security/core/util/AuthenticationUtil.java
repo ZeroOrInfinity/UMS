@@ -57,6 +57,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static java.util.Optional.ofNullable;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.HEADER_ACCEPT;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SERVLET_CONTEXT_PERMIT_ALL_SET_KEY;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_REDIRECT_URL_KEY;
 import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
@@ -196,15 +197,14 @@ public class AuthenticationUtil {
      * @return 如果通过 {@link HttpServletResponse} 返回 JSON 数据则返回 true, 否则 false
      * @throws IOException IOException
      */
-    public static boolean authenticationFailureProcessing(HttpServletResponse response, AuthenticationException exception,
-                                                          AbstractResponseJsonAuthenticationException e, String acceptHeader,
+    public static boolean authenticationFailureProcessing(HttpServletResponse response, HttpServletRequest request,
+                                                          AuthenticationException exception,
+                                                          AbstractResponseJsonAuthenticationException e,
                                                           ClientProperties clientProperties) throws IOException {
 
         boolean isJsonProcessType = LoginProcessType.JSON.equals(clientProperties.getLoginProcessType());
-        boolean isAcceptHeader =
-                StringUtils.hasText(acceptHeader) && (acceptHeader.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE) || acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE));
         // 判断是否返回 json 类型
-        if (isJsonProcessType || isAcceptHeader)
+        if (isJsonProcessType || isAjaxOrJson(request))
         {
 
             int status = HttpStatus.UNAUTHORIZED.value();
@@ -372,6 +372,22 @@ public class AuthenticationUtil {
         }
 
         return redirectUrl;
+    }
+
+    public static final String HEADER_X_REQUESTED_WITH_NAME = "X-Requested-With";
+    public static final String X_REQUESTED_WITH = "XMLHttpRequest";
+
+    /**
+     * 判断是否为 ajax 请求或者支持接收 json 格式
+     * @param request   request
+     * @return  但为 ajax 请求或者支持接收 json 格式返回 true
+     */
+    public static boolean isAjaxOrJson(HttpServletRequest request) {
+        //判断是否为ajax请求 或 支持接收 json 格式
+        String xRequestedWith = request.getHeader(HEADER_X_REQUESTED_WITH_NAME);
+        String accept = request.getHeader(HEADER_ACCEPT);
+        return (StringUtils.hasText(accept) && accept.contains(MediaType.APPLICATION_JSON_VALUE))
+                || (xRequestedWith != null && xRequestedWith.equalsIgnoreCase(X_REQUESTED_WITH));
     }
 
     private static void redirectProcessing(HttpServletRequest request, HttpServletResponse response, ClientProperties clientProperties, RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum, String redirectUrl) throws IOException {

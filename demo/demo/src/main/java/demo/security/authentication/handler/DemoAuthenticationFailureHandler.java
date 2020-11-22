@@ -26,7 +26,6 @@ package demo.security.authentication.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
-import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
@@ -82,9 +81,7 @@ public class DemoAuthenticationFailureHandler extends BaseAuthenticationFailureH
         // 进行必要的缓存清理
 
         // 检测是否接收 json 格式
-        String acceptHeader = request.getHeader(SecurityConstants.HEADER_ACCEPT);
-
-        if (authenticationFailureProcessing(response, exception, e, acceptHeader, clientProperties))
+        if (authenticationFailureProcessing(response, request, exception, e, clientProperties))
         {
             // 进行必要的清理缓存
             return;
