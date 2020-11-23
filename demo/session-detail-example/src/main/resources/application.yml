@@ -79,6 +79,13 @@ ums:
     # 当 {@code enableRestfulApi=false} 时 {@code accessExp} 权限表达式生效,
     # 当 {@code enableRestfulApi=true} 时 {@code restfulAccessExp} 权限表达式生效.
     enable-restful-api: true
+    # 一级域名(不包括二级域名) 例如:
+    #       domain: www.example.com -> topDomain: example.com
+    #       domain: www.example.com.cn -> topDomain: example.com.cn
+    #       domain: aaa.bbb.example.net -> topDomain: example.net
+    # 测试时用的 IP 或 localhost 直接原样设置就行.
+    # 在应用启动时通过 SecurityAutoConfiguration 自动注入 MvcUtil 字段 topDomain 中. 如在设置跨域 cookie 时可以通过 MvcUtil.getTopDomain() 方法获取.
+    topDomain: localhost
     # 登录页
     login-page: /login
     # 登录失败页

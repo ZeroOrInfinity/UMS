@@ -44,6 +44,24 @@ ums:
   oauth:
     enabled: false
   client:
+    # ========= 放行权限 ==========
+    # 权限表达式, 当 enableRestfulApi=true 且没有 @EnableGlobalMethodSecurity 注释时生效, 默认为 hasPermission(request, authentication).
+    # hasPermission 表达式默认实现为 UriAuthoritiesPermissionEvaluator, 想自定义逻辑, 实现 PermissionEvaluator 即可替换.
+    # String accessExp = "hasPermission(request, authentication)";
+    # // 配置等效与
+    # httpSecurity.authorizeRequests().anyRequest().access(hasPermission(request, authentication));
+    restful-access-exp: hasPermission(request, authentication)
+    # 是否支持 restful Api (前后端交互接口的风格; 如: 查询(GET),添加(POST),修改(PUT),删除(DELETE)), 默认: true.
+    # 当 {@code enableRestfulApi=false} 时 {@code accessExp} 权限表达式生效,
+    # 当 {@code enableRestfulApi=true} 时 {@code restfulAccessExp} 权限表达式生效.
+    enable-restful-api: true
+    # 一级域名(不包括二级域名) 例如:
+    #       domain: www.example.com -> topDomain: example.com
+    #       domain: www.example.com.cn -> topDomain: example.com.cn
+    #       domain: aaa.bbb.example.net -> topDomain: example.net
+    # 测试时用的 IP 或 localhost 直接原样设置就行.
+    # 在应用启动时通过 SecurityAutoConfiguration 自动注入 MvcUtil 字段 topDomain 中. 如在设置跨域 cookie 时可以通过 MvcUtil.getTopDomain() 方法获取.
+    topDomain: localhost
     # 登录页(必须自己实现)
     login-page: /login
     # 登录失败页(必须自己实现)
