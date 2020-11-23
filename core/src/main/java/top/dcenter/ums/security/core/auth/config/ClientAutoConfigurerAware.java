@@ -155,8 +155,8 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
          */
         http.authenticationProvider(usernamePasswordAuthenticationProvider)
                 .formLogin()
-                .usernameParameter(clientProperties.usernameParameter)
-                .passwordParameter(clientProperties.passwordParameter)
+                .usernameParameter(clientProperties.getUsernameParameter())
+                .passwordParameter(clientProperties.getPasswordParameter())
                 .loginPage(loginUnAuthenticationRoutingUrl)
                 // uri 需要自己实现
                 .failureUrl(clientProperties.getFailureUrl())

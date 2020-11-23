@@ -77,7 +77,7 @@ public class ClientAuthenticationFailureHandler extends BaseAuthenticationFailur
             Map<String, Object> formMap = jsonRequest.getFormMap();
             if (formMap != null)
             {
-                formMap.computeIfPresent(clientProperties.passwordParameter, (k, v) -> v = "PROTECTED");
+                formMap.computeIfPresent(clientProperties.getPasswordParameter(), (k, v) -> v = "PROTECTED");
                 reqData = formMap.toString();
             }
             else
@@ -88,7 +88,7 @@ public class ClientAuthenticationFailureHandler extends BaseAuthenticationFailur
         else
         {
             Map<String, String[]> parameterMap = request.getParameterMap();
-            parameterMap.computeIfPresent(clientProperties.passwordParameter, (k, v) -> v = new String[]{"PROTECTED"});
+            parameterMap.computeIfPresent(clientProperties.getPasswordParameter(), (k, v) -> v = new String[]{"PROTECTED"});
             reqData = parameterMap.toString();
         }
 

@@ -29,6 +29,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.validation.annotation.Validated;
 import top.dcenter.ums.security.common.enums.CsrfTokenRepositoryType;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
 import top.dcenter.ums.security.core.permission.evaluator.UriAuthoritiesPermissionEvaluator;
@@ -55,6 +56,7 @@ import static top.dcenter.ums.security.common.consts.SecurityConstants.DEFAULT_U
  */
 @SuppressWarnings("jol")
 @Getter
+@Validated
 @ConfigurationProperties("ums.client")
 public class ClientProperties {
 
@@ -218,37 +220,37 @@ public class ClientProperties {
      * 设置登出 url, 默认为 /logout
      */
     @Setter
-    public String logoutUrl = "/logout";
+    private String logoutUrl = "/logout";
     /**
      * 设置登出后跳转的 url(必须自己实现), 默认为 /login
      */
     @Setter
-    public String logoutSuccessUrl = "/login";
+    private String logoutSuccessUrl = "/login";
     /**
      * 设置由客户端决定认证成功要跳转的 url 的 request 参数名称, 默认为 redirectTargetUrl
      */
     @Setter
-    public String targetUrlParameter = "redirectTargetUrl";
+    private String targetUrlParameter = "redirectTargetUrl";
     /**
      * 设置登录时用户名的 request 参数名称, 默认为 username
      */
     @Setter
-    public String usernameParameter = "username";
+    private String usernameParameter = "username";
     /**
      * 设置登录时用户密码的 request 参数名称, 默认为 password
      */
     @Setter
-    public String passwordParameter = "password";
+    private String passwordParameter = "password";
     /**
      * 登录后是否利用 Referer 进行跳转, 默认为: true
      */
     @Setter
-    public Boolean useReferer = true;
+    private Boolean useReferer = true;
     /**
      * 允许来自同一来源(如: example.com)的 X-Frame-Options headers 请求, 默认为: false
      */
     @Setter
-    public Boolean sameOrigin = Boolean.FALSE;
+    private Boolean sameOrigin = Boolean.FALSE;
 
     /**
      * 抑制反射警告, 支持 JDK11, 默认: false ,
