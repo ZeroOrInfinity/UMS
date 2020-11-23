@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
+ * 实现 基于 SLF4J MDC 机制的日志链路追踪功能的 {@link MdcScheduledThreadPoolTaskExecutor} 与 {@link MdcThreadPoolTaskExecutor}
  * 1. 第三方授权登录 AccessToken 维护有效期定时任务配置.<br>
  * 2. 第三方授权登录时, 异步更新用户的第三方授权用户信息的 Executor 属性配置
  * @author YongWu zheng
@@ -194,7 +195,10 @@ public class ExecutorAutoConfiguration implements SchedulingConfigurer, Disposab
         }
     }
 
-    private static class MdcScheduledThreadPoolTaskExecutor extends ScheduledThreadPoolExecutor {
+    /**
+     * 实现 基于 SLF4J MDC 机制的日志链路追踪功能
+     */
+    public static class MdcScheduledThreadPoolTaskExecutor extends ScheduledThreadPoolExecutor {
 
         Map<Object, Object> taskObjectMap = new ConcurrentHashMap<>();
 
@@ -384,8 +388,10 @@ public class ExecutorAutoConfiguration implements SchedulingConfigurer, Disposab
 
     }
 
-
-    private static class MdcThreadPoolTaskExecutor extends ThreadPoolExecutor {
+    /**
+     * 实现 基于 SLF4J MDC 机制的日志链路追踪功能
+     */
+    public static class MdcThreadPoolTaskExecutor extends ThreadPoolExecutor {
 
         Map<Object, Object> taskObjectMap = new ConcurrentHashMap<>();
 
