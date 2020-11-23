@@ -50,6 +50,7 @@ import java.util.HashSet;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.isAjaxOrJson;
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
 import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
+import static top.dcenter.ums.security.core.util.MvcUtil.isSelfTopDomain;
 import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
 import static top.dcenter.ums.security.core.util.RequestUtil.getRequestUri;
 
@@ -172,18 +173,19 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         if (targetUrlParameter != null) {
             targetUrl = request.getParameter(targetUrlParameter);
 
-            if (StringUtils.hasText(targetUrl)) {
+            if (StringUtils.hasText(targetUrl) && isSelfTopDomain(targetUrl)) {
                 if (this.logger.isTraceEnabled()) {
                     this.logger.trace(LogMessage.format("Using url %s from request parameter %s", targetUrl,
                                                         targetUrlParameter));
                 }
                 return targetUrl;
             }
+            targetUrl = null;
         }
 
         if (useReferer) {
             String referer = request.getHeader("Referer");
-            if (StringUtils.hasText(referer))
+            if (StringUtils.hasText(referer) && isSelfTopDomain(referer))
             {
                 targetUrl = referer;
             }

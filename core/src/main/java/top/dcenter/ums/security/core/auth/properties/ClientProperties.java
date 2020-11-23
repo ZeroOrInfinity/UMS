@@ -32,8 +32,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.validation.annotation.Validated;
 import top.dcenter.ums.security.common.enums.CsrfTokenRepositoryType;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
+import top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration;
 import top.dcenter.ums.security.core.permission.evaluator.UriAuthoritiesPermissionEvaluator;
+import top.dcenter.ums.security.core.util.MvcUtil;
 
+import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -79,6 +82,22 @@ public class ClientProperties {
      */
     @Setter
     private List<String> roleHierarchy = new ArrayList<>();
+
+    /**
+     * 一级域名(不包括二级域名)
+     * 例如:
+     * <pre>
+     * domain: www.example.com -> topDomain: example.com
+     * domain: www.example.com.cn -> topDomain: example.com.cn
+     * domain: aaa.bbb.example.net -> topDomain: example.net
+     * </pre>
+     * 测试时用的 IP 或 localhost 直接原样设置就行.
+     * 在应用启动时通过 {@link SecurityAutoConfiguration} 自动注入 {@link MvcUtil} 字段 topDomain 中.
+     * 如在设置跨域 cookie 时可以通过 {@link MvcUtil#getTopDomain()} 方法获取.
+     */
+    @Setter
+    @NotNull(message = "ums.client.topDomain 值必须设置")
+    private String topDomain;
 
     /**
      * 设置登录页(必须自己实现)，用户没有配置则默认为 /login

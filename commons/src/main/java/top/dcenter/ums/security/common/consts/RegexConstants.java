@@ -38,4 +38,34 @@ public class RegexConstants {
      * RFC 6819 安全检查(https://oauth.net/advisories/2014-1-covert-redirect/)时, 使用的正则表达式
      */
     public static final String RFC_6819_CHECK_REGEX = "^(([a-zA-z]+://)?[^/]+)+/.*$";
+
+    /**
+     * 域名的正则表达式, 针对域名的解析, 例如: www.example.com , www.example.com.cn, www.example.top aaa.bbb.example.cc,
+     * 127.0.0.1
+     */
+    public static final String DOMAIN_REGEX = "^([^\\.]+\\.)+((([^\\.]+\\.)((com\\.))([^\\.]{1,4}$))|((.*(?<!com)\\.)([^\\.]+$)))";
+    /**
+     * {@link #DOMAIN_REGEX} 的正则表达式中一级域名的组的索引, 对于 ip 形式的不适用. 例如:
+     * <pre>
+     * String domain = "www.xxx.com.cn";
+     * Pattern pattern = Pattern.compile(DOMAIN_REGEX);
+     * Matcher matcher = pattern.matcher(domain);
+     * if (matcher.find()) {
+     *     String topDomain =  matcher.group(TOP_DOMAIN_INDEX);
+     * }
+     * // 输出:
+     * domain: www.example.com -> topDomain: example.com
+     * domain: www.example.com.cn -> topDomain: example.com.cn
+     * // 注意: 对于 ip 形式的不适用
+     * domain:  127.0.0.1 -> topDomain: 0.1
+     * </pre>
+     */
+    public static final int TOP_DOMAIN_INDEX = 2;
+
+    public static final String DIGITAL_REGEX = "\\d";
+
+    /**
+     * url scheme regex
+     */
+    public static final String URL_SCHEME_REGEX = "^([a-zA-z]+://)";
 }

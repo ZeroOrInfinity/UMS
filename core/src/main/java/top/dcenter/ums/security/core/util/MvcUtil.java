@@ -41,17 +41,26 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.UrlPathHelper;
 import top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static top.dcenter.ums.security.common.consts.RegexConstants.DIGITAL_REGEX;
+import static top.dcenter.ums.security.common.consts.RegexConstants.DOMAIN_REGEX;
+import static top.dcenter.ums.security.common.consts.RegexConstants.TOP_DOMAIN_INDEX;
+import static top.dcenter.ums.security.common.consts.RegexConstants.URL_SCHEME_REGEX;
 
 /**
  * 功能: <br>
@@ -59,17 +68,35 @@ import java.util.Map;
  * 2. Controller 在 mvc 中做 Uri 映射等动作<br>
  * 3. 获取 servletContextPath<br>
  * 4. 获取 {@link UrlPathHelper}<br>
+ * 5. 获取 本应用的一级域名<br>
+ * 6. 获取 本应用的一级域名<br>
+ * 7. 检查 redirectUrl 是否是本应用的域名, 防止跳转到外链<br>
+ * 8. 从 request 中获取一级域名
  * @author YongWu zheng
  * @version V1.0  Created by 2020/9/17 18:32
  */
 @Slf4j
 public class MvcUtil {
 
+    public static final String TOP_DOMAIN_PARAM_NAME = "topDomain";
+
+    public static final String IP6_SEPARATOR = ":";
+
+    public static final String LOCALHOST = "localhost";
+
     /**
      * servletContextPath, 在应用启动时通过 {@link SecurityAutoConfiguration} 自动注入.
      */
     @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
     private static String servletContextPath = "";
+
+    /**
+     * 一级域名(不包括二级域名), 比如: www.example.com -> example.com, www.example.com.cn -> example.com.cn
+     * 测试时用的 IP 或 localhost 直接原样设置就行.
+     * 在应用启动时通过 {@link SecurityAutoConfiguration} 自动注入.
+     */
+    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
+    private static String topDomain = "";
 
     /**
      * {@link UrlPathHelper}
@@ -149,6 +176,74 @@ public class MvcUtil {
      */
     public static String getServletContextPath() {
         return servletContextPath;
+    }
+
+    /**
+     * 获取一级域名, 通过属性 {@code ums.client.topDomain} 设置此值.
+     * @return  返回一级域名
+     */
+    public static String getTopDomain() {
+        if (StringUtils.hasText(topDomain)) {
+            return topDomain;
+        }
+        throw new RuntimeException("topDomain 未初始化, 可通过属性 ums.client.topDomain 设置此值.");
+    }
+
+    /**
+     * 从 request 中获取一级域名, ip6 或 ip4 或 localhost 时直接原样返回. 例如:
+     * <pre>
+     * www.example.com -> example.com,
+     * aaa.bbb.example.top -> example.top,
+     * www.example.com.cn -> example.com.cn,
+     * aaa.bbb.example.com.cn -> example.com.cn,
+     * 127.0.0.1 -> 127.0.0.1,
+     * ABCD:EF01:2345:6789:ABCD:EF01:2345:6789 -> ABCD:EF01:2345:6789:ABCD:EF01:2345:6789,
+     * localhost -> localhost
+     * </pre>
+     * @param request   request
+     * @return  返回一级域名
+     */
+    public static String getTopDomain(HttpServletRequest request) {
+        String serverName = request.getServerName();
+        // 排除 ip6
+        if (serverName.contains(IP6_SEPARATOR)) {
+            return serverName;
+        }
+        // 排除 localhost
+        if (serverName.equalsIgnoreCase(LOCALHOST)) {
+            return serverName;
+        }
+        // 排除 ip4
+        int lastIndexOf = serverName.lastIndexOf(".");
+        if (Pattern.matches(DIGITAL_REGEX, serverName.substring(lastIndexOf + 1))) {
+            return serverName;
+        }
+        // 提取一级域名并返回
+        Pattern pattern = Pattern.compile(DOMAIN_REGEX);
+        Matcher matcher = pattern.matcher(serverName);
+        if (matcher.find()) {
+            return matcher.group(TOP_DOMAIN_INDEX);
+        }
+        return serverName;
+    }
+
+    /**
+     * 检查 redirectUrl 是否是本应用的域名, 防止跳转到外链
+     * @param redirectUrl   要跳转的目标地址
+     * @return  返回 true 时表示是本应用的链接
+     */
+    public static boolean isSelfTopDomain(String redirectUrl) {
+        Pattern pattern = Pattern.compile(URL_SCHEME_REGEX);
+        Matcher matcher = pattern.matcher(redirectUrl);
+        if (matcher.find()) {
+            String uri = matcher.replaceFirst("");
+            int indexOf = uri.indexOf("/");
+            if (indexOf != -1) {
+                uri = uri.substring(0, indexOf);
+            }
+            return uri.contains(topDomain);
+        }
+        return true;
     }
 
     /**

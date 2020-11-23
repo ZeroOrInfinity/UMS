@@ -54,6 +54,7 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SERVLET_CONTEXT_PATH_PARAM_NAME;
+import static top.dcenter.ums.security.core.util.MvcUtil.TOP_DOMAIN_PARAM_NAME;
 import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 
 /**
@@ -144,7 +145,7 @@ public class SecurityAutoConfiguration implements InitializingBean {
             disableAccessWarnings();
         }
 
-        // 给 MvcUtil.SERVLET_CONTEXT_PATH 设置 servletContextPath
+        // 给 MvcUtil.servletContextPath 设置 servletContextPath
         Class<MvcUtil> mvcUtilClass = MvcUtil.class;
         Class.forName(mvcUtilClass.getName());
         Field[] declaredFields = mvcUtilClass.getDeclaredFields();
@@ -163,6 +164,9 @@ public class SecurityAutoConfiguration implements InitializingBean {
                     contextPath = Objects.requireNonNull(((GenericWebApplicationContext) this.applicationContext).getServletContext()).getContextPath();
                 }
                 field.set(null, contextPath);
+            }
+            else if (Objects.equals(field.getName(), TOP_DOMAIN_PARAM_NAME)) {
+                field.set(null, clientProperties.getTopDomain());
             }
 
         }
