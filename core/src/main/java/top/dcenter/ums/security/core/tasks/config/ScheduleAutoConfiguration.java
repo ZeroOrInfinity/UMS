@@ -29,12 +29,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import top.dcenter.ums.security.core.api.mdc.MdcIdGenerator;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
+import top.dcenter.ums.security.core.mdc.MdcIdType;
+import top.dcenter.ums.security.core.mdc.properties.MdcProperties;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.tasks.handler.RefreshAccessTokenJobHandler;
 import top.dcenter.ums.security.core.tasks.handler.RefreshValidateCodeCacheJobHandler;
 
 import java.util.concurrent.ScheduledExecutorService;
+
+import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.decorateTasks;
 
 /**
  * 简单的任务定时任务调度配置
@@ -52,9 +57,15 @@ public class ScheduleAutoConfiguration implements SchedulingConfigurer {
     private final RefreshValidateCodeCacheJobHandler refreshValidateCodeCacheJobHandler;
     private final RefreshAccessTokenJobHandler refreshAccessTokenJobHandler;
 
+    private final MdcIdType mdcIdType;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired(required = false)
+    private MdcIdGenerator mdcIdGenerator;
+
     public ScheduleAutoConfiguration(@Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor,
                                      Auth2Properties auth2Properties,
                                      ValidateCodeProperties validateCodeProperties,
+                                     MdcProperties mdcProperties,
                                      @Autowired(required = false) RefreshValidateCodeCacheJobHandler refreshValidateCodeCacheJobHandler,
                                      @Autowired(required = false) RefreshAccessTokenJobHandler refreshAccessTokenJobHandler) {
         this.jobTaskScheduledExecutor = jobTaskScheduledExecutor;
@@ -62,6 +73,7 @@ public class ScheduleAutoConfiguration implements SchedulingConfigurer {
         this.validateCodeProperties = validateCodeProperties;
         this.refreshValidateCodeCacheJobHandler = refreshValidateCodeCacheJobHandler;
         this.refreshAccessTokenJobHandler = refreshAccessTokenJobHandler;
+        this.mdcIdType = mdcProperties.getType();
     }
 
     @Override
@@ -69,12 +81,14 @@ public class ScheduleAutoConfiguration implements SchedulingConfigurer {
         taskRegistrar.setScheduler(this.jobTaskScheduledExecutor);
         if (this.refreshAccessTokenJobHandler != null) {
             // 刷新 AccessToken 定时任务
-            taskRegistrar.addCronTask(this.refreshAccessTokenJobHandler::refreshAccessTokenJob,
+            taskRegistrar.addCronTask(decorateTasks(this.refreshAccessTokenJobHandler::refreshAccessTokenJob,
+                                                    this.mdcIdType, this.mdcIdGenerator),
                                       auth2Properties.getRefreshTokenJobCron());
         }
         if (this.refreshValidateCodeCacheJobHandler != null) {
             // 刷新 验证码缓存 定时任务
-            taskRegistrar.addCronTask(this.refreshValidateCodeCacheJobHandler::refreshValidateCodeJob,
+            taskRegistrar.addCronTask(decorateTasks(this.refreshValidateCodeCacheJobHandler::refreshValidateCodeJob,
+                                                    this.mdcIdType, this.mdcIdGenerator),
                                       validateCodeProperties.getRefreshValidateCodeJobCron());
         }
     }

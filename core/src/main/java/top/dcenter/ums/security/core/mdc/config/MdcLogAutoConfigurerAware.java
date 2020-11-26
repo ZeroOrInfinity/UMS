@@ -73,8 +73,7 @@ public class MdcLogAutoConfigurerAware implements HttpSecurityAware {
     public void postConfigure(HttpSecurity http) {
         if (this.mdcProperties.getEnable()) {
             // 基于 MDC 机制实现日志的链路追踪过滤器
-            http.addFilterBefore(new MdcLogFilter(this.mdcProperties, this.clientProperties),
-                                 WebAsyncManagerIntegrationFilter.class);
+            http.addFilterBefore(new MdcLogFilter(this.mdcProperties, this.clientProperties), WebAsyncManagerIntegrationFilter.class);
         }
     }
 
