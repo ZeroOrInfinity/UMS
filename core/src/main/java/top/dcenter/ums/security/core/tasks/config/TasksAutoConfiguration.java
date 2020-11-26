@@ -20,18 +20,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package top.dcenter.ums.security.core.api.validate.code.job;
+package top.dcenter.ums.security.core.tasks.config;
 
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import top.dcenter.ums.security.core.executor.config.ExecutorAutoConfiguration;
+import top.dcenter.ums.security.core.oauth.config.Auth2AutoConfiguration;
+import top.dcenter.ums.security.core.tasks.handler.RefreshAccessTokenJobHandler;
 import top.dcenter.ums.security.core.tasks.handler.RefreshValidateCodeCacheJobHandler;
 
 /**
- * 刷新验证码缓存的的定时任务, 实现此接口注入 IOC 容器即可替换 {@link RefreshValidateCodeCacheJobHandler}
+ * 简单的任务定时任务配置
  * @author YongWu zheng
- * @version V2.0  Created by 2020/11/2 10:26
+ * @version V2.0  Created by 2020.11.26 17:16
  */
-public interface RefreshValidateCodeCacheJob {
-    /**
-     * 刷新验证码缓存的的定时任务
-     */
-    void refreshValidateCodeJob();
+@Configuration
+@AutoConfigureAfter({ExecutorAutoConfiguration.class, Auth2AutoConfiguration.class})
+public class TasksAutoConfiguration {
+
+    @Bean
+    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-refresh-token-job", havingValue = "true")
+    public RefreshAccessTokenJobHandler refreshAccessTokenJobHandler() {
+        return new RefreshAccessTokenJobHandler();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "ums.codes", name = "enable-refresh-validate-code-job", havingValue = "true")
+    public RefreshValidateCodeCacheJobHandler refreshValidateCodeJobHandler() {
+        return new RefreshValidateCodeCacheJobHandler();
+    }
 }

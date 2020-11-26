@@ -25,10 +25,8 @@ package top.dcenter.ums.security.core.auth.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -46,15 +44,12 @@ import top.dcenter.ums.security.core.auth.validate.codes.ValidateCodeFilter;
 import top.dcenter.ums.security.core.auth.validate.codes.image.DefaultImageCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.image.ImageValidateCodeProcessor;
-import top.dcenter.ums.security.core.auth.validate.codes.job.RefreshValidateCodeCacheJobHandler;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SimpleSliderCodeFactory;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCoderProcessor;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderValidateCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.DefaultSmsCodeSender;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor;
-
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * 验证码功能配置
@@ -133,15 +128,6 @@ public class ValidateCodeBeanAutoConfiguration {
                                         validateCodeProperties,
                                         redisConnectionFactory);
     }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "ums.codes", name = "enable-refresh-validate-code-job", havingValue = "true")
-    public RefreshValidateCodeCacheJobHandler refreshValidateCodeJobHandler(ValidateCodeProperties validateCodeProperties,
-                                                                            @Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor) {
-
-        return new RefreshValidateCodeCacheJobHandler(validateCodeProperties, jobTaskScheduledExecutor);
-    }
-
 
     @Bean
     public ValidateCodeProcessorHolder validateCodeProcessorHolder() {

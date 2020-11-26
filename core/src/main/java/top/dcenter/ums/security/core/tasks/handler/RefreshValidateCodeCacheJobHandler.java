@@ -20,18 +20,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package top.dcenter.ums.security.core.api.validate.code.job;
+package top.dcenter.ums.security.core.tasks.handler;
 
-import top.dcenter.ums.security.core.tasks.handler.RefreshValidateCodeCacheJobHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeCacheJob;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
- * 刷新验证码缓存的的定时任务, 实现此接口注入 IOC 容器即可替换 {@link RefreshValidateCodeCacheJobHandler}
+ * 刷新验证码缓存的的定时任务默认实现: 刷新图片验证码与滑块验证码缓存
  * @author YongWu zheng
- * @version V2.0  Created by 2020/11/2 10:26
+ * @version V2.0  Created by 2020/11/2 10:28
  */
-public interface RefreshValidateCodeCacheJob {
-    /**
-     * 刷新验证码缓存的的定时任务
-     */
-    void refreshValidateCodeJob();
+public class RefreshValidateCodeCacheJobHandler {
+
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
+    @Autowired
+    private Map<String, RefreshValidateCodeCacheJob> refreshValidateCodeJobMap;
+
+    public void refreshValidateCodeJob() {
+        if (this.refreshValidateCodeJobMap == null) {
+            return;
+        }
+        Collection<RefreshValidateCodeCacheJob> validateCodeJobs = this.refreshValidateCodeJobMap.values();
+        // 刷新验证码缓存
+        validateCodeJobs.forEach(RefreshValidateCodeCacheJob::refreshValidateCodeJob);
+    }
+
 }

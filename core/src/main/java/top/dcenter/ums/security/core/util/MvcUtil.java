@@ -37,7 +37,6 @@ import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -361,43 +360,6 @@ public class MvcUtil {
         {
             String msg = String.format("设置 %s#%s() 方法的 requestMapping 映射值时发生错误.",
                                        clz.getName(),
-                                       methodName);
-            throw new RuntimeException(msg);
-        }
-    }
-
-    /**
-     * 给 targetClass 的 methodName 方法上的 @Scheduled 的 cron 重新赋值为 cronValue
-     *
-     * @param methodName            method name
-     * @param cronValue             corn value
-     * @param targetClass           method 的 class
-     * @param parameterTypes        the parameter array
-     * @throws Exception    Exception
-     */
-    @SuppressWarnings("unchecked")
-    public static void setScheduledCron(@NonNull String methodName, @NonNull String cronValue,
-                                        @NonNull Class<?> targetClass, Class<?>... parameterTypes) throws Exception {
-        Method method = targetClass.getDeclaredMethod(methodName, parameterTypes);
-        method.setAccessible(true);
-
-        // 获取 annotationClass 注解
-        final Scheduled annotation = method.getDeclaredAnnotation(Scheduled.class);
-        if (null != annotation) {
-            // 获取代理处理器
-            InvocationHandler invocationHandler = Proxy.getInvocationHandler(annotation);
-            // 获取私有 memberValues 属性
-            Field memberValuesField = invocationHandler.getClass().getDeclaredField("memberValues");
-            memberValuesField.setAccessible(true);
-            // 获取实例的属性map
-            Map<String, Object> memberValuesValue = (Map<String, Object>) memberValuesField.get(invocationHandler);
-            // 修改属性值
-            memberValuesValue.put("cron", cronValue);
-        }
-        else
-        {
-            String msg = String.format("设置 %s#%s() 方法的 cron 映射值时发生错误.",
-                                       targetClass.getName(),
                                        methodName);
             throw new RuntimeException(msg);
         }
