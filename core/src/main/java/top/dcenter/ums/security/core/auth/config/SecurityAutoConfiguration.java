@@ -35,7 +35,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.context.support.GenericWebApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
 import top.dcenter.ums.security.core.api.advice.SecurityControllerAdviceHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
@@ -161,7 +161,7 @@ public class SecurityAutoConfiguration implements InitializingBean {
                 }
                 catch (Exception e)
                 {
-                    contextPath = Objects.requireNonNull(((GenericWebApplicationContext) this.applicationContext).getServletContext()).getContextPath();
+                    contextPath = Objects.requireNonNull(((WebApplicationContext) this.applicationContext).getServletContext()).getContextPath();
                 }
                 field.set(null, contextPath);
             }
