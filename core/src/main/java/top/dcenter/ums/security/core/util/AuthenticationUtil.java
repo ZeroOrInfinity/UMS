@@ -193,16 +193,16 @@ public class AuthenticationUtil {
      * {@link AbstractResponseJsonAuthenticationException} 类的异常, Response 会返回 Json 数据.
      * @param response          {@link javax.servlet.http.HttpServletRequest}
      * @param exception         {@link HttpServletResponse}
-     * @param clientProperties {@link ClientProperties}
+     * @param loginProcessType  {@link LoginProcessType}
      * @return 如果通过 {@link HttpServletResponse} 返回 JSON 数据则返回 true, 否则 false
      * @throws IOException IOException
      */
     public static boolean authenticationFailureProcessing(HttpServletResponse response, HttpServletRequest request,
                                                           AuthenticationException exception,
                                                           AbstractResponseJsonAuthenticationException e,
-                                                          ClientProperties clientProperties) throws IOException {
+                                                          LoginProcessType loginProcessType) throws IOException {
 
-        boolean isJsonProcessType = LoginProcessType.JSON.equals(clientProperties.getLoginProcessType());
+        boolean isJsonProcessType = LoginProcessType.JSON.equals(loginProcessType);
         // 判断是否返回 json 类型
         if (isJsonProcessType || isAjaxOrJson(request))
         {

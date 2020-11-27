@@ -81,7 +81,8 @@ public class DemoAuthenticationFailureHandler extends BaseAuthenticationFailureH
         // 进行必要的缓存清理
 
         // 检测是否接收 json 格式
-        if (authenticationFailureProcessing(response, request, exception, e, clientProperties))
+        if (authenticationFailureProcessing(response, request, exception, e,
+                                            this.clientProperties.getLoginProcessType()))
         {
             // 进行必要的清理缓存
             return;

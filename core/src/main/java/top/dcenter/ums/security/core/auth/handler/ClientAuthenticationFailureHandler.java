@@ -77,7 +77,7 @@ public class ClientAuthenticationFailureHandler extends BaseAuthenticationFailur
             Map<String, Object> formMap = jsonRequest.getFormMap();
             if (formMap != null)
             {
-                formMap.computeIfPresent(clientProperties.getPasswordParameter(), (k, v) -> v = "PROTECTED");
+                formMap.computeIfPresent(this.clientProperties.getPasswordParameter(), (k, v) -> v = "PROTECTED");
                 reqData = formMap.toString();
             }
             else
@@ -88,7 +88,8 @@ public class ClientAuthenticationFailureHandler extends BaseAuthenticationFailur
         else
         {
             Map<String, String[]> parameterMap = request.getParameterMap();
-            parameterMap.computeIfPresent(clientProperties.getPasswordParameter(), (k, v) -> v = new String[]{"PROTECTED"});
+            parameterMap.computeIfPresent(this.clientProperties.getPasswordParameter(),
+                                          (k, v) -> v = new String[]{"PROTECTED"});
             reqData = parameterMap.toString();
         }
 
@@ -101,7 +102,8 @@ public class ClientAuthenticationFailureHandler extends BaseAuthenticationFailur
                  exception.getMessage());
 
         // 检测是否接收 json 格式并返回 json 格式
-        if (authenticationFailureProcessing(response, request, exception, e, clientProperties))
+        if (authenticationFailureProcessing(response, request, exception, e,
+                                            this.clientProperties.getLoginProcessType()))
         {
             // 进行必要的清理
             return;
