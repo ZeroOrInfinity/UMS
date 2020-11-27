@@ -61,3 +61,6 @@ session/target/
 dependency-reduced-pom.xml
 /social/dependency-reduced-pom.xml
 
+/core/src/main/resources/redisson-default.yml
+/core/src/main/java/top/dcenter/ums/security/core/redisson/config/
+/demo/demo/src/main/java/demo/LRUCache.java

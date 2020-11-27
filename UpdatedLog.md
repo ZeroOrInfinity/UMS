@@ -1,3 +1,17 @@
+## 2.1.7
+### Fixes and Improvements:
+1. 修复: 定时任务失效的问题. 主要因为 MdcScheduledThreadPoolTaskExecutor 覆写了 newTaskFor(..) 方法导致, 删除不必要的覆写方法, 简化其他的实现逻辑, 在增加 MDC
+ 功能的情况下尽量不影响原有方法的实现逻辑, 但是注意: remove(Runnable) 方法在类内部调用有效, 通过实例调用此方法失效.
+2. 增强: 基于 SLF4J MDC 机制实现日志链路追踪功能: 增加自定义追踪 ID 属性配置及相应的接口.
+3. 改进: 第三方登录入口根据请求类型或接收的类型返回 Json 数据或网页.
+4. 重构: 定时任务与相关配置.
+5. 优化: 数据库 redis 缓存删除重复设置过期时间语句.
+6. 改进: 添加 ums.client.topDomain 属性, 增加对登录成功处理器跳转 url 的校验是否为本应用的域名, 防止跳转到外链.
+7. 依赖: 设置springBoot:2.3.4与springSession:2.3.1使其与spring-security5.4.1版本匹配.
+8. 优化: 更改 ClientProperties 的个别属性 public 为 private.
+9. 示例: 增加第三方登录页面 ajax 入口.
+
+
 ## 2.1.6
 ### Fixes and Improvements:
 1. 添加: 可处理 Json 与 Ajax 的自定义 AccessDeniedHandler 处理器, 自定义403页面可通过属性 ums.client.accessDenyPage 设置.
