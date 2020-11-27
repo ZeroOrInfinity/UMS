@@ -79,6 +79,9 @@ ums:
   mdc:
     # 是否支持基于 SLF4J MDC 机制日志的链路追踪, 默认: true
     enable: true
+    # 基于 SLF4J MDC 机制实现日志链路追踪 id 的类型, 默认为 uuid.
+    # 当需要自定义 id 时, type = MdcIdType.CUSTOMIZE_ID, 再实现 MdcIdGenerator.getMdcId() 方法, 注入 IOC 容器即可.
+    type: session_id
     # 需要添加 MDC 日志的链路追踪的 url, 默认: /**, 并在日志文件的 pattern 中添加 %X{MDC_TRACE_ID}
     include-urls:
       - /**
@@ -235,7 +238,7 @@ ums:
     # 第三方授权登录时, 异步更新用户的第三方授权用户信息与 token 信息的 Executor 属性,
     # 注意: 第三方授权登录时是异步更新第三方用户信息与 token 信息到本地数据库时使用此配置, 需要根据实际生产环境进行优化
     user-connection-update:
-      # 程池中空闲时保留的线程数, 默认: 5
+      # 程池中空闲时保留的线程数, 默认: 0
       core-pool-size: 5
       # 最大线程数, 默认: 本机核心数
       maximum-pool-size: 8
