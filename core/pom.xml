@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>2.1.7</version>
+    <version>2.1.8</version>
     <packaging>jar</packaging>
 
     <name>ums-core-spring-boot-starter</name>

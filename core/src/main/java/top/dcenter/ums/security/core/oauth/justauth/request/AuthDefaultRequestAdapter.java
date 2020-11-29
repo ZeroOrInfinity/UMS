@@ -26,7 +26,7 @@ import com.xkcoding.http.exception.SimpleHttpException;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.cache.AuthStateCache;
 import me.zhyd.oauth.config.AuthConfig;
-import me.zhyd.oauth.config.AuthDefaultSource;
+import me.zhyd.oauth.config.AuthSource;
 import me.zhyd.oauth.enums.AuthResponseStatus;
 import me.zhyd.oauth.exception.AuthException;
 import me.zhyd.oauth.model.AuthCallback;
@@ -63,12 +63,18 @@ public class AuthDefaultRequestAdapter extends AuthDefaultRequest implements Aut
     /**
      * 构造 {@link AuthDefaultRequest} 的适配器
      * @param config                {@link AuthDefaultRequest} 的 {@link AuthConfig}
-     * @param source                {@link AuthDefaultRequest} 的 {@link AuthConfig}
+     * @param source                {@link AuthDefaultRequest} 的 {@link AuthSource}
      * @param authStateCache        {@link AuthDefaultRequest} 的 {@link AuthStateCache}
      */
-    public AuthDefaultRequestAdapter(AuthConfig config, AuthDefaultSource source, AuthStateCache authStateCache) {
+    public AuthDefaultRequestAdapter(AuthConfig config, AuthSource source, AuthStateCache authStateCache) {
         super(config, source, authStateCache);
-        this.providerId = Auth2RequestHolder.getProviderId(source);
+        String providerId = Auth2RequestHolder.getProviderId(source);
+        if (org.springframework.util.StringUtils.hasText(providerId)) {
+            this.providerId = providerId;
+        }
+        else {
+            throw new RuntimeException("AuthSource 必须是 me.zhyd.oauth.config.AuthDefaultSource 或 top.dcenter.ums.security.core.api.oauth.customize.AuthCustomizeSource 子类");
+        }
     }
 
     public void setAuthDefaultRequest(AuthDefaultRequest authDefaultRequest) {
@@ -82,7 +88,7 @@ public class AuthDefaultRequestAdapter extends AuthDefaultRequest implements Aut
         }
 
         // 缓存 state
-        this.authStateCache.cache(determineState(this.authStateCache, state, (AuthDefaultSource) this.source), state);
+        this.authStateCache.cache(determineState(this.authStateCache, state, this.source), state);
         return state;
     }
 
@@ -99,7 +105,7 @@ public class AuthDefaultRequestAdapter extends AuthDefaultRequest implements Aut
         try {
             AuthChecker.checkCode(this.source, authCallback);
             if (!this.config.isIgnoreCheckState()) {
-                AuthChecker.checkState(determineState(this.authStateCache, authCallback.getState(), (AuthDefaultSource) this.source),
+                AuthChecker.checkState(determineState(this.authStateCache, authCallback.getState(), this.source),
                                        this.source, this.authStateCache);
             }
 
@@ -124,8 +130,8 @@ public class AuthDefaultRequestAdapter extends AuthDefaultRequest implements Aut
     }
 
     @Override
-    public AuthDefaultSource getAuthSource() {
-        return (AuthDefaultSource) this.source;
+    public AuthSource getAuthSource() {
+        return  this.source;
     }
 
     @Override
