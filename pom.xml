@@ -340,6 +340,9 @@
                             <source>1.8</source>
                             <target>1.8</target>
                             <encoding>utf-8</encoding>
+                            <compilerArgs>
+                                <arg>-parameters</arg>
+                            </compilerArgs>
                         </configuration>
                     </plugin>
 
@@ -393,6 +396,9 @@
                             <source>1.8</source>
                             <target>1.8</target>
                             <encoding>utf-8</encoding>
+                            <compilerArgs>
+                                <arg>-parameters</arg>
+                            </compilerArgs>
                         </configuration>
                     </plugin>
 
@@ -492,6 +498,9 @@
                             <source>1.8</source>
                             <target>1.8</target>
                             <encoding>utf-8</encoding>
+                            <compilerArgs>
+                                <arg>-parameters</arg>
+                            </compilerArgs>
                         </configuration>
                     </plugin>
 
