@@ -56,7 +56,8 @@ public class SecurityRememberMeAutoConfiguration {
      * @return  {@link BasedRememberMeTokenRepositoryFactory}
      */
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.rememberme.repository.BasedRememberMeTokenRepositoryFactory")
+    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.core.api.rememberme.repository.BasedRememberMeTokenRepositoryFactory",
+                                "org.springframework.security.web.authentication.RememberMeServices"})
     public BasedRememberMeTokenRepositoryFactory userTokenRepositoryFactory() {
         return new JdbcTokenRepositoryFactory(this.dataSource);
     }
@@ -66,6 +67,7 @@ public class SecurityRememberMeAutoConfiguration {
      * @return {@link PersistentTokenRepository}
      */
     @Bean
+    @ConditionalOnMissingBean(type = "org.springframework.security.web.authentication.RememberMeServices")
     public PersistentTokenRepository persistentTokenRepository(BasedRememberMeTokenRepositoryFactory userTokenRepositoryFactory) {
         return userTokenRepositoryFactory.getPersistentTokenRepository();
     }

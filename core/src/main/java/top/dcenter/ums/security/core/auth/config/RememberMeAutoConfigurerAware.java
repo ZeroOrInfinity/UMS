@@ -31,7 +31,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
@@ -49,7 +52,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * RememberMe 相关配置
+ * RememberMe 相关配置, 多租户系统实现 RememberMeServices 时要考虑存储的token
  * @author YongWu zheng
  * @version V1.0  Created by 2020/5/28 14:06
  */
@@ -61,6 +64,9 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
     private final ClientProperties clientProperties;
     private final PersistentTokenRepository persistentTokenRepository;
     private final UmsUserDetailsService umsUserDetailsService;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired(required = false)
+    private RememberMeServices rememberMeServices;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public RememberMeAutoConfigurerAware(ClientProperties clientProperties,
@@ -91,19 +97,30 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
     public void preConfigure(HttpSecurity http) throws Exception {
 
         final ClientProperties.RememberMeProperties rememberMe = clientProperties.getRememberMe();
+        final RememberMeConfigurer<HttpSecurity> httpSecurityRememberMeConfigurer = http.rememberMe();
         if (rememberMe.getEnable())
         // 开启 REMEMBER_ME 功能
         {
-            http.rememberMe()
+            if (rememberMeServices != null) {
+                httpSecurityRememberMeConfigurer.rememberMeServices(rememberMeServices);
+                if (rememberMeServices instanceof PersistentTokenBasedRememberMeServices) {
+                    httpSecurityRememberMeConfigurer.tokenRepository(persistentTokenRepository);
+                }
+            }
+            else {
+                // 默认的 RememberMeServices 不支持多租户
+                httpSecurityRememberMeConfigurer
+                        .rememberMeCookieName(rememberMe.getRememberMeCookieName())
+                        .tokenRepository(persistentTokenRepository);
+            }
+            httpSecurityRememberMeConfigurer
                 .rememberMeParameter(rememberMe.getRememberMeParameter())
-                .rememberMeCookieName(rememberMe.getRememberMeCookieName())
-                .tokenRepository(persistentTokenRepository)
                 .tokenValiditySeconds(Integer.parseInt(String.valueOf(rememberMe.getRememberMeTimeout().getSeconds())))
                 .userDetailsService(umsUserDetailsService)
                 .useSecureCookie(rememberMe.getUseSecureCookie());
         }
         else {
-            http.rememberMe().disable();
+            httpSecurityRememberMeConfigurer.disable();
         }
 
     }

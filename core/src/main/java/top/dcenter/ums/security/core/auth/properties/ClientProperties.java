@@ -29,6 +29,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.validation.annotation.Validated;
 import top.dcenter.ums.security.common.enums.CsrfTokenRepositoryType;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
@@ -349,7 +350,7 @@ public class ClientProperties {
         private Duration rememberMeTimeout = Duration.parse("P14D");
 
         /**
-         * 设置记住我功能的 CookieName，默认 REMEMBER_ME
+         * 设置记住我功能的 CookieName，默认 REMEMBER_ME, 自定义 {@link RememberMeServices} 时, 此配置失效
          */
         private String rememberMeCookieName = DEFAULT_REMEMBER_ME_NAME;
         /**
