@@ -62,6 +62,8 @@ public enum ErrorCodeEnum {
 
     AUTH2_PROVIDER_NOT_SUPPORT(960, "此服务商的第三方授权登录不支持"),
 
+    TENANT_ID_NOT_FOUND(970, "获取不到租户 ID "),
+
     ACCOUNT_DISABLED(981, "账号无效"),
     ACCOUNT_EXPIRED(982, "账号过期"),
     ACCOUNT_LOCKED(983, "账号已锁定"),

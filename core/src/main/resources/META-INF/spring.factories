@@ -7,6 +7,8 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   top.dcenter.ums.security.core.mdc.config.MdcLogAutoConfigurerAware,\
   top.dcenter.ums.security.core.auth.config.ClientAutoConfigurerAware,\
   top.dcenter.ums.security.core.permission.config.RoleHierarchyAutoConfiguration,\
+  top.dcenter.ums.security.core.tenant.config.TenantAutoConfiguration,\
+  top.dcenter.ums.security.core.tenant.config.TenantAutoConfigurerAware,\
   top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration,\
   top.dcenter.ums.security.core.permission.config.PermissionAutoConfiguration,\
   top.dcenter.ums.security.core.auth.config.ValidateCodeBeanAutoConfiguration,\
