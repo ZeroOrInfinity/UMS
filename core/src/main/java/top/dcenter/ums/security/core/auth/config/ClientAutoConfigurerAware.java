@@ -27,9 +27,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
@@ -42,6 +44,7 @@ import top.dcenter.ums.security.core.auth.filter.JsonRequestFilter;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -84,12 +87,17 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
     @Autowired(required = false)
     private UmsUserDetailsService umsUserDetailsService;
 
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
+    @Autowired(required = false)
+    private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
+
     private final PasswordEncoder passwordEncoder;
 
     private final BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler;
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
     private final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
     private final DefaultLogoutSuccessHandler defaultLogoutSuccessHandler;
+
 
     public ClientAutoConfigurerAware(ClientProperties clientProperties,
                                       BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
@@ -140,12 +148,12 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
         // 添加 JsonRequestFilter 增加对 Json 格式的解析,
         http.addFilterBefore(new JsonRequestFilter(), LogoutFilter.class);
 
-        // 判断是否开启根据不同的uri跳转到相对应的登录页, 假设开启
+        // 判断是否开启登录路由: 根据不同的uri跳转到相对应的登录页, 假设开启
         String loginUnAuthenticationRoutingUrl = clientProperties.getLoginUnAuthenticationRoutingUrl();
         if (!clientProperties.getOpenAuthenticationRedirect())
         {
-            // 没有开启根据不同的uri跳转到相对应的登录页, 直接跳转到登录页
-            loginUnAuthenticationRoutingUrl = clientProperties.getLogoutUrl();
+            // 没有开启登录路由, 直接跳转到登录页
+            loginUnAuthenticationRoutingUrl = clientProperties.getLoginPage();
         }
         /* 用户密码登录的 Provider, 只是对 org.springframework.security.auth.dao.DaoAuthenticationProvider 的 copy.
          * 替换 org.springframework.security.auth.dao.DaoAuthenticationProvider 的一个原因是:
@@ -153,19 +161,24 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
          * .DaoAuthenticationProvider 会失效.
          * 如果要对前端传过来的密码进行解密,则请实现 UserDetailsPasswordService
          */
-        http.authenticationProvider(usernamePasswordAuthenticationProvider)
-                .formLogin()
-                .usernameParameter(clientProperties.getUsernameParameter())
-                .passwordParameter(clientProperties.getPasswordParameter())
-                .loginPage(loginUnAuthenticationRoutingUrl)
-                // uri 需要自己实现
-                .failureUrl(clientProperties.getFailureUrl())
-                .defaultSuccessUrl(clientProperties.getSuccessUrl())
-                // 由 Spring Security 接管，不用任何处理
-                .loginProcessingUrl(clientProperties.getLoginProcessingUrl())
-                // 语句位置更重要, 放在 failureUrl()与defaultSuccessUrl()之前会失效
-                .successHandler(baseAuthenticationSuccessHandler)
-                .failureHandler(baseAuthenticationFailureHandler);
+        FormLoginConfigurer<HttpSecurity> httpSecurityFormLoginConfigurer = http.authenticationProvider(usernamePasswordAuthenticationProvider)
+                                                                                .formLogin();
+        httpSecurityFormLoginConfigurer
+            .usernameParameter(clientProperties.getUsernameParameter())
+            .passwordParameter(clientProperties.getPasswordParameter())
+            .loginPage(loginUnAuthenticationRoutingUrl)
+            // uri 需要自己实现
+            .failureUrl(clientProperties.getFailureUrl())
+            .defaultSuccessUrl(clientProperties.getSuccessUrl())
+            // 由 Spring Security 接管，不用任何处理
+            .loginProcessingUrl(clientProperties.getLoginProcessingUrl())
+            // 语句位置更重要, 放在 failureUrl()与defaultSuccessUrl()之前会失效
+            .successHandler(baseAuthenticationSuccessHandler)
+            .failureHandler(baseAuthenticationFailureHandler);
+
+        if (authenticationDetailsSource != null) {
+            httpSecurityFormLoginConfigurer.authenticationDetailsSource(authenticationDetailsSource);
+        }
 
         // logout
         logoutConfigurer(http);
