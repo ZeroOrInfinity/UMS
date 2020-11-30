@@ -27,20 +27,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
+import top.dcenter.ums.security.core.api.tenant.handler.TenantHandler;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationFilter;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationProvider;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.properties.SmsCodeLoginAuthenticationProperties;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
+
+import javax.servlet.http.HttpServletRequest;
 
 import static top.dcenter.ums.security.core.util.AuthenticationUtil.registerHandlerAndRememberMeServices;
 
@@ -65,6 +70,15 @@ public class SmsCodeLoginAutoAuthenticationConfigurer extends SecurityConfigurer
     @Autowired(required = false)
     private PersistentTokenRepository persistentTokenRepository;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired(required = false)
+    private TenantHandler tenantHandler;
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
+    @Autowired(required = false)
+    private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired(required = false)
+    private RememberMeServices rememberMeServices;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private ClientProperties clientProperties;
     private final SmsCodeLoginAuthenticationProperties smsCodeLoginAuthenticationProperties;
@@ -83,13 +97,14 @@ public class SmsCodeLoginAutoAuthenticationConfigurer extends SecurityConfigurer
     public void configure(HttpSecurity http) {
 
         SmsCodeLoginAuthenticationFilter smsCodeLoginAuthenticationFilter =
-                new SmsCodeLoginAuthenticationFilter(validateCodeProperties, smsCodeLoginAuthenticationProperties);
+                new SmsCodeLoginAuthenticationFilter(validateCodeProperties, smsCodeLoginAuthenticationProperties, tenantHandler, authenticationDetailsSource);
         smsCodeLoginAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
         registerHandlerAndRememberMeServices(smsCodeLoginAuthenticationFilter,
                                              baseAuthenticationSuccessHandler,
                                              baseAuthenticationFailureHandler,
                                              persistentTokenRepository,
                                              userDetailsService,
+                                             rememberMeServices,
                                              clientProperties);
 
         SmsCodeLoginAuthenticationProvider smsCodeLoginAuthenticationProvider = new SmsCodeLoginAuthenticationProvider(userDetailsService);

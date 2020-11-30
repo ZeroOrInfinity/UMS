@@ -30,6 +30,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -91,6 +92,7 @@ public class AuthenticationUtil {
                                                             BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
                                                             PersistentTokenRepository persistentTokenRepository,
                                                             UmsUserDetailsService userDetailsService,
+                                                            RememberMeServices rememberMeServices,
                                                             ClientProperties clientProperties) {
 
         if (baseAuthenticationFailureHandler != null)
@@ -104,18 +106,24 @@ public class AuthenticationUtil {
             abstractAuthenticationProcessingFilter.setAuthenticationSuccessHandler(baseAuthenticationSuccessHandler);
         }
 
-        // 添加 PersistentTokenBasedRememberMeServices
-        if (persistentTokenRepository != null)
-        {
-            PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices =
-                    new PersistentTokenBasedRememberMeServices(UUID.randomUUID().toString(), userDetailsService,
-                                                               persistentTokenRepository);
-            final ClientProperties.RememberMeProperties rememberMe = clientProperties.getRememberMe();
-            persistentTokenBasedRememberMeServices.setTokenValiditySeconds(Integer.parseInt(String.valueOf(rememberMe.getRememberMeTimeout().getSeconds())));
-            persistentTokenBasedRememberMeServices.setParameter(rememberMe.getRememberMeCookieName());
-            // 添加rememberMe功能配置
-            abstractAuthenticationProcessingFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
+        if (rememberMeServices != null) {
+            abstractAuthenticationProcessingFilter.setRememberMeServices(rememberMeServices);
         }
+        else {
+            // 添加 PersistentTokenBasedRememberMeServices, 不支持多租户
+            if (persistentTokenRepository != null) {
+                PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices =
+                        new PersistentTokenBasedRememberMeServices(UUID.randomUUID().toString(), userDetailsService,
+                                                                   persistentTokenRepository);
+                final ClientProperties.RememberMeProperties rememberMe = clientProperties.getRememberMe();
+                persistentTokenBasedRememberMeServices.setTokenValiditySeconds(Integer.parseInt(String.valueOf(rememberMe.getRememberMeTimeout().getSeconds())));
+                persistentTokenBasedRememberMeServices.setParameter(rememberMe.getRememberMeCookieName());
+                // 添加rememberMe功能配置
+                abstractAuthenticationProcessingFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
+            }
+        }
+
+
     }
 
     /**

@@ -16,6 +16,8 @@
 package top.dcenter.ums.security.core.oauth.filter.login;
 
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
@@ -41,6 +43,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import top.dcenter.ums.security.core.api.tenant.handler.TenantHandler;
 import top.dcenter.ums.security.core.oauth.filter.redirect.Auth2DefaultRequestResolver;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
 import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
@@ -117,18 +120,28 @@ public class Auth2LoginAuthenticationFilter extends AbstractAuthenticationProces
      */
     private final String signUpUrl;
 
+    private final TenantHandler tenantHandler;
+
     /**
      * Constructs an {@code Auth2LoginAuthenticationFilter} using the provided
      * parameters.
      * @param filterProcessesUrl the {@code URI} where this {@code Filter} will process
      * the authentication requests, not null
      * @param signUpUrl          第三方授权登录后如未注册用户不支持自动注册功能, 则跳转到此 url 进行注册逻辑, 此 url 必须开发者自己实现;
+     * @param tenantHandler      多租户处理器
+     * @param authenticationDetailsSource      {@link AuthenticationDetailsSource}
      * @since 5.1
      */
-    public Auth2LoginAuthenticationFilter(@NonNull String filterProcessesUrl, @NonNull String signUpUrl) {
+    public Auth2LoginAuthenticationFilter(@NonNull String filterProcessesUrl, @NonNull String signUpUrl,
+                                          @Nullable TenantHandler tenantHandler,
+                                          @Nullable AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
         super(filterProcessesUrl + "/*");
         this.authorizationRequestResolver = new Auth2DefaultRequestResolver(filterProcessesUrl);
         this.signUpUrl = signUpUrl;
+        this.tenantHandler = tenantHandler;
+        if (authenticationDetailsSource != null) {
+            setAuthenticationDetailsSource(authenticationDetailsSource);
+        }
     }
 
     @Override
@@ -138,6 +151,10 @@ public class Auth2LoginAuthenticationFilter extends AbstractAuthenticationProces
         if (!Auth2AuthorizationResponseUtils.isAuthorizationResponse(params)) {
             OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
             throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+        }
+
+        if (this.tenantHandler != null) {
+            this.tenantHandler.tenantIdHandle(request, null);
         }
 
         String registrationId = this.authorizationRequestResolver.resolveRegistrationId(request);
@@ -153,9 +170,10 @@ public class Auth2LoginAuthenticationFilter extends AbstractAuthenticationProces
             throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
         }
 
-        Object authenticationDetails = this.authenticationDetailsSource.buildDetails(request);
         Auth2LoginAuthenticationToken authenticationRequest = new Auth2LoginAuthenticationToken(auth2DefaultRequest, request);
-        authenticationRequest.setDetails(authenticationDetails);
+
+        // Allow subclasses to set the "details" property
+        setDetails(request, authenticationRequest);
 
         // 通过 AuthenticationManager 转到相应的 Provider 对 Auth2LoginAuthenticationToken 进行认证
         return  this.getAuthenticationManager().authenticate(authenticationRequest);
@@ -189,6 +207,18 @@ public class Auth2LoginAuthenticationFilter extends AbstractAuthenticationProces
         }
 
         getSuccessHandler().onAuthenticationSuccess(request, response, authResult);
+    }
+
+    /**
+     * Provided so that subclasses may configure what is put into the auth
+     * request's details property.
+     *
+     * @param request that an auth request is being created for
+     * @param authRequest the auth request object that should have its details
+     * set
+     */
+    protected void setDetails(HttpServletRequest request, Auth2LoginAuthenticationToken authRequest) {
+        authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
     }
 
     public void setRedirectStrategy(RedirectStrategy redirectStrategy) {

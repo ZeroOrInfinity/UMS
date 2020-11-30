@@ -24,6 +24,8 @@
 package top.dcenter.ums.security.core.auth.provider;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,7 +41,10 @@ import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
+import top.dcenter.ums.security.core.api.tenant.handler.TenantHandler;
 
 /**
  * 用户密码登录的 Provider, 只是对 {@link org.springframework.security.authentication.dao.DaoAuthenticationProvider} 的 copy.
@@ -82,20 +87,84 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
 
     private UmsUserDetailsService userDetailsService;
 
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
     private UserDetailsPasswordService userDetailsPasswordService;
 
+    private final TenantHandler tenantHandler;
+
+    private boolean forcePrincipalAsString = false;
+
+    @SuppressWarnings("RedundantThrows")
     @Override
-    protected void doAfterPropertiesSet() {
+    protected void doAfterPropertiesSet() throws IllegalAccessException {
         Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
     }
 
-
-    public UsernamePasswordAuthenticationProvider(PasswordEncoder passwordEncoder,
-                                                  UmsUserDetailsService umsUserDetailsService) {
+    public UsernamePasswordAuthenticationProvider(@NonNull PasswordEncoder passwordEncoder,
+                                                  @NonNull UmsUserDetailsService umsUserDetailsService,
+                                                  @Nullable TenantHandler tenantHandler) {
+        this.tenantHandler = tenantHandler;
         setPasswordEncoder(passwordEncoder);
         this.userDetailsService = umsUserDetailsService;
+    }
+
+    private String determineUsername(Authentication authentication) {
+        return (authentication.getPrincipal() == null) ? "NONE_PROVIDED" : authentication.getName();
+    }
+
+    @Override
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
+                            () -> this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.onlySupports",
+                                                           "Only UsernamePasswordAuthenticationToken is supported"));
+
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        if (this.tenantHandler != null) {
+            this.tenantHandler.tenantIdHandle(requestAttributes.getRequest(), null);
+        }
+
+        String username = determineUsername(authentication);
+        boolean cacheWasUsed = true;
+        UserDetails user = this.getUserCache().getUserFromCache(username);
+        if (user == null) {
+            cacheWasUsed = false;
+            try {
+                user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
+            }
+            catch (UsernameNotFoundException ex) {
+                this.logger.debug("Failed to find user '" + username + "'");
+                if (!this.hideUserNotFoundExceptions) {
+                    throw ex;
+                }
+                throw new BadCredentialsException(this.messages
+                                                          .getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+            }
+            Assert.notNull(user, "retrieveUser returned null - a violation of the interface contract");
+        }
+        try {
+            this.getPreAuthenticationChecks().check(user);
+            additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
+        }
+        catch (AuthenticationException ex) {
+            if (!cacheWasUsed) {
+                throw ex;
+            }
+            // There was a problem, so try again after checking
+            // we're using latest data (i.e. not from the cache)
+            cacheWasUsed = false;
+            user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
+            this.getPreAuthenticationChecks().check(user);
+            additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
+        }
+        this.getPostAuthenticationChecks().check(user);
+        if (!cacheWasUsed) {
+            this.getUserCache().putUserInCache(user);
+        }
+        Object principalToReturn = user;
+        if (this.forcePrincipalAsString) {
+            principalToReturn = user.getUsername();
+        }
+        return createSuccessAuthentication(principalToReturn, authentication, user);
     }
 
     @Override
@@ -154,6 +223,12 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
             user = this.userDetailsPasswordService.updatePassword(user, newPassword);
         }
         return super.createSuccessAuthentication(principal, authentication, user);
+    }
+
+    @Override
+    public void setForcePrincipalAsString(boolean forcePrincipalAsString) {
+        super.setForcePrincipalAsString(forcePrincipalAsString);
+        this.forcePrincipalAsString = forcePrincipalAsString;
     }
 
     private void prepareTimingAttackProtection() {

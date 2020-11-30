@@ -24,6 +24,9 @@
 package top.dcenter.ums.security.core.auth.mobile;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -33,9 +36,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.exception.LoginFailureException;
+import top.dcenter.ums.security.core.api.tenant.handler.TenantHandler;
 import top.dcenter.ums.security.core.auth.properties.SmsCodeLoginAuthenticationProperties;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
+import top.dcenter.ums.security.core.exception.LoginFailureException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -55,14 +59,23 @@ public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProc
     private String mobileParameter;
     private boolean postOnly = true;
     private final ValidateCodeProperties validateCodeProperties;
+    private final TenantHandler tenantHandler;
 
     // ~ Constructors
     // ===================================================================================================
 
-    public SmsCodeLoginAuthenticationFilter(ValidateCodeProperties validateCodeProperties, SmsCodeLoginAuthenticationProperties smsCodeLoginAuthenticationProperties) {
+    public SmsCodeLoginAuthenticationFilter(@NonNull ValidateCodeProperties validateCodeProperties,
+                                            @NonNull SmsCodeLoginAuthenticationProperties smsCodeLoginAuthenticationProperties,
+                                            @Nullable TenantHandler tenantHandler,
+                                            @Nullable AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
         super(new AntPathRequestMatcher(smsCodeLoginAuthenticationProperties.getLoginProcessingUrlMobile(), SecurityConstants.POST_METHOD));
         this.validateCodeProperties = validateCodeProperties;
         this.mobileParameter = validateCodeProperties.getSms().getRequestParamMobileName();
+        this.tenantHandler = tenantHandler;
+        this.authenticationDetailsSource = authenticationDetailsSource;
+        if (authenticationDetailsSource != null) {
+            setAuthenticationDetailsSource(authenticationDetailsSource);
+        }
     }
 
     // ~ Methods
@@ -82,6 +95,10 @@ public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProc
             throw new LoginFailureException(ErrorCodeEnum.MOBILE_NOT_EMPTY,
                                             this.validateCodeProperties.getSms().getRequestParamMobileName(),
                                             request.getSession(true).getId());
+        }
+
+        if (this.tenantHandler != null) {
+            this.tenantHandler.tenantIdHandle(request, null);
         }
 
         mobile = mobile.trim();

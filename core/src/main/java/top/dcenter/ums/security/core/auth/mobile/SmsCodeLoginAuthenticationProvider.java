@@ -37,7 +37,7 @@ import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
  */
 public class SmsCodeLoginAuthenticationProvider implements AuthenticationProvider {
 
-    private UmsUserDetailsService userDetailsService;
+    private final UmsUserDetailsService userDetailsService;
 
     public SmsCodeLoginAuthenticationProvider(UmsUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
