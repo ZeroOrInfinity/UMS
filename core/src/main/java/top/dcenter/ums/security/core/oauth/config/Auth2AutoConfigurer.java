@@ -41,7 +41,7 @@ import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticati
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.api.oauth.state.service.Auth2StateCoder;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.api.tenant.handler.TenantHandler;
+import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.oauth.filter.login.Auth2LoginAuthenticationFilter;
 import top.dcenter.ums.security.core.oauth.filter.redirect.Auth2DefaultRequestRedirectFilter;
@@ -86,7 +86,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
     private PersistentTokenRepository persistentTokenRepository;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
-    private TenantHandler tenantHandler;
+    private TenantContextHolder tenantContextHolder;
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
     private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
@@ -120,7 +120,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         // 添加第三方登录回调接口过滤器
         String filterProcessesUrl = auth2Properties.getRedirectUrlPrefix();
         Auth2LoginAuthenticationFilter auth2LoginAuthenticationFilter =
-                new Auth2LoginAuthenticationFilter(filterProcessesUrl, auth2Properties.getSignUpUrl(), tenantHandler,
+                new Auth2LoginAuthenticationFilter(filterProcessesUrl, auth2Properties.getSignUpUrl(), tenantContextHolder,
                                                    authenticationDetailsSource);
         AuthenticationManager sharedObject = http.getSharedObject(AuthenticationManager.class);
         auth2LoginAuthenticationFilter.setAuthenticationManager(sharedObject);

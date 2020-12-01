@@ -44,7 +44,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.api.tenant.handler.TenantHandler;
+import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 
 /**
  * 用户密码登录的 Provider, 只是对 {@link org.springframework.security.authentication.dao.DaoAuthenticationProvider} 的 copy.
@@ -90,7 +90,7 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
     @Autowired(required = false)
     private UserDetailsPasswordService userDetailsPasswordService;
 
-    private final TenantHandler tenantHandler;
+    private final TenantContextHolder tenantContextHolder;
 
     private boolean forcePrincipalAsString = false;
 
@@ -102,8 +102,8 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
 
     public UsernamePasswordAuthenticationProvider(@NonNull PasswordEncoder passwordEncoder,
                                                   @NonNull UmsUserDetailsService umsUserDetailsService,
-                                                  @Nullable TenantHandler tenantHandler) {
-        this.tenantHandler = tenantHandler;
+                                                  @Nullable TenantContextHolder tenantContextHolder) {
+        this.tenantContextHolder = tenantContextHolder;
         setPasswordEncoder(passwordEncoder);
         this.userDetailsService = umsUserDetailsService;
     }
@@ -119,8 +119,8 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
                                                            "Only UsernamePasswordAuthenticationToken is supported"));
 
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        if (this.tenantHandler != null) {
-            this.tenantHandler.tenantIdHandle(requestAttributes.getRequest(), null);
+        if (this.tenantContextHolder != null) {
+            this.tenantContextHolder.tenantIdHandle(requestAttributes.getRequest(), null);
         }
 
         String username = determineUsername(authentication);

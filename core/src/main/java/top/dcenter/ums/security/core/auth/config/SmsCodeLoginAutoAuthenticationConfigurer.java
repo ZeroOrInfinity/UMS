@@ -38,7 +38,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.api.tenant.handler.TenantHandler;
+import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationFilter;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationProvider;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
@@ -71,7 +71,7 @@ public class SmsCodeLoginAutoAuthenticationConfigurer extends SecurityConfigurer
     private PersistentTokenRepository persistentTokenRepository;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
-    private TenantHandler tenantHandler;
+    private TenantContextHolder tenantContextHolder;
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
     private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
@@ -97,7 +97,7 @@ public class SmsCodeLoginAutoAuthenticationConfigurer extends SecurityConfigurer
     public void configure(HttpSecurity http) {
 
         SmsCodeLoginAuthenticationFilter smsCodeLoginAuthenticationFilter =
-                new SmsCodeLoginAuthenticationFilter(validateCodeProperties, smsCodeLoginAuthenticationProperties, tenantHandler, authenticationDetailsSource);
+                new SmsCodeLoginAuthenticationFilter(validateCodeProperties, smsCodeLoginAuthenticationProperties, tenantContextHolder, authenticationDetailsSource);
         smsCodeLoginAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
         registerHandlerAndRememberMeServices(smsCodeLoginAuthenticationFilter,
                                              baseAuthenticationSuccessHandler,

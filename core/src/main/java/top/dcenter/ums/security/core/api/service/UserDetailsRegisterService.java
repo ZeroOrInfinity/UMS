@@ -30,19 +30,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.oauth.state.service.Auth2StateCoder;
-import top.dcenter.ums.security.core.api.tenant.handler.TenantHandler;
+import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 
 /**
  * 用户名密码注册、手机短信登录与 OAuth 登录的用户注册接口.
- * 如果是多租户系统, 注册时通过 {@link TenantHandler#getTenantId()} 来获取租户 id, {@link TenantHandler} 需自己实现.<br><br>
+ * 如果是多租户系统, 注册时通过 {@link TenantContextHolder#getTenantId()} 来获取租户 id, {@link TenantContextHolder} 需自己实现.<br><br>
  * 推荐通过继承来实现 {@link UmsUserDetailsService} 此接口的功能
  * @author YongWu zheng
  * @version V1.0 Created by 2020/5/16 10:48
  */
 public interface UserDetailsRegisterService {
     /**
-     * 手机短信登录用户注册接口, 如果是多租户系统, 注册时通过 {@link TenantHandler#getTenantId()} 来获取租户 id.
+     * 手机短信登录用户注册接口, 如果是多租户系统, 注册时通过 {@link TenantContextHolder#getTenantId()} 来获取租户 id.
      * @param mobile    手机号
      * @return  注册后的 UserDetails 信息
      * @throws RegisterUserFailureException 用户注册失败
@@ -50,7 +50,7 @@ public interface UserDetailsRegisterService {
     UserDetails registerUser(String mobile) throws RegisterUserFailureException;
 
     /**
-     * 用户名密码注册, 如果是多租户系统, 注册时通过 {@link TenantHandler#getTenantId()} 来获取租户 id.
+     * 用户名密码注册, 如果是多租户系统, 注册时通过 {@link TenantContextHolder#getTenantId()} 来获取租户 id.
      * @param request request
      * @return  注册后的 UserDetails 信息
      * @throws RegisterUserFailureException 用户注册失败
@@ -58,7 +58,7 @@ public interface UserDetailsRegisterService {
     UserDetails registerUser(ServletWebRequest request) throws RegisterUserFailureException;
 
     /**
-     * 第三方第一次登录成功后注册接口, 如果是多租户系统, 注册时通过 {@link TenantHandler#getTenantId()} 来获取租户 id.<br>
+     * 第三方第一次登录成功后注册接口, 如果是多租户系统, 注册时通过 {@link TenantContextHolder#getTenantId()} 来获取租户 id.<br>
      *     默认方法直接抛出 {@link RegisterUserFailureException}.<br>
      * 这里是为了兼容不需要第三方授权登录功能的应用, 特意设置为默认方法.
      *
@@ -75,7 +75,7 @@ public interface UserDetailsRegisterService {
 
     /**
      * 第三方第一次登录成功后注册接口, 增加 OAuth2 过程中的 state 解密后的字符串信息 decoderState, 以便用户在 OAuth2 流程中添加自定义的信息,
-     * 与 {@link Auth2StateCoder} 配合使用. 如果是多租户系统, 注册时通过 {@link TenantHandler#getTenantId()} 来获取租户 id.<br>
+     * 与 {@link Auth2StateCoder} 配合使用. 如果是多租户系统, 注册时通过 {@link TenantContextHolder#getTenantId()} 来获取租户 id.<br>
      *     默认方法直接抛出 {@link RegisterUserFailureException}.<br>
      * 这里是为了兼容不需要第三方授权登录功能的应用, 特意设置为默认方法. <br>
      *

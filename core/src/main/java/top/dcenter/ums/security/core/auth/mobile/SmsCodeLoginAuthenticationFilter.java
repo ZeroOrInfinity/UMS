@@ -36,7 +36,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.api.tenant.handler.TenantHandler;
+import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.auth.properties.SmsCodeLoginAuthenticationProperties;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.exception.LoginFailureException;
@@ -59,19 +59,19 @@ public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProc
     private String mobileParameter;
     private boolean postOnly = true;
     private final ValidateCodeProperties validateCodeProperties;
-    private final TenantHandler tenantHandler;
+    private final TenantContextHolder tenantContextHolder;
 
     // ~ Constructors
     // ===================================================================================================
 
     public SmsCodeLoginAuthenticationFilter(@NonNull ValidateCodeProperties validateCodeProperties,
                                             @NonNull SmsCodeLoginAuthenticationProperties smsCodeLoginAuthenticationProperties,
-                                            @Nullable TenantHandler tenantHandler,
+                                            @Nullable TenantContextHolder tenantContextHolder,
                                             @Nullable AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
         super(new AntPathRequestMatcher(smsCodeLoginAuthenticationProperties.getLoginProcessingUrlMobile(), SecurityConstants.POST_METHOD));
         this.validateCodeProperties = validateCodeProperties;
         this.mobileParameter = validateCodeProperties.getSms().getRequestParamMobileName();
-        this.tenantHandler = tenantHandler;
+        this.tenantContextHolder = tenantContextHolder;
         this.authenticationDetailsSource = authenticationDetailsSource;
         if (authenticationDetailsSource != null) {
             setAuthenticationDetailsSource(authenticationDetailsSource);
@@ -97,8 +97,8 @@ public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProc
                                             request.getSession(true).getId());
         }
 
-        if (this.tenantHandler != null) {
-            this.tenantHandler.tenantIdHandle(request, null);
+        if (this.tenantContextHolder != null) {
+            this.tenantContextHolder.tenantIdHandle(request, null);
         }
 
         mobile = mobile.trim();

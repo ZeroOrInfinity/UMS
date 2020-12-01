@@ -42,7 +42,7 @@ import javax.servlet.http.HttpServletRequest;
  * 可通过 {@link #getTenantId()} 来获取 tenantId. 登录用户可以通过 {@link Authentication} 来获取 tenantId.<br>
  *
  * 2. UMS 默认的登录与注册逻辑中, 都内置了 {@link #tenantIdHandle(HttpServletRequest, String)} 逻辑,
- * 用户在实现 {@link UserCache}/{@link UmsUserDetailsService} 等接口中需要 tenantId 时, 调用 {@link TenantHandler#getTenantId()} 方法即可.<br>
+ * 用户在实现 {@link UserCache}/{@link UmsUserDetailsService} 等接口中需要 tenantId 时, 调用 {@link TenantContextHolder#getTenantId()} 方法即可.<br>
  *
  * 3. 如果自定义的注册或登录逻辑, 需要自己先调用 {@link #tenantIdHandle(HttpServletRequest, String)} 逻辑, 再在
  * 实现 {@link UserCache}/{@link UmsUserDetailsService} 等接口中需要 tenantId 时, 调用 {@link #getTenantId()} 方法即可.
@@ -50,7 +50,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author YongWu zheng
  * @version V2.0  Created by 2020.11.30 14:05
  */
-public interface TenantHandler {
+public interface TenantContextHolder {
 
     /**
      * 提取 tenantId 及进行必要的逻辑处理(如: tenantId 存入 ThreadLocal, 或存入 session, 或存入 redis 缓存等), 方便后续调用.
