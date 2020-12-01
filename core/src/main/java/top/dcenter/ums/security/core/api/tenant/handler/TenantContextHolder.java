@@ -38,7 +38,7 @@ import java.util.Collection;
 import static top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService.DEFAULT_TENANT_PREFIX;
 
 /**
- * 多租户处理器. 实现此接口并注入 IOC 容器后, 会自动注入 UMS 默认实现的注册/登录/授权组件, 要实现 ums 框架具有多租户功能, 必须实现此接口并注入 IOC 容器.<br>
+ * 多租户上下文存储器. 实现此接口并注入 IOC 容器后, 会自动注入 UMS 默认实现的注册/登录/授权组件, 要实现 ums 框架具有多租户功能, 必须实现此接口并注入 IOC 容器.<br>
  * 功能: <br>
  * 1. {@link #tenantIdHandle(HttpServletRequest, String)}从注册用户入口或登录用户入口提取 tenantId 及进行必要的逻辑处理(如: tenantId 存入 ThreadLocal, 或存入 session, 或存入 redis 缓存等).<br>
  * 2. {@link #getTenantId()},方便后续用户注册、登录、授权的数据处理(如：sql 添加 tenantId 的条件，注册用户添加 TENANT_tenantId 权限，根据 tenantId 获取角色的权限数据).<br>
