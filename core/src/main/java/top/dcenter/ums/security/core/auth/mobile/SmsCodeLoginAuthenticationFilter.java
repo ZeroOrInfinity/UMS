@@ -72,7 +72,6 @@ public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProc
         this.validateCodeProperties = validateCodeProperties;
         this.mobileParameter = validateCodeProperties.getSms().getRequestParamMobileName();
         this.tenantContextHolder = tenantContextHolder;
-        this.authenticationDetailsSource = authenticationDetailsSource;
         if (authenticationDetailsSource != null) {
             setAuthenticationDetailsSource(authenticationDetailsSource);
         }
