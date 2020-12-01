@@ -117,7 +117,7 @@ ums:
       enable: true
       # 设置记住我功能的 session 的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
       remember-me-timeout: P14D
-      # 设置记住我功能的 CookieName，默认 REMEMBER_ME
+      # 设置记住我功能的 CookieName，默认 REMEMBER_ME, 自定义 RememberMeServices 时, 此配置失效
       remember-me-cookie-name: REMEMBER_ME
       # 设置记住我功能的参数名称，默认 REMEMBER_ME
       remember-me-parameter: rememberMe
