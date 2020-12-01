@@ -43,7 +43,6 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.oauth.filter.redirect.Auth2DefaultRequestResolver;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
 import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
@@ -120,7 +119,6 @@ public class Auth2LoginAuthenticationFilter extends AbstractAuthenticationProces
      */
     private final String signUpUrl;
 
-    private final TenantContextHolder tenantContextHolder;
 
     /**
      * Constructs an {@code Auth2LoginAuthenticationFilter} using the provided
@@ -128,17 +126,15 @@ public class Auth2LoginAuthenticationFilter extends AbstractAuthenticationProces
      * @param filterProcessesUrl the {@code URI} where this {@code Filter} will process
      * the authentication requests, not null
      * @param signUpUrl          第三方授权登录后如未注册用户不支持自动注册功能, 则跳转到此 url 进行注册逻辑, 此 url 必须开发者自己实现;
-     * @param tenantContextHolder      多租户处理器
      * @param authenticationDetailsSource      {@link AuthenticationDetailsSource}
      * @since 5.1
      */
     public Auth2LoginAuthenticationFilter(@NonNull String filterProcessesUrl, @NonNull String signUpUrl,
-                                          @Nullable TenantContextHolder tenantContextHolder,
                                           @Nullable AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
         super(filterProcessesUrl + "/*");
         this.authorizationRequestResolver = new Auth2DefaultRequestResolver(filterProcessesUrl);
         this.signUpUrl = signUpUrl;
-        this.tenantContextHolder = tenantContextHolder;
+
         if (authenticationDetailsSource != null) {
             setAuthenticationDetailsSource(authenticationDetailsSource);
         }
@@ -151,10 +147,6 @@ public class Auth2LoginAuthenticationFilter extends AbstractAuthenticationProces
         if (!Auth2AuthorizationResponseUtils.isAuthorizationResponse(params)) {
             OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
             throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-        }
-
-        if (this.tenantContextHolder != null) {
-            this.tenantContextHolder.tenantIdHandle(request, null);
         }
 
         String registrationId = this.authorizationRequestResolver.resolveRegistrationId(request);

@@ -34,6 +34,7 @@ import org.springframework.security.web.util.ThrowableAnalyzer;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.core.api.oauth.state.service.Auth2StateCoder;
+import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.exception.Auth2Exception;
 import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
 
@@ -71,10 +72,10 @@ import static top.dcenter.ums.security.core.vo.RedirectVo.redirect;
  * <p>
  * The default base {@code URI} {@code /auth2/authorization} may be overridden via the
  * constructor
- * {@link #Auth2DefaultRequestRedirectFilter(String, Auth2StateCoder, SimpleUrlAuthenticationFailureHandler)},
+ * {@link #Auth2DefaultRequestRedirectFilter(String, Auth2StateCoder, TenantContextHolder, SimpleUrlAuthenticationFailureHandler)},
  * or alternatively, an {@code Auth2DefaultRequestResolver} may be provided to the
  * constructor
- * {@link #Auth2DefaultRequestRedirectFilter(Auth2DefaultRequestResolver, Auth2StateCoder, SimpleUrlAuthenticationFailureHandler)}}
+ * {@link #Auth2DefaultRequestRedirectFilter(Auth2DefaultRequestResolver, Auth2StateCoder, TenantContextHolder, SimpleUrlAuthenticationFailureHandler)}}
  * to override the resolving of authorization requests.
  *
  * @author Joe Grandja
@@ -112,21 +113,26 @@ public class Auth2DefaultRequestRedirectFilter extends OncePerRequestFilter {
 
 	private RequestCache requestCache = new HttpSessionRequestCache();
 
+	private final TenantContextHolder tenantContextHolder;
 
 	/**
 	 * Constructs an {@code Auth2DefaultRequestRedirectFilter} using the provided
 	 * parameters.
 	 * @param authorizationRequestBaseUri the base {@code URI} used for authorization
 	 * requests
-	 * @param auth2StateCoder             state 的编解码器
+	 * @param auth2StateCoder               state 的编解码器
+	 * @param tenantContextHolder           多租户处理器
+	 * @param authenticationFailureHandler  失败处理器
 	 */
 	public Auth2DefaultRequestRedirectFilter(@NonNull String authorizationRequestBaseUri,
 	                                         @Nullable Auth2StateCoder auth2StateCoder,
+	                                         @Nullable TenantContextHolder tenantContextHolder,
 	                                         @NonNull SimpleUrlAuthenticationFailureHandler authenticationFailureHandler) {
 		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
 		this.authorizationRequestResolver = new Auth2DefaultRequestResolver(authorizationRequestBaseUri);
 		this.auth2StateCoder = auth2StateCoder;
 		this.authenticationFailureHandler = authenticationFailureHandler;
+		this.tenantContextHolder = tenantContextHolder;
 	}
 
 	/**
@@ -134,16 +140,20 @@ public class Auth2DefaultRequestRedirectFilter extends OncePerRequestFilter {
 	 * parameters.
 	 * @param authorizationRequestResolver the resolver used for resolving authorization
 	 * requests
-	 * @param auth2StateCoder             state 的编解码器
+	 * @param auth2StateCoder               state 的编解码器
+	 * @param tenantContextHolder           多租户处理器
+	 * @param authenticationFailureHandler  失败处理器
 	 * @since 5.1
 	 */
 	public Auth2DefaultRequestRedirectFilter(@NonNull Auth2DefaultRequestResolver authorizationRequestResolver,
 	                                         @Nullable Auth2StateCoder auth2StateCoder,
+	                                         @Nullable TenantContextHolder tenantContextHolder,
 	                                         @NonNull SimpleUrlAuthenticationFailureHandler authenticationFailureHandler) {
 		Assert.notNull(authorizationRequestResolver, "authorizationRequestResolver cannot be null");
 		this.authorizationRequestResolver = authorizationRequestResolver;
 		this.auth2StateCoder = auth2StateCoder;
 		this.authenticationFailureHandler = authenticationFailureHandler;
+		this.tenantContextHolder = tenantContextHolder;
 	}
 
 	/**
@@ -163,6 +173,10 @@ public class Auth2DefaultRequestRedirectFilter extends OncePerRequestFilter {
 		try {
 			Auth2DefaultRequest authorizationRequest = this.authorizationRequestResolver.resolve(request);
 			if (authorizationRequest != null) {
+				if (this.tenantContextHolder != null) {
+					this.tenantContextHolder.tenantIdHandle(request, null);
+				}
+
 				this.sendRedirectForAuthorization(request, response, authorizationRequest);
 				return;
 			}

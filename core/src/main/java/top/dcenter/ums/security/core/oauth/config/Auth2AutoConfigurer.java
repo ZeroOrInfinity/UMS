@@ -120,8 +120,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         // 添加第三方登录回调接口过滤器
         String filterProcessesUrl = auth2Properties.getRedirectUrlPrefix();
         Auth2LoginAuthenticationFilter auth2LoginAuthenticationFilter =
-                new Auth2LoginAuthenticationFilter(filterProcessesUrl, auth2Properties.getSignUpUrl(), tenantContextHolder,
-                                                   authenticationDetailsSource);
+                new Auth2LoginAuthenticationFilter(filterProcessesUrl, auth2Properties.getSignUpUrl(), authenticationDetailsSource);
         AuthenticationManager sharedObject = http.getSharedObject(AuthenticationManager.class);
         auth2LoginAuthenticationFilter.setAuthenticationManager(sharedObject);
         registerHandlerAndRememberMeServices(auth2LoginAuthenticationFilter,
@@ -136,7 +135,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         // 添加第三方登录入口过滤器
         String authorizationRequestBaseUri = auth2Properties.getAuthLoginUrlPrefix();
         Auth2DefaultRequestRedirectFilter auth2DefaultRequestRedirectFilter =
-                new Auth2DefaultRequestRedirectFilter(authorizationRequestBaseUri, this.auth2StateCoder, baseAuthenticationFailureHandler);
+                new Auth2DefaultRequestRedirectFilter(authorizationRequestBaseUri, this.auth2StateCoder, tenantContextHolder, baseAuthenticationFailureHandler);
         http.addFilterBefore(postProcess(auth2DefaultRequestRedirectFilter), AbstractPreAuthenticatedProcessingFilter.class);
 
         // 添加 provider
