@@ -24,6 +24,7 @@ package top.dcenter.ums.security.core.api.tenant.handler;
 
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserCache;
@@ -75,7 +76,7 @@ public interface TenantContextHolder {
      * 2. 已登录情况可以调用默认方法 {@link #getTenantId(Authentication)}
      * <pre>
      * Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-     * if (authentication.isAuthenticated()) {
+     * if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken) && authentication.isAuthenticated()) {
      *     // 已登录用户获取租户 id
      *     return getTenantId(authentication);
      * }
@@ -95,7 +96,7 @@ public interface TenantContextHolder {
     @NonNull
     default String getTenantId(@NonNull Authentication authentication) throws TenantIdNotFoundException {
 
-        if (!authentication.isAuthenticated()) {
+        if (!authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
             // 用户未登录的情况
             throw new TenantIdNotFoundException(ErrorCodeEnum.TENANT_ID_NOT_FOUND, null, authentication.getName());
         }
