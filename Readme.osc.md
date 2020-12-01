@@ -19,7 +19,7 @@
 ## 一、`UMS 功能列表`：
 
   - 验证码（图片，短信, 滑块）校验功能。
-  - 手机登录功能，登录后自动注册。
+  - 手机登录功能，登录后自动注册, 支持多租户。
   - 支持所有 JustAuth 支持的第三方授权登录，登录后自动注册或绑定或创建临时用户([TemporaryUser](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/oauth/userdetails/TemporaryUser.java))。
       - 支持定时刷新 accessToken, 支持分布式定时任务。
       - 支持第三方授权登录的用户信息表与 token 信息表的缓存功能。
@@ -36,18 +36,19 @@
   | ------ | ------------------------------------------------------------ |
   | [commons](https://gitee.com/pcore/UMS/tree/master/commons)   | 通用组件模块 |
   | [core](https://gitee.com/pcore/UMS/tree/master/core)   | 验证码/用户名密码登录/手机登录且自动注册/OAuth2 login by JustAuth/访问权限控制/签到/简化HttpSecurity(session、remember me、csrf 等)配置/session redis 缓存/可配置的响应方式(JSON 与 REDIRECT)返回 json 或 html 数据 |
-  | [demo](https://gitee.com/pcore/UMS/tree/master/demo)   | basic-example/basic-detail-example/permission-example/quickStart/session-detail-example/validate-codi-example/justAuth-security-oauth2-example |
+  | [demo](https://gitee.com/pcore/UMS/tree/master/demo)   | basic-example/basic-detail-example/permission-example/quickStart/session-detail-example/validate-codi-example/justAuth-security-oauth2-example/tenant-example |
 ### demo 演示功能 
  
   | **demo**                   | **演示功能**                                                     |
   | ---------------------- | ------------------------------------------------------------ |
-  | [basic-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-example)         | core 模块基本功能: 最简单的配置                              |
-  | [basic-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-detail-example)   | core 模块基本功能详细的配置: 含anonymous/session简单配置/rememberMe/csrf/登录路由/签到, 不包含session详细配置/验证码/手机登录/权限. |
-  | [permission-example](https://gitee.com/pcore/UMS/tree/master/demo/permission-example)     | core 模块: 基于 RBAC 的权限功能设置                          |
+  | [basic-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-example)         | 基本功能: 最简单的配置                              |
+  | [basic-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-detail-example)   | 基本功能详细的配置: 含anonymous/session简单配置/rememberMe/csrf/登录路由/签到, 不包含session详细配置/验证码/手机登录/权限. |
+  | [permission-example](https://gitee.com/pcore/UMS/tree/master/demo/permission-example)     | 基于 RBAC 的权限功能设置                          |
   | [quickStart](https://gitee.com/pcore/UMS/tree/master/demo/quickStart)             | 快速开始示例                                                 |
+  | [multi-tenancy-example](https://gitee.com/pcore/UMS/tree/master/demo/tenancy-example)             | 多租户注册与登录示例                                                 |
   | [justAuth-security-oauth2-example](https://gitee.com/pcore/UMS/tree/master/demo/justAuth-security-oauth2-example)             | 第三方授权登录, MDC 日志链路追踪配置                                               |
-  | [session-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/session-detail-example) | core 模块: session 与 session 缓存详细配置                   |
-  | [validate-code-example](https://gitee.com/pcore/UMS/tree/master/demo/validate-code-example)  | core 模块基本功能: 验证码(含自定义滑块验证码), 手机登录配置  |
+  | [session-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/session-detail-example) | session 与 session 缓存详细配置                   |
+  | [validate-code-example](https://gitee.com/pcore/UMS/tree/master/demo/validate-code-example)  | 基本功能: 验证码(含自定义滑块验证码), 手机登录配置  |
 
 ### [Github 更新日志(UpdatedLog)](https://github.com/ZeroOrInfinity/UMS/blob/master/UpdatedLog.md) | [Gitee 更新日志](https://gitee.com/pcore/UMS/blob/master/UpdatedLog.md)
 
@@ -82,20 +83,7 @@
 1. 用户服务: `必须实现`
     - [UmsUserDetailsService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/service/UmsUserDetailsService.java)    
 
-2. 图片验证码: 已实现缓存功能, 支持定时刷新缓存功能, 可以自定义缓存验证码图片的输出路径与缓存数量
-    - [ImageCodeFactory](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/image/ImageCodeFactory.java)
-
-3. 短信验证码: `默认空实现`
-    - [SmsCodeSender](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/sms/SmsCodeSender.java)
-
-4. 滑块验证码: 已实现缓存功能, 支持定时刷新缓存功能, 可以自定义缓存验证码图片的输出路径与缓存数量, 支持自定义源图片路径与模板图片路径(源图片与模板图片参考[validate-code-example](https://gitee.com/pcore/UMS/tree/master/demo/validate-code-example))
-    - [SimpleSliderCodeFactory](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/slider/SliderCodeFactory.java) 
-
-5. 自定义验证码:
-    - [AbstractValidateCodeProcessor](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/AbstractValidateCodeProcessor.java)
-    - [ValidateCodeGenerator](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/ValidateCodeGenerator.java)
-
-6. 访问权限控制功能: 基于 RBAC 的访问权限控制: 支持多租户与SCOPE
+2. 访问权限控制功能: 基于 RBAC 的访问权限控制: 支持多租户与SCOPE
     - [UriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/UriAuthorizeService.java): `推荐通过实现 AbstractUriAuthorizeService 来实现此接口`
     - [AbstractUriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java): `必须实现`
 
@@ -164,6 +152,19 @@
 
 ![授权逻辑时序图](doc/SequenceDiagram/permission.png)     
 
+3. 短信验证码: `默认空实现`
+    - [SmsCodeSender](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/sms/SmsCodeSender.java)
+
+4. 图片验证码: 已实现缓存功能, 支持定时刷新缓存功能, 可以自定义缓存验证码图片的输出路径与缓存数量
+    - [ImageCodeFactory](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/image/ImageCodeFactory.java)
+
+
+5. 滑块验证码: 已实现缓存功能, 支持定时刷新缓存功能, 可以自定义缓存验证码图片的输出路径与缓存数量, 支持自定义源图片路径与模板图片路径(源图片与模板图片参考[validate-code-example](https://gitee.com/pcore/UMS/tree/master/demo/validate-code-example))
+    - [SimpleSliderCodeFactory](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/slider/SliderCodeFactory.java) 
+
+6. 自定义验证码:
+    - [AbstractValidateCodeProcessor](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/AbstractValidateCodeProcessor.java)
+    - [ValidateCodeGenerator](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/ValidateCodeGenerator.java)
 
 7. [Auth2StateCoder](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/state/service/Auth2StateCoder.java): `用户需要时实现`, 对第三方授权登录流程中的 state 进行自定义编解码. 可以传递必要的信息, 
      如: 第三方登录成功的跳转地址等 注意此接口的两个方法必须同时实现对应的编解码逻辑, 实现此接口后注入 IOC 容器即可, 如有前端向后端获取 authorizeUrl
@@ -194,8 +195,31 @@
     
     - [BaseAuthenticationFailureHandler](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/authentication/handler/BaseAuthenticationFailureHandler.java): 认证失败处理器
 
+14. 如果应用为多租户系统, 且使用 RememberMe 功能: 默认的 RememberMeServices 不支持多租户, 则需要自定义实现 `org.springframework.security.web
+.authentication.RememberMeServices` 接口, 使其支持多租户系统, 不过一般情况下多租户系统不使用 RememberMe 功能.
 
+15. [TenantContextHolder](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/tenant/handler/TenantContextHolder.java):
+    - 多租户上下文存储器. 实现此接口并注入 IOC 容器后, 会自动注入 UMS 默认实现的注册/登录/授权组件, 要实现 ums 框架具有多租户功能, 必须实现此接口并注入 IOC 容器.
+    
+    - 功能: 
+    
+        1\. `tenantIdHandle(HttpServletRequest, String)`从注册用户入口或登录用户入口提取 `tenantId` 及进行必要的逻辑处理(如: `tenantId` 存入 `ThreadLocal`
+        , 或存入 `session`, 或存入 `redis` 缓存等). 
+        
+        2\. `getTenantId()`方便后续用户注册、登录、授权的数据处理(如：`sql` 添加 `tenantId` 的条件，注册用户添加 `TENANT_tenantId` 权限，根据 `tenantId` 获取角色的权限数据).
 
+        3\. `getTenantId(Authentication)` 默认实现方法, 用户已登录的情况下, 获取租户 ID, 直接从 `authority` 中解析获取.
+        
+    - 注意: 
+        1\. 多租户系统中, 在未登录时需要用到 tenantId 的接口, 如: `UserCache.getUserFromCache(String)/UmsUserDetailsService` 等接口, 
+        可通过 `getTenantId()` 来获取 `tenantId`. 登录用户可以通过 `Authentication` 来获取 `tenantId`.
+        
+        2\. UMS 默认的登录与注册逻辑中, 都内置了 `TenantContextHolder.tenantIdHandle(HttpServletRequest, String)` 逻辑, 
+        用户在实现 `UserCache/UmsUserDetailsService` 等接口中需要 `tenantId` 时, 调用 `TenantContextHolder.getTenantId()` 方法即可.
+        
+        3\. 如果自定义的注册或登录逻辑, 需要自己先调用 `TenantContextHolder.tenantIdHandle(HttpServletRequest, String)` 逻辑, 再在
+        实现 `UserCache/UmsUserDetailsService` 等接口中需要 `tenantId` 时, 调用 `TenantContextHolder.getTenantId()` 方法即可.
+    
 ------
 ## 六、Configurations:
 

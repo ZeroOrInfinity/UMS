@@ -1,3 +1,13 @@
+## 2.1.9
+### Fixes and Improvements:
+1. 特性: 增加多租户处理器接口 TenantContextHolder, 以及相应的配置文件与异常.
+2. 增强: 在用户密码登录入口/手机登录入口/第三方登录入口添加提取多租户 ID 的逻辑.
+3. 改进: Auth2LoginAuthenticationFilter 添加初始化 details 逻辑, 方便自定义初始化 details.
+4. 修复: 当不支持登录路由时, loginUrl 被设置成 logoutUrl 的 bug.
+5. 改进: 完善 RememberMe 配置, 使其支持自定义的 RememberMeServices.
+6. 示例: 添加多租户示例
+
+
 ## 2.1.8
 ### Fixes and Improvements:
 1. 改进: 增加两个自定义 OAuth2 Login 入口与相对应的属性(ums.oauth.customize 和 ums.oauth.gitlabPrivate). 三个相关的抽象类 AuthCustomizeRequest/AuthCustomizeSource/AuthGitlabPrivateSource.
