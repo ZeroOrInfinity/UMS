@@ -39,6 +39,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.util.CollectionUtils;
 import top.dcenter.ums.security.core.api.oauth.customize.AuthCustomizeRequest;
 import top.dcenter.ums.security.core.api.oauth.customize.AuthCustomizeSource;
 import top.dcenter.ums.security.core.api.oauth.customize.AuthGitlabPrivateSource;
@@ -54,10 +55,13 @@ import top.dcenter.ums.security.core.util.ConvertUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.URL_SEPARATOR;
@@ -146,7 +150,7 @@ public final class Auth2RequestHolder implements InitializingBean, ApplicationCo
     }
 
     /**
-     * 根据 {@link AuthSource} 获取 providerId
+     * 根据 {@link AuthSource} 获取 providerId, 注意: 必须在程序初始化后完成后才能调用.
      * @param source    {@link AuthSource}
      * @return  返回 providerId, 没有对应的第三方则返回 null
      */
@@ -289,7 +293,8 @@ public final class Auth2RequestHolder implements InitializingBean, ApplicationCo
         JustAuthProperties justAuth = auth2Properties.getJustAuth();
         AuthConfig config = getAuthConfig(auth2Properties, source);
         // 设置自定义 scopes
-        config.setScopes(justAuth.getScopes());
+        List<String> scopes = getScopesBySource(justAuth.getScopes(), source);
+        config.setScopes(scopes);
         // 设置是否启用代理
         Auth2Properties.HttpConfigProperties proxy = auth2Properties.getProxy();
         config.setHttpConfig(proxy.getHttpConfig());
@@ -336,6 +341,25 @@ public final class Auth2RequestHolder implements InitializingBean, ApplicationCo
             return null;
         }
         return this.getAuthDefaultRequestAdapter(config, source, authStateCache);
+    }
+
+    /**
+     * 根据 source 获取对应的自定义 scopes
+     * @param scopes    用户自定义的所有第三方的 scopes, 格式: source:scope 如: [QQ:write, QQ:read, GITEE:email, GITHUB:read]
+     * @param source    {@link AuthSource}
+     * @return 返回 source 相对应的 scopes
+     */
+    @NonNull
+    private List<String> getScopesBySource(@Nullable List<String> scopes, @NonNull AuthSource source) {
+        if (CollectionUtils.isEmpty(scopes)) {
+            return new ArrayList<>(0);
+        }
+        final String sourceName = source.getName() + ":";
+
+        return scopes.stream()
+                     .filter(scope -> scope.startsWith(sourceName))
+                     .map(scope -> scope.substring(sourceName.length()))
+                     .collect(Collectors.toList());
     }
 
     /**
