@@ -24,8 +24,10 @@
 package top.dcenter.ums.security.core.api.advice;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -164,10 +166,21 @@ public class SecurityControllerAdviceHandler {
         return ResponseResult.fail(errorMsg, ErrorCodeEnum.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseResult  handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+        return ResponseResult.fail(e.getMessage(), ErrorCodeEnum.PARAMETER_ERROR);
+    }
+
     @ResponseBody
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseResult exceptionHandler(Exception ex){
+        if (ex instanceof AccessDeniedException)
+        {
+            throw (AccessDeniedException) ex;
+        }
         return ResponseResult.fail(ex.getMessage(), ErrorCodeEnum.SERVER_ERROR);
     }
 
