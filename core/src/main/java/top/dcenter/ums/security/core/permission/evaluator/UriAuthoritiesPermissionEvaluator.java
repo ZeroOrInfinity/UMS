@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
+import top.dcenter.ums.security.core.permission.enums.PermissionType;
 import top.dcenter.ums.security.core.util.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +48,13 @@ public class UriAuthoritiesPermissionEvaluator  implements PermissionEvaluator {
         this.uriAuthorizeService = uriAuthorizeService;
     }
 
+    /**
+     *  判断 authentication 是否有对应的 targetDomainObject 的 permission 权限
+     * @param authentication        用户的 token
+     * @param targetDomainObject    uri(支持通配符) 或 {@link HttpServletRequest}
+     * @param permission            权限字符串({@link PermissionType#getPermissions()})
+     * @return  返回 true 表示有此资源权限.
+     */
     @Override
     public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
 
@@ -97,6 +105,14 @@ public class UriAuthoritiesPermissionEvaluator  implements PermissionEvaluator {
         return false;
     }
 
+    /**
+     *  判断 authentication 是否有对应的 targetType 的 permission 权限
+     * @param authentication        用户的 token
+     * @param targetId              目前此字符无实际意义
+     * @param targetType            uri(支持通配符) 或 {@link HttpServletRequest}
+     * @param permission            权限字符串({@link PermissionType#getPermissions()})
+     * @return  返回 true 表示有此资源权限.
+     */
     @Override
     public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
 
