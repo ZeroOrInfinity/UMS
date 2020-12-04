@@ -28,15 +28,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
-import top.dcenter.ums.security.core.api.session.strategy.DefaultRedirectInvalidSessionStrategy;
-import top.dcenter.ums.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.session.filter.SessionEnhanceCheckFilter;
 import top.dcenter.ums.security.core.auth.session.strategy.ClientExpiredSessionStrategy;
+import top.dcenter.ums.security.core.auth.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,19 +57,19 @@ public class SessionAutoConfigurerAware implements HttpSecurityAware {
     private final ClientProperties clientProperties;
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
     private final SessionEnhanceCheckFilter sessionEnhanceCheckFilter;
-    private final DefaultRedirectInvalidSessionStrategy defaultRedirectInvalidSessionStrategy;
+    private final InvalidSessionStrategy invalidSessionStrategy;
 
     private final EnhanceConcurrentControlAuthenticationStrategy enhanceConcurrentControlAuthenticationStrategy;
 
     public SessionAutoConfigurerAware(ClientProperties clientProperties,
                                       BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
                                       SessionEnhanceCheckFilter sessionEnhanceCheckFilter,
-                                      DefaultRedirectInvalidSessionStrategy defaultRedirectInvalidSessionStrategy,
+                                      InvalidSessionStrategy invalidSessionStrategy,
                                       EnhanceConcurrentControlAuthenticationStrategy enhanceConcurrentControlAuthenticationStrategy) {
         this.clientProperties = clientProperties;
         this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
         this.sessionEnhanceCheckFilter = sessionEnhanceCheckFilter;
-        this.defaultRedirectInvalidSessionStrategy = defaultRedirectInvalidSessionStrategy;
+        this.invalidSessionStrategy = invalidSessionStrategy;
 
         this.enhanceConcurrentControlAuthenticationStrategy = enhanceConcurrentControlAuthenticationStrategy;
     }
@@ -102,7 +102,7 @@ public class SessionAutoConfigurerAware implements HttpSecurityAware {
                 .sessionAuthenticationFailureHandler(baseAuthenticationFailureHandler)
                 .sessionAuthenticationStrategy(enhanceConcurrentControlAuthenticationStrategy)
                 .sessionAuthenticationErrorUrl(clientProperties.getLoginPage())
-                .invalidSessionStrategy(defaultRedirectInvalidSessionStrategy)
+                .invalidSessionStrategy(invalidSessionStrategy)
                 .enableSessionUrlRewriting(clientProperties.getSession().getEnableSessionUrlRewriting());
 
 

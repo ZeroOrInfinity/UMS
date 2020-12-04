@@ -22,7 +22,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.util.Assert;
-import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
+import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
 
 import java.util.Collection;
 

@@ -34,11 +34,11 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
-import top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.filter.JsonRequestFilter;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
@@ -96,7 +96,7 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
     private final BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler;
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
     private final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
-    private final DefaultLogoutSuccessHandler defaultLogoutSuccessHandler;
+    private final LogoutSuccessHandler logoutSuccessHandler;
 
 
     public ClientAutoConfigurerAware(ClientProperties clientProperties,
@@ -104,12 +104,12 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
                                       BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
                                       PasswordEncoder passwordEncoder,
                                       UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider,
-                                      DefaultLogoutSuccessHandler defaultLogoutSuccessHandler) {
+                                      LogoutSuccessHandler logoutSuccessHandler) {
         this.clientProperties = clientProperties;
         this.baseAuthenticationSuccessHandler = baseAuthenticationSuccessHandler;
         this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
         this.usernamePasswordAuthenticationProvider = usernamePasswordAuthenticationProvider;
-        this.defaultLogoutSuccessHandler = defaultLogoutSuccessHandler;
+        this.logoutSuccessHandler = logoutSuccessHandler;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -225,7 +225,7 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
     private void logoutConfigurer(HttpSecurity http) throws Exception {
         http.logout()
             .logoutUrl(clientProperties.getLogoutUrl())
-            .logoutSuccessHandler(defaultLogoutSuccessHandler)
+            .logoutSuccessHandler(logoutSuccessHandler)
             .logoutSuccessUrl(clientProperties.getLogoutSuccessUrl())
             .deleteCookies(clientProperties.getRememberMe().getRememberMeCookieName(),
                            clientProperties.getSession().getSessionCookieName())

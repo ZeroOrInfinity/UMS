@@ -24,7 +24,7 @@
 package top.dcenter.ums.security.core.api.session;
 
 import org.springframework.lang.NonNull;
-import top.dcenter.ums.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
+import top.dcenter.ums.security.core.auth.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.ums.security.core.auth.session.filter.SessionEnhanceCheckFilter;
 
 import javax.servlet.http.HttpServletRequest;

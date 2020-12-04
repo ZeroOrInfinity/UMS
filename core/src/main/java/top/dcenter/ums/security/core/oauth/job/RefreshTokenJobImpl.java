@@ -34,12 +34,13 @@ import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.api.oauth.job.RefreshTokenJob;
+import top.dcenter.ums.security.core.api.oauth.entity.AuthTokenPo;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
-import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
+import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
-import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
-import top.dcenter.ums.security.core.oauth.repository.UsersConnectionTokenRepository;
+import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
+import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;

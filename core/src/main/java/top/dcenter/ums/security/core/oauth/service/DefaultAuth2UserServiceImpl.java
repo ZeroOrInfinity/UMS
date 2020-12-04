@@ -22,7 +22,8 @@ import me.zhyd.oauth.model.AuthUser;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.util.Assert;
-import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
+import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
+import top.dcenter.ums.security.core.api.oauth.service.Auth2UserService;
 
 import javax.servlet.http.HttpServletRequest;
 

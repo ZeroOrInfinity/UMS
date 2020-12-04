@@ -17,7 +17,7 @@
 package top.dcenter.ums.security.core.oauth.filter.redirect;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
+import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
 
 import javax.servlet.http.HttpServletRequest;
 

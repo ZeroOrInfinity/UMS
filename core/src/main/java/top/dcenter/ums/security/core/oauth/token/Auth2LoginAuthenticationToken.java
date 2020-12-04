@@ -20,7 +20,7 @@ import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
-import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
+import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;

@@ -36,11 +36,12 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.context.WebApplicationContext;
-import top.dcenter.ums.security.core.api.advice.SecurityControllerAdviceHandler;
+import top.dcenter.ums.security.core.advice.SecurityControllerAdviceHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
-import top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler;
+import top.dcenter.ums.security.core.auth.handler.DefaultLogoutSuccessHandler;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.auth.controller.ClientSecurityController;
@@ -117,7 +118,7 @@ public class SecurityAutoConfiguration implements InitializingBean {
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.advice.SecurityControllerAdviceHandler")
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.advice.SecurityControllerAdviceHandler")
     public SecurityControllerAdviceHandler securityControllerExceptionHandler() {
         return new SecurityControllerAdviceHandler();
     }
@@ -129,8 +130,8 @@ public class SecurityAutoConfiguration implements InitializingBean {
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.logout.DefaultLogoutSuccessHandler")
-    public DefaultLogoutSuccessHandler defaultLogoutSuccessHandler() {
+    @ConditionalOnMissingBean(type = "org.springframework.security.web.authentication.logout.LogoutSuccessHandler")
+    public LogoutSuccessHandler logoutSuccessHandler() {
         return new DefaultLogoutSuccessHandler(clientProperties);
     }
 

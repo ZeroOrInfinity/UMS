@@ -25,7 +25,8 @@ package top.dcenter.ums.security.core.oauth.repository.factory;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
-import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
+import top.dcenter.ums.security.core.api.oauth.repository.factory.UsersConnectionRepositoryFactory;
+import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
 import top.dcenter.ums.security.core.oauth.repository.jdbc.Auth2JdbcUsersConnectionRepository;
 import top.dcenter.ums.security.core.oauth.properties.RepositoryProperties;
 

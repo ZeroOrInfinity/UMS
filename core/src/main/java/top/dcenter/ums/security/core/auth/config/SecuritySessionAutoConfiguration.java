@@ -33,15 +33,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.session.SessionEnhanceCheckService;
-import top.dcenter.ums.security.core.api.session.strategy.DefaultRedirectInvalidSessionStrategy;
-import top.dcenter.ums.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.ums.security.core.auth.controller.InvalidSessionController;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.session.filter.SessionEnhanceCheckFilter;
+import top.dcenter.ums.security.core.auth.session.strategy.DefaultRedirectInvalidSessionStrategy;
+import top.dcenter.ums.security.core.auth.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 
 import static top.dcenter.ums.security.core.util.MvcUtil.registerDelegateApplicationListener;
 
@@ -84,13 +85,13 @@ public class SecuritySessionAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.session.strategy.DefaultRedirectInvalidSessionStrategy")
-    public DefaultRedirectInvalidSessionStrategy defaultRedirectInvalidSessionStrategy() {
+    @ConditionalOnMissingBean(type = "org.springframework.security.web.session.InvalidSessionStrategy")
+    public InvalidSessionStrategy invalidSessionStrategy() {
         return new DefaultRedirectInvalidSessionStrategy(clientProperties.getSession().getInvalidSessionUrl());
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy")
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.session.strategy.EnhanceConcurrentControlAuthenticationStrategy")
     public EnhanceConcurrentControlAuthenticationStrategy enhanceConcurrentControlAuthenticationStrategy(SessionRegistry sessionRegistry) throws Exception {
         if (applicationContext == null) {
             throw new Exception("启动失败: " + EnhanceConcurrentControlAuthenticationStrategy.class.getName());

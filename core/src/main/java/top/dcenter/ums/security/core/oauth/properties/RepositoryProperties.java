@@ -27,7 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.dcenter.ums.security.core.oauth.repository.factory.Auth2JdbcUsersConnectionRepositoryFactory;
-import top.dcenter.ums.security.core.oauth.repository.factory.UsersConnectionRepositoryFactory;
+import top.dcenter.ums.security.core.api.oauth.repository.factory.UsersConnectionRepositoryFactory;
 
 /**
  * OAuth2 第三方登录 user_connection 持久化表字段, sql语句属性 设置

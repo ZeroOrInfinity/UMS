@@ -33,7 +33,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.validation.annotation.Validated;
 import top.dcenter.ums.security.core.oauth.filter.login.Auth2LoginAuthenticationFilter;
-import top.dcenter.ums.security.core.oauth.job.RefreshTokenJob;
+import top.dcenter.ums.security.core.api.oauth.job.RefreshTokenJob;
 import top.dcenter.ums.security.core.oauth.userdetails.TemporaryUser;
 
 import javax.validation.constraints.NotNull;

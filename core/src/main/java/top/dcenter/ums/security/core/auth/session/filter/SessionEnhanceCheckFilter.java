@@ -30,7 +30,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.common.config.SecurityCoreAutoConfigurer;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.session.SessionEnhanceCheckService;
-import top.dcenter.ums.security.core.api.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
+import top.dcenter.ums.security.core.auth.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.ums.security.core.exception.SessionEnhanceCheckException;
 import top.dcenter.ums.security.core.util.IpUtil;
 

@@ -25,7 +25,7 @@ package top.dcenter.ums.security.core.api.oauth.state.service;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.lang.NonNull;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
+import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
 
 import javax.servlet.http.HttpServletRequest;
 

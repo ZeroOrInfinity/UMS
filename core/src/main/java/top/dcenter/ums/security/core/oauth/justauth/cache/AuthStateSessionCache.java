@@ -28,7 +28,8 @@ import me.zhyd.oauth.config.AuthDefaultSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
-import top.dcenter.ums.security.core.oauth.justauth.enums.CacheKeyStrategy;
+import top.dcenter.ums.security.core.api.oauth.justauth.cache.Auth2StateCache;
+import top.dcenter.ums.security.core.api.oauth.justauth.enums.CacheKeyStrategy;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.properties.JustAuthProperties;
 

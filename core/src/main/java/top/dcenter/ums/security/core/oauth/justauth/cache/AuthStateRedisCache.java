@@ -25,7 +25,8 @@ package top.dcenter.ums.security.core.oauth.justauth.cache;
 
 import org.springframework.util.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import top.dcenter.ums.security.core.oauth.justauth.enums.CacheKeyStrategy;
+import top.dcenter.ums.security.core.api.oauth.justauth.cache.Auth2StateCache;
+import top.dcenter.ums.security.core.api.oauth.justauth.enums.CacheKeyStrategy;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.properties.JustAuthProperties;
 

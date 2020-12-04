@@ -26,7 +26,7 @@ package top.dcenter.ums.security.core.oauth.repository.jdbc.key.generator;
 
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.lang.NonNull;
-import top.dcenter.ums.security.core.oauth.entity.ConnectionKey;
+import top.dcenter.ums.security.core.api.oauth.entity.ConnectionKey;
 import top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration;
 
 import java.lang.reflect.Method;

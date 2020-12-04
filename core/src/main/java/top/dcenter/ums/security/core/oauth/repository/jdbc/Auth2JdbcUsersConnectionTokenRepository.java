@@ -37,8 +37,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration;
 import top.dcenter.ums.security.core.oauth.enums.EnableRefresh;
-import top.dcenter.ums.security.core.oauth.repository.UsersConnectionTokenRepository;
-import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository;
+import top.dcenter.ums.security.core.api.oauth.entity.AuthTokenPo;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -27,7 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.dcenter.ums.security.core.oauth.enums.RejectedExecutionHandlerPolicy;
-import top.dcenter.ums.security.core.oauth.job.RefreshTokenJob;
+import top.dcenter.ums.security.core.api.oauth.job.RefreshTokenJob;
 import top.dcenter.ums.security.core.oauth.provider.Auth2LoginAuthenticationProvider;
 
 import java.time.Duration;

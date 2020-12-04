@@ -23,7 +23,7 @@
 package top.dcenter.ums.security.core.tasks.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import top.dcenter.ums.security.core.oauth.job.RefreshTokenJob;
+import top.dcenter.ums.security.core.api.oauth.job.RefreshTokenJob;
 
 import java.util.Collection;
 import java.util.Map;
@@ -35,7 +35,6 @@ import java.util.Map;
  */
 public class RefreshAccessTokenJobHandler {
 
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private Map<String, RefreshTokenJob> refreshTokenJobMap;
 

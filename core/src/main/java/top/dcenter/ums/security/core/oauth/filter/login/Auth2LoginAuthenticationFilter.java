@@ -45,7 +45,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.core.oauth.filter.redirect.Auth2DefaultRequestResolver;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
-import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
+import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.oauth.token.Auth2LoginAuthenticationToken;
 import top.dcenter.ums.security.core.oauth.userdetails.TemporaryUser;
 

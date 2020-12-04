@@ -38,19 +38,19 @@ import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.core.api.oauth.state.service.Auth2StateCoder;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.oauth.job.RefreshTokenJob;
+import top.dcenter.ums.security.core.api.oauth.job.RefreshTokenJob;
 import top.dcenter.ums.security.core.oauth.job.RefreshTokenJobImpl;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.properties.RepositoryProperties;
-import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
-import top.dcenter.ums.security.core.oauth.repository.UsersConnectionTokenRepository;
+import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
+import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository;
 import top.dcenter.ums.security.core.oauth.repository.factory.Auth2JdbcUsersConnectionRepositoryFactory;
-import top.dcenter.ums.security.core.oauth.repository.factory.UsersConnectionRepositoryFactory;
+import top.dcenter.ums.security.core.api.oauth.repository.factory.UsersConnectionRepositoryFactory;
 import top.dcenter.ums.security.core.oauth.repository.jdbc.Auth2JdbcUsersConnectionTokenRepository;
-import top.dcenter.ums.security.core.oauth.service.Auth2UserService;
+import top.dcenter.ums.security.core.api.oauth.service.Auth2UserService;
 import top.dcenter.ums.security.core.oauth.service.DefaultAuth2UserServiceImpl;
-import top.dcenter.ums.security.core.oauth.signup.ConnectionService;
+import top.dcenter.ums.security.core.api.oauth.signup.ConnectionService;
 import top.dcenter.ums.security.core.oauth.signup.DefaultConnectionServiceImpl;
 
 import javax.sql.DataSource;
@@ -96,7 +96,7 @@ public class Auth2AutoConfiguration implements InitializingBean {
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.oauth.service.Auth2UserService")
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.oauth.service.Auth2UserService")
     public Auth2UserService auth2UserService() {
         return new DefaultAuth2UserServiceImpl();
     }
@@ -116,14 +116,14 @@ public class Auth2AutoConfiguration implements InitializingBean {
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.core.oauth.repository.UsersConnectionTokenRepository"})
+    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository"})
     public UsersConnectionTokenRepository usersConnectionTokenRepository(TextEncryptor connectionTextEncryptor,
                                                                          JdbcTemplate auth2UserConnectionJdbcTemplate) {
         return new Auth2JdbcUsersConnectionTokenRepository(auth2UserConnectionJdbcTemplate, connectionTextEncryptor);
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.core.oauth.repository.factory.UsersConnectionRepositoryFactory"})
+    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.core.api.oauth.repository.factory.UsersConnectionRepositoryFactory"})
     public UsersConnectionRepositoryFactory usersConnectionRepositoryFactory() {
         return new Auth2JdbcUsersConnectionRepositoryFactory();
     }
@@ -134,8 +134,9 @@ public class Auth2AutoConfiguration implements InitializingBean {
                                repositoryProperties.getTextEncryptorSalt());
     }
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.oauth.signup.ConnectionService")
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.oauth.signup.ConnectionService")
     public ConnectionService connectionSignUp(UmsUserDetailsService userDetailsService,
                                               UsersConnectionTokenRepository usersConnectionTokenRepository,
                                               UsersConnectionRepository usersConnectionRepository,

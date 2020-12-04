@@ -47,9 +47,9 @@ import top.dcenter.ums.security.core.oauth.filter.login.Auth2LoginAuthentication
 import top.dcenter.ums.security.core.oauth.filter.redirect.Auth2DefaultRequestRedirectFilter;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.provider.Auth2LoginAuthenticationProvider;
-import top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository;
-import top.dcenter.ums.security.core.oauth.service.Auth2UserService;
-import top.dcenter.ums.security.core.oauth.signup.ConnectionService;
+import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
+import top.dcenter.ums.security.core.api.oauth.service.Auth2UserService;
+import top.dcenter.ums.security.core.api.oauth.signup.ConnectionService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.ExecutorService;

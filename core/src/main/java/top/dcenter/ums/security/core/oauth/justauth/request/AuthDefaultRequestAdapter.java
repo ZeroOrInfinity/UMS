@@ -39,14 +39,15 @@ import me.zhyd.oauth.utils.StringUtils;
 import me.zhyd.oauth.utils.UuidUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.exception.RefreshTokenFailureException;
-import top.dcenter.ums.security.core.oauth.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.api.oauth.entity.AuthTokenPo;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest.determineState;
+import static top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest.determineState;
 
 /**
  * {@link AuthDefaultRequest} 的适配器

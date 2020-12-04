@@ -30,7 +30,7 @@ import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.Auth2Exception;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
-import top.dcenter.ums.security.core.oauth.justauth.request.Auth2DefaultRequest;
+import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
