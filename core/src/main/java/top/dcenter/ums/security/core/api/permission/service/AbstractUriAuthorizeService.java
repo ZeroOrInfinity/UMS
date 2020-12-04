@@ -147,10 +147,10 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
      * <pre>
      * Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
      * // 此 authorities 可以包含:  [ROLE_A, ROLE_B, TENANT_110110, SCOPE_read, SCOPE_write]
-     * // 如上所示:
+     * // authorities 要求:
      * //    1. 角色数量    >= 1
-     * //    2. SCOPE 数量 >= 1
-     * //    3. 多租户数量  = 1
+     * //    2. SCOPE 数量 >= 0
+     * //    3. 多租户数量  1 或 0
      * </pre>
      * @param authentication    {@link Authentication}
      * @return  用户所拥有的角色与 scope 的 uri(资源) 权限 Map(uri, Set(permission))
@@ -198,10 +198,12 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         final Map<String, Set<String>> uriPermissionsOfUserRole = getUriAuthoritiesOfUserRole(rolesAuthorities, roleSet);
 
         if (scopeSet.size() > 0) {
-            // 获取此 scopeSet 的所有角色的资源权限的 Map<scope, Map<uri, Set<permission>>>
+            // 获取此 scopeSet 的所有角色的资源权限的 Map<role, Map<uri, Set<permission>>>
             final Map<String, Map<String, Set<String>>> uriPermissionsOfScope = getScopeAuthoritiesOfScope(scopeSet);
             // 把 scope 的资源权限与 role 资源权限合并
-            uriPermissionsOfScope.values().forEach(map2mapConsumer(uriPermissionsOfUserRole));
+            if (!uriPermissionsOfScope.isEmpty()) {
+                uriPermissionsOfScope.values().forEach(map2mapConsumer(uriPermissionsOfUserRole));
+            }
         }
         return uriPermissionsOfUserRole;
 

@@ -64,10 +64,10 @@ public interface UriAuthorizeService {
      * <pre>
      * Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
      * // 此 authorities 可以包含:  [ROLE_A, ROLE_B, TENANT_110110, SCOPE_read, SCOPE_write]
-     * // 如上所示:
+     * // authorities 要求:
      * //    1. 角色数量    >= 1
-     * //    2. SCOPE 数量 >= 1
-     * //    3. 多租户数量  = 1
+     * //    2. SCOPE 数量 >= 0
+     * //    3. 多租户数量  1 或 0
      * </pre>
      * @param authentication    {@link Authentication}
      * @return  用户所拥有的角色与 scope 的 uri(资源) 权限 Map(uri, Set(permission))
@@ -133,8 +133,8 @@ public interface UriAuthorizeService {
     }
 
     /**
-     * 获取指定 scopeSet 的所有SCOPE的 uri(资源) 的权限 Map(scope, Map(uri, Set(permission))). 在微服务中, 对资源的权限控制有粗粒度权限控制
-     * 与细粒度权限控制, 使用粗粒度权限控制时: 一般通过网关或授权服务器进行权限控制, 此接口适用此模式.<br>
+     * 获取指定 scopeSet 的所有对应 role 的 uri(资源) 的权限 Map(role, Map(uri, Set(permission))). 在微服务中, 对资源的权限控制有粗粒度权限控制
+     * 与细粒度权限控制, 使用细粒度权限控制时: 实现此接口.<br>
      * <pre>
      * // 当为 restful 风格的 Api 时, uri 与 permission 是一对一关系:
      *  uri         permission
@@ -152,8 +152,8 @@ public interface UriAuthorizeService {
      * // 但最终返回的结果时是一样的; Map{["user/*", Set[list,add,edit,delete]]..}
      * </pre>
      * @param scopeSet          包含 SCOPE_ 前缀的租户权限 Set, 例如: SCOPE_scope
-     * @return                  Map(scope, Map(uri, Set(permission))): <br>
-     *     key: 必须包含"SCOPE_"前缀的角色名称(如: SCOPE_read), <br>
+     * @return                  Map(role, Map(uri, Set(permission))): <br>
+     *     key: 必须包含"ROLE_"前缀的角色名称(如: ROLE_read), <br>
      *     value: map(key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为权限字符串({@link PermissionType#getPermission()}) Set).
      */
     @NonNull
