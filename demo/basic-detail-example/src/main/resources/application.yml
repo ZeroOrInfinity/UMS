@@ -107,6 +107,8 @@ ums:
       - /testSignOfLastSevenDays/**:GET
       - /testDelOfCurrentMonth:GET
       - /login2:GET
+      - /**:OPTIONS
+      - /me:GET
 
     # ============= remember-me =============
     # 设置记住我功能的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
@@ -139,7 +141,6 @@ ums:
       # csrf tokenRepository 的存储类型, 默认为 session. 因为 session 可以配置缓存在 redis 等, 也可以自己自定义, 例如: redis
       token-repository-type: session
 
-
     # ============= 匿名用户配置 =============
     anonymous:
       # ANONYMOUS 是否开启, 默认为 true;
@@ -152,6 +153,36 @@ ums:
         - /test/permission:add
         - /test/permission:list
         - /test/pass/:list
+
+
+    # ============= 跨域请求配置 =============
+    cors:
+      # 是否支持跨域, 默认为 false;
+      enable: true
+      # 允许跨域访问的域，可以是一个域的列表，也可以是通配符"*"。这里要注意 Origin 规则只对域名有效，并不会对子目录有效。
+      access-control-allow-origin:
+        - http://localhost:9090
+        - http://localhost:9092
+      # 是否允许请求带有验证信息, 当为 true 时, accessControlAllowOrigin 不能为 "*", 默认为 true;
+      access-control-allow-credentials: true
+      # 进行跨区请求允许曝露的 headers，请求成功后，ajax 可以在 XMLHttpRequest 中访问这些头的信息;
+      access-control-expose-headers: Authorization
+      # Set the list of headers that a pre-flight request can list as allowed for use during an actual request.
+      # The special value "*" allows actual requests to send any header. A header name is not required to be listed
+      # if it is one of: Cache-Control, Content-Language, Expires, Last-Modified, or Pragma. By default this is not set.
+      access-control-allow-headers:
+        - '*'
+      # 允许进行跨区请求的请求方法
+      access-control-allow-methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+      # 缓存此次请求的秒数。在这个时间范围内，所有同类型的请求都将不再发送预检请求而是直接使用此次返回的头作为判断依据，非常有用，大幅优化请求次数
+      access-control-max-age: PT30S
+      # 允许进行跨区请求的 url, 支持通配符.
+      url-list:
+        - /**
 
   codes:
     # 短信验证码

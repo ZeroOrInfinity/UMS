@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>index</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@1.11.1/dist/jquery.min.js"></script>
 </head>
 <body>
 hello <span th:text="${username}">world!</span><br>
@@ -11,5 +12,32 @@ roles: <span th:text="${roles}"/>
     <form th:action="@{/logout?logout}" method="post">
         <input type="submit" value="退出登录post"/>
     </form>
+
+<br><br>
+<h5>启动 basic-detail-example 示例 端口分别为 9090/9091, 跨域设置属性通过 ums.client.cors.xxx 设置, 详情参考 basic-detail-example 中的
+    application.yml</h5>
+<h5>配置跨域时要注意的事项: 要放行跨域的 url 的 OPTIONS 请求的权限, 如 ums.client.cors.urlList=/** 相对应的权限设置为 ums.client.permitUrls ->
+    /**:OPTIONS</h5>
+<a href="#" onclick="testCors()">测试跨域</a>
 </body>
+<script>
+    testCors = function () {
+        $.ajax({
+            url: 'http://localhost:9091/demo/me',
+            type: "GET",
+            dataType: "json",
+            contentType: 'application/json; charset=UTF-8',
+            success: function (data) {
+                console.log("==========测试跨域成功============")
+                // ...
+                console.log(data)
+                // window.location.href = 'http://localhost:9091/demo/me'
+            },
+            error: function (data) {
+                console.log("==========测试跨域失败============")
+                console.log(data)
+            }
+        })
+    }
+</script>
 </html>
