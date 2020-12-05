@@ -68,6 +68,7 @@ public class ClientProperties {
     private final RememberMeProperties rememberMe = new RememberMeProperties();
     private final CsrfProperties csrf = new CsrfProperties();
     private final AnonymousProperties anonymous = new AnonymousProperties();
+    private final CorsProperties cors = new CorsProperties();
 
     /**
      * 用户角色层级配置，默认为 空.<br>
@@ -399,6 +400,47 @@ public class ClientProperties {
          * 匿名用户权限 list, 默认为 ROLE_ANONYMOUS
          */
         private List<String>  authorities = new ArrayList<>(Collections.singletonList("ROLE_ANONYMOUS"));
+
+    }
+
+    @Getter
+    @Setter
+    public static class CorsProperties {
+        /**
+         * 是否支持跨域, 默认为 false;
+         */
+        private Boolean enable = false;
+        /**
+         * 允许跨域访问的域，可以是一个域的列表，也可以是通配符"*"。这里要注意Origin规则只对域名有效，并不会对子目录有效。
+         */
+        private List<String> accessControlAllowOrigin;
+        /**
+         * 是否允许请求带有验证信息, 当为 true 时, accessControlAllowOrigin 不能为 "*", 默认为 true;
+         */
+        private Boolean accessControlAllowCredentials = true;
+        /**
+         * 进行跨区请求允许曝露的 headers，请求成功后，ajax 可以在 XMLHttpRequest 中访问这些头的信息;
+         */
+        private String accessControlExposeHeaders;
+        /**
+         * 缓存此次请求的秒数。在这个时间范围内，所有同类型的请求都将不再发送预检请求而是直接使用此次返回的头作为判断依据，非常有用，大幅优化请求次数
+         */
+        private Duration accessControlMaxAge;
+        /**
+         * 允许进行跨区请求的请求方法
+         */
+        private List<String> accessControlAllowMethods;
+        /**
+         * Set the list of headers that a pre-flight request can list as allowed for use during an actual request.
+         * The special value "*" allows actual requests to send any header.
+         * A header name is not required to be listed if it is one of: Cache-Control, Content-Language, Expires, Last-Modified, or Pragma.
+         * By default this is not set.
+         */
+        private List<String> accessControlAllowHeaders;
+        /**
+         * 允许进行跨区请求的 url, 支持通配符.
+         */
+        private List<String> urlList;
 
     }
 
