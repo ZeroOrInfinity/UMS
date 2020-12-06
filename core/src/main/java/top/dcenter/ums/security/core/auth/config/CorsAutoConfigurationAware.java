@@ -100,16 +100,16 @@ public class CorsAutoConfigurationAware implements HttpSecurityAware {
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(requireNonNull(corsProperties.getAccessControlAllowOrigin(),
-                                                       "AccessControlAllowOrigin must be not null"));
+                                                       "AccessControlAllowOrigin cannot be null"));
         configuration.setAllowedMethods(requireNonNull(corsProperties.getAccessControlAllowMethods(),
-                                                       "AccessControlAllowMethods must be not null"));
+                                                       "AccessControlAllowMethods cannot be null"));
         configuration.setAllowedHeaders(requireNonNull(corsProperties.getAccessControlAllowHeaders(),
-                                                       "AccessControlAllowHeaders must be not null"));
+                                                       "AccessControlAllowHeaders cannot be null"));
         configuration.addExposedHeader(requireNonNull(corsProperties.getAccessControlExposeHeaders(),
-                                                      "AccessControlExposeHeaders must be not null"));
+                                                      "AccessControlExposeHeaders cannot be null"));
 
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        requireNonNull(corsProperties.getUrlList(), "urlList must be not null")
+        requireNonNull(corsProperties.getUrlList(), "urlList cannot be null")
                 .forEach(uri -> source.registerCorsConfiguration(uri, configuration));
 
         return source;
