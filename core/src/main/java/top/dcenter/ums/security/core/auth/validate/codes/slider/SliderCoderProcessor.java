@@ -31,15 +31,14 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.utils.IpUtil;
+import top.dcenter.ums.security.common.utils.JsonUtil;
 import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
-import top.dcenter.ums.security.core.util.AuthenticationUtil;
-import top.dcenter.ums.security.core.util.IpUtil;
-import top.dcenter.ums.security.core.util.MvcUtil;
 import top.dcenter.ums.security.core.util.ValidateCodeUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -88,8 +87,8 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
             {
                 return false;
             }
-            String resultJson = MvcUtil.toJsonString(sliderCode);
-            AuthenticationUtil.responseWithJson(response, HttpStatus.OK.value(), resultJson);
+            String resultJson = JsonUtil.toJsonString(sliderCode);
+            JsonUtil.responseWithJson(response, HttpStatus.OK.value(), resultJson);
             if (log.isDebugEnabled())
             {
                 log.debug("发送滑块验证码: sliderCode = {}", sliderCode.toString());

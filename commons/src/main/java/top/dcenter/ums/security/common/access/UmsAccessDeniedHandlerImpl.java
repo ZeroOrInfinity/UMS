@@ -20,15 +20,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package top.dcenter.ums.security.core.permission.exception.handler;
+package top.dcenter.ums.security.common.access;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.vo.ResponseResult;
+import top.dcenter.ums.security.common.vo.ResponseResult;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -36,17 +37,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.isAjaxOrJson;
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
-import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
-
+import static top.dcenter.ums.security.common.utils.JsonUtil.isAjaxOrJson;
+import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
+import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
 /**
  * 授权异常处理器
  * @author YongWu zheng
  * @version V2.0  Created by 2020.11.22 17:03
  */
-@Slf4j
 public class UmsAccessDeniedHandlerImpl implements AccessDeniedHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(UmsAccessDeniedHandlerImpl.class);
 
     private String errorPage;
 
@@ -60,12 +61,12 @@ public class UmsAccessDeniedHandlerImpl implements AccessDeniedHandler {
         //判断是否为ajax请求
         if (isAjaxOrJson(request)) {
             responseWithJson(response, HttpStatus.FORBIDDEN.value(),
-                             toJsonString(ResponseResult.fail(ErrorCodeEnum.PERMISSION_DENY, request.getRequestURI())));
+                             toJsonString(ResponseResult.fail(ErrorCodeEnum.PERMISSION_DENY,
+                                                               request.getRequestURI())));
         }
         if (errorPage != null) {
             // Put exception into request scope (perhaps of use to a view)
-            request.setAttribute(WebAttributes.ACCESS_DENIED_403,
-                                 accessDeniedException);
+            request.setAttribute(WebAttributes.ACCESS_DENIED_403, accessDeniedException);
 
             // Set the 403 status code.
             response.setStatus(HttpStatus.FORBIDDEN.value());

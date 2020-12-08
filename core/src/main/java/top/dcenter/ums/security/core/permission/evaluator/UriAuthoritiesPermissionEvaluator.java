@@ -28,7 +28,7 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import top.dcenter.ums.security.core.api.permission.service.UriAuthorizeService;
 import top.dcenter.ums.security.core.permission.enums.PermissionType;
-import top.dcenter.ums.security.core.util.IpUtil;
+import top.dcenter.ums.security.common.utils.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;

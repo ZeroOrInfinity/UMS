@@ -39,7 +39,7 @@ import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.auth.config.PropertiesAutoConfiguration;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
-import top.dcenter.ums.security.core.permission.exception.handler.UmsAccessDeniedHandlerImpl;
+import top.dcenter.ums.security.common.access.UmsAccessDeniedHandlerImpl;
 
 import java.util.Collections;
 import java.util.HashMap;

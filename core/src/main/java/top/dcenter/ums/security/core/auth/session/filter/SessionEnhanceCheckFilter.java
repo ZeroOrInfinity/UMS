@@ -32,7 +32,7 @@ import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticati
 import top.dcenter.ums.security.core.api.session.SessionEnhanceCheckService;
 import top.dcenter.ums.security.core.auth.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 import top.dcenter.ums.security.core.exception.SessionEnhanceCheckException;
-import top.dcenter.ums.security.core.util.IpUtil;
+import top.dcenter.ums.security.common.utils.IpUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

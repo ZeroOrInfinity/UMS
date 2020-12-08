@@ -34,7 +34,7 @@ import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.ExpiredSessionDetectedException;
-import top.dcenter.ums.security.core.util.IpUtil;
+import top.dcenter.ums.security.common.utils.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

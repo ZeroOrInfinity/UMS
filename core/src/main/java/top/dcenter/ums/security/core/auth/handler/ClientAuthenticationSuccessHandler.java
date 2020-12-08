@@ -37,8 +37,8 @@ import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
-import top.dcenter.ums.security.core.util.IpUtil;
-import top.dcenter.ums.security.core.vo.ResponseResult;
+import top.dcenter.ums.security.common.utils.IpUtil;
+import top.dcenter.ums.security.common.vo.ResponseResult;
 import top.dcenter.ums.security.core.vo.UserInfoJsonVo;
 
 import javax.servlet.ServletException;
@@ -47,11 +47,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.isAjaxOrJson;
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
+import static top.dcenter.ums.security.common.utils.JsonUtil.isAjaxOrJson;
+import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
+import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
 import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 import static top.dcenter.ums.security.core.util.MvcUtil.isSelfTopDomain;
-import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
 import static top.dcenter.ums.security.core.util.RequestUtil.getRequestUri;
 
 /**

@@ -25,7 +25,6 @@ package top.dcenter.ums.security.core.util;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.RedirectStrategy;
@@ -41,27 +40,27 @@ import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
+import top.dcenter.ums.security.common.vo.ResponseResult;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
-import top.dcenter.ums.security.core.vo.ResponseResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 import static java.util.Optional.ofNullable;
-import static top.dcenter.ums.security.common.consts.SecurityConstants.HEADER_ACCEPT;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SERVLET_CONTEXT_PERMIT_ALL_SET_KEY;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_REDIRECT_URL_KEY;
-import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
+import static top.dcenter.ums.security.common.utils.JsonUtil.isAjaxOrJson;
+import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
+import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
 
 /**
  * Authentication util
@@ -122,8 +121,6 @@ public class AuthenticationUtil {
                 abstractAuthenticationProcessingFilter.setRememberMeServices(persistentTokenBasedRememberMeServices);
             }
         }
-
-
     }
 
     /**
@@ -195,7 +192,6 @@ public class AuthenticationUtil {
         return false;
     }
 
-
     /**
      * 认证失败处理
      * {@link AbstractResponseJsonAuthenticationException} 类的异常, Response 会返回 Json 数据.
@@ -230,25 +226,6 @@ public class AuthenticationUtil {
             return true;
         }
         return false;
-    }
-
-    /**
-     * 向客户端响应 json 格式
-     * @param response  response
-     * @param status    响应的状态码
-     * @param result    相应的结果字符串
-     * @throws IOException IOException
-     */
-    public static void responseWithJson(HttpServletResponse response, int status,
-                                         String result) throws IOException {
-        if (!response.isCommitted()) {
-            response.setStatus(status);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding(SecurityConstants.CHARSET_UTF8);
-            PrintWriter writer = response.getWriter();
-            writer.write(result);
-            writer.flush();
-        }
     }
 
     /**
@@ -382,22 +359,6 @@ public class AuthenticationUtil {
         }
 
         return redirectUrl;
-    }
-
-    public static final String HEADER_X_REQUESTED_WITH_NAME = "X-Requested-With";
-    public static final String X_REQUESTED_WITH = "XMLHttpRequest";
-
-    /**
-     * 判断是否为 ajax 请求或者支持接收 json 格式
-     * @param request   request
-     * @return  但为 ajax 请求或者支持接收 json 格式返回 true
-     */
-    public static boolean isAjaxOrJson(HttpServletRequest request) {
-        //判断是否为ajax请求 或 支持接收 json 格式
-        String xRequestedWith = request.getHeader(HEADER_X_REQUESTED_WITH_NAME);
-        String accept = request.getHeader(HEADER_ACCEPT);
-        return (StringUtils.hasText(accept) && accept.contains(MediaType.APPLICATION_JSON_VALUE))
-                || (xRequestedWith != null && xRequestedWith.equalsIgnoreCase(X_REQUESTED_WITH));
     }
 
     private static void redirectProcessing(HttpServletRequest request, HttpServletResponse response, ClientProperties clientProperties, RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum, String redirectUrl) throws IOException {

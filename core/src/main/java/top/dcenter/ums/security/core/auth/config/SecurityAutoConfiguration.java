@@ -68,7 +68,7 @@ import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
  * @version V1.0  Created by 2020/5/3 19:59
  */
 @Configuration(proxyBeanMethods = false)
-@Order(99)
+@Order(98)
 @AutoConfigureAfter({PropertiesAutoConfiguration.class})
 @Slf4j
 public class SecurityAutoConfiguration implements InitializingBean {

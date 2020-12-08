@@ -29,7 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
-import top.dcenter.ums.security.core.util.MvcUtil;
+import top.dcenter.ums.security.common.utils.JsonUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ReadListener;
@@ -105,7 +105,7 @@ public class JsonRequestFilter extends OncePerRequestFilter {
                         String jsonData = new String(bytes, StandardCharsets.UTF_8).trim();
                         // 转换为 map 类型, 并放入 request 域方便下次调用
                         //noinspection unchecked
-                        map = MvcUtil.json2Object(jsonData, Map.class);
+                        map = JsonUtil.json2Object(jsonData, Map.class);
                     }
                 }
                 catch (Exception e) {

@@ -23,10 +23,6 @@
 
 package top.dcenter.ums.security.core.vo;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
@@ -36,10 +32,6 @@ import java.util.Collection;
  * @author YongWu zheng
  * @version V1.0  Created by 2020/6/6 22:27
  */
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class UserInfoJsonVo {
 
     /**
@@ -58,4 +50,45 @@ public class UserInfoJsonVo {
      * 用户权限
      */
     private Collection<GrantedAuthority> authorities;
+
+    public UserInfoJsonVo() { }
+
+    public UserInfoJsonVo(String id, String username, String targetUrl, Collection<GrantedAuthority> authorities) {
+        this.id = id;
+        this.username = username;
+        this.targetUrl = targetUrl;
+        this.authorities = authorities;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getTargetUrl() {
+        return targetUrl;
+    }
+
+    public void setTargetUrl(String targetUrl) {
+        this.targetUrl = targetUrl;
+    }
+
+    public Collection<GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(Collection<GrantedAuthority> authorities) {
+        this.authorities = authorities;
+    }
 }

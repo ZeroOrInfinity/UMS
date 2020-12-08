@@ -21,13 +21,11 @@
  * SOFTWARE.
  */
 
-package top.dcenter.ums.security.core.vo;
+package top.dcenter.ums.security.common.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -44,14 +42,12 @@ public class RedirectVo {
     /**
      * 重定向的地址
      */
-    @Getter
-    @Setter
     private String url;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime timestamp;
 
-    public RedirectVo(String url) {
+    private RedirectVo(String url) {
         this.url = url;
         this.timestamp = LocalDateTime.now();
     }
@@ -65,5 +61,27 @@ public class RedirectVo {
         return new RedirectVo(url);
     }
 
+    public int getStatus() {
+        return status;
+    }
 
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
 }

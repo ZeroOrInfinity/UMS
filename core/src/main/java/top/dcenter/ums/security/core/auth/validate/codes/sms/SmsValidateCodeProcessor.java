@@ -42,7 +42,7 @@ import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.exception.SmsCodeRepeatedRequestException;
 import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
-import top.dcenter.ums.security.core.util.IpUtil;
+import top.dcenter.ums.security.common.utils.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,9 +53,9 @@ import static org.springframework.http.HttpStatus.OK;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.MOBILE_FORMAT_ERROR;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.MOBILE_PARAMETER_ERROR;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.SMS_CODE_REPEATED_REQUEST;
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
-import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
-import static top.dcenter.ums.security.core.vo.ResponseResult.success;
+import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
+import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
+import static top.dcenter.ums.security.common.vo.ResponseResult.success;
 
 
 /**

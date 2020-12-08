@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.*;
-import top.dcenter.ums.security.core.vo.ResponseResult;
+import top.dcenter.ums.security.common.vo.ResponseResult;
 
 /**
  * 核心错误处理器,如需自定义，继承此类并注入 IOC 容器即可

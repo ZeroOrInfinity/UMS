@@ -20,9 +20,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package top.dcenter.ums.security.core.util;
+package top.dcenter.ums.security.common.utils;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,8 +36,9 @@ import java.net.UnknownHostException;
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/1 17:49
  */
-@Slf4j
 public class IpUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(IpUtil.class);
 
     @SuppressWarnings({"AlibabaUndefineMagicConstant"})
     public static String getRealIp(HttpServletRequest request) {

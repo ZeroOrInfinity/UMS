@@ -50,7 +50,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
+import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
 
 /**
  * An implementation of an {@link AuthenticationProvider} for OAuth 2.0 Login, which

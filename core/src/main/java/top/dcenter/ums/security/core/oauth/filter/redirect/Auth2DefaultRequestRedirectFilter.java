@@ -44,10 +44,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.isAjaxOrJson;
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
-import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
-import static top.dcenter.ums.security.core.vo.RedirectVo.redirect;
+import static top.dcenter.ums.security.common.utils.JsonUtil.isAjaxOrJson;
+import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
+import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
+import static top.dcenter.ums.security.common.vo.RedirectVo.redirect;
 
 /**
  * This {@code Filter} initiates the authorization code grant or implicit grant flow by

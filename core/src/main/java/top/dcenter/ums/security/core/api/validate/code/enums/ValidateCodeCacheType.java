@@ -29,9 +29,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.web.context.request.ServletWebRequest;
+import top.dcenter.ums.security.common.utils.IpUtil;
+import top.dcenter.ums.security.common.utils.JsonUtil;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
-import top.dcenter.ums.security.core.util.IpUtil;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
@@ -111,7 +111,7 @@ public enum ValidateCodeCacheType {
             }
 
             byte[] key = (validateCodeType.getKeyPrefix() + request.getSessionId()).getBytes(UTF_8);
-            byte[] value = MvcUtil.toJsonString(validateCode).getBytes(UTF_8);
+            byte[] value = JsonUtil.toJsonString(validateCode).getBytes(UTF_8);
             try (RedisConnection connection = redisConnectionFactory.getConnection())
             {
                 return Optional.ofNullable(connection.setEx(key, validateCodeType.getExpireIn() - 1, value)).orElse(false);
@@ -153,7 +153,7 @@ public enum ValidateCodeCacheType {
                 return null;
             }
 
-            return MvcUtil.json2Object(new String(jsonBytes, UTF_8), clz);
+            return JsonUtil.json2Object(new String(jsonBytes, UTF_8), clz);
         }
 
         @Override

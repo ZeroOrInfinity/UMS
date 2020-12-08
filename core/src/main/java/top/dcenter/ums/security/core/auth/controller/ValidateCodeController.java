@@ -44,7 +44,7 @@ import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCode;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.exception.ValidateCodeProcessException;
 import top.dcenter.ums.security.core.util.MvcUtil;
-import top.dcenter.ums.security.core.vo.ResponseResult;
+import top.dcenter.ums.security.common.vo.ResponseResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,7 +52,7 @@ import javax.servlet.http.HttpServletResponse;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.URL_SEPARATOR;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.ILLEGAL_VALIDATE_CODE_TYPE;
-import static top.dcenter.ums.security.core.util.IpUtil.getRealIp;
+import static top.dcenter.ums.security.common.utils.IpUtil.getRealIp;
 
 
 /**

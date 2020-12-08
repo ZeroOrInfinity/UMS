@@ -32,19 +32,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.utils.JsonUtil;
+import top.dcenter.ums.security.core.api.oauth.entity.AuthTokenPo;
+import top.dcenter.ums.security.core.api.oauth.entity.ConnectionData;
+import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
+import top.dcenter.ums.security.core.api.oauth.repository.exception.UpdateConnectionException;
+import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
+import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository;
 import top.dcenter.ums.security.core.api.oauth.signup.ConnectionService;
 import top.dcenter.ums.security.core.api.oauth.state.service.Auth2StateCoder;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
-import top.dcenter.ums.security.core.api.oauth.entity.AuthTokenPo;
-import top.dcenter.ums.security.core.api.oauth.entity.ConnectionData;
-import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.oauth.justauth.util.JustAuthUtil;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
-import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
-import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository;
-import top.dcenter.ums.security.core.api.oauth.repository.exception.UpdateConnectionException;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import java.util.List;
 
@@ -126,7 +126,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
         }
         catch (Exception e) {
             log.error(String.format("OAuth2自动注册失败: error=%s, username=%s, authUser=%s",
-                                    e.getMessage(), username, MvcUtil.toJsonString(authUser)), e);
+                                    e.getMessage(), username, JsonUtil.toJsonString(authUser)), e);
             throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_FAILURE, username);
         }
     }
@@ -201,7 +201,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
                 }
                 catch (Exception ex) {
                     msg = String.format("第三方授权登录自动注册时: 本地账户注册成功, %s, 添加第三方授权登录信息失败: %s",
-                                        userDetails, MvcUtil.toJsonString(authUser));
+                                        userDetails, JsonUtil.toJsonString(authUser));
                     log.error(msg, e);
                     throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_OAUTH2_FAILURE,
                                                            ex, userDetails.getUsername());
@@ -218,7 +218,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
                                                 "%s",
                                         userDetails,
                                         authUser.getRawUserInfo(),
-                                        MvcUtil.toJsonString(authToken));
+                                        JsonUtil.toJsonString(authToken));
                     log.error(msg, e);
                     throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_OAUTH2_FAILURE,
                                                            userDetails.getUsername());

@@ -21,14 +21,11 @@
  * SOFTWARE.
  */
 
-package top.dcenter.ums.security.core.vo;
+package top.dcenter.ums.security.common.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 
 import java.time.LocalDateTime;
@@ -39,9 +36,6 @@ import java.time.LocalDateTime;
  * @version V1.0  Created by 2020/5/3 19:39
  * @author YongWu zheng
  */
-@Getter
-@Setter
-@AllArgsConstructor
 public class ResponseResult {
     /**
      * 0 表示处理成功信息，其他表示失败
@@ -53,15 +47,22 @@ public class ResponseResult {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime timestamp;
 
-    public ResponseResult(int code, String msg) {
+    private ResponseResult(int code, String msg) {
         this.code = code;
         this.msg = msg;
         this.data = null;
         this.timestamp = LocalDateTime.now();
     }
 
-    public ResponseResult(int code) {
+    private ResponseResult(int code) {
         this(code, null);
+    }
+
+    private ResponseResult(int code, String msg, Object data, LocalDateTime timestamp) {
+        this.code = code;
+        this.msg = msg;
+        this.data = data;
+        this.timestamp = timestamp;
     }
 
     /**
@@ -130,4 +131,35 @@ public class ResponseResult {
         return new ResponseResult(errorCodeEnum.getCode(), errorMsg, data, LocalDateTime.now());
     }
 
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
 }
