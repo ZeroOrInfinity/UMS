@@ -167,12 +167,8 @@ public class ClientAutoConfigurerAware implements HttpSecurityAware {
             .usernameParameter(clientProperties.getUsernameParameter())
             .passwordParameter(clientProperties.getPasswordParameter())
             .loginPage(loginUnAuthenticationRoutingUrl)
-            // uri 需要自己实现
-            .failureUrl(clientProperties.getFailureUrl())
-            .defaultSuccessUrl(clientProperties.getSuccessUrl())
             // 由 Spring Security 接管，不用任何处理
             .loginProcessingUrl(clientProperties.getLoginProcessingUrl())
-            // 语句位置更重要, 放在 failureUrl()与defaultSuccessUrl()之前会失效
             .successHandler(baseAuthenticationSuccessHandler)
             .failureHandler(baseAuthenticationFailureHandler);
 

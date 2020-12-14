@@ -64,17 +64,19 @@ import static top.dcenter.ums.security.core.util.RequestUtil.getRequestUri;
 @Slf4j
 public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSuccessHandler {
 
-    protected final ClientProperties clientProperties;
     protected final RequestCache requestCache;
     /**
      * 包含 ServletContextPath
      */
     protected final String auth2RedirectUrl;
 
+    protected final LoginProcessType loginProcessType;
+
     public ClientAuthenticationSuccessHandler(ClientProperties clientProperties, String auth2RedirectUrl) {
         this.auth2RedirectUrl = auth2RedirectUrl;
         this.requestCache = new HttpSessionRequestCache();
-        this.clientProperties = clientProperties;
+        this.loginProcessType = clientProperties.getLoginProcessType();
+
         setTargetUrlParameter(clientProperties.getTargetUrlParameter());
         setUseReferer(clientProperties.getUseReferer());
         setAlwaysUseDefaultTargetUrl(clientProperties.getAlwaysUseDefaultTargetUrl());
@@ -82,6 +84,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         ignoreUrls.add(clientProperties.getLoginPage());
         ignoreUrls.add(clientProperties.getLogoutUrl());
 
+        super.setDefaultTargetUrl(clientProperties.getSuccessUrl());
     }
 
     @Override
@@ -110,7 +113,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
 
             // 判断是否返回 json 类型
             userInfoJsonVo.setTargetUrl(getJsonTargetUrl(targetUrl));
-            if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
+            if (LoginProcessType.JSON.equals(this.loginProcessType))
             {
                 clearAuthenticationAttributes(request);
                 responseWithJson(response, HttpStatus.OK.value(),
