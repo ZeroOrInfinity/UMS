@@ -34,6 +34,9 @@ import me.zhyd.oauth.config.AuthSource;
 @SuppressWarnings("AlibabaAbstractClassShouldStartWithAbstractNaming")
 public abstract class AuthCustomizeSource implements AuthSource {
 
+    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
+    private volatile String name = "CUSTOMIZE";
+
     /**
      * 获取自定义 {@link AuthSource} 的字符串名字
      *
@@ -41,7 +44,7 @@ public abstract class AuthCustomizeSource implements AuthSource {
      */
     @Override
     public final String getName() {
-        return "CUSTOMIZE";
+        return this.name;
     }
 
     /**
