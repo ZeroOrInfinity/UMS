@@ -71,21 +71,6 @@ public class ClientProperties {
     private final CorsProperties cors = new CorsProperties();
 
     /**
-     * 用户角色层级配置，默认为 空.<br>
-     * 分隔符为:" > ". 例如: ROLE_ADMIN 拥有 ROLE_USER 权限则表示为: {@code ROLE_ADMIN > ROLE_USER > ROLE_EMPLOYEE}<br>
-     * 注意:
-     * <pre>
-     * // ROLE_ADMIN 拥有 ROLE_USER 与 ROLE_EMPLOYEE 权限, ROLE_USER 拥有 ROLE_EMPLOYEE 权限.
-     * ROLE_ADMIN > ROLE_USER > ROLE_EMPLOYEE
-     * // 等价于
-     * ROLE_ADMIN > ROLE_USER
-     * ROLE_USER > ROLE_EMPLOYEE
-     * </pre>
-     */
-    @Setter
-    private List<String> roleHierarchy = new ArrayList<>();
-
-    /**
      * 一级域名(不包括二级域名)
      * 例如:
      * <pre>
@@ -100,6 +85,19 @@ public class ClientProperties {
     @Setter
     @NotNull(message = "ums.client.topDomain 值必须设置")
     private String topDomain;
+
+    // ============ 登录相关 ============
+
+    /**
+     * 设置登录时用户名的 request 参数名称, 默认为 username
+     */
+    @Setter
+    private String usernameParameter = "username";
+    /**
+     * 设置登录时用户密码的 request 参数名称, 默认为 password
+     */
+    @Setter
+    private String passwordParameter = "password";
 
     /**
      * 设置登录页(必须自己实现)，用户没有配置则默认为 /login
@@ -121,6 +119,55 @@ public class ClientProperties {
      */
     @Setter
     private String successUrl = "/";
+
+    /**
+     * 设置由客户端决定认证成功要跳转的 url 的 request 参数名称, 默认为 redirectTargetUrl
+     */
+    @Setter
+    private String targetUrlParameter = "redirectTargetUrl";
+    /**
+     * 登录后是否利用 Referer 进行跳转, 默认为: true
+     */
+    @Setter
+    private Boolean useReferer = true;
+
+    /**
+     * 登录后是否总是使用默认的 successUrl 进行跳转, 默认为: false
+     */
+    @Setter
+    private Boolean alwaysUseDefaultTargetUrl = Boolean.FALSE;
+
+
+    // ============ 登出相关 ============
+
+    /**
+     * 设置登出 url, 默认为 /logout
+     */
+    @Setter
+    private String logoutUrl = "/logout";
+    /**
+     * 设置登出后跳转的 url(必须自己实现), 默认为 /login
+     */
+    @Setter
+    private String logoutSuccessUrl = "/login";
+
+
+    // ============ 权限与表达式相关 ============
+
+    /**
+     * 用户角色层级配置，默认为 空.<br>
+     * 分隔符为:" > ". 例如: ROLE_ADMIN 拥有 ROLE_USER 权限则表示为: {@code ROLE_ADMIN > ROLE_USER > ROLE_EMPLOYEE}<br>
+     * 注意:
+     * <pre>
+     * // ROLE_ADMIN 拥有 ROLE_USER 与 ROLE_EMPLOYEE 权限, ROLE_USER 拥有 ROLE_EMPLOYEE 权限.
+     * ROLE_ADMIN > ROLE_USER > ROLE_EMPLOYEE
+     * // 等价于
+     * ROLE_ADMIN > ROLE_USER
+     * ROLE_USER > ROLE_EMPLOYEE
+     * </pre>
+     */
+    @Setter
+    private List<String> roleHierarchy = new ArrayList<>();
 
     /**
      * 403 页面, 默认 空
@@ -212,6 +259,8 @@ public class ClientProperties {
     @Setter
     private Boolean enableRestfulApi = true;
 
+    // ============ 登录路由相关 ============
+
     /**
      * 是否开启登录路由功能, 根据不同的uri跳转到相对应的登录页, 默认为: false, 当为 true 时还需要配置 loginUnAuthenticationRoutingUrl 和 authRedirectSuffixCondition
      */
@@ -231,42 +280,15 @@ public class ClientProperties {
     @Setter
     private List<String> authRedirectSuffixCondition = new ArrayList<>();
 
+
+    // ============ 其他基本配置 ============
+
     /**
      * 设置登录后返回格式, 默认: JSON
      */
     @Setter
     private LoginProcessType loginProcessType = LoginProcessType.JSON;
 
-    /**
-     * 设置登出 url, 默认为 /logout
-     */
-    @Setter
-    private String logoutUrl = "/logout";
-    /**
-     * 设置登出后跳转的 url(必须自己实现), 默认为 /login
-     */
-    @Setter
-    private String logoutSuccessUrl = "/login";
-    /**
-     * 设置由客户端决定认证成功要跳转的 url 的 request 参数名称, 默认为 redirectTargetUrl
-     */
-    @Setter
-    private String targetUrlParameter = "redirectTargetUrl";
-    /**
-     * 设置登录时用户名的 request 参数名称, 默认为 username
-     */
-    @Setter
-    private String usernameParameter = "username";
-    /**
-     * 设置登录时用户密码的 request 参数名称, 默认为 password
-     */
-    @Setter
-    private String passwordParameter = "password";
-    /**
-     * 登录后是否利用 Referer 进行跳转, 默认为: true
-     */
-    @Setter
-    private Boolean useReferer = true;
     /**
      * 允许来自同一来源(如: example.com)的 X-Frame-Options headers 请求, 默认为: false
      */

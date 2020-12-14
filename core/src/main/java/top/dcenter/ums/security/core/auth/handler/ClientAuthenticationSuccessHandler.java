@@ -77,6 +77,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         this.clientProperties = clientProperties;
         setTargetUrlParameter(clientProperties.getTargetUrlParameter());
         setUseReferer(clientProperties.getUseReferer());
+        setAlwaysUseDefaultTargetUrl(clientProperties.getAlwaysUseDefaultTargetUrl());
         ignoreUrls = new HashSet<>();
         ignoreUrls.add(clientProperties.getLoginPage());
         ignoreUrls.add(clientProperties.getLogoutUrl());
