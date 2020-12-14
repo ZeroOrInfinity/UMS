@@ -32,9 +32,10 @@ import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.util.AntPathMatcher;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.LoginProcessType;
+import top.dcenter.ums.security.common.utils.IpUtil;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.ExpiredSessionDetectedException;
-import top.dcenter.ums.security.common.utils.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -55,12 +56,14 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.redirectProc
 public class ClientExpiredSessionStrategy implements SessionInformationExpiredStrategy {
 
     private final RedirectStrategy redirectStrategy;
-    private final ClientProperties clientProperties;
+    private final LoginProcessType loginProcessType;
+    private final String loginPage;
     private final RequestCache requestCache;
     private final AntPathMatcher matcher;
 
     public ClientExpiredSessionStrategy(ClientProperties clientProperties) {
-        this.clientProperties = clientProperties;
+        this.loginProcessType = clientProperties.getLoginProcessType();
+        this.loginPage = clientProperties.getLoginPage();
         this.matcher = new AntPathMatcher();
         this.redirectStrategy = new DefaultRedirectStrategy();
         this.requestCache = new HttpSessionRequestCache();
@@ -79,13 +82,13 @@ public class ClientExpiredSessionStrategy implements SessionInformationExpiredSt
             // 清除缓存
             session.removeAttribute(SESSION_ENHANCE_CHECK_KEY);
 
-            String redirectUrl = determineInvalidSessionRedirectUrl(request, response, clientProperties.getLoginPage(), matcher, requestCache);
+            String redirectUrl = determineInvalidSessionRedirectUrl(request, response, loginPage, matcher, requestCache);
             if (log.isDebugEnabled())
             {
                 log.debug("Session expired, starting new session and redirecting to '{}'", redirectUrl);
             }
 
-            redirectProcessingByLoginProcessType(request, response, clientProperties,
+            redirectProcessingByLoginProcessType(request, response, loginProcessType,
                                                  redirectStrategy, ErrorCodeEnum.EXPIRED_SESSION,
                                                  redirectUrl);
         }

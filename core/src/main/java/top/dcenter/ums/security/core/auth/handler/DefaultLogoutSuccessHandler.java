@@ -32,6 +32,7 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.LoginProcessType;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.common.utils.IpUtil;
 
@@ -51,13 +52,15 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.redirectProc
 public class DefaultLogoutSuccessHandler implements LogoutSuccessHandler {
 
     protected final RedirectStrategy redirectStrategy;
-    protected final ClientProperties clientProperties;
+    protected final String logoutSuccessUrl;
+    protected final LoginProcessType loginProcessType;
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired(required = false)
     protected UserCache userCache;
 
     public DefaultLogoutSuccessHandler(ClientProperties clientProperties) {
-        this.clientProperties = clientProperties;
+        this.loginProcessType = clientProperties.getLoginProcessType();
+        this.logoutSuccessUrl = clientProperties.getLogoutSuccessUrl();
         this.redirectStrategy = new DefaultRedirectStrategy();
     }
 
@@ -80,7 +83,7 @@ public class DefaultLogoutSuccessHandler implements LogoutSuccessHandler {
             userCache.removeUserFromCache(authentication.getName());
         }
 
-        redirectProcessingLogoutByLoginProcessType(request, response, clientProperties,
+        redirectProcessingLogoutByLoginProcessType(request, response, this.logoutSuccessUrl, this.loginProcessType,
                                                    redirectStrategy, ErrorCodeEnum.LOGOUT_SUCCESS);
     }
 }

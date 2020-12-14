@@ -39,9 +39,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.enums.LoginProcessType;
+import top.dcenter.ums.security.common.utils.IpUtil;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
-import top.dcenter.ums.security.common.utils.IpUtil;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,14 +64,18 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.redirectProc
 public class InvalidSessionController implements InitializingBean {
 
     private final RedirectStrategy redirectStrategy;
-    private final ClientProperties clientProperties;
+    private final LoginProcessType loginProcessType;
+    private final String loginPage;
+    private final String invalidSessionUrl;
     private final RequestCache requestCache;
 
     @Autowired
     private GenericApplicationContext applicationContext;
 
     public InvalidSessionController(ClientProperties clientProperties) {
-        this.clientProperties = clientProperties;
+        this.loginProcessType = clientProperties.getLoginProcessType();
+        this.loginPage = clientProperties.getLoginPage();
+        this.invalidSessionUrl = clientProperties.getSession().getInvalidSessionUrl();
         this.requestCache = new HttpSessionRequestCache();
         this.redirectStrategy = new DefaultRedirectStrategy();
     }
@@ -85,9 +90,9 @@ public class InvalidSessionController implements InitializingBean {
         try
         {
             // 设置跳转的 url
-            String redirectUrl = getOriginalUrl(requestCache, request, response, clientProperties.getLoginPage());
+            String redirectUrl = getOriginalUrl(requestCache, request, response, loginPage);
 
-            redirectProcessingByLoginProcessType(request, response, clientProperties,
+            redirectProcessingByLoginProcessType(request, response, loginProcessType,
                                                  redirectStrategy, ErrorCodeEnum.INVALID_SESSION,
                                                  redirectUrl);
         }
@@ -108,7 +113,7 @@ public class InvalidSessionController implements InitializingBean {
         // 1. 动态注入 invalidSessionHandler() requestMapping 的映射 uri
         String methodName = "invalidSessionHandler";
         MvcUtil.setRequestMappingUri(methodName,
-                                     clientProperties.getSession().getInvalidSessionUrl(),
+                                     invalidSessionUrl,
                                      this.getClass(),
                                      HttpServletRequest.class, HttpServletResponse.class);
 

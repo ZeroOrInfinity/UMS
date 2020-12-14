@@ -84,7 +84,7 @@ public class AuthenticationUtil {
      * @param baseAuthenticationFailureHandler          认证失败处理器
      * @param persistentTokenRepository                 RememberMe 持久化 Repository
      * @param userDetailsService                        本地用户服务
-     * @param clientProperties                          客户端属性
+     * @param rememberMe                                rememberMe 属性
      */
     public static void registerHandlerAndRememberMeServices(AbstractAuthenticationProcessingFilter abstractAuthenticationProcessingFilter,
                                                             BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
@@ -92,7 +92,7 @@ public class AuthenticationUtil {
                                                             PersistentTokenRepository persistentTokenRepository,
                                                             UmsUserDetailsService userDetailsService,
                                                             RememberMeServices rememberMeServices,
-                                                            ClientProperties clientProperties) {
+                                                            ClientProperties.RememberMeProperties rememberMe) {
 
         if (baseAuthenticationFailureHandler != null)
         {
@@ -114,7 +114,7 @@ public class AuthenticationUtil {
                 PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices =
                         new PersistentTokenBasedRememberMeServices(UUID.randomUUID().toString(), userDetailsService,
                                                                    persistentTokenRepository);
-                final ClientProperties.RememberMeProperties rememberMe = clientProperties.getRememberMe();
+
                 persistentTokenBasedRememberMeServices.setTokenValiditySeconds(Integer.parseInt(String.valueOf(rememberMe.getRememberMeTimeout().getSeconds())));
                 persistentTokenBasedRememberMeServices.setParameter(rememberMe.getRememberMeCookieName());
                 // 添加rememberMe功能配置
@@ -243,39 +243,41 @@ public class AuthenticationUtil {
      * 根据 LoginProcessType 进行 logout 转发处理
      * @param request   request
      * @param response  response
-     * @param clientProperties  clientProperties
+     * @param logoutSuccessUrl  logoutSuccessUrl
+     * @param loginProcessType  {@link LoginProcessType}
      * @param redirectStrategy  redirectStrategy
      * @param errorCodeEnum errorCodeEnum
      * @throws IOException IOException
      */
     public static void redirectProcessingLogoutByLoginProcessType(HttpServletRequest request,
                                                                   HttpServletResponse response,
-                                                                  ClientProperties clientProperties,
+                                                                  String logoutSuccessUrl,
+                                                                  LoginProcessType loginProcessType,
                                                                   RedirectStrategy redirectStrategy,
                                                                   ErrorCodeEnum errorCodeEnum) throws IOException {
 
-        redirectProcessing(request, response, clientProperties, redirectStrategy,
-                           errorCodeEnum, clientProperties.getLogoutSuccessUrl());
+        redirectProcessing(request, response, loginProcessType, redirectStrategy,
+                           errorCodeEnum, logoutSuccessUrl);
     }
 
     /**
      * 根据 LoginProcessType 进行转发处理
      * @param request   request
      * @param response  response
-     * @param clientProperties  clientProperties
+     * @param loginProcessType  {@link LoginProcessType}
      * @param redirectStrategy  redirectStrategy
      * @param errorCodeEnum errorCodeEnum
      * @param redirectUrl   redirectUrl
      * @throws IOException IOException
      */
     public static void redirectProcessingByLoginProcessType(HttpServletRequest request, HttpServletResponse response,
-                                                            ClientProperties clientProperties,
+                                                            LoginProcessType loginProcessType,
                                                             RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum,
                                                             String redirectUrl) throws IOException {
 
         String referer = ofNullable(request.getHeader(SecurityConstants.HEADER_REFERER)).orElse(redirectUrl);
 
-        redirectProcessing(request, response, clientProperties, redirectStrategy, errorCodeEnum, referer);
+        redirectProcessing(request, response, loginProcessType, redirectStrategy, errorCodeEnum, referer);
     }
 
     /**
@@ -361,8 +363,8 @@ public class AuthenticationUtil {
         return redirectUrl;
     }
 
-    private static void redirectProcessing(HttpServletRequest request, HttpServletResponse response, ClientProperties clientProperties, RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum, String redirectUrl) throws IOException {
-        if (LoginProcessType.JSON.equals(clientProperties.getLoginProcessType()))
+    private static void redirectProcessing(HttpServletRequest request, HttpServletResponse response, LoginProcessType loginProcessType, RedirectStrategy redirectStrategy, ErrorCodeEnum errorCodeEnum, String redirectUrl) throws IOException {
+        if (LoginProcessType.JSON.equals(loginProcessType))
         {
             int status = HttpStatus.UNAUTHORIZED.value();
             responseWithJson(response, status, toJsonString(ResponseResult.fail(errorCodeEnum, redirectUrl)));
