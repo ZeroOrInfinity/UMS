@@ -315,7 +315,7 @@ public class Auth2Properties {
     // =================== justAuth 属性 ===================
 
     @NestedConfigurationProperty
-    private JustAuthProperties justAuth;
+    private JustAuthProperties justAuth = new JustAuthProperties();
     /**
      * 针对国外服务可以单独设置代理
      * HttpConfig config = new HttpConfig();
@@ -324,7 +324,7 @@ public class Auth2Properties {
      *
      * @since 1.15.5
      */
-    private HttpConfigProperties proxy;
+    private HttpConfigProperties proxy = new HttpConfigProperties();
     
 
     @Getter
