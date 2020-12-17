@@ -31,10 +31,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
+import top.dcenter.ums.security.common.utils.UrlUtil;
 import top.dcenter.ums.security.core.permission.enums.PermissionType;
 import top.dcenter.ums.security.core.permission.evaluator.UriAuthoritiesPermissionEvaluator;
 import top.dcenter.ums.security.core.permission.service.DefaultUriAuthorizeService;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -104,7 +104,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     @Override
     public boolean hasPermission(Authentication authentication, HttpServletRequest request) {
 
-        final String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
+        final String requestUri = UrlUtil.getUrlPathHelper().getPathWithinApplication(request);
         final String method = request.getMethod();
 
         // Map.Entry<uri, Set<permission>>, 根据 method 获取对应权限是否包含在 entry 中的 Set<permission> 中

@@ -40,6 +40,7 @@ import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
+import top.dcenter.ums.security.common.utils.UrlUtil;
 import top.dcenter.ums.security.common.vo.ResponseResult;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
@@ -146,7 +147,7 @@ public class AuthenticationUtil {
      */
     public static boolean isPermitUri(@NonNull HttpServletRequest request, @NonNull HttpSession session,
                                       @NonNull AntPathMatcher matcher) {
-        String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
+        String requestUri = UrlUtil.getUrlPathHelper().getPathWithinApplication(request);
         String method = request.getMethod();
 
         return isPermitUri(requestUri, method, session, matcher);

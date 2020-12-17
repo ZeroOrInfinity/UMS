@@ -69,7 +69,7 @@ import static top.dcenter.ums.security.common.consts.RegexConstants.URL_SCHEME_R
  * @version V1.0  Created by 2020/9/17 18:32
  */
 @Slf4j
-public class MvcUtil {
+public final class MvcUtil {
 
     public static final String TOP_DOMAIN_PARAM_NAME = "topDomain";
 
@@ -90,31 +90,6 @@ public class MvcUtil {
      */
     @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
     private static String topDomain = "";
-
-    /**
-     * {@link UrlPathHelper}
-     */
-    private volatile static UrlPathHelper urlPathHelper = null;
-
-    /**
-     * 获取 {@link UrlPathHelper}
-     * @return  UrlPathHelper
-     */
-    public static UrlPathHelper getUrlPathHelper() {
-        if (urlPathHelper == null)
-        {
-            synchronized (MvcUtil.class)
-            {
-                if (urlPathHelper == null)
-                {
-                    UrlPathHelper helper = new UrlPathHelper();
-                    helper.setAlwaysUseFullPath(true);
-                    urlPathHelper = helper;
-                }
-            }
-        }
-        return urlPathHelper;
-    }
 
     /**
      * 获取 servletContextPath
