@@ -41,9 +41,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
 import top.dcenter.ums.security.common.utils.IpUtil;
+import top.dcenter.ums.security.common.utils.ReflectionUtil;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -112,13 +112,13 @@ public class InvalidSessionController implements InitializingBean {
 
         // 1. 动态注入 invalidSessionHandler() requestMapping 的映射 uri
         String methodName = "invalidSessionHandler";
-        MvcUtil.setRequestMappingUri(methodName,
-                                     invalidSessionUrl,
-                                     this.getClass(),
-                                     HttpServletRequest.class, HttpServletResponse.class);
+        ReflectionUtil.setRequestMappingUri(methodName,
+                                            invalidSessionUrl,
+                                            this.getClass(),
+                                            HttpServletRequest.class, HttpServletResponse.class);
 
         // 2. 在 mvc 中做 Uri 映射等动作
-        MvcUtil.registerController("invalidSessionController", applicationContext, InvalidSessionController.class);
+        ReflectionUtil.registerController("invalidSessionController", applicationContext, InvalidSessionController.class);
 
     }
 }

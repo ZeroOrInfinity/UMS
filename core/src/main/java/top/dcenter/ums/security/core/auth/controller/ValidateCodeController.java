@@ -35,6 +35,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.ServletWebRequest;
+import top.dcenter.ums.security.common.utils.ReflectionUtil;
+import top.dcenter.ums.security.common.vo.ResponseResult;
 import top.dcenter.ums.security.core.advice.SecurityControllerAdviceHandler;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessor;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessorHolder;
@@ -43,8 +45,6 @@ import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCode;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.exception.ValidateCodeProcessException;
-import top.dcenter.ums.security.core.util.MvcUtil;
-import top.dcenter.ums.security.common.vo.ResponseResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -139,20 +139,20 @@ public class ValidateCodeController implements InitializingBean {
 
         // 2. 动态注入 sliderCheck() RequestMapping 的映射 uri
         String methodName = "sliderCheck";
-        MvcUtil.setRequestMappingUri(methodName,
-                                     validateCodeProperties.getSlider().getSliderCheckUrl(),
-                                     this.getClass(),
-                                     HttpServletRequest.class);
+        ReflectionUtil.setRequestMappingUri(methodName,
+                                            validateCodeProperties.getSlider().getSliderCheckUrl(),
+                                            this.getClass(),
+                                            HttpServletRequest.class);
 
         // 3. 动态注入 createCode() RequestMapping 的映射 uri
         methodName = "createCode";
-        MvcUtil.setRequestMappingUri(methodName,
+        ReflectionUtil.setRequestMappingUri(methodName,
                                      validateCodeProperties.getValidateCodeUrlPrefix() + URL_SEPARATOR + "{type}",
                                      this.getClass(),
                                      String.class, HttpServletRequest.class, HttpServletResponse.class);
 
         // 4. 在 mvc 中做 Uri 映射等动作
-        MvcUtil.registerController("validateCodeController", applicationContext, null);
+        ReflectionUtil.registerController("validateCodeController", applicationContext, null);
 
 
     }

@@ -40,11 +40,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.utils.IpUtil;
+import top.dcenter.ums.security.common.utils.ReflectionUtil;
 import top.dcenter.ums.security.core.api.controller.BaseSecurityController;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
-import top.dcenter.ums.security.common.utils.IpUtil;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -159,13 +159,13 @@ public class ClientSecurityController implements BaseSecurityController, Initial
             // 1. 动态注入 requireAuthentication() requestMapping 的映射 uri
             String methodName = "requireAuthentication";
 
-            MvcUtil.setRequestMappingUri(methodName,
-                                         clientProperties.getLoginUnAuthenticationRoutingUrl(),
-                                         this.getClass(),
-                                         HttpServletRequest.class, HttpServletResponse.class);
+            ReflectionUtil.setRequestMappingUri(methodName,
+                                                clientProperties.getLoginUnAuthenticationRoutingUrl(),
+                                                this.getClass(),
+                                                HttpServletRequest.class, HttpServletResponse.class);
 
             // 2. 在 mvc 中做 Uri 映射等动作
-            MvcUtil.registerController("clientSecurityController", applicationContext, BaseSecurityController.class);
+            ReflectionUtil.registerController("clientSecurityController", applicationContext, BaseSecurityController.class);
         }
 
     }
