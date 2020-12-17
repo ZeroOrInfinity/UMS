@@ -44,6 +44,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import static top.dcenter.ums.security.common.consts.TenantConstants.DEFAULT_TENANT_PREFIX;
+
 /**
  * uri(资源) 访问权限控制服务接口抽象类, 定义了基于(角色/多租户/SCOPE)的访问权限控制逻辑.<br>
  * 实现 {@link AbstractUriAuthorizeService} 抽象类并注入 IOC 容器即可替换
@@ -75,10 +77,6 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
      * 角色权限前缀
      */
     public static final String DEFAULT_ROLE_PREFIX = "ROLE_";
-    /**
-     * 多租户权限前缀
-     */
-    public static final String DEFAULT_TENANT_PREFIX = "TENANT_";
     /**
      * 资源权限前缀
      */

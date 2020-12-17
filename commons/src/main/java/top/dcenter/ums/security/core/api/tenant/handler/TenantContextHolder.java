@@ -29,13 +29,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserCache;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.exception.TenantIdNotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 
-import static top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService.DEFAULT_TENANT_PREFIX;
+import static top.dcenter.ums.security.common.consts.TenantConstants.DEFAULT_TENANT_PREFIX;
+
 
 /**
  * 多租户上下文存储器. 实现此接口并注入 IOC 容器后, 会自动注入 UMS 默认实现的注册/登录/授权组件, 要实现 ums 框架具有多租户功能, 必须实现此接口并注入 IOC 容器.<br>
@@ -45,14 +45,14 @@ import static top.dcenter.ums.security.core.api.permission.service.AbstractUriAu
  * 3. {@link #getTenantId(Authentication)} 默认实现方法, 用户已登录的情况下, 获取租户 ID, 直接从 {@code authority} 中解析获取.<br>
  *
  * 注意:<br>
- * 1. 多租户系统中, 在未登录时需要用到 tenantId 的接口, 如: {@link UserCache#getUserFromCache(String)}/{@link UmsUserDetailsService} 等接口,
+ * 1. 多租户系统中, 在未登录时需要用到 tenantId 的接口, 如: {@link UserCache#getUserFromCache(String)}/{@code UmsUserDetailsService} 等接口,
  * 可通过 {@link #getTenantId()} 来获取 tenantId. 登录用户可以通过 {@link Authentication} 来获取 tenantId.<br>
  *
  * 2. UMS 默认的登录与注册逻辑中, 都内置了 {@link #tenantIdHandle(HttpServletRequest, String)} 逻辑,
- * 用户在实现 {@link UserCache}/{@link UmsUserDetailsService} 等接口中需要 tenantId 时, 调用 {@link TenantContextHolder#getTenantId()} 方法即可.<br>
+ * 用户在实现 {@link UserCache}/{@code UmsUserDetailsService} 等接口中需要 tenantId 时, 调用 {@link TenantContextHolder#getTenantId()} 方法即可.<br>
  *
  * 3. 如果自定义的注册或登录逻辑, 需要自己先调用 {@link #tenantIdHandle(HttpServletRequest, String)} 逻辑, 再在
- * 实现 {@link UserCache}/{@link UmsUserDetailsService} 等接口中需要 tenantId 时, 调用 {@link #getTenantId()} 方法即可.
+ * 实现 {@link UserCache}/{@code UmsUserDetailsService} 等接口中需要 tenantId 时, 调用 {@link #getTenantId()} 方法即可.
  *
  * @author YongWu zheng
  * @version V2.0  Created by 2020.11.30 14:05

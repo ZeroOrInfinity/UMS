@@ -23,7 +23,6 @@
 
 package top.dcenter.ums.security.core.exception;
 
-import lombok.Getter;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
@@ -36,14 +35,11 @@ import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 public abstract class AbstractResponseJsonAuthenticationException extends AuthenticationException {
     private static final long serialVersionUID = 2661098918363948470L;
 
-    @Getter
     protected ErrorCodeEnum errorCodeEnum;
-    @Getter
     protected Object data;
     /**
      * 可以是用户名, userId, sessionId 等表示用户唯一的属性
      */
-    @Getter
     protected String uid;
 
     public AbstractResponseJsonAuthenticationException(ErrorCodeEnum errorCodeEnum, Throwable t, Object data,
@@ -59,5 +55,17 @@ public abstract class AbstractResponseJsonAuthenticationException extends Authen
         this.errorCodeEnum = errorCodeEnum;
         this.data = data;
         this.uid = uid;
+    }
+
+    public ErrorCodeEnum getErrorCodeEnum() {
+        return errorCodeEnum;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public String getUid() {
+        return uid;
     }
 }

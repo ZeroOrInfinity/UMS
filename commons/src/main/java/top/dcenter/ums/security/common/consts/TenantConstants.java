@@ -20,33 +20,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package top.dcenter.ums.security.core.exception;
-
-import lombok.Getter;
-import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+package top.dcenter.ums.security.common.consts;
 
 /**
- * 业务异常
+ * 多租户常量类
  * @author YongWu zheng
- * @version V2.0  Created by 2020.11.30 15:02
+ * @version V2.0  Created by 2020.12.17 15:51
  */
-@SuppressWarnings("AlibabaAbstractClassShouldStartWithAbstractNaming")
-public abstract class BusinessException extends RuntimeException {
-
-    @Getter
-    private final ErrorCodeEnum errorCodeEnum;
-    @Getter
-    private final Object data;
-
-    public BusinessException(ErrorCodeEnum errorCodeEnum, Object data) {
-        super(errorCodeEnum.getMsg());
-        this.errorCodeEnum = errorCodeEnum;
-        this.data = data;
-    }
-
-    public BusinessException(ErrorCodeEnum errorCodeEnum, Object data, Throwable cause) {
-        super(errorCodeEnum.getMsg(), cause);
-        this.errorCodeEnum = errorCodeEnum;
-        this.data = data;
-    }
+public class TenantConstants {
+    /**
+     * 多租户权限前缀
+     */
+    public static final String DEFAULT_TENANT_PREFIX = "TENANT_";
 }
