@@ -4,11 +4,9 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   top.dcenter.ums.security.core.oauth.config.Auth2PropertiesAutoConfiguration,\
   top.dcenter.ums.security.core.executor.config.ExecutorPropertiesAutoConfiguration,\
   top.dcenter.ums.security.core.auth.config.ClientAutoConfigurerAware,\
-  top.dcenter.ums.security.core.permission.config.RoleHierarchyAutoConfiguration,\
   top.dcenter.ums.security.core.tenant.config.TenantAutoConfiguration,\
   top.dcenter.ums.security.core.tenant.config.TenantAutoConfigurerAware,\
   top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration,\
-  top.dcenter.ums.security.core.permission.config.PermissionAutoConfiguration,\
   top.dcenter.ums.security.core.auth.config.ValidateCodeBeanAutoConfiguration,\
   top.dcenter.ums.security.core.auth.config.ValidateCodeAutoConfigurerAware,\
   top.dcenter.ums.security.core.auth.config.SmsCodeLoginAutoAuthenticationConfigurer,\
@@ -19,7 +17,6 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   top.dcenter.ums.security.core.auth.config.RememberMeAutoConfigurerAware,\
   top.dcenter.ums.security.core.auth.config.SecurityCsrfAutoConfiguration,\
   top.dcenter.ums.security.core.auth.config.CsrfAutoConfigurerAware,\
-  top.dcenter.ums.security.core.permission.config.UriAuthorizeAutoConfigurerAware,\
   top.dcenter.ums.security.core.oauth.config.Auth2AutoConfiguration,\
   top.dcenter.ums.security.core.oauth.config.Auth2AutoConfigurer,\
   top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration,\

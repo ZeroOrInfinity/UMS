@@ -174,7 +174,7 @@
 1. 集成 JustAuth, 支持所有 JustAuth 支持的第三方授权登录，登录后自动注册或绑定。
 2. 支持定时刷新 accessToken, 支持分布式定时任务。
 3. 支持第三方授权登录的用户信息表与 token 信息表的缓存功能。
-4. 支持第三方绑定与解绑及查询接口(top.dcenter.ums.security.core.oauth.repository.UsersConnectionRepository).
+4. 支持第三方绑定与解绑及查询接口(top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository).
 5. 支持线程池配置
 6. 添加抑制非法反射警告, 适用于jdk11, 通过属性可以开启与关闭
 7. 添加 spring cache 对 @Cacheable 操作异常处理, 缓存穿透处理(TTL随机20%上下浮动), 缓存击穿处理(添加对null值的缓存, 新增与更新时更新null值)

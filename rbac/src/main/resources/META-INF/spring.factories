@@ -1,0 +1,6 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  top.dcenter.ums.security.core.premission.config.RbacPropertiesAutoConfiguration,\
+  top.dcenter.ums.security.core.premission.config.RoleHierarchyAutoConfiguration,\
+  top.dcenter.ums.security.core.premission.config.PermissionAutoConfiguration,\
+  top.dcenter.ums.security.core.premission.config.UriAuthorizeAutoConfigurerAware

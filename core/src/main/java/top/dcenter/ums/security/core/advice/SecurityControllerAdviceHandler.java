@@ -63,13 +63,6 @@ public class SecurityControllerAdviceHandler {
         return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), ex.getData());
     }
 
-    @ExceptionHandler(RolePermissionsException.class)
-    @ResponseBody
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ResponseResult rolePermissionsException(RolePermissionsException ex) {
-        return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), ex.getData());
-    }
-
     @SuppressWarnings("unused")
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseBody
