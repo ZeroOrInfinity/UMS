@@ -44,7 +44,8 @@ import top.dcenter.ums.security.core.auth.session.filter.SessionEnhanceCheckFilt
 import top.dcenter.ums.security.core.auth.session.strategy.DefaultRedirectInvalidSessionStrategy;
 import top.dcenter.ums.security.core.auth.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 
-import static top.dcenter.ums.security.core.util.MvcUtil.registerDelegateApplicationListener;
+import static top.dcenter.ums.security.common.utils.AppContextUtil.registerDelegateApplicationListener;
+
 
 /**
  * spring session 相关配置

@@ -38,7 +38,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-import org.springframework.web.util.UrlPathHelper;
 import top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,14 +56,10 @@ import static top.dcenter.ums.security.common.consts.RegexConstants.URL_SCHEME_R
 
 /**
  * 功能: <br>
- * 1. 去掉 Controller 的 Mapping 动作<br>
- * 2. Controller 在 mvc 中做 Uri 映射等动作<br>
- * 3. 获取 servletContextPath<br>
- * 4. 获取 {@link UrlPathHelper}<br>
- * 5. 获取 本应用的一级域名<br>
- * 6. 获取 本应用的一级域名<br>
- * 7. 检查 redirectUrl 是否是本应用的域名, 防止跳转到外链<br>
- * 8. 从 request 中获取一级域名
+ * 1. 获取 servletContextPath<br>
+ * 2. 获取 本应用的一级域名<br>
+ * 3. 从 request 中获取一级域名
+ * 4. 检查 redirectUrl 是否是本应用的域名, 防止跳转到外链<br>
  * @author YongWu zheng
  * @version V1.0  Created by 2020/9/17 18:32
  */
