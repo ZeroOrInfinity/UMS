@@ -32,6 +32,13 @@ package top.dcenter.ums.security.common.consts;
 @SuppressWarnings("unused")
 public class SecurityConstants {
 
+    // =================== ControllerAdvice 相关 ===================
+    /**
+     * ControllerAdvice @Order 的默认值
+     */
+    public static final int CONTROLLER_ADVICE_ORDER_DEFAULT_VALUE = 100;
+
+
     // =================== 认证授权相关 ===================
 
     /**

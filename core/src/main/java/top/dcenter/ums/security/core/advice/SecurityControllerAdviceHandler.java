@@ -23,6 +23,7 @@
 
 package top.dcenter.ums.security.core.advice;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -33,8 +34,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.exception.*;
 import top.dcenter.ums.security.common.vo.ResponseResult;
+import top.dcenter.ums.security.core.exception.*;
+
+import static top.dcenter.ums.security.common.consts.SecurityConstants.CONTROLLER_ADVICE_ORDER_DEFAULT_VALUE;
 
 /**
  * 核心错误处理器,如需自定义，继承此类并注入 IOC 容器即可
@@ -42,7 +45,7 @@ import top.dcenter.ums.security.common.vo.ResponseResult;
  * @author  YongWu zheng
  * @version V1.0  Created by 2020/5/2 15:35
  */
-
+@Order(CONTROLLER_ADVICE_ORDER_DEFAULT_VALUE)
 @ControllerAdvice
 public class SecurityControllerAdviceHandler {
 
