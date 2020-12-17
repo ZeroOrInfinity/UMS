@@ -1,0 +1,4 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  top.dcenter.ums.security.core.mdc.config.MdcPropertiesAutoConfiguration,\
+  top.dcenter.ums.security.core.mdc.config.MdcLogAutoConfigurerAware

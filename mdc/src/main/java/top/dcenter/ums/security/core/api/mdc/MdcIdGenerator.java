@@ -22,7 +22,7 @@
  */
 package top.dcenter.ums.security.core.api.mdc;
 
-import me.zhyd.oauth.utils.UuidUtils;
+import top.dcenter.ums.security.common.utils.UuidUtils;
 import top.dcenter.ums.security.core.mdc.MdcIdType;
 
 /**

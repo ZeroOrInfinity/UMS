@@ -27,18 +27,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+import top.dcenter.ums.security.common.utils.UrlUtil;
 import top.dcenter.ums.security.core.api.mdc.MdcIdGenerator;
-import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.mdc.MdcIdType;
 import top.dcenter.ums.security.core.mdc.properties.MdcProperties;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,7 +63,7 @@ public class MdcLogFilter extends OncePerRequestFilter {
     private final AntPathMatcher matcher;
     private final MdcIdType idType;
 
-    public MdcLogFilter(MdcProperties mdcProperties, ClientProperties clientProperties) {
+    public MdcLogFilter(MdcProperties mdcProperties) {
         this.idType = mdcProperties.getType();
         this.matcher = new AntPathMatcher();
         this.includeUrls = new HashSet<>();
@@ -73,10 +71,6 @@ public class MdcLogFilter extends OncePerRequestFilter {
 
         includeUrls.addAll(mdcProperties.getIncludeUrls());
 
-        final String[] ignoringUrls = clientProperties.getIgnoringUrls();
-        if (null != ignoringUrls) {
-            this.excludeUrls.addAll(Arrays.asList(ignoringUrls));
-        }
         final Set<String> excludeUrls = mdcProperties.getExcludeUrls();
         if (null != excludeUrls) {
             this.excludeUrls.addAll(excludeUrls);
@@ -101,7 +95,7 @@ public class MdcLogFilter extends OncePerRequestFilter {
     }
 
     private boolean isEnableMdc(HttpServletRequest request) {
-        final String requestUri = MvcUtil.getUrlPathHelper().getPathWithinApplication(request);
+        final String requestUri = UrlUtil.getUrlPathHelper().getPathWithinApplication(request);
         for (String excludeUrl : excludeUrls) {
             if (this.matcher.match(excludeUrl, requestUri)) {
                 return false;

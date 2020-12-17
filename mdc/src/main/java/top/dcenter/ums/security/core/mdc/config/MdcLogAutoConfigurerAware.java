@@ -30,7 +30,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
-import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.mdc.filter.MdcLogFilter;
 import top.dcenter.ums.security.core.mdc.properties.MdcProperties;
 
@@ -47,11 +46,9 @@ import java.util.Set;
 public class MdcLogAutoConfigurerAware implements HttpSecurityAware {
 
     private final MdcProperties mdcProperties;
-    private final ClientProperties clientProperties;
 
-    public MdcLogAutoConfigurerAware(MdcProperties mdcProperties, ClientProperties clientProperties) {
+    public MdcLogAutoConfigurerAware(MdcProperties mdcProperties) {
         this.mdcProperties = mdcProperties;
-        this.clientProperties = clientProperties;
     }
 
     @Override
@@ -73,7 +70,7 @@ public class MdcLogAutoConfigurerAware implements HttpSecurityAware {
     public void postConfigure(HttpSecurity http) {
         if (this.mdcProperties.getEnable()) {
             // 基于 MDC 机制实现日志的链路追踪过滤器
-            http.addFilterBefore(new MdcLogFilter(this.mdcProperties, this.clientProperties), WebAsyncManagerIntegrationFilter.class);
+            http.addFilterBefore(new MdcLogFilter(this.mdcProperties), WebAsyncManagerIntegrationFilter.class);
         }
     }
 

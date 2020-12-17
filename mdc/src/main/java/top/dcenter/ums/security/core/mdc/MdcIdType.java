@@ -22,9 +22,9 @@
  */
 package top.dcenter.ums.security.core.mdc;
 
-import me.zhyd.oauth.utils.UuidUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+import top.dcenter.ums.security.common.utils.UuidUtils;
 import top.dcenter.ums.security.core.api.mdc.MdcIdGenerator;
 
 /**
