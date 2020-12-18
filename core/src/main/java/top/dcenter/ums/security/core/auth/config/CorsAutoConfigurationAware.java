@@ -29,6 +29,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.header.Header;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
+import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -37,6 +38,7 @@ import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -83,7 +85,8 @@ public class CorsAutoConfigurationAware implements HttpSecurityAware {
                                    this.corsProperties.getAccessControlAllowOrigin().toArray(new String[0])),
                         // 使 ajax 请求能够取到指定 header 中的信息
                         new Header("Access-Control-Expose-Headers",
-                                   this.corsProperties.getAccessControlExposeHeaders())
+                                   StringUtils.collectionToDelimitedString(this.corsProperties.getAccessControlExposeHeaders(),
+                                                                           ","))
                 )));
         }
         else {
@@ -105,8 +108,10 @@ public class CorsAutoConfigurationAware implements HttpSecurityAware {
                                                        "AccessControlAllowMethods cannot be null"));
         configuration.setAllowedHeaders(requireNonNull(corsProperties.getAccessControlAllowHeaders(),
                                                        "AccessControlAllowHeaders cannot be null"));
-        configuration.addExposedHeader(requireNonNull(corsProperties.getAccessControlExposeHeaders(),
-                                                      "AccessControlExposeHeaders cannot be null"));
+
+        List<String> accessControlExposeHeaders = corsProperties.getAccessControlExposeHeaders();
+        requireNonNull(accessControlExposeHeaders, "AccessControlExposeHeaders cannot be null");
+        accessControlExposeHeaders.forEach(configuration::addExposedHeader);
 
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         requireNonNull(corsProperties.getUrlList(), "urlList cannot be null")
