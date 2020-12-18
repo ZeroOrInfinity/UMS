@@ -104,7 +104,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
 
         try
         {
-            userInfoJsonVo = new UserInfoJsonVo(null,
+            userInfoJsonVo = new UserInfoJsonVo(username,
                                                 username,
                                                 null,
                                                 token.getAuthorities());
