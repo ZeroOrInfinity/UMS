@@ -29,7 +29,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.api.oauth.state.service.Auth2StateCoder;
 import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 
@@ -75,7 +74,7 @@ public interface UserDetailsRegisterService {
 
     /**
      * 第三方第一次登录成功后注册接口, 增加 OAuth2 过程中的 state 解密后的字符串信息 decoderState, 以便用户在 OAuth2 流程中添加自定义的信息,
-     * 与 {@link Auth2StateCoder} 配合使用. 如果是多租户系统, 注册时通过 {@link TenantContextHolder#getTenantId()} 来获取租户 id.<br>
+     * 与 {@code Auth2StateCoder} 配合使用. 如果是多租户系统, 注册时通过 {@link TenantContextHolder#getTenantId()} 来获取租户 id.<br>
      *     默认方法直接抛出 {@link RegisterUserFailureException}.<br>
      * 这里是为了兼容不需要第三方授权登录功能的应用, 特意设置为默认方法. <br>
      *
