@@ -38,6 +38,7 @@ import top.dcenter.ums.security.common.vo.ResponseResult;
 import top.dcenter.ums.security.core.exception.*;
 
 import static top.dcenter.ums.security.common.consts.SecurityConstants.CONTROLLER_ADVICE_ORDER_DEFAULT_VALUE;
+import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
 
 /**
  * 核心错误处理器,如需自定义，继承此类并注入 IOC 容器即可
@@ -68,7 +69,7 @@ public class SecurityControllerAdviceHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult usernameNotFoundException(UsernameNotFoundException ex) {
-        return ResponseResult.fail("用户名或密码错误", ErrorCodeEnum.USERNAME_OR_PASSWORD_ERROR, null);
+        return ResponseResult.fail("用户名或密码错误", ErrorCodeEnum.USERNAME_OR_PASSWORD_ERROR, getMdcTraceId());
     }
 
     @ExceptionHandler(AccountDisabledException.class)
@@ -76,35 +77,35 @@ public class SecurityControllerAdviceHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult accountDisabledException(AccountDisabledException ex) {
         String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
     @ExceptionHandler(AccountExpiredException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult accountExpiredException(AccountExpiredException ex) {
         String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
     @ExceptionHandler(AccountLockedException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult accountLockedException(AccountLockedException ex) {
         String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
     @ExceptionHandler(CredentialsExpiredException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult credentialsExpiredException(CredentialsExpiredException ex) {
         String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
     @ExceptionHandler(UserNotExistException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseResult userNotException(UserNotExistException ex) {
+    public ResponseResult userNotExistException(UserNotExistException ex) {
         String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
 
     @ExceptionHandler(ParameterErrorException.class)
@@ -136,7 +137,7 @@ public class SecurityControllerAdviceHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseResult validateCodeProcessException(ValidateCodeProcessException ex) {
         String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
     @ExceptionHandler(IllegalAccessUrlException.class)
     @ResponseBody
@@ -151,7 +152,7 @@ public class SecurityControllerAdviceHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult expiredSessionDetectedException(ExpiredSessionDetectedException ex) {
         String errorMsg = ex.getMessage();
-        return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum());
+        return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum(), ex.getData());
     }
 
     @ExceptionHandler(AuthenticationException.class)
@@ -159,14 +160,14 @@ public class SecurityControllerAdviceHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult expiredSessionDetectedException(AuthenticationException ex) {
         String errorMsg = ex.getMessage();
-        return ResponseResult.fail(errorMsg, ErrorCodeEnum.UNAUTHORIZED);
+        return ResponseResult.fail(errorMsg, ErrorCodeEnum.UNAUTHORIZED, getMdcTraceId());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseResult  handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
-        return ResponseResult.fail(e.getMessage(), ErrorCodeEnum.PARAMETER_ERROR);
+        return ResponseResult.fail(ErrorCodeEnum.PARAMETER_ERROR.getMsg(), ErrorCodeEnum.PARAMETER_ERROR, getMdcTraceId());
     }
 
     @ResponseBody
@@ -177,7 +178,7 @@ public class SecurityControllerAdviceHandler {
         {
             throw (AccessDeniedException) ex;
         }
-        return ResponseResult.fail(ex.getMessage(), ErrorCodeEnum.SERVER_ERROR);
+        return ResponseResult.fail(ErrorCodeEnum.SERVER_ERROR.getMsg(), ErrorCodeEnum.SERVER_ERROR, getMdcTraceId());
     }
 
 }

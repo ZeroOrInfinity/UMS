@@ -42,6 +42,9 @@ public class ResponseResult {
      */
     private int code;
     private String msg;
+    /**
+     * 失败的情况下, 大部分情况返回日志链路追踪 ID
+     */
     private Object data;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
