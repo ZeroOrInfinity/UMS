@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package top.dcenter.ums.security.core.oauth.jackson.deserializes;
+package top.dcenter.ums.security.core.jackson2.jwt.deserializes;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -30,53 +30,43 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 /**
- * WebAuthenticationDetails Jackson 反序列化
+ * BearerTokenAuthenticationToken 反序列化器
  * @author YongWu zheng
- * @version V2.0  Created by 2020/10/28 17:19
+ * @version V2.0  Created by 2020.12.19 17:25
  */
-public class WebAuthenticationDetailsDeserializer extends StdDeserializer<WebAuthenticationDetails> {
+public class BearerTokenAuthenticationTokenDeserializer extends StdDeserializer<BearerTokenAuthenticationToken> {
 
-    public WebAuthenticationDetailsDeserializer() {
-        super(WebAuthenticationDetails.class);
+    public BearerTokenAuthenticationTokenDeserializer() {
+        super(BearerTokenAuthenticationToken.class);
     }
 
-    @SuppressWarnings("DuplicatedCode")
+
     @Override
-    public WebAuthenticationDetails deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public BearerTokenAuthenticationToken deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 
         ObjectMapper mapper = (ObjectMapper) p.getCodec();
-        JsonNode jsonNode = mapper.readTree(p);
+        final JsonNode jsonNode = mapper.readTree(p);
 
-        final Class<WebAuthenticationDetails> detailsClass = WebAuthenticationDetails.class;
-        try {
-            final Class<String> stringClass = String.class;
-            final Constructor<WebAuthenticationDetails> privateConstructor =
-                    detailsClass.getDeclaredConstructor(stringClass, stringClass);
-            privateConstructor.setAccessible(true);
-            final String remoteAddress = jsonNode.get("remoteAddress").asText(null);
-            final String sessionId = jsonNode.get("sessionId").asText(null);
-            return privateConstructor.newInstance(remoteAddress, sessionId);
-        }
-        catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            final String msg = String.format("WebAuthenticationDetails Jackson 反序列化错误: %s", e.getMessage());
-            throw new IOException(msg, e);
-        }
+        final String token = jsonNode.get("token").asText(null);
+
+        // 创建 jwt 对象
+        BearerTokenAuthenticationToken bearerToken = new BearerTokenAuthenticationToken(token);
+
+        // 为了安全, 不信任反序列化后的凭证; 一般认证成功后都会自动释放密码.
+        bearerToken.eraseCredentials();
+
+
+        return bearerToken;
 
     }
-
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
-    @JsonDeserialize(using = WebAuthenticationDetailsDeserializer.class)
-    public interface WebAuthenticationDetailsMixin {}
-
+    @JsonDeserialize(using = BearerTokenAuthenticationTokenDeserializer.class)
+    public interface BearerTokenAuthenticationTokenMixin {}
 }

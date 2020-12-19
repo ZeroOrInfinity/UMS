@@ -26,6 +26,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slf4j.Logger;
@@ -131,6 +133,38 @@ public class JsonUtil {
             log.error(String.format("[%s] 反序列化为 [%s] 时错误: %s", jsonString, clz.getName(), e.getMessage()), e);
             return null;
         }
+    }
+
+    /**
+     * 专门用于反序列化, 根据 JsonNode 中的 "@class" 进行 json 反序列化
+     * @param mapper    {@link ObjectMapper}
+     * @param jsonNode  {@link JsonNode}
+     * @return  返回 json 反序列化后 JsonNode 中的 "@class" 所指定的对象
+     * @throws IOException  反序列化异常
+     */
+    public static Object getObject(ObjectMapper mapper, JsonNode jsonNode) throws IOException {
+        Object result;
+        // 获取 result 实际的全类名
+        final String resultString = jsonNode.toString();
+        String resultClassName = resultString.substring(1);
+        String prefix = "\"@class\":\"";
+        if (resultClassName.startsWith(prefix)) {
+            resultClassName = resultClassName.substring(resultClassName.indexOf(prefix) + 10);
+        } else {
+            resultClassName = resultClassName.substring(1);
+        }
+        resultClassName = resultClassName.substring(0, resultClassName.indexOf("\""));
+
+        try {
+            final Class<?> resultClass = Class.forName(resultClassName);
+            final JavaType javaType = mapper.getTypeFactory().constructType(resultClass);
+            result = mapper.convertValue(jsonNode, javaType);
+        }
+        catch (Exception e) {
+            String msg = String.format("Jackson 反序列化错误: %s", jsonNode.toString());
+            throw new IOException(msg, e);
+        }
+        return result;
     }
 
 }

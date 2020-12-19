@@ -27,16 +27,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import top.dcenter.ums.security.common.utils.JsonUtil;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationToken;
 
 import java.io.IOException;
@@ -48,8 +46,6 @@ import java.util.Collection;
  * @version V2.0  Created by 2020/10/28 10:58
  */
 public class SmsCodeLoginAuthenticationTokenJsonDeserializer extends StdDeserializer<SmsCodeLoginAuthenticationToken> {
-
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public SmsCodeLoginAuthenticationTokenJsonDeserializer() {
         super(SmsCodeLoginAuthenticationToken.class);
@@ -72,26 +68,7 @@ public class SmsCodeLoginAuthenticationTokenJsonDeserializer extends StdDeserial
         final JsonNode principalNode = jsonNode.get("principal");
 
         // 创建 principal 对象
-        Object principal;
-        // 获取 principal 实际的全类名
-        final String principalString = principalNode.toString();
-        String principalClassName = principalString.substring(1);
-        if (principalClassName.startsWith("\"@class\":\"")) {
-            principalClassName = principalClassName.substring(principalClassName.indexOf("\"@class\":\"") + 10);
-        } else {
-            principalClassName = principalClassName.substring(1);
-        }
-        principalClassName = principalClassName.substring(0, principalClassName.indexOf("\""));
-
-        try {
-            final Class<?> principalClass = Class.forName(principalClassName);
-            final JavaType javaType = mapper.getTypeFactory().constructType(principalClass);
-            principal = mapper.convertValue(principalNode, javaType);
-        }
-        catch (Exception e) {
-            String msg = String.format("SmsCodeLoginAuthenticationToken Jackson 反序列化错误: principal 反序列化错误: %s", principalNode.toString());
-            throw new IOException(msg, e);
-        }
+        Object principal = JsonUtil.getObject(mapper, principalNode);
 
         SmsCodeLoginAuthenticationToken token;
         if (authenticated) {

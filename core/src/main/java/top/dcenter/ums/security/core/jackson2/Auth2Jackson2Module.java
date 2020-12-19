@@ -2,18 +2,27 @@ package top.dcenter.ums.security.core.jackson2;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import me.zhyd.oauth.model.AuthToken;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import top.dcenter.ums.security.core.auth.jackson.deserializes.RememberMeAuthenticationTokenJsonDeserializer;
 import top.dcenter.ums.security.core.auth.jackson.deserializes.SmsCodeLoginAuthenticationTokenJsonDeserializer;
 import top.dcenter.ums.security.core.auth.jackson.deserializes.UsernamePasswordAuthenticationTokenJsonDeserializer;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationToken;
+import top.dcenter.ums.security.core.jackson2.jwt.deserializes.BaseJwtMixin;
+import top.dcenter.ums.security.core.jackson2.jwt.deserializes.BearerTokenAuthenticationDeserializer;
+import top.dcenter.ums.security.core.jackson2.jwt.deserializes.BearerTokenAuthenticationTokenDeserializer;
+import top.dcenter.ums.security.core.jackson2.jwt.deserializes.DefaultOAuth2AuthenticatedPrincipalDeserializer;
+import top.dcenter.ums.security.core.jackson2.jwt.deserializes.JwtAuthenticationTokenDeserializer;
 import top.dcenter.ums.security.core.oauth.jackson.deserializes.AnonymousAuthenticationTokenJsonDeserializer;
 import top.dcenter.ums.security.core.oauth.jackson.deserializes.Auth2AuthenticationTokenJsonDeserializer;
 import top.dcenter.ums.security.core.oauth.jackson.deserializes.AuthUserJsonDeserializer;
@@ -39,8 +48,16 @@ public class Auth2Jackson2Module extends SimpleModule {
 		SecurityJackson2Modules.enableDefaultTyping(context.getOwner());
 	    context.setMixInAnnotations(Auth2AuthenticationToken.class,
                                     Auth2AuthenticationTokenJsonDeserializer.Auth2AuthenticationTokenMixin.class);
-		context.setMixInAnnotations(RememberMeAuthenticationToken.class,
-		                            RememberMeAuthenticationTokenJsonDeserializer.RememberMeAuthenticationTokenMixin.class);
+		context.setMixInAnnotations(Jwt.class,
+		                            BaseJwtMixin.class);
+		context.setMixInAnnotations(JwtAuthenticationToken.class,
+		                            JwtAuthenticationTokenDeserializer.JwtAuthenticationTokenMixin.class);
+		context.setMixInAnnotations(DefaultOAuth2AuthenticatedPrincipal.class,
+		                            DefaultOAuth2AuthenticatedPrincipalDeserializer.DefaultOAuth2AuthenticatedPrincipalMixin.class);
+		context.setMixInAnnotations(BearerTokenAuthentication.class,
+		                            BearerTokenAuthenticationDeserializer.BearerTokenAuthenticationMixin.class);
+		context.setMixInAnnotations(BearerTokenAuthenticationToken.class,
+		                            BearerTokenAuthenticationTokenDeserializer.BearerTokenAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(AnonymousAuthenticationToken.class,
 		                            AnonymousAuthenticationTokenJsonDeserializer.AnonymousAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(User.class,
@@ -51,8 +68,6 @@ public class Auth2Jackson2Module extends SimpleModule {
 		                            WebAuthenticationDetailsDeserializer.WebAuthenticationDetailsMixin.class);
 		context.setMixInAnnotations(AuthUser.class,
 		                            AuthUserJsonDeserializer.AuthUserMixin.class);
-		context.setMixInAnnotations(AuthToken.class,
-		                            AuthUserJsonDeserializer.AuthTokenMixin.class);
 		context.setMixInAnnotations(SmsCodeLoginAuthenticationToken.class,
 		                            SmsCodeLoginAuthenticationTokenJsonDeserializer.SmsCodeLoginAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(UsernamePasswordAuthenticationToken.class,

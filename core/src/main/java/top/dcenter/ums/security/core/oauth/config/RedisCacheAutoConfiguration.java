@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -55,7 +56,9 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.lang.NonNull;
 import org.springframework.security.jackson2.CoreJackson2Module;
+import org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2Module;
 import org.springframework.security.web.jackson2.WebJackson2Module;
+import org.springframework.security.web.server.jackson2.WebServerJackson2Module;
 import top.dcenter.ums.security.core.jackson2.Auth2Jackson2Module;
 import top.dcenter.ums.security.core.oauth.properties.RedisCacheProperties;
 import top.dcenter.ums.security.core.oauth.repository.jdbc.cache.RedisHashCacheManager;
@@ -129,7 +132,9 @@ public class RedisCacheAutoConfiguration {
                                  ObjectMapper.DefaultTyping.NON_FINAL);
         om.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        om.registerModules(new CoreJackson2Module(), new WebJackson2Module(), new Auth2Jackson2Module());
+        om.registerModules(new CoreJackson2Module(), new WebJackson2Module(),
+                           new JavaTimeModule(), new WebServerJackson2Module(),
+                           new OAuth2ClientJackson2Module(), new Auth2Jackson2Module());
         jackson2JsonRedisSerializer.setObjectMapper(om);
         return jackson2JsonRedisSerializer;
     }

@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package top.dcenter.ums.security.core.auth.jackson.deserializes;
+package top.dcenter.ums.security.core.jackson2.jwt.deserializes;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -31,63 +31,62 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import top.dcenter.ums.security.common.utils.JsonUtil;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
-/**
- * RememberMeAuthenticationToken Jackson 反序列化
- * @author YongWu zheng
- * @version V2.0  Created by 2020/10/28 10:58
- */
-public class RememberMeAuthenticationTokenJsonDeserializer extends StdDeserializer<RememberMeAuthenticationToken> {
+import static java.util.Objects.nonNull;
 
-    public RememberMeAuthenticationTokenJsonDeserializer() {
-        super(RememberMeAuthenticationToken.class);
+/**
+ * JwtAuthenticationToken 反序列化器
+ * @author YongWu zheng
+ * @version V2.0  Created by 2020.12.19 17:25
+ */
+public class JwtAuthenticationTokenDeserializer extends StdDeserializer<JwtAuthenticationToken> {
+
+    public JwtAuthenticationTokenDeserializer() {
+        super(JwtAuthenticationToken.class);
     }
 
+
     @Override
-    public RememberMeAuthenticationToken deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public JwtAuthenticationToken deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 
         ObjectMapper mapper = (ObjectMapper) p.getCodec();
-
         final JsonNode jsonNode = mapper.readTree(p);
 
         // 获取 authorities
         Collection<? extends GrantedAuthority> tokenAuthorities =
                 mapper.convertValue(jsonNode.get("authorities"),
                                     new TypeReference<Collection<SimpleGrantedAuthority>>() {});
-
         final boolean authenticated = jsonNode.get("authenticated").asBoolean();
-        final Integer keyHash = jsonNode.get("keyHash").asInt();
         final JsonNode detailsNode = jsonNode.get("details");
-        final JsonNode principalNode = jsonNode.get("principal");
+        final String name = jsonNode.get("name").asText(null);
+        // 三个字段 credentials/principal/token 都是 jwt, 只需获取一个就行
+        final JsonNode tokenNode = jsonNode.get("token");
 
-        // 创建 principal 对象
-        Object principal = JsonUtil.getObject(mapper, principalNode);
+        // 创建 jwt 对象
+        Object jwt = JsonUtil.getObject(mapper, tokenNode);
 
-        // 创建 RememberMeAuthenticationToken 对象
-        RememberMeAuthenticationToken token;
-        try {
-            final Constructor<RememberMeAuthenticationToken> declaredConstructor =
-                    RememberMeAuthenticationToken.class.getDeclaredConstructor(Integer.class, Object.class, Collection.class);
-            declaredConstructor.setAccessible(true);
-            token = declaredConstructor.newInstance(keyHash, principal, tokenAuthorities);
+        JwtAuthenticationToken token;
+        if (authenticated) {
+            if (nonNull(name)) {
+                token = new JwtAuthenticationToken((Jwt) jwt, tokenAuthorities, name);
+            }
+            else {
+                token = new JwtAuthenticationToken((Jwt) jwt, tokenAuthorities);
+            }
         }
-        catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            final String msg = String.format("RememberMeAuthenticationToken Jackson 反序列化错误: principal 反序列化错误: %s",
-                                             e.getMessage());
-            throw new IOException(msg, e);
+        else {
+            token = new JwtAuthenticationToken((Jwt) jwt);
         }
 
-        token.setAuthenticated(authenticated);
         // 为了安全, 不信任反序列化后的凭证; 一般认证成功后都会自动释放密码.
         token.eraseCredentials();
 
@@ -103,7 +102,6 @@ public class RememberMeAuthenticationTokenJsonDeserializer extends StdDeserializ
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
-    @JsonDeserialize(using = RememberMeAuthenticationTokenJsonDeserializer.class)
-    public interface RememberMeAuthenticationTokenMixin {}
-
+    @JsonDeserialize(using = JwtAuthenticationTokenDeserializer.class)
+    public interface JwtAuthenticationTokenMixin {}
 }

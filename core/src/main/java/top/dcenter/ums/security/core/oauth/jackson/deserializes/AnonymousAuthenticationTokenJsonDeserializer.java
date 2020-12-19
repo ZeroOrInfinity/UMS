@@ -30,8 +30,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -49,7 +47,6 @@ import java.util.Collection;
  */
 public class AnonymousAuthenticationTokenJsonDeserializer extends StdDeserializer<AnonymousAuthenticationToken> {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
     public AnonymousAuthenticationTokenJsonDeserializer() {
         super(AnonymousAuthenticationToken.class);
     }
