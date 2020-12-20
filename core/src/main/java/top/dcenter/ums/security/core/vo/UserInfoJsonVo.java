@@ -43,6 +43,14 @@ public class UserInfoJsonVo {
      */
     private String username;
     /**
+     * jwt
+     */
+    private String jwt;
+    /**
+     * jwt refresh token
+     */
+    private String refreshToken;
+    /**
      * 跳转 url
      */
     private String targetUrl;
@@ -53,9 +61,12 @@ public class UserInfoJsonVo {
 
     public UserInfoJsonVo() { }
 
-    public UserInfoJsonVo(String id, String username, String targetUrl, Collection<GrantedAuthority> authorities) {
+    public UserInfoJsonVo(String id, String username, String jwt, String refreshToken, String targetUrl,
+                          Collection<GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
+        this.jwt = jwt;
+        this.refreshToken = refreshToken;
         this.targetUrl = targetUrl;
         this.authorities = authorities;
     }
@@ -74,6 +85,22 @@ public class UserInfoJsonVo {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getJwt() {
+        return jwt;
+    }
+
+    public void setJwt(String jwt) {
+        this.jwt = jwt;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public String getTargetUrl() {

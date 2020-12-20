@@ -44,6 +44,7 @@ import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationProvi
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.properties.SmsCodeLoginAuthenticationProperties;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
+import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -79,6 +80,9 @@ public class SmsCodeLoginAutoAuthenticationConfigurer extends SecurityConfigurer
     @Autowired(required = false)
     private RememberMeServices rememberMeServices;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired(required = false)
+    private GenerateClaimsSetService generateClaimsSetService;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired
     private ClientProperties clientProperties;
     private final SmsCodeLoginAuthenticationProperties smsCodeLoginAuthenticationProperties;
@@ -97,7 +101,8 @@ public class SmsCodeLoginAutoAuthenticationConfigurer extends SecurityConfigurer
     public void configure(HttpSecurity http) {
 
         SmsCodeLoginAuthenticationFilter smsCodeLoginAuthenticationFilter =
-                new SmsCodeLoginAuthenticationFilter(validateCodeProperties, smsCodeLoginAuthenticationProperties, tenantContextHolder, authenticationDetailsSource);
+                new SmsCodeLoginAuthenticationFilter(validateCodeProperties, smsCodeLoginAuthenticationProperties,
+                                                     tenantContextHolder, authenticationDetailsSource);
         smsCodeLoginAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
         registerHandlerAndRememberMeServices(smsCodeLoginAuthenticationFilter,
                                              baseAuthenticationSuccessHandler,
@@ -105,9 +110,10 @@ public class SmsCodeLoginAutoAuthenticationConfigurer extends SecurityConfigurer
                                              persistentTokenRepository,
                                              userDetailsService,
                                              rememberMeServices,
-                                             clientProperties);
+                                             clientProperties.getRememberMe());
 
-        SmsCodeLoginAuthenticationProvider smsCodeLoginAuthenticationProvider = new SmsCodeLoginAuthenticationProvider(userDetailsService);
+        SmsCodeLoginAuthenticationProvider smsCodeLoginAuthenticationProvider =
+                new SmsCodeLoginAuthenticationProvider(userDetailsService, generateClaimsSetService);
         http.authenticationProvider(postProcess(smsCodeLoginAuthenticationProvider))
             .addFilterAfter(postProcess(smsCodeLoginAuthenticationFilter), AbstractPreAuthenticatedProcessingFilter.class);
 

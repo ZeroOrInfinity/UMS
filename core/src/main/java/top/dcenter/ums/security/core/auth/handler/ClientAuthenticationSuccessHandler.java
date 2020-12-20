@@ -32,14 +32,14 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.UrlUtils;
-import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
-import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
-import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.common.utils.IpUtil;
 import top.dcenter.ums.security.common.vo.ResponseResult;
+import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
+import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.vo.UserInfoJsonVo;
+import top.dcenter.ums.security.jwt.JwtContext;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +47,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 
+import static org.springframework.util.StringUtils.hasText;
 import static top.dcenter.ums.security.common.utils.JsonUtil.isAjaxOrJson;
 import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
 import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
@@ -107,7 +108,21 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
             userInfoJsonVo = new UserInfoJsonVo(username,
                                                 username,
                                                 null,
+                                                null,
+                                                null,
                                                 token.getAuthorities());
+
+            // 设置 jwt
+            String jwtStringIfAllowBodyParameter = JwtContext.getJwtStringIfAllowBodyParameter(authentication);
+            if (hasText(jwtStringIfAllowBodyParameter)) {
+            	userInfoJsonVo.setJwt(jwtStringIfAllowBodyParameter);
+            }
+
+            // 设置 jwt refresh token
+            if (JwtContext.isRefreshJwtByRefreshToken()) {
+                userInfoJsonVo.setRefreshToken(JwtContext.getJwtRefreshToken());
+            }
+
             // 设置跳转的 url
             String targetUrl = determineTargetUrl(request, response);
 
@@ -177,7 +192,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         if (targetUrlParameter != null) {
             targetUrl = request.getParameter(targetUrlParameter);
 
-            if (StringUtils.hasText(targetUrl) && isSelfTopDomain(targetUrl)) {
+            if (hasText(targetUrl) && isSelfTopDomain(targetUrl)) {
                 if (this.logger.isTraceEnabled()) {
                     this.logger.trace(LogMessage.format("Using url %s from request parameter %s", targetUrl,
                                                         targetUrlParameter));
@@ -189,14 +204,14 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
 
         if (useReferer) {
             String referer = request.getHeader("Referer");
-            if (StringUtils.hasText(referer) && isSelfTopDomain(referer))
+            if (hasText(referer) && isSelfTopDomain(referer))
             {
                 targetUrl = referer;
             }
         }
 
         // 当 targetUrl 为 登录 url 时, 设置为 defaultTargetUrl
-        if (!StringUtils.hasText(targetUrl) || isIgnoreUrl(targetUrl))
+        if (!hasText(targetUrl) || isIgnoreUrl(targetUrl))
         {
             if (this.logger.isTraceEnabled()) {
                 this.logger.trace(LogMessage.format("Using default url %s", defaultTargetUrl));

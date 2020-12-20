@@ -49,29 +49,6 @@ public enum ErrorCodeEnum {
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "服务器异常 或 功能还在开发中"),
     INTERNAL_SERVER_ERROR(HttpStatus.NOT_FOUND.value(), SecurityConstants.INTERNAL_SERVER_ERROR_MSG),
 
-    USERNAME_USED(900, "用户名已存在"),
-    USER_NOT_EXIST(901, "用户不存在"),
-    USERNAME_NOT_EMPTY(902, "用户名不能为空"),
-    PASSWORD_NOT_EMPTY(903, "密码不能为空"),
-    QUERY_USER_INFO_ERROR(904, "未能获取到用户信息，请重试"),
-    USER_REGISTER_FAILURE(905, "用户注册失败"),
-    GET_REQUEST_PARAMETER_FAILURE(906, "获取注册信息失败"),
-    USERNAME_OR_PASSWORD_ERROR(909, "用户名或密码错误"),
-    UPDATE_CONNECTION_DATA_FAILURE(940, "更新第三方授权登录用户信息失败"),
-    REFRESH_TOKEN_FAILURE(950, "refresh Token 刷新失败"),
-
-    AUTH2_PROVIDER_NOT_SUPPORT(960, "此服务商的第三方授权登录不支持"),
-
-    TENANT_ID_NOT_FOUND(970, "获取不到租户 ID "),
-
-    ACCOUNT_DISABLED(981, "账号无效"),
-    ACCOUNT_EXPIRED(982, "账号过期"),
-    ACCOUNT_LOCKED(983, "账号已锁定"),
-    CREDENTIALS_EXPIRED(984, "凭证过期"),
-
-
-    USER_REGISTER_OAUTH2_FAILURE(999, "本地用户注册成功, 第三方信息保存失败"),
-
     VALIDATE_CODE_PARAM_ERROR(600, "验证码参数错误"),
     VALIDATE_CODE_NOT_EMPTY(601, "验证码的值不能为空"),
     VALIDATE_CODE_EXPIRED(602, "验证码已失效, 请刷新"),
@@ -116,7 +93,38 @@ public enum ErrorCodeEnum {
     REDIRECT_URL_PARAMETER_ILLEGAL(800, "非法的回调地址"),
     REDIRECT_URL_PARAMETER_ERROR(801, "回调地址不正确"),
     TAMPER_WITH_REDIRECT_URL_PARAMETER(802, "回调参数被篡改"),
-    ILLEGAL_ACCESS_URL_ERROR(803, "非法访问");
+    ILLEGAL_ACCESS_URL_ERROR(803, "非法访问"),
+
+    CREATE_JWT_ERROR(810, "创建 JWT 异常"),
+    JWT_EXPIRED(811, "JWT 过期"),
+    JWT_INVALID(812, "JWT 失效"),
+    JWT_REFRESH_TOKEN_INVALID(813, "JWT refreshToken 失效"),
+    JWT_REFRESH_TOKEN_NOT_FOUND(814, "JWT refreshToken 没有发现"),
+    REFRESH_JWT_POLICY_MISMATCH(815, "JWT 刷新策略不匹配"),
+    REFRESH_TOKEN_DUPLICATE(816, "连续三次生成 refreshToken 都重复, 可以去买彩票了"),
+
+    USERNAME_USED(900, "用户名已存在"),
+    USER_NOT_EXIST(901, "用户不存在"),
+    USERNAME_NOT_EMPTY(902, "用户名不能为空"),
+    PASSWORD_NOT_EMPTY(903, "密码不能为空"),
+    QUERY_USER_INFO_ERROR(904, "未能获取到用户信息，请重试"),
+    USER_REGISTER_FAILURE(905, "用户注册失败"),
+    GET_REQUEST_PARAMETER_FAILURE(906, "获取注册信息失败"),
+    USERNAME_OR_PASSWORD_ERROR(909, "用户名或密码错误"),
+    UPDATE_CONNECTION_DATA_FAILURE(940, "更新第三方授权登录用户信息失败"),
+    REFRESH_TOKEN_FAILURE(950, "refresh Token 刷新失败"),
+
+    AUTH2_PROVIDER_NOT_SUPPORT(960, "此服务商的第三方授权登录不支持"),
+
+    TENANT_ID_NOT_FOUND(970, "获取不到租户 ID "),
+
+    ACCOUNT_DISABLED(981, "账号无效"),
+    ACCOUNT_EXPIRED(982, "账号过期"),
+    ACCOUNT_LOCKED(983, "账号已锁定"),
+    CREDENTIALS_EXPIRED(984, "凭证过期"),
+
+
+    USER_REGISTER_OAUTH2_FAILURE(999, "本地用户注册成功, 第三方信息保存失败");
 
 
     /**

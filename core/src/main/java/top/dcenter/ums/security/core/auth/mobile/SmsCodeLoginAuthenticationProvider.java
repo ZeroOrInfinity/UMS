@@ -23,11 +23,16 @@
 
 package top.dcenter.ums.security.core.auth.mobile;
 
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
+import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
+
+import static top.dcenter.ums.security.jwt.JwtContext.createJwtAndToJwtAuthenticationToken;
 
 /**
  * 短信登录 Provider
@@ -38,9 +43,12 @@ import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 public class SmsCodeLoginAuthenticationProvider implements AuthenticationProvider {
 
     private final UmsUserDetailsService userDetailsService;
+    private final GenerateClaimsSetService generateClaimsSetService;
 
-    public SmsCodeLoginAuthenticationProvider(UmsUserDetailsService userDetailsService) {
+    public SmsCodeLoginAuthenticationProvider(@NonNull UmsUserDetailsService userDetailsService,
+                                              @Nullable GenerateClaimsSetService generateClaimsSetService) {
         this.userDetailsService = userDetailsService;
+        this.generateClaimsSetService = generateClaimsSetService;
     }
 
     @Override
@@ -62,7 +70,7 @@ public class SmsCodeLoginAuthenticationProvider implements AuthenticationProvide
         }
         SmsCodeLoginAuthenticationToken authenticationResult = new SmsCodeLoginAuthenticationToken(user, user.getAuthorities());
         authenticationResult.setDetails(authenticationToken.getDetails());
-        return authenticationResult;
+        return createJwtAndToJwtAuthenticationToken(authenticationResult, this.generateClaimsSetService);
     }
 
     @Override

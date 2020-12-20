@@ -19,6 +19,7 @@ package top.dcenter.ums.security.core.oauth.provider;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -35,13 +36,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.api.oauth.entity.ConnectionData;
 import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
 import top.dcenter.ums.security.core.api.oauth.service.Auth2UserService;
 import top.dcenter.ums.security.core.api.oauth.signup.ConnectionService;
+import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
+import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 import top.dcenter.ums.security.core.oauth.token.Auth2AuthenticationToken;
 import top.dcenter.ums.security.core.oauth.token.Auth2LoginAuthenticationToken;
 import top.dcenter.ums.security.core.oauth.userdetails.TemporaryUser;
@@ -50,7 +51,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import static org.springframework.util.CollectionUtils.isEmpty;
 import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
+import static top.dcenter.ums.security.jwt.JwtContext.createJwtAndToJwtAuthenticationToken;
 
 /**
  * An implementation of an {@link AuthenticationProvider} for OAuth 2.0 Login, which
@@ -93,6 +96,7 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 	private final Boolean autoSignUp;
 	private final String temporaryUserAuthorities;
 	private final String temporaryUserPassword;
+	private final GenerateClaimsSetService generateClaimsSetService;
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 	private UserCache userCache = new NullUserCache();
@@ -115,6 +119,7 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 	                                        UsersConnectionRepository usersConnectionRepository,
 	                                        ExecutorService updateConnectionTaskExecutor,
 	                                        Boolean autoSignUp,
+	                                        @Nullable GenerateClaimsSetService generateClaimsSetService,
 	                                        String temporaryUserAuthorities,
 	                                        String temporaryUserPassword) {
 		Assert.notNull(updateConnectionTaskExecutor, "updateConnectionTaskExecutor cannot be null");
@@ -133,6 +138,7 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 		this.autoSignUp = autoSignUp;
 		this.temporaryUserAuthorities = temporaryUserAuthorities;
 		this.temporaryUserPassword = temporaryUserPassword;
+		this.generateClaimsSetService = generateClaimsSetService;
 	}
 
 	@SuppressWarnings("AlibabaMethodTooLong")
@@ -165,7 +171,7 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 		boolean cacheWasUsed = false;
 		UserDetails userDetails = null;
 		//4.1 没有第三方登录记录, 自动注册 或 绑定 或 临时创建第三方登录用户
-		if (CollectionUtils.isEmpty(connectionDataList))
+		if (isEmpty(connectionDataList))
 		{
 			// 无本地用户登录, 注册和绑定
 			if (principal == null)
@@ -294,7 +300,7 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 		                                                                                 providerId);
 		auth2AuthenticationToken.setDetails(loginToken.getDetails());
 
-		return auth2AuthenticationToken;
+		return createJwtAndToJwtAuthenticationToken(auth2AuthenticationToken, this.generateClaimsSetService);
 	}
 
 	/**

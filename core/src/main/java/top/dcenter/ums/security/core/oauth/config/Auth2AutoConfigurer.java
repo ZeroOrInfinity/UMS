@@ -39,17 +39,18 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
+import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
+import top.dcenter.ums.security.core.api.oauth.service.Auth2UserService;
+import top.dcenter.ums.security.core.api.oauth.signup.ConnectionService;
 import top.dcenter.ums.security.core.api.oauth.state.service.Auth2StateCoder;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
+import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 import top.dcenter.ums.security.core.oauth.filter.login.Auth2LoginAuthenticationFilter;
 import top.dcenter.ums.security.core.oauth.filter.redirect.Auth2DefaultRequestRedirectFilter;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.provider.Auth2LoginAuthenticationProvider;
-import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
-import top.dcenter.ums.security.core.api.oauth.service.Auth2UserService;
-import top.dcenter.ums.security.core.api.oauth.signup.ConnectionService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.ExecutorService;
@@ -96,6 +97,9 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
     private RememberMeServices rememberMeServices;
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @Autowired(required = false)
+    private GenerateClaimsSetService generateClaimsSetService;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public Auth2AutoConfigurer(Auth2Properties auth2Properties, UmsUserDetailsService umsUserDetailsService,
@@ -120,7 +124,8 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         // 添加第三方登录回调接口过滤器
         String filterProcessesUrl = auth2Properties.getRedirectUrlPrefix();
         Auth2LoginAuthenticationFilter auth2LoginAuthenticationFilter =
-                new Auth2LoginAuthenticationFilter(filterProcessesUrl, auth2Properties.getSignUpUrl(), authenticationDetailsSource);
+                new Auth2LoginAuthenticationFilter(filterProcessesUrl, auth2Properties.getSignUpUrl(),
+                                                   authenticationDetailsSource);
         AuthenticationManager sharedObject = http.getSharedObject(AuthenticationManager.class);
         auth2LoginAuthenticationFilter.setAuthenticationManager(sharedObject);
         registerHandlerAndRememberMeServices(auth2LoginAuthenticationFilter,
@@ -129,7 +134,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
                                              persistentTokenRepository,
                                              userDetailsService,
                                              rememberMeServices,
-                                             clientProperties);
+                                             clientProperties.getRememberMe());
         http.addFilterBefore(postProcess(auth2LoginAuthenticationFilter), OAuth2AuthorizationRequestRedirectFilter.class);
 
         // 添加第三方登录入口过滤器
@@ -142,8 +147,8 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         Auth2LoginAuthenticationProvider auth2LoginAuthenticationProvider = new Auth2LoginAuthenticationProvider(
                 auth2UserService, connectionSignUp, umsUserDetailsService,
                 usersConnectionRepository, updateConnectionTaskExecutor,
-                auth2Properties.getAutoSignUp(), auth2Properties.getTemporaryUserAuthorities(),
-                auth2Properties.getTemporaryUserPassword());
+                auth2Properties.getAutoSignUp(), generateClaimsSetService,
+                auth2Properties.getTemporaryUserAuthorities(), auth2Properties.getTemporaryUserPassword());
         http.authenticationProvider(postProcess(auth2LoginAuthenticationProvider));
     }
 

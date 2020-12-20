@@ -45,6 +45,10 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
+import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
+
+import static top.dcenter.ums.security.jwt.JwtContext.createJwtAndToJwtAuthenticationToken;
+
 
 /**
  * 用户密码登录的 Provider, 只是对 {@link org.springframework.security.authentication.dao.DaoAuthenticationProvider} 的 copy.
@@ -89,6 +93,9 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
 
     @Autowired(required = false)
     private UserDetailsPasswordService userDetailsPasswordService;
+
+    @Autowired(required = false)
+    private GenerateClaimsSetService generateClaimsSetService;
 
     private final TenantContextHolder tenantContextHolder;
 
@@ -164,7 +171,9 @@ public class UsernamePasswordAuthenticationProvider extends AbstractUserDetailsA
         if (this.forcePrincipalAsString) {
             principalToReturn = user.getUsername();
         }
-        return createSuccessAuthentication(principalToReturn, authentication, user);
+        Authentication successAuthentication = createSuccessAuthentication(principalToReturn, authentication, user);
+
+        return createJwtAndToJwtAuthenticationToken(successAuthentication, this.generateClaimsSetService);
     }
 
     @Override
