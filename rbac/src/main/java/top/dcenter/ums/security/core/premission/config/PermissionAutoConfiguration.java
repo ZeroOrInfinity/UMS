@@ -33,10 +33,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.EnableAsync;
 import top.dcenter.ums.security.core.api.premission.service.UpdateAndCacheRolesResourcesService;
 import top.dcenter.ums.security.core.api.premission.service.UriAuthorizeService;
-import top.dcenter.ums.security.core.premission.service.DefaultUriAuthorizeService;
+import top.dcenter.ums.security.core.premission.advice.PermissionAdviceHandler;
 import top.dcenter.ums.security.core.premission.aspect.RolePermissionsServiceAspect;
 import top.dcenter.ums.security.core.premission.evaluator.UriAuthoritiesPermissionEvaluator;
 import top.dcenter.ums.security.core.premission.listener.UpdateRolesResourcesListener;
+import top.dcenter.ums.security.core.premission.service.DefaultUriAuthorizeService;
 
 /**
  * Permission 配置
@@ -51,6 +52,12 @@ import top.dcenter.ums.security.core.premission.listener.UpdateRolesResourcesLis
 @Order(99)
 @AutoConfigureAfter({RbacPropertiesAutoConfiguration.class})
 public class PermissionAutoConfiguration {
+
+    @Bean
+    @ConditionalOnBean(type = "top.dcenter.ums.security.core.premission.advice.PermissionAdviceHandler")
+    public PermissionAdviceHandler permissionAdviceHandler() {
+        return new PermissionAdviceHandler();
+    }
 
     @Bean
     @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.premission.service.UpdateAndCacheRolesResourcesService")
