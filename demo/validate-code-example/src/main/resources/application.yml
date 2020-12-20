@@ -33,7 +33,8 @@ ums:
   oauth:
     # 是否支持第三方授权登录功能, 默认: 空, 必须明确配置是否支持
     enabled: false
-  client:
+  # RBAC 权限访问控制
+  rbac:
     # ========= 放行权限 ==========
     # 权限表达式, 当 enableRestfulApi=true 且没有 @EnableGlobalMethodSecurity 注释时生效, 默认为 hasPermission(request, authentication).
     # hasPermission 表达式默认实现为 UriAuthoritiesPermissionEvaluator, 想自定义逻辑, 实现 PermissionEvaluator 即可替换.
@@ -45,6 +46,7 @@ ums:
     # 当 {@code enableRestfulApi=false} 时 {@code accessExp} 权限表达式生效,
     # 当 {@code enableRestfulApi=true} 时 {@code restfulAccessExp} 权限表达式生效.
     enable-restful-api: true
+  client:
     # 一级域名(不包括二级域名) 例如:
     #       domain: www.example.com -> topDomain: example.com
     #       domain: www.example.com.cn -> topDomain: example.com.cn

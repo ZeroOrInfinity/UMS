@@ -24,7 +24,7 @@
 package demo.test.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import top.dcenter.ums.security.core.util.IpUtil;
+import top.dcenter.ums.security.common.utils.IpUtil;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;

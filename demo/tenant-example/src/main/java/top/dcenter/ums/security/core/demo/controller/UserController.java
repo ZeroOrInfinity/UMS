@@ -36,10 +36,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.ServletWebRequest;
+import top.dcenter.ums.security.common.utils.JsonUtil;
+import top.dcenter.ums.security.common.vo.ResponseResult;
 import top.dcenter.ums.security.core.api.service.UserDetailsRegisterService;
 import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
-import top.dcenter.ums.security.core.util.MvcUtil;
-import top.dcenter.ums.security.core.vo.ResponseResult;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -92,7 +92,7 @@ public class UserController {
 
         UserDetails userDetails = userDetailsRegisterService.registerUser(new ServletWebRequest(request));
 
-        return MvcUtil.toJsonString(ResponseResult.success("uri", "login"));
+        return JsonUtil.toJsonString(ResponseResult.success("uri", "login"));
     }
 
 

@@ -25,7 +25,7 @@ package demo.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
+import top.dcenter.ums.security.core.api.premission.service.AbstractUriAuthorizeService;
 
 import java.util.HashMap;
 import java.util.Map;

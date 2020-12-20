@@ -36,7 +36,6 @@ import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.exception.TenantIdNotFoundException;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.TimeUnit;
@@ -72,8 +71,8 @@ public class UmsTenantContextHolder implements TenantContextHolder {
                  * /user/mobile/111111 -> tenantId = 111111
                  * 如果是第三方登录: /auth2/authorization/110110/gitee -> tenantId = 110110
                  */
-                String uri = request.getRequestURI();
-                String auth2RedirectUrlPrefix = MvcUtil.getServletContextPath()  + auth2Properties.getAuthLoginUrlPrefix();
+                String uri = request.getServletPath();
+                String auth2RedirectUrlPrefix = auth2Properties.getAuthLoginUrlPrefix();
                 //noinspection AlibabaUndefineMagicConstant
                 if (auth2RedirectUrlPrefix.endsWith("/*")) {
                     auth2RedirectUrlPrefix = auth2RedirectUrlPrefix.substring(0, auth2RedirectUrlPrefix.length() - 2);

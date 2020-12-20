@@ -55,7 +55,6 @@ import static org.springframework.util.StringUtils.hasText;
 import static top.dcenter.ums.security.common.utils.JsonUtil.isAjaxOrJson;
 import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
 import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
-import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 import static top.dcenter.ums.security.core.util.MvcUtil.isSelfTopDomain;
 import static top.dcenter.ums.security.core.util.RequestUtil.getRequestUri;
 
@@ -134,7 +133,7 @@ public class JwtAuthenticationSuccessHandler extends BaseAuthenticationSuccessHa
             String targetUrl = determineTargetUrl(request, response);
 
             // 判断是否返回 json 类型
-            userInfoJsonVo.setTargetUrl(getJsonTargetUrl(targetUrl));
+            userInfoJsonVo.setTargetUrl(getJsonTargetUrl(targetUrl, request));
             if (LoginProcessType.JSON.equals(this.loginProcessType))
             {
                 clearAuthenticationAttributes(request);
@@ -175,7 +174,7 @@ public class JwtAuthenticationSuccessHandler extends BaseAuthenticationSuccessHa
 
         if (isAlwaysUseDefaultTargetUrl()
             // OAuth2 回调时 referer 直接是域名, 没有带 ServletContextPath, 直接返回 defaultTargetUrl
-            || request.getRequestURI().startsWith(auth2RedirectUrl)) {
+            || request.getServletPath().startsWith(auth2RedirectUrl)) {
             if (this.logger.isTraceEnabled()) {
                 this.logger.trace(LogMessage.format("Using default url %s", defaultTargetUrl));
             }
@@ -241,10 +240,10 @@ public class JwtAuthenticationSuccessHandler extends BaseAuthenticationSuccessHa
     /**
      * 获取用于 json 的跳转地址
      */
-    private String getJsonTargetUrl(String targetUrl) {
+    private String getJsonTargetUrl(String targetUrl, HttpServletRequest request) {
         if (!UrlUtils.isAbsoluteUrl(targetUrl))
         {
-            targetUrl = getServletContextPath() + targetUrl;
+            targetUrl = request.getContextPath() + targetUrl;
         }
         return targetUrl;
     }

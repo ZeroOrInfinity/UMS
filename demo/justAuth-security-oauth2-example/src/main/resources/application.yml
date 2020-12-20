@@ -52,7 +52,8 @@ spring:
         min-idle: 1
 # ums core
 ums:
-  client:
+  # RBAC 权限访问控制
+  rbac:
     # ========= 放行权限 ==========
     # 权限表达式, 当 enableRestfulApi=true 且没有 @EnableGlobalMethodSecurity 注释时生效, 默认为 hasPermission(request, authentication).
     # hasPermission 表达式默认实现为 UriAuthoritiesPermissionEvaluator, 想自定义逻辑, 实现 PermissionEvaluator 即可替换.
@@ -64,6 +65,7 @@ ums:
     # 当 {@code enableRestfulApi=false} 时 {@code accessExp} 权限表达式生效,
     # 当 {@code enableRestfulApi=true} 时 {@code restfulAccessExp} 权限表达式生效.
     enable-restful-api: true
+  client:
     # 一级域名(不包括二级域名) 例如:
     #       domain: www.example.com -> topDomain: example.com
     #       domain: www.example.com.cn -> topDomain: example.com.cn
@@ -75,6 +77,7 @@ ums:
       - /static/**
     permit-urls:
       - /user/me
+
   # ================ 基于 SLF4J MDC 机制的日志链路追踪配置属性 ================
   mdc:
     # 是否支持基于 SLF4J MDC 机制日志的链路追踪, 默认: true
@@ -119,6 +122,13 @@ ums:
     customize:
       client-id: c971cf1634460e18310a5d7cb0f55d7d143a72015b2f29aee6a0e8911efac7eb
       client-secret: 309c9521721e3eb385a99a6bde2755f3107c7e15f3b8e0527c9f3ea4d1ce33bb
+      # 自定义第三方授权登录时, 当 Auth2Properties#customize 时有效, 此字段必须以驼峰方式命名.
+      # 比如此字段的值为 umsCustomize, 那么 /auth2/authorization/customize 会替换为 /auth2/authorization/umsCustomize
+      customize-provider-id: giteeCustomize
+      # 自定义第三方授权登录, 当 Auth2Properties#customize 时有效, 设置第三方是否在国外, 默认: false.
+      # 如果为 false 时, 设置 {@link HttpConfig} 的超时时间为 ums.oauth.proxy.timeout 的值.
+      # 如果为 true 时, 设置 {@link HttpConfig} 的超时时间为 ums.oauth.proxy.foreignTimeout 的值.
+      customize-is-foreign: false
     # 第三方登录授权登录 url 前缀, 不包含 ServletContextPath，默认为 /auth2/authorization.
     auth-login-url-prefix: /auth2/authorization
     # 第三方登录回调处理 url 前缀 ，也就是 RedirectUrl 的前缀, 不包含 ServletContextPath，默认为 /auth2/login.
@@ -163,8 +173,13 @@ ums:
       cacheType: session
       # JustAuth state 缓存 key 前缀
       cacheKeyPrefix: 'JUST_AUTH:'
-      # 支持自定义授权平台的 scope 内容
+      # 支持自定义授权平台的 scope 内容, 格式为: source:scope, 例如: [QQ:write, QQ:read, GITEE:email, GITHUB:read]
       scopes:
+      # 示例
+      # - QQ:write
+      # - QQ:read
+      # - GITEE:email
+      # - GITHUB:read
     # 用于 JustAuth 的代理(HttpClient)设置
     proxy:
       # 是否支持代理, 默认为: false.

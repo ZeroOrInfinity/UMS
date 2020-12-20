@@ -34,8 +34,8 @@ import me.zhyd.oauth.model.AuthUser;
 import me.zhyd.oauth.request.AuthGiteeRequest;
 import me.zhyd.oauth.utils.AuthScopeUtils;
 import me.zhyd.oauth.utils.UrlBuilder;
-import top.dcenter.ums.security.core.api.oauth.customize.AuthCustomizeRequest;
-import top.dcenter.ums.security.core.api.oauth.customize.AuthCustomizeSource;
+import top.dcenter.ums.security.core.api.oauth.justauth.customize.AuthCustomizeRequest;
+import top.dcenter.ums.security.core.api.oauth.justauth.customize.AuthCustomizeSource;
 
 /**
  * 演示如何自定义 OAuth2 Login.<br>

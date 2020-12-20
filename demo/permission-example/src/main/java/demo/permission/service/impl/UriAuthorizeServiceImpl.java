@@ -29,8 +29,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
-import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
-import top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheRolesResourcesService;
+import top.dcenter.ums.security.core.api.premission.service.AbstractUriAuthorizeService;
+import top.dcenter.ums.security.core.api.premission.service.UpdateAndCacheRolesResourcesService;
 
 import java.util.Map;
 import java.util.Set;

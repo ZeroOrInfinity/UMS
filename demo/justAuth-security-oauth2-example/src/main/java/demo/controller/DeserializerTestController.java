@@ -44,11 +44,11 @@ import org.springframework.security.web.jackson2.WebJackson2Module;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import top.dcenter.ums.security.common.utils.JsonUtil;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationToken;
 import top.dcenter.ums.security.core.jackson2.Auth2Jackson2Module;
 import top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -83,7 +83,7 @@ public class DeserializerTestController {
 
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        log.info(MvcUtil.toJsonString(userDetails));
+        log.info(JsonUtil.toJsonString(userDetails));
 
         // start: redis 添加反序列化配置.
         ObjectMapper mapper = new ObjectMapper();

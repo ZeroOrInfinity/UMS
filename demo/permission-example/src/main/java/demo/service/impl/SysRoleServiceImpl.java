@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService.PERMISSION_DELIMITER;
+import static top.dcenter.ums.security.core.api.premission.service.AbstractUriAuthorizeService.PERMISSION_DELIMITER;
 
 /**
  * 资源服务

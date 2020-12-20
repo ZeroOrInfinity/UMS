@@ -24,6 +24,8 @@
 package demo.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import top.dcenter.ums.security.jwt.properties.JwtProperties;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +47,11 @@ import java.util.Map;
 @Controller
 @Slf4j
 public class UserController {
+
+    @Autowired
+    private JwtProperties jwtProperties;
+    @Autowired
+    private OAuth2ResourceServerProperties properties;
 
     @GetMapping("/login")
     public String login() {

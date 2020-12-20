@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,24 +37,39 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.jackson2.CoreJackson2Module;
+import org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2Module;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.jackson2.WebJackson2Module;
+import org.springframework.security.web.server.jackson2.WebServerJackson2Module;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import top.dcenter.ums.security.common.utils.JsonUtil;
+import top.dcenter.ums.security.common.utils.UuidUtils;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationToken;
 import top.dcenter.ums.security.core.jackson2.Auth2Jackson2Module;
 import top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.Instant;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 演示 redis 添加反序列化配置.<br>
@@ -84,7 +100,7 @@ public class DeserializerTestController {
 
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        log.info(MvcUtil.toJsonString(userDetails));
+        log.info(JsonUtil.toJsonString(userDetails));
 
         // redis 添加反序列化配置.
         ObjectMapper mapper = new ObjectMapper();
@@ -92,9 +108,74 @@ public class DeserializerTestController {
         mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.registerModules(new CoreJackson2Module(), new WebJackson2Module(), new Auth2Jackson2Module());
+        mapper.registerModules(new CoreJackson2Module(), new WebJackson2Module(),
+                               new JavaTimeModule(), new WebServerJackson2Module(),
+                               new OAuth2ClientJackson2Module(), new Auth2Jackson2Module());
 
         // 测试 redis 序列化 与 反序列化
+
+        // jwt
+        {
+            Map<String, Object> headers = new LinkedHashMap<>();
+            headers.put("alg", "HS512");
+            Map<String, Object> claims = new LinkedHashMap<>();
+            claims.put("jti", UuidUtils.getUUID());
+            Jwt jwt = new Jwt("xxxx.xxxx.xxx", Instant.now(), Instant.now().plusSeconds(5000),
+                              headers, claims);
+            stringRedisTemplate.opsForValue().set("testJsonDeserializer",
+                                                  mapper.writeValueAsString(jwt));
+            String testJsonDeserializer = stringRedisTemplate.opsForValue().get("testJsonDeserializer");
+            Jwt jwtDes = mapper.readValue(testJsonDeserializer, Jwt.class);
+            log.info("testJsonDeserializer: {}", jwtDes);
+
+        }
+        // JwtAuthenticationToken
+        {
+            Map<String, Object> headers = new LinkedHashMap<>();
+            headers.put("alg", "HS512");
+            Map<String, Object> claims = new LinkedHashMap<>();
+            claims.put("jti", UuidUtils.getUUID());
+            Jwt jwt = new Jwt("xxxx.xxxx.xxx", Instant.now(), Instant.now().plusSeconds(5000),
+                              headers, claims);
+            Set<String> scopes = new LinkedHashSet<>();
+            scopes.add("write");
+            scopes.add("read");
+            List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+            JwtAuthenticationToken jwtToken = new JwtAuthenticationToken(jwt, authorities, "jwtToken");
+            stringRedisTemplate.opsForValue().set("testJsonDeserializer",
+                                                  mapper.writeValueAsString(jwtToken));
+            String testJsonDeserializer = stringRedisTemplate.opsForValue().get("testJsonDeserializer");
+            JwtAuthenticationToken jwtTokenDes = mapper.readValue(testJsonDeserializer, JwtAuthenticationToken.class);
+            log.info("testJsonDeserializer: {}", jwtTokenDes);
+
+        }
+
+        // BearerTokenAuthentication
+        {
+            Map<String, Object> claims = new LinkedHashMap<>();
+            claims.put("jti", UuidUtils.getUUID());
+            Set<String> scopes = new LinkedHashSet<>();
+            scopes.add("write");
+            scopes.add("read");
+            List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList();
+            DefaultOAuth2AuthenticatedPrincipal principal =
+                    new DefaultOAuth2AuthenticatedPrincipal("test", claims,
+                                                            authorities);
+            OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+                                                                  "xxxx.xxxx.xxxx2",
+                                                                  Instant.now(),
+                                                                  Instant.now().plusSeconds(5000),
+                                                                  scopes);
+            BearerTokenAuthentication bearerToken = new BearerTokenAuthentication(principal, accessToken, authorities);
+            stringRedisTemplate.opsForValue().set("testJsonDeserializer",
+                                                  mapper.writeValueAsString(bearerToken));
+            String testJsonDeserializer = stringRedisTemplate.opsForValue().get("testJsonDeserializer");
+            BearerTokenAuthentication bearerTokenDes = mapper.readValue(testJsonDeserializer, BearerTokenAuthentication.class);
+            log.info("testJsonDeserializer: {}", bearerTokenDes);
+
+        }
+
+
         if (authentication instanceof UsernamePasswordAuthenticationToken)
         {
             UsernamePasswordAuthenticationToken authenticationToken = (UsernamePasswordAuthenticationToken) authentication;

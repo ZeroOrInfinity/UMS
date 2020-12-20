@@ -61,7 +61,8 @@ ums:
       # 手机验证码登录请求处理url, 默认 /authentication/mobile
       login-processing-url-mobile: /authentication/mobile
 
-  client:
+  # RBAC 权限访问控制
+  rbac:
     # ========= 权限表达式 ==========
     # 权限表达式, 当 enableRestfulApi=false 或者有 @EnableGlobalMethodSecurity 注释时生效, 默认为 isAuthenticated().
     # String accessExp = "isAuthenticated()";
@@ -84,6 +85,7 @@ ums:
     role-hierarchy:
       - ROLE_ADMIN > ROLE_USER
       - ROLE_USER > ROLE_VOTE
+  client:
     # 设置登录后返回格式(REDIRECT 与 JSON): 默认 JSON
     login-process-type: redirect
     # 一级域名(不包括二级域名) 例如:

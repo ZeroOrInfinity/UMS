@@ -30,15 +30,15 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.core.oauth.userdetails.TemporaryUser;
-import top.dcenter.ums.security.core.vo.ResponseResult;
+import top.dcenter.ums.security.common.vo.ResponseResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.isAjaxOrJson;
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.responseWithJson;
-import static top.dcenter.ums.security.core.util.MvcUtil.toJsonString;
+import static top.dcenter.ums.security.common.utils.JsonUtil.isAjaxOrJson;
+import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
+import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
 
 /**
  * 演示 signUpUrl 设置为 null 时的一种处理方式

@@ -24,7 +24,8 @@ package top.dcenter.ums.security.core.demo.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
-import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
+import org.springframework.stereotype.Component;
+import top.dcenter.ums.security.core.api.premission.service.AbstractUriAuthorizeService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +35,7 @@ import java.util.Set;
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/11 17:09
  */
+@Component
 @Slf4j
 public class DemoUriAuthorizeServiceImpl extends AbstractUriAuthorizeService {
 

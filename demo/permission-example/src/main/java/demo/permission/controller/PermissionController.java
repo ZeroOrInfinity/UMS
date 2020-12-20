@@ -39,11 +39,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.api.permission.service.RolePermissionsService;
-import top.dcenter.ums.security.core.api.permission.service.UpdateAndCacheRolesResourcesService;
+import top.dcenter.ums.security.core.api.premission.service.RolePermissionsService;
+import top.dcenter.ums.security.core.api.premission.service.UpdateAndCacheRolesResourcesService;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.permission.enums.PermissionType;
-import top.dcenter.ums.security.core.vo.ResponseResult;
+import top.dcenter.ums.security.core.premission.enums.PermissionType;
+import top.dcenter.ums.security.common.vo.ResponseResult;
 
 import java.util.Map;
 
