@@ -97,6 +97,7 @@ public class JsonUtil {
             PrintWriter writer = response.getWriter();
             writer.write(result);
             writer.flush();
+            writer.close();
         }
     }
 
