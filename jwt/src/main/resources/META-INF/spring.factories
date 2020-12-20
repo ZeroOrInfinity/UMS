@@ -1,0 +1,5 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  top.dcenter.ums.security.jwt.config.JwtPropertiesAutoConfiguration,\
+  top.dcenter.ums.security.jwt.config.JwtAutoConfiguration,\
+  top.dcenter.ums.security.jwt.config.JwtAutoConfigurerAware
