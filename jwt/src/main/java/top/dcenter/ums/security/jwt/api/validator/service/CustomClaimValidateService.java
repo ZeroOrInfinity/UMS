@@ -23,6 +23,10 @@
 package top.dcenter.ums.security.jwt.api.validator.service;
 
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
+import org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter;
+import top.dcenter.ums.security.jwt.supplier.UmsJwtClaimTypeConverterSupplier;
+
+import java.util.Map;
 
 /**
  * 对指定的 {@link #getClaimName()} 的对象进行校验的接口.<br>
@@ -34,7 +38,8 @@ public interface CustomClaimValidateService {
 
     /**
      * 对 {@link #getClaimName()} 进行有效性校验.
-     * @param claimObject   {@link #getClaimName()} 的对象
+     * @param claimObject   {@link #getClaimName()} 的对象, 实际的对象可以通过 {@link UmsJwtClaimTypeConverterSupplier} 与
+     *                      {@link MappedJwtClaimSetConverter#withDefaults(Map)} 查看.
      * @return  返回 true 时表示 {@link #getClaimName()} 校验通过.
      */
     boolean validate(Object claimObject);
