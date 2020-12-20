@@ -5,12 +5,11 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>2.1.2</version>
+        <version>2.2.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>2.1.9</version>
     <packaging>jar</packaging>
 
     <name>ums-core-spring-boot-starter</name>
@@ -55,7 +54,25 @@
         <dependency>
             <groupId>top.dcenter</groupId>
             <artifactId>ums-commons</artifactId>
-            <version>[2.1.0,)</version>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>top.dcenter</groupId>
+            <artifactId>ums-jwt</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>top.dcenter</groupId>
+            <artifactId>ums-rbac</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>top.dcenter</groupId>
+            <artifactId>ums-mdc</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
@@ -79,6 +96,11 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-resource-server</artifactId>
         </dependency>
 
         <dependency>
@@ -124,12 +146,6 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-resource-server</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>

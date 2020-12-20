@@ -1,3 +1,34 @@
+## 2.2.0
+### Fixes and Improvements:
+1. 特性: 添加 Jwt 模块, JWT 创建(通过接口自定义 Claims, 通过配置设置算法等), 校验(通过接口自定义校验规则), 刷新(自动刷新, 直接拒绝, 通过 refreshToken 刷新), 刷新的 JWT
+ 使旧 JWT 失效引发的并发访问问题及黑名单.
+2. 修复: defaultSuccessUrl 设置失效的 bug. 感谢: 帅子男一号.
+3. 修复: 开启第三方授权登录时, 如果不配置某些属性会出现 NPE 问题.
+4. 增强: mdc 模块在全局异常返回时添加 MDC 链路追踪 ID, 优化: 异常处理器, 返回 json 数据中添加日志链路追踪 ID.
+5. 增强: 添加跨域属性(ums.client.cors.xxx)配置功能.
+6. 重构: 从 core 模块 分离出 ums-mdc 模块, ums-rbac 模块, 为拆分微服务做准备.
+7. 重构: 移动 MvcUtil 中 setRequestMappingUri(..) 与 registerController(..)方法到 ums-commons 模块的 reflectionUtil 中.
+8. 重构: 移动 MvcUtil 中 registerDelegateApplicationListener(..) 方法到 ums-commons 模块的 AppContextUtil 中.
+9. 重构: core 模块中 UmsUserDetailsService.java 与 UserDetailsRegisterService.java 到 ums-commons 模块.
+10. 重构: 移动 AuthenticationUtil 中 isAjaxOrJson(..) 与 responseWithJson(..) 方法到 ums-commons 模块的 JsonUtil 中.
+11. 重构: 为了重构 mdc 功能, 移动 MvcUtil 中 getUrlPathHelper() 方法到 ums-commons 模块的 UrlUtil 中.
+12. 重构: 移动 TenantContextHolder 等引用到 ums-commons 模块中.
+13. 重构: 移动 MvcUtil 中 setRequestMappingUri(..) 与 registerController(..)方法到 ums-commons 模块的 reflectionUtil 中.
+14. 添加: rbac 模块 PermissionAdviceHandler.
+15. 添加: Jwt 相关对象的 Jackson2 反序列化器, 优化已有的反序列化器.
+16. 改进: 添加 MdcUtil.getMdcTraceId() 方法.
+17. 改进: 授权异常被 ControllerAdvice 中的异常处理器拦截的问题, 添加 Controller 方法参数校验异常拦截.
+18. 改进: JustAuthProperties 中的 scopes 属性格式(providerId:scope), 使其可以针对不同的第三方服务商进行不同的自定义 scope 配置.
+19. 改进: 使自定义第三方授权登录可以自定义 providerId.
+20. 改进: 添加 alwaysUseDefaultTargetUrl 所需配置.
+21. 优化: 添加 ControllerAdvice 的 Order 注解, 并添加常量 Order 的常量, 方便调整 ControllerAdvice 的加载顺序.
+22. 优化: 获取 ContextPath 的方式及重复添加 ContextPath 的问题.
+23. 示例: 添加 JWT 示例.
+24. 示例: 添加跨域功能配置.
+25. 等其他改进与优化.
+
+
+
 ## 2.1.9
 ### Fixes and Improvements:
 1. 特性: 增加多租户处理器接口 TenantContextHolder, 以及相应的配置文件与异常.

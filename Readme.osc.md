@@ -1,5 +1,6 @@
 # UMS (user manage scaffolding) 用户管理脚手架: 
 
+![UMS](https://img.shields.io/badge/UMS-2.2.0-green.svg)
 ![JDK](https://img.shields.io/badge/JDK-1.8+-green.svg)
 ![Maven](https://img.shields.io/badge/Maven-3.6.3-green.svg)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7.27-green.svg)
@@ -28,7 +29,9 @@
   - 简化 session、remember me、csrf、跨域等配置。
   - 根据设置的响应方式（JSON 与 REDIRECT）返回 json 或 html 数据。
   - 签到功能。
-  - 支持基于 SLF4J MDC 机制的日志链路追踪功能
+  - 支持基于 SLF4J MDC 机制的日志链路追踪功能。
+  - JWT 创建(通过接口自定义 Claims, 通过配置设置算法等), 校验(通过接口自定义校验规则), 刷新(自动刷新, 直接拒绝, 通过 refreshToken 刷新), 刷新的 JWT 使旧的 JWT
+    失效引发的并发访问问题及黑名单。
   
 ### 模块功能 
 
@@ -69,8 +72,9 @@
 ------
 ## 三、`TODO List`:
 
-- 1. 准备基于 spring-security5.4 添加 JWT, OAuth2 authenticate server
-- 2. 添加多租户注册功能与接口
+- 1\. 拆分微服务, OAuth2 authenticate server
+- 2\. 添加 JWT 文档.
+
 ------
 ## 四、`快速开始`：
 
@@ -85,8 +89,8 @@
     - [UmsUserDetailsService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/service/UmsUserDetailsService.java)    
 
 2. 访问权限控制功能: 基于 RBAC 的访问权限控制: 支持多租户与SCOPE
-    - [UriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/UriAuthorizeService.java): `推荐通过实现 AbstractUriAuthorizeService 来实现此接口`
-    - [AbstractUriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java): `必须实现`
+    - [UriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/rbac/src/main/java/top/dcenter/ums/security/core/api/permission/service/UriAuthorizeService.java): `推荐通过实现 AbstractUriAuthorizeService 来实现此接口`
+    - [AbstractUriAuthorizeService](https://gitee.com/pcore/UMS/blob/master/rbac/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java): `必须实现`
 
         - uri(资源) 访问权限控制服务接口抽象类, 定义了基于(角色/多租户/SCOPE)的访问权限控制逻辑. 实现 AbstractUriAuthorizeService 抽象类并注入 IOC
          容器即可替换 DefaultUriAuthorizeService.  
@@ -108,7 +112,7 @@
           如果不是 restful 风格的 API, 请使用 `hasPermission(Authentication, String, String)` 接口的访问权限控制, 
           此接口使用注解的方式 `@PerAuthorize("hasPermission('/users', 'list')")` 来实现, 使用注解需先开启 `@EnableGlobalMethodSecurity(prePostEnabled = true)` 注解.
 
-    - [UpdateAndCacheRolesResourcesService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/UpdateAndCacheRolesResourcesService.java):
+    - [UpdateAndCacheRolesResourcesService](https://gitee.com/pcore/UMS/blob/master/rbac/src/main/java/top/dcenter/ums/security/core/api/permission/service/UpdateAndCacheRolesResourcesService.java):
     
         - 用于更新或缓存基于(角色/多租户/SCOPE)角色的权限的服务接口, 每次更新角色的 uri(资源)权限时,需要调用此接口, 推荐实现此 RolePermissionsService 接口, 会自动通过 AOP
          方式实现发布 UpdateRolesResourcesEvent 事件, 从而调用 UpdateAndCacheRolesResourcesService 对应的方法.
@@ -120,7 +124,7 @@
             
             3\. 基于 多租户 的权限控制: 情况比较复杂, 租户很少的情况下, 也还可以全部缓存在本机内存, 通常情况下全部缓存内存不现实, 只能借助于类似 redis 等的内存缓存.
           
-    - [RolePermissionsService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/permission/service/RolePermissionsService.java):
+    - [RolePermissionsService](https://gitee.com/pcore/UMS/blob/master/rbac/src/main/java/top/dcenter/ums/security/core/api/permission/service/RolePermissionsService.java):
 
         - 更新与查询基于(角色/多租户/SCOPE)的角色资源服务接口. 主要用于给角色添加权限的操作. 
         - 注意: 
@@ -167,39 +171,39 @@
     - [AbstractValidateCodeProcessor](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/AbstractValidateCodeProcessor.java)
     - [ValidateCodeGenerator](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/validate/code/ValidateCodeGenerator.java)
 
-7. [Auth2StateCoder](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/state/service/Auth2StateCoder.java): `用户需要时实现`, 对第三方授权登录流程中的 state 进行自定义编解码. 可以传递必要的信息, 
+7. [Auth2StateCoder](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/oauth/state/service/Auth2StateCoder.java): `用户需要时实现`, 对第三方授权登录流程中的 state 进行自定义编解码. 可以传递必要的信息, 
      如: 第三方登录成功的跳转地址等 注意此接口的两个方法必须同时实现对应的编解码逻辑, 实现此接口后注入 IOC 容器即可, 如有前端向后端获取 authorizeUrl
      时向后端传递额外参数 且用作注册时的信息, 需配合 UmsUserDetailsService.registerUser(AuthUser, String, String, String) 方法实现.
 
-8. [Auth2UserService](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/service/Auth2UserService.java): 获取第三方用户信息的接口, 一般**不需要用户实现**, 除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
+8. [Auth2UserService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/oauth/service/Auth2UserService.java): 获取第三方用户信息的接口, 一般**不需要用户实现**, 除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
 
-9. [UsersConnectionRepository](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/repository/jdbc/UsersConnectionRepository.java): 第三方授权登录的第三方用户信息增删改查, 绑定与解绑及查询是否绑定与解绑接口, 一般**不需要用户实现**. 
+9. [UsersConnectionRepository](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/oauth/repository/jdbc/UsersConnectionRepository.java): 第三方授权登录的第三方用户信息增删改查, 绑定与解绑及查询是否绑定与解绑接口, 一般**不需要用户实现**. 
      除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
 
-10. [UsersConnectionTokenRepository](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/repository/jdbc/UsersConnectionTokenRepository.java): 第三方授权登录用户 accessToken 信息表增删改查接口, 一般**不需要用户实现**. 
+10. [UsersConnectionTokenRepository](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/oauth/repository/jdbc/UsersConnectionTokenRepository.java): 第三方授权登录用户 accessToken 信息表增删改查接口, 一般**不需要用户实现**. 
       除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
 
-11. [ConnectionService](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/signup/ConnectionService.java): 第三方授权登录用户的注册, 绑定, 更新第三方用户信息与 accessToken 信息的接口, 一般**不需要用户实现**.
+11. [ConnectionService](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/oauth/signup/ConnectionService.java): 第三方授权登录用户的注册, 绑定, 更新第三方用户信息与 accessToken 信息的接口, 一般**不需要用户实现**.
       除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
 
 12. 自定义 OAuth2 Login 扩展接口: 内置两个自定义 providerId(ums.oauth.customize 与 ums.oauth.gitlabPrivate)
     
-    - [AuthGitlabPrivateSource](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/justauth/customize/AuthGitlabPrivateSource.java): 抽象类, 实现此自定义的 AuthGitlabPrivateSource 且注入 ioc 容器的同时, 必须实现 AuthCustomizeRequest , 会自动集成进 OAuth2 Login 逻辑流程中, 只需要像 JustAuth 默认实现的第三方登录一样, 配置相应的属性(ums.oauth.gitlabPrivate.[clientId|clientSecret]等属性)即可.
+    - [AuthGitlabPrivateSource](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/oauth/justauth/customize/AuthGitlabPrivateSource.java): 抽象类, 实现此自定义的 AuthGitlabPrivateSource 且注入 ioc 容器的同时, 必须实现 AuthCustomizeRequest , 会自动集成进 OAuth2 Login 逻辑流程中, 只需要像 JustAuth 默认实现的第三方登录一样, 配置相应的属性(ums.oauth.gitlabPrivate.[clientId|clientSecret]等属性)即可.
     
-    - [AuthCustomizeSource](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/justauth/customize/AuthCustomizeSource.java): 抽象类, 实现此自定义的 AuthCustomizeSource 且注入 ioc 容器的同时, 必须实现 AuthCustomizeRequest , 会自动集成进 OAuth2 Login 逻辑流程中, 只需要像 JustAuth 默认实现的第三方登录一样, 配置相应的属性(ums.oauth.customize.[clientId|clientSecret]等属性)即可.
+    - [AuthCustomizeSource](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/oauth/justauth/customize/AuthCustomizeSource.java): 抽象类, 实现此自定义的 AuthCustomizeSource 且注入 ioc 容器的同时, 必须实现 AuthCustomizeRequest , 会自动集成进 OAuth2 Login 逻辑流程中, 只需要像 JustAuth 默认实现的第三方登录一样, 配置相应的属性(ums.oauth.customize.[clientId|clientSecret]等属性)即可.
     
-    - [AuthCustomizeRequest](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/justauth/customize/AuthCustomizeRequest.java): 抽象类, 实现此自定义的 AuthCustomizeRequest 同时, 必须实现 AuthCustomizeSource 或 AuthGitlabPrivateSource 且注入 ioc 容器, 会自动集成进 OAuth2 Login 逻辑流程中, 只需要像 JustAuth 默认实现的第三方登录一样, 配置相应的属性(ums.oauth.customize.[clientId|clientSecret]等属性)即可.
+    - [AuthCustomizeRequest](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/oauth/justauth/customize/AuthCustomizeRequest.java): 抽象类, 实现此自定义的 AuthCustomizeRequest 同时, 必须实现 AuthCustomizeSource 或 AuthGitlabPrivateSource 且注入 ioc 容器, 会自动集成进 OAuth2 Login 逻辑流程中, 只需要像 JustAuth 默认实现的第三方登录一样, 配置相应的属性(ums.oauth.customize.[clientId|clientSecret]等属性)即可.
 
 13. 自定义前后端认证 token 以及通信方式
 
-    - [BaseAuthenticationSuccessHandler](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/authentication/handler/BaseAuthenticationSuccessHandler.java): 认证成功处理器
+    - [BaseAuthenticationSuccessHandler](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/authentication/handler/BaseAuthenticationSuccessHandler.java): 认证成功处理器
     
-    - [BaseAuthenticationFailureHandler](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/authentication/handler/BaseAuthenticationFailureHandler.java): 认证失败处理器
+    - [BaseAuthenticationFailureHandler](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/authentication/handler/BaseAuthenticationFailureHandler.java): 认证失败处理器
 
 14. 如果应用为多租户系统, 且使用 RememberMe 功能: 默认的 RememberMeServices 不支持多租户, 则需要自定义实现 `org.springframework.security.web
 .authentication.RememberMeServices` 接口, 使其支持多租户系统, 不过一般情况下多租户系统不使用 RememberMe 功能.
 
-15. [TenantContextHolder](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/tenant/handler/TenantContextHolder.java):
+15. [TenantContextHolder](https://gitee.com/pcore/UMS/blob/master/commons/src/main/java/top/dcenter/ums/security/core/api/tenant/handler/TenantContextHolder.java):
     - 多租户上下文存储器. 实现此接口并注入 IOC 容器后, 会自动注入 UMS 默认实现的注册/登录/授权组件, 要实现 ums 框架具有多租户功能, 必须实现此接口并注入 IOC 容器.
     
     - 功能: 
@@ -246,10 +250,10 @@
 
 ## 七、[`注意事项`](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926456&doc_id=984605):
 
-### 1\. HttpSecurity 配置问题：UMS 中的 [HttpSecurityAware](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java) 配置与应用中的 HttpSecurity 配置冲突问题：
+### 1\. HttpSecurity 配置问题：UMS 中的 [HttpSecurityAware](https://gitee.com/pcore/UMS/blob/master/commons/src/main/java/top/dcenter/ums/security/common/api/config/HttpSecurityAware.java) 配置与应用中的 HttpSecurity 配置冲突问题：
 
 1. 如果是新建应用添加 HttpSecurity 配置, 通过下面的接口即可:
-    - [HttpSecurityAware](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/config/HttpSecurityAware.java)
+    - [HttpSecurityAware](https://gitee.com/pcore/UMS/blob/master/commons/src/main/java/top/dcenter/ums/security/common/api/config/HttpSecurityAware.java)
 2. 如果是已存在的应用：
     - 添加 HttpSecurity 配置, 通过下面的接口即可: `HttpSecurityAware`
     - 已有的 HttpSecurity 配置, 让原有的 HttpSecurity 配置实现此接口进行配置: `top.dcenter.security.core.api.config.HttpSecurityAware`
@@ -360,11 +364,11 @@ ums:
   mdc:
     type: UUID/THREAD_ID/SESSION_ID/CUSTOMIZE_ID
 ```
-当 ums.mdc.type = CUSTOMIZE_ID 时 需要实现接口 MdcIdGenerator[MdcIdGenerator](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/mdc/MdcIdGenerator.java) 并注入 IOC 容器.
+当 ums.mdc.type = CUSTOMIZE_ID 时 需要实现接口 MdcIdGenerator[MdcIdGenerator](https://gitee.com/pcore/UMS/blob/master/mdc/src/main/java/top/dcenter/ums/security/core/api/mdc/MdcIdGenerator.java) 并注入 IOC 容器.
 
 
 - 多线程使用问题: 父线程新建子线程之前调用 `MDC.getCopyOfContextMap()` 方法获取 `MDC context`, 子线程在执行操作前先调用 
-`MDC.setContextMap(context)` 方法将父线程的 `MDC context` 设置到子线程中. ThreadPoolTaskExecutor 的配置请参考 [ScheduleAutoConfiguration](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/oauth/config/ScheduleAutoConfiguration.java).
+`MDC.setContextMap(context)` 方法将父线程的 `MDC context` 设置到子线程中. ThreadPoolTaskExecutor 的配置请参考 [ScheduleAutoConfiguration](https://gitee.com/pcore/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/tasks/config/ScheduleAutoConfiguration.java).
 - 多线程传递 MDC context 简单示例:  
 ```java
 final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -380,3 +384,7 @@ new Thread(() -> {
     r.run();
 }, "testMDC").start();
 ```
+
+## 鸣谢
+##### 感谢 JetBrains 提供的免费开源 License：
+![JetBrains](doc/jetBrains.png)
