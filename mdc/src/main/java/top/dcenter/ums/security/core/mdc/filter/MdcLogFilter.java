@@ -85,7 +85,14 @@ public class MdcLogFilter extends OncePerRequestFilter {
         if (isEnableMdc(request)) {
             String token = getMdcId(this.idType, this.mdcIdGenerator);
             MDC.put(MDC_KEY, token);
-            filterChain.doFilter(request, response);
+            try {
+                filterChain.doFilter(request, response);
+            }
+            catch (Exception e) {
+                request.setAttribute(MDC_KEY, token);
+                MDC.clear();
+                throw e;
+            }
             MDC.clear();
             return;
         }
