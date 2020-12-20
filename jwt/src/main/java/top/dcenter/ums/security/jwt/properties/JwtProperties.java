@@ -33,6 +33,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.util.Assert;
 import org.springframework.util.StreamUtils;
+import top.dcenter.ums.security.jwt.api.endpoind.service.JwkEndpointPermissionService;
 import top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy;
 
 import java.io.IOException;
@@ -104,7 +105,8 @@ public class JwtProperties {
 
     // ================= JWS 与 JWK 相关 =================
     /**
-     * 是否曝露 jwk-set-uri, 默认: false
+     * 是否曝露 jwk-set-uri, 默认: false.
+     * 如果为 true, 需要实现 {@link JwkEndpointPermissionService} 权限服务接口
      */
     private Boolean exposeJwkSetUri = Boolean.FALSE;
 
