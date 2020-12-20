@@ -52,7 +52,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
-import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 
 /**
  * 客户端 url 认证与授权的路由控制.<br><br>
@@ -143,7 +142,7 @@ public class ClientSecurityController implements BaseSecurityController, Initial
             String ip = IpUtil.getRealIp(request);
             String msg = String.format("IllegalAccessUrlException: ip=%s, uri=%s, sid=%s, error=%s",
                                       ip,
-                                      getServletContextPath() + requestUri,
+                                      requestUri,
                                       request.getSession(true).getId(),
                                       e.getMessage());
             log.error(msg, e);

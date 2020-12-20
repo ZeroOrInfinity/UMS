@@ -41,12 +41,12 @@ import org.springframework.web.context.WebApplicationContext;
 import top.dcenter.ums.security.core.advice.SecurityControllerAdviceHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
-import top.dcenter.ums.security.core.auth.handler.DefaultLogoutSuccessHandler;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.auth.controller.ClientSecurityController;
 import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationSuccessHandler;
+import top.dcenter.ums.security.core.auth.handler.DefaultLogoutSuccessHandler;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
@@ -58,7 +58,6 @@ import java.util.Objects;
 
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SERVLET_CONTEXT_PATH_PARAM_NAME;
 import static top.dcenter.ums.security.core.util.MvcUtil.TOP_DOMAIN_PARAM_NAME;
-import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 
 /**
  * security 配置
@@ -107,9 +106,7 @@ public class SecurityAutoConfiguration implements InitializingBean {
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler")
     public BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler(Auth2Properties auth2Properties) {
-        return new ClientAuthenticationSuccessHandler(clientProperties,
-                                                      getServletContextPath() + auth2Properties.getRedirectUrlPrefix());
-    }
+        return new ClientAuthenticationSuccessHandler(clientProperties, auth2Properties.getRedirectUrlPrefix()); }
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler")

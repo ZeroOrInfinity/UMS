@@ -29,13 +29,12 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.web.context.request.ServletWebRequest;
+import top.dcenter.ums.security.common.utils.IpUtil;
 import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
-import top.dcenter.ums.security.common.utils.IpUtil;
-import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -94,7 +93,7 @@ public class ImageValidateCodeProcessor extends AbstractValidateCodeProcessor {
                                     e.getMessage(),
                                     IpUtil.getRealIp(req),
                                     request.getSessionId(),
-                                    MvcUtil.getServletContextPath() + req.getRequestURI(),
+                                    req.getRequestURI(),
                                     validateCode.toString()), e);
         }
         return false;

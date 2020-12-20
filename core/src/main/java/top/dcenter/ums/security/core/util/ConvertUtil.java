@@ -122,16 +122,6 @@ public class ConvertUtil {
     }
 
     /**
-     * List&#60;uri&#62; 转换为 Map&#60;uri, value&#62; 类型，map 的 v 的值统一为 参数 value, k=servletContextPath+uri
-     * @param list  {@link List}
-     * @param value map 的 value
-     * @param map 用于存储结果的 Map&#60;uri, value&#62;
-     */
-    public static <T> void list2MapWithServletContextPath(List<String> list, T value, Map<String, T> map){
-        list.forEach(s -> map.put(MvcUtil.getServletContextPath() + s, value));
-    }
-
-    /**
      * 字符转换为 Map 类型，比如：name=tom,age=18
      * 当 kvStrings 为空时，返回空的 map
      * @param kvStrings   字符串
