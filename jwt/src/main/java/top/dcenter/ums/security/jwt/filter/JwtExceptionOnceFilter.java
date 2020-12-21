@@ -22,6 +22,8 @@
  */
 package top.dcenter.ums.security.jwt.filter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
@@ -54,6 +56,8 @@ import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
  */
 public class JwtExceptionOnceFilter extends OncePerRequestFilter {
 
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
@@ -62,22 +66,26 @@ public class JwtExceptionOnceFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         }
         catch (JwkSetUriAccessDeniedException e) {
+            log.error(e.getMessage(), e);
             responseWithJson(response,
                              HttpStatus.NOT_FOUND.value(),
                              toJsonString(fail(e.getMessage(), e.getErrorCodeEnum(), e.getData())));
         }
         catch (JwtCreateException e) {
+            log.error(e.getMessage(), e);
             responseWithJson(response,
                              HttpStatus.INTERNAL_SERVER_ERROR.value(),
                              toJsonString(fail(e.getMessage(), e.getErrorCodeEnum(), e.getData())));
         }
         catch (InvalidBearerTokenException e) {
+            log.error(e.getMessage(), e);
             responseWithJson(response,
                              HttpStatus.UNAUTHORIZED.value(),
                              toJsonString(fail(JWT_INVALID.getMsg(), JWT_INVALID, getMdcTraceId())));
         }
         catch (JwtInvalidException | JwtExpiredException | DuplicateRefreshTokenException
                 | RefreshTokenInvalidException | RefreshTokenNotFoundException | MismatchRefreshJwtPolicyException e) {
+            log.error(e.getMessage(), e);
             responseWithJson(response,
                              HttpStatus.UNAUTHORIZED.value(),
                              toJsonString(fail(e.getMessage(), e.getErrorCodeEnum(), e.getData())));
