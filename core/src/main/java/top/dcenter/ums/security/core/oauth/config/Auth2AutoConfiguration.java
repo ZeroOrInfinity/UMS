@@ -36,22 +36,23 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.util.StringUtils;
+import top.dcenter.ums.security.core.api.oauth.job.RefreshTokenJob;
+import top.dcenter.ums.security.core.api.oauth.repository.factory.UsersConnectionRepositoryFactory;
+import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
+import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository;
+import top.dcenter.ums.security.core.api.oauth.service.Auth2UserService;
+import top.dcenter.ums.security.core.api.oauth.signup.ConnectionService;
 import top.dcenter.ums.security.core.api.oauth.state.service.Auth2StateCoder;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.api.oauth.job.RefreshTokenJob;
 import top.dcenter.ums.security.core.oauth.job.RefreshTokenJobImpl;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.properties.RepositoryProperties;
-import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
-import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository;
 import top.dcenter.ums.security.core.oauth.repository.factory.Auth2JdbcUsersConnectionRepositoryFactory;
-import top.dcenter.ums.security.core.api.oauth.repository.factory.UsersConnectionRepositoryFactory;
 import top.dcenter.ums.security.core.oauth.repository.jdbc.Auth2JdbcUsersConnectionTokenRepository;
-import top.dcenter.ums.security.core.api.oauth.service.Auth2UserService;
 import top.dcenter.ums.security.core.oauth.service.DefaultAuth2UserServiceImpl;
-import top.dcenter.ums.security.core.api.oauth.signup.ConnectionService;
 import top.dcenter.ums.security.core.oauth.signup.DefaultConnectionServiceImpl;
+import top.dcenter.ums.security.core.tasks.handler.RefreshAccessTokenJobHandler;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -85,6 +86,12 @@ public class Auth2AutoConfiguration implements InitializingBean {
         this.repositoryProperties = repositoryProperties;
         this.auth2Properties = auth2Properties;
         this.dataSource = dataSource;
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-refresh-token-job", havingValue = "true")
+    public RefreshAccessTokenJobHandler refreshAccessTokenJobHandler(Auth2Properties properties) {
+        return new RefreshAccessTokenJobHandler(properties.getRefreshTokenJobCron());
     }
 
     @Bean

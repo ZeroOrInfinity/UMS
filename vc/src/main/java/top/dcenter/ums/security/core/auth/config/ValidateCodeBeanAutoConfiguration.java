@@ -27,11 +27,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import top.dcenter.ums.security.core.advice.ValidateCodeControllerAdviceHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessorHolder;
@@ -50,6 +52,7 @@ import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderValidateCo
 import top.dcenter.ums.security.core.auth.validate.codes.sms.DefaultSmsCodeSender;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsCodeGenerator;
 import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProcessor;
+import top.dcenter.ums.security.core.tasks.handler.RefreshValidateCodeCacheJobHandler;
 
 /**
  * 验证码功能配置
@@ -58,9 +61,21 @@ import top.dcenter.ums.security.core.auth.validate.codes.sms.SmsValidateCodeProc
  * @version V1.0  Created by 2020/5/5 0:02
  */
 @Configuration
-@AutoConfigureAfter({SecurityAutoConfiguration.class})
+@AutoConfigureAfter({VcPropertiesAutoconfiguration.class})
 @Slf4j
 public class ValidateCodeBeanAutoConfiguration {
+
+    @Bean
+    @ConditionalOnProperty(prefix = "ums.codes", name = "enable-refresh-validate-code-job", havingValue = "true")
+    public RefreshValidateCodeCacheJobHandler refreshValidateCodeJobHandler(ValidateCodeProperties properties) {
+        return new RefreshValidateCodeCacheJobHandler(properties.getRefreshValidateCodeJobCron());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.advice.ValidateCodeControllerAdviceHandler")
+    public ValidateCodeControllerAdviceHandler validateCodeControllerAdviceHandler() {
+        return new ValidateCodeControllerAdviceHandler();
+    }
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.validate.codes.image.ImageCodeGenerator")

@@ -24,34 +24,38 @@ package top.dcenter.ums.security.core.tasks.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import top.dcenter.ums.security.common.api.tasks.handler.JobHandler;
-import top.dcenter.ums.security.core.api.oauth.job.RefreshTokenJob;
+import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeCacheJob;
 
 import java.util.Collection;
 import java.util.Map;
 
 /**
- * 刷新第三方授权登录的 accessToken 有效期的定时任务处理器
+ * 刷新验证码缓存的的定时任务默认实现: 刷新图片验证码与滑块验证码缓存
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/2 10:28
  */
-public class RefreshAccessTokenJobHandler implements JobHandler {
+public class RefreshValidateCodeCacheJobHandler implements JobHandler {
 
+    /**
+     * 定时任务表达式
+     */
     private final String cronExp;
-    @Autowired
-    private Map<String, RefreshTokenJob> refreshTokenJobMap;
 
-    public RefreshAccessTokenJobHandler(String cronExp) {
+    @Autowired
+    private Map<String, RefreshValidateCodeCacheJob> refreshValidateCodeJobMap;
+
+    public RefreshValidateCodeCacheJobHandler(String cronExp) {
         this.cronExp = cronExp;
     }
 
     @Override
     public void run() {
-        if (this.refreshTokenJobMap == null) {
+        if (this.refreshValidateCodeJobMap == null) {
             return;
         }
-        Collection<RefreshTokenJob> validateCodeJobs = this.refreshTokenJobMap.values();
-        // 刷新 accessToken
-        validateCodeJobs.forEach(RefreshTokenJob::refreshTokenJob);
+        Collection<RefreshValidateCodeCacheJob> validateCodeJobs = this.refreshValidateCodeJobMap.values();
+        // 刷新验证码缓存
+        validateCodeJobs.forEach(RefreshValidateCodeCacheJob::refreshValidateCodeJob);
     }
 
     @Override

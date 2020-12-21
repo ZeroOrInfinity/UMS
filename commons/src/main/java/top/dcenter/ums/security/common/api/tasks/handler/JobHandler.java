@@ -20,32 +20,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package top.dcenter.ums.security.core.tasks.handler;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeCacheJob;
-
-import java.util.Collection;
-import java.util.Map;
+package top.dcenter.ums.security.common.api.tasks.handler;
 
 /**
- * 刷新验证码缓存的的定时任务默认实现: 刷新图片验证码与滑块验证码缓存
+ * 任务处理器接口, 继承此接口并注入 IOC 容器, {@code top.dcenter.ums.security.core.tasks.config.ScheduleAutoConfiguration}
+ * 会自动注册到任务注册器中.
  * @author YongWu zheng
- * @version V2.0  Created by 2020/11/2 10:28
+ * @version V2.0  Created by 2020.12.21 17:07
  */
-public class RefreshValidateCodeCacheJobHandler {
+public interface JobHandler {
 
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private Map<String, RefreshValidateCodeCacheJob> refreshValidateCodeJobMap;
+    /**
+     * 根据 {@link #cronExp()} 运行定时任务
+     */
+    void run();
 
-    public void refreshValidateCodeJob() {
-        if (this.refreshValidateCodeJobMap == null) {
-            return;
-        }
-        Collection<RefreshValidateCodeCacheJob> validateCodeJobs = this.refreshValidateCodeJobMap.values();
-        // 刷新验证码缓存
-        validateCodeJobs.forEach(RefreshValidateCodeCacheJob::refreshValidateCodeJob);
-    }
-
+    /**
+     * A cron-like expression.
+     * <pre>
+     * 0 * 2 * * ? 分别对应: second/minute/hour/day of month/month/day of week
+     * </pre>
+     * 默认为: "0 * 2 * * ?", 凌晨 2 点启动定时任务, 支持分布式(分布式 IOC 容器中必须有 {@code RedisConnectionFactory}, 也就是说,
+     * 是否分布式执行依据 IOC 容器中是否有 {@code RedisConnectionFactory})
+     * @see org.springframework.scheduling.support.CronSequenceGenerator
+     * @return  返回 cron 表达式
+     */
+    String cronExp();
 }

@@ -24,22 +24,16 @@ package top.dcenter.ums.security.core.tasks.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
-import top.dcenter.ums.security.core.api.mdc.MdcIdGenerator;
-import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
-import top.dcenter.ums.security.core.mdc.MdcIdType;
-import top.dcenter.ums.security.core.mdc.properties.MdcProperties;
-import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
-import top.dcenter.ums.security.core.tasks.handler.RefreshAccessTokenJobHandler;
-import top.dcenter.ums.security.core.tasks.handler.RefreshValidateCodeCacheJobHandler;
+import top.dcenter.ums.security.common.api.tasks.handler.JobHandler;
 
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.decorateTasks;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * 简单的任务定时任务调度配置
@@ -47,50 +41,31 @@ import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.decorateTasks;
  * @version V2.0  Created by 2020.11.25 14:01
  */
 @Configuration
-@AutoConfigureAfter({TasksAutoConfiguration.class})
 @EnableScheduling
 public class ScheduleAutoConfiguration implements SchedulingConfigurer {
 
     private final ScheduledExecutorService jobTaskScheduledExecutor;
-    private final Auth2Properties auth2Properties;
-    private final ValidateCodeProperties validateCodeProperties;
-    private final RefreshValidateCodeCacheJobHandler refreshValidateCodeCacheJobHandler;
-    private final RefreshAccessTokenJobHandler refreshAccessTokenJobHandler;
 
-    private final MdcIdType mdcIdType;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
-    private MdcIdGenerator mdcIdGenerator;
+    private Map<String, JobHandler> jobHandlerMap;
 
-    public ScheduleAutoConfiguration(@Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor,
-                                     Auth2Properties auth2Properties,
-                                     ValidateCodeProperties validateCodeProperties,
-                                     MdcProperties mdcProperties,
-                                     @Autowired(required = false) RefreshValidateCodeCacheJobHandler refreshValidateCodeCacheJobHandler,
-                                     @Autowired(required = false) RefreshAccessTokenJobHandler refreshAccessTokenJobHandler) {
+    public ScheduleAutoConfiguration(@Qualifier("jobTaskScheduledExecutor") ScheduledExecutorService jobTaskScheduledExecutor) {
         this.jobTaskScheduledExecutor = jobTaskScheduledExecutor;
-        this.auth2Properties = auth2Properties;
-        this.validateCodeProperties = validateCodeProperties;
-        this.refreshValidateCodeCacheJobHandler = refreshValidateCodeCacheJobHandler;
-        this.refreshAccessTokenJobHandler = refreshAccessTokenJobHandler;
-        this.mdcIdType = mdcProperties.getType();
     }
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
         taskRegistrar.setScheduler(this.jobTaskScheduledExecutor);
-        if (this.refreshAccessTokenJobHandler != null) {
-            // 刷新 AccessToken 定时任务
-            taskRegistrar.addCronTask(decorateTasks(this.refreshAccessTokenJobHandler::refreshAccessTokenJob,
-                                                    this.mdcIdType, this.mdcIdGenerator),
-                                      auth2Properties.getRefreshTokenJobCron());
+
+        if (isEmpty(this.jobHandlerMap)) {
+        	return;
         }
-        if (this.refreshValidateCodeCacheJobHandler != null) {
-            // 刷新 验证码缓存 定时任务
-            taskRegistrar.addCronTask(decorateTasks(this.refreshValidateCodeCacheJobHandler::refreshValidateCodeJob,
-                                                    this.mdcIdType, this.mdcIdGenerator),
-                                      validateCodeProperties.getRefreshValidateCodeJobCron());
-        }
+
+        // 添加定时任务
+        this.jobHandlerMap.values()
+                .forEach(jobHandler -> taskRegistrar.addCronTask(jobHandler::run,
+                                                                 jobHandler.cronExp()));
     }
 }
 
