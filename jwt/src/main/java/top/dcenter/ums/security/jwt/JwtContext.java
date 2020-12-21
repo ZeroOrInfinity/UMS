@@ -144,11 +144,11 @@ public final class JwtContext {
     private volatile static Duration clockSkew = Duration.ofSeconds(0);
 
     /**
-     * JWT  刷新处理策略, 默认: {@link JwtRefreshHandlerPolicy#REJECT}
+     * JWT  刷新处理策略.
      * 如果支持 JWT 功能, 通过 {@code top.dcenter.ums.security.jwt.config.JwtAutoConfiguration#afterPropertiesSet()}
      * 方法注入.
      */
-    private volatile static JwtRefreshHandlerPolicy refreshHandlerPolicy = JwtRefreshHandlerPolicy.REJECT;
+    private volatile static JwtRefreshHandlerPolicy refreshHandlerPolicy = null;
     /**
      * JWT 的 BearerToken 属性
      * 如果支持 JWT 功能, 通过 {@code top.dcenter.ums.security.jwt.config.JwtAutoConfiguration#afterPropertiesSet()}
@@ -409,6 +409,9 @@ public final class JwtContext {
     public static String getRefreshTokenOrBearerToken(@NonNull HttpServletRequest request,
                                                       @NonNull String parameterName,
                                                       @NonNull String headerName) {
+        if (isNull(bearerToken)) {
+        	return null;
+        }
 
         String token;
         Boolean allowFormEncodedBodyParameter = bearerToken.getAllowFormEncodedBodyParameter();
@@ -449,6 +452,9 @@ public final class JwtContext {
      */
     @NonNull
     public static Boolean isRefreshJwtByRefreshToken() {
+        if (isNull(refreshHandlerPolicy)) {
+        	return FALSE;
+        }
         return REFRESH_TOKEN.equals(refreshHandlerPolicy);
     }
 
@@ -461,6 +467,11 @@ public final class JwtContext {
      */
     @Nullable
     public static String getJwtStringIfAllowBodyParameter(@NonNull Authentication authentication) {
+
+        if (isNull(bearerToken)) {
+        	return null;
+        }
+
         Boolean allowFormEncodedBodyParameter = bearerToken.getAllowFormEncodedBodyParameter();
         if ((authentication instanceof AbstractOAuth2TokenAuthenticationToken) && allowFormEncodedBodyParameter)
         {
