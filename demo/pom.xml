@@ -5,16 +5,29 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>2.2.0</version>
+        <version>2.2.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ums-demo</artifactId>
-    <version>2.1.5</version>
+    <version>2.1.6</version>
     <packaging>pom</packaging>
 
     <name>ums-demo</name>
     <description>用户管理脚手架(ums) ums-demo: 详细的 example 请查看各个子模块</description>
+
+    <!--<modules>
+        <module>validate-code-example</module>
+        <module>tenant-example</module>
+        <module>session-detail-example</module>
+        <module>quickStart</module>
+        <module>permission-example</module>
+        <module>jwt-example</module>
+        <module>justAuth-security-oauth2-example</module>
+        <module>demo</module>
+        <module>basic-detail-example</module>
+        <module>basic-example</module>
+    </modules>-->
 
 
     <url>https://github.com/ZeroOrInfinity/UMS/tree/master/demo</url>

@@ -5,11 +5,12 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>2.2.0</version>
+        <version>2.2.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ums-core-spring-boot-starter</artifactId>
+    <version>${ums.core.version}</version>
     <packaging>jar</packaging>
 
     <name>ums-core-spring-boot-starter</name>
@@ -54,25 +55,31 @@
         <dependency>
             <groupId>top.dcenter</groupId>
             <artifactId>ums-commons</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${ums.commons.version}</version>
         </dependency>
 
         <dependency>
             <groupId>top.dcenter</groupId>
             <artifactId>ums-jwt</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${ums.jwt.version}</version>
         </dependency>
 
         <dependency>
             <groupId>top.dcenter</groupId>
             <artifactId>ums-rbac</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${ums.rbac.version}</version>
         </dependency>
 
         <dependency>
             <groupId>top.dcenter</groupId>
             <artifactId>ums-mdc</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${ums.mdc.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>top.dcenter</groupId>
+            <artifactId>ums-vc</artifactId>
+            <version>${ums.vc.version}</version>
         </dependency>
 
         <dependency>

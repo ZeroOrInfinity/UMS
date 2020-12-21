@@ -6,7 +6,7 @@
 
     <groupId>top.dcenter</groupId>
     <artifactId>ums</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
 
     <packaging>pom</packaging>
     <name>ums</name>
@@ -14,6 +14,16 @@
         User management scaffolding integration: validate code, mobile login, OAuth2, RBAC-based uri
         access control function, support multi-tenancy, jwt, and sign etc...
     </description>
+
+<!--    <modules>-->
+<!--        <module>commons</module>-->
+<!--        <module>vc</module>-->
+<!--        <module>mdc</module>-->
+<!--        <module>rbac</module>-->
+<!--        <module>jwt</module>-->
+<!--        <module>core</module>-->
+<!--&lt;!&ndash;        <module>oauth</module>&ndash;&gt;-->
+<!--    </modules>-->
 
     <url>https://github.com/ZeroOrInfinity/UMS</url>
 
@@ -63,6 +73,14 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <java.version>1.8</java.version>
+
+        <ums.commons.version>2.2.1</ums.commons.version>
+        <ums.core.version>2.2.1</ums.core.version>
+        <ums.rbac.version>2.2.1</ums.rbac.version>
+        <ums.oauth.version>2.2.1</ums.oauth.version>
+        <ums.jwt.version>2.2.1</ums.jwt.version>
+        <ums.vc.version>2.2.1</ums.vc.version>
+        <ums.mdc.version>2.2.1</ums.mdc.version>
 
         <spring-session.version>2.3.1.RELEASE</spring-session.version>
         <spring-session-data-mongodb.version>2.3.0.RELEASE</spring-session-data-mongodb.version>
