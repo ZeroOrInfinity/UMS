@@ -38,6 +38,6 @@ public class UmsReAuthServiceImpl implements ReAuthService {
         // 业务逻辑
         // ...
 
-        return true;
+        return Boolean.FALSE;
     }
 }
