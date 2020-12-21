@@ -27,7 +27,10 @@ package top.dcenter.ums.security.common.consts;
  * @author YongWu zheng
  * @version V2.0  Created by 2020.12.17 15:51
  */
-public class TenantConstants {
+public final class TenantConstants {
+
+    private TenantConstants() { }
+
     /**
      * 多租户权限前缀
      */

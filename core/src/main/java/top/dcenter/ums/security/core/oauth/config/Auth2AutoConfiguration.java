@@ -148,9 +148,10 @@ public class Auth2AutoConfiguration implements InitializingBean {
 
     @Bean
     public Auth2RequestHolder auth2RequestHolder() {
-        return new Auth2RequestHolder();
+        return Auth2RequestHolder.getInstance();
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING", "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING", "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING", "ODR_OPEN_DATABASE_RESOURCE", "ODR_OPEN_DATABASE_RESOURCE"})
     @SuppressWarnings("AlibabaMethodTooLong")
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -201,6 +202,7 @@ public class Auth2AutoConfiguration implements InitializingBean {
                 String queryAuthTokenTableExistSql = "SELECT COUNT(1) FROM information_schema.tables WHERE " +
                         "table_schema='" + database + "' AND table_name = '" + authTokenTable + "'";
 
+                //noinspection TryStatementWithMultipleResources,TryStatementWithMultipleResources
                 try (final PreparedStatement preparedStatement2 = connection.prepareStatement(queryAuthTokenTableExistSql);
                      ResultSet resultSet = preparedStatement2.executeQuery())
                 {

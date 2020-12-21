@@ -47,7 +47,9 @@ import java.util.Map;
  * @author YongWu zheng
  * @version V2.0  Created by 2020.12.16 11:41
  */
-public class ReflectionUtil {
+public final class ReflectionUtil {
+
+    private ReflectionUtil() { }
 
     private static final Logger log = LoggerFactory.getLogger(ReflectionUtil.class);
     /**

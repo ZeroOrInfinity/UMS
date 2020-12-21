@@ -9,7 +9,9 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author yadong.zhang (yadong.zhang0415(a)gmail.com)
  * @since 1.9.3
  */
-public class UuidUtils {
+public final class UuidUtils {
+
+    private UuidUtils() { }
 
     /**
      * All possible chars for representing a number as a String
@@ -37,6 +39,7 @@ public class UuidUtils {
      *
      * @return UUID
      */
+    @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
     public static String getUUID() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         long lsb = random.nextLong();

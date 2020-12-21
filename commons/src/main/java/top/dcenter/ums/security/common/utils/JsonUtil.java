@@ -50,7 +50,9 @@ import static top.dcenter.ums.security.common.consts.SecurityConstants.HEADER_AC
  * @author YongWu zheng
  * @version V2.0  Created by 2020.12.6 18:03
  */
-public class JsonUtil {
+public final class JsonUtil {
+
+    private JsonUtil() { }
 
     private static final Logger log = LoggerFactory.getLogger(JsonUtil.class);
 

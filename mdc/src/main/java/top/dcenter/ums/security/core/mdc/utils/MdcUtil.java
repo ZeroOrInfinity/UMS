@@ -36,7 +36,9 @@ import static top.dcenter.ums.security.core.mdc.filter.MdcLogFilter.MDC_KEY;
  * @author YongWu zheng
  * @version V2.0  Created by 2020.11.27 20:53
  */
-public class MdcUtil {
+public final class MdcUtil {
+
+    private MdcUtil() {}
 
     /**
      * 获取当前线程的 MDC 日志链路追踪 ID.

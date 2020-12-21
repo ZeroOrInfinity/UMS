@@ -50,7 +50,9 @@ import static java.net.URLDecoder.decode;
  * @version V1.0  Created by 2020/5/6 13:59
  */
 @SuppressWarnings("unused")
-public class ConvertUtil {
+public final class ConvertUtil {
+
+    private ConvertUtil() {}
 
     /**
      * 特殊字符正则，sql特殊字符和空白符

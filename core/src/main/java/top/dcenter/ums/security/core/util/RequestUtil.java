@@ -38,7 +38,9 @@ import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
  * @author YongWu zheng
  * @version V1.0  Created by 2020/5/30 16:19
  */
-public class RequestUtil {
+public final class RequestUtil {
+
+    private RequestUtil() { }
 
     /**
      * 从完整 url 中获取 requestUri

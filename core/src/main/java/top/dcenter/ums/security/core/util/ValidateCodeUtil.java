@@ -45,7 +45,9 @@ import java.util.concurrent.ThreadLocalRandom;
  * @version V1.0  Created by 2020/5/4 9:25
  */
 @Slf4j
-public class ValidateCodeUtil {
+public final class ValidateCodeUtil {
+
+    private ValidateCodeUtil() { }
 
     private final static byte[] DIGITS = {
             '0', '1', '2', '3', '4', '5',

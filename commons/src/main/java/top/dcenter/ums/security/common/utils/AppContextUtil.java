@@ -34,7 +34,10 @@ import org.springframework.security.context.DelegatingApplicationListener;
  * @author YongWu zheng
  * @version V2.0  Created by 2020.12.17 15:24
  */
-public class AppContextUtil {
+public final class AppContextUtil {
+
+    private AppContextUtil() { }
+
     /**
      * 注册 {@link ApplicationListener} 到 {@link DelegatingApplicationListener}
      * @param applicationContext  {@link ApplicationContext}

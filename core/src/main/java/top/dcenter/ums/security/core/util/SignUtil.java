@@ -31,7 +31,9 @@ import java.time.format.DateTimeFormatter;
  * @author YongWu zheng
  * @version V1.0  Created by 2020/9/14 18:52
  */
-public class SignUtil {
+public final class SignUtil {
+
+    private SignUtil() { }
 
     /**
      * 格式化日期到 yyyyMM 模式

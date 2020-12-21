@@ -48,6 +48,8 @@ import static top.dcenter.ums.security.common.consts.RegexConstants.URL_SCHEME_R
 @Slf4j
 public final class MvcUtil {
 
+    private MvcUtil() { }
+
     public static final String TOP_DOMAIN_PARAM_NAME = "topDomain";
 
     public static final String IP6_SEPARATOR = ":";

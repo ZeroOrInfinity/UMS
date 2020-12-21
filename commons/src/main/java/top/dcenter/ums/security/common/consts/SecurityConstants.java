@@ -30,7 +30,9 @@ package top.dcenter.ums.security.common.consts;
  * @version V1.0  Created by 2020/5/6 21:29
  */
 @SuppressWarnings("unused")
-public class SecurityConstants {
+public final class SecurityConstants {
+
+    private SecurityConstants() { }
 
     // =================== ControllerAdvice 相关 ===================
     /**

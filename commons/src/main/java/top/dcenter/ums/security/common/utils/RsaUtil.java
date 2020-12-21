@@ -38,7 +38,9 @@ import java.util.Base64;
  * @author YongWu zheng
  * @version V2.0  Created by 2020.12.6 18:22
  */
-public class RsaUtil {
+public final class RsaUtil {
+
+    private RsaUtil() { }
 
     public static final String KEY_ALGORITHM = "RSA";
     public static final String SIGNATURE_ALGORITHM = "MD5withRSA";

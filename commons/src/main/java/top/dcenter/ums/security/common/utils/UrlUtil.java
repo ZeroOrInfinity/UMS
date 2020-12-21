@@ -29,7 +29,10 @@ import org.springframework.web.util.UrlPathHelper;
  * @author YongWu zheng
  * @version V2.0  Created by 2020.12.17 14:12
  */
-public class UrlUtil {
+public final class UrlUtil {
+
+    private UrlUtil() { }
+
     /**
      * {@link UrlPathHelper}
      */

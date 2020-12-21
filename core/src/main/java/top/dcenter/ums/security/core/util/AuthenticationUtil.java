@@ -69,7 +69,9 @@ import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
  * @author YongWu zheng
  * @version V1.0  Created by 2020/6/1 22:39
  */
-public class AuthenticationUtil {
+public final class AuthenticationUtil {
+
+    private AuthenticationUtil() { }
 
     /**
      * 在提取 User-Agent 时, 需要被移除掉的字符的正则表达式

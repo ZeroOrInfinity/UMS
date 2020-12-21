@@ -36,7 +36,9 @@ import java.net.UnknownHostException;
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/1 17:49
  */
-public class IpUtil {
+public final class IpUtil {
+
+    private IpUtil() { }
 
     private static final Logger log = LoggerFactory.getLogger(IpUtil.class);
 

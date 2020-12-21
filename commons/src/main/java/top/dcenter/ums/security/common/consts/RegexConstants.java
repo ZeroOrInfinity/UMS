@@ -29,7 +29,10 @@ package top.dcenter.ums.security.common.consts;
  * @author  YongWu zheng
  * @version V1.0  Created by 2020/5/6 13:41
  */
-public class RegexConstants {
+public final class RegexConstants {
+
+    private RegexConstants() { }
+
     /**
      * 手机号正则表达式
      */
