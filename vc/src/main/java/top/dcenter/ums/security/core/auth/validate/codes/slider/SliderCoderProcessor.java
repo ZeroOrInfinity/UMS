@@ -39,7 +39,6 @@ import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGeneratorHold
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
-import top.dcenter.ums.security.core.util.ValidateCodeUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,6 +47,7 @@ import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_FAILURE;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EMPTY;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EXISTS_IN_CACHE;
+import static top.dcenter.ums.security.common.utils.UuidUtils.getUUID;
 
 /**
  * 滑块验证码处理器, 自定义处理器请继承此类且注入 IOC 容器即可
@@ -170,7 +170,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         // 更新 session 中的验证码信息, 以便于第二次校验
         sliderCodeInSession.setSecondCheck(true);
         // 方便二次校验时, 调用 ValidateCodeGenerator.defaultValidate 方法.
-        sliderCodeInSession.setCode(ValidateCodeUtil.getUuid());
+        sliderCodeInSession.setCode(getUUID());
         // 这里第一次校验通过, 第二次校验不需要使用复用功能, 不然第二次校验时不会清除 session 中的验证码缓存
         sliderCodeInSession.setReuse(false);
 

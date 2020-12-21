@@ -1,0 +1,5 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  top.dcenter.ums.security.core.auth.config.VcPropertiesAutoconfiguration,\
+  top.dcenter.ums.security.core.auth.config.ValidateCodeBeanAutoConfiguration,\
+  top.dcenter.ums.security.core.auth.config.ValidateCodeAutoConfigurerAware

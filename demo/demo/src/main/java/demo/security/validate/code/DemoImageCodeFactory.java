@@ -23,6 +23,7 @@
 
 package demo.security.validate.code;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -49,13 +50,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static top.dcenter.ums.security.common.utils.UuidUtils.getUUID;
 import static top.dcenter.ums.security.core.auth.validate.codes.image.ImageUtil.IMAGE_TYPE;
 import static top.dcenter.ums.security.core.util.ValidateCodeUtil.PATH_SEPARATOR;
 import static top.dcenter.ums.security.core.util.ValidateCodeUtil.generateVerifyCode;
 import static top.dcenter.ums.security.core.util.ValidateCodeUtil.getAbsPath;
 import static top.dcenter.ums.security.core.util.ValidateCodeUtil.getFileName;
 import static top.dcenter.ums.security.core.util.ValidateCodeUtil.getImageAbsPath;
-import static top.dcenter.ums.security.core.util.ValidateCodeUtil.getUuid;
 import static top.dcenter.ums.security.core.util.ValidateCodeUtil.readFiles2CacheImageCodes;
 
 /**
@@ -130,7 +131,7 @@ public class DemoImageCodeFactory implements ImageCodeFactory {
         int width = imageProp.getWidth();
         int height = imageProp.getHeight();
         String code = generateVerifyCode(codeLength);
-        String imageFileName = code + IMAGE_NAME_DELIMITER + getUuid() + "." + IMAGE_TYPE;
+        String imageFileName = code + IMAGE_NAME_DELIMITER + getUUID() + "." + IMAGE_TYPE;
         final String imageAbsPath = getAbsPath(imageProp.getImageCacheDirectory()) + PATH_SEPARATOR + imageFileName;
 
         // 创建图片验证码并生成图片文件
@@ -187,6 +188,7 @@ public class DemoImageCodeFactory implements ImageCodeFactory {
 
     }
 
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     @SuppressWarnings("ConstantConditions")
     @Override
     public void refreshValidateCodeJob() {
@@ -213,7 +215,7 @@ public class DemoImageCodeFactory implements ImageCodeFactory {
 
         for (int y = 0; y < totalImages; y++) {
             final String code = generateVerifyCode(imageCodeLength);
-            String imageFileName = code + IMAGE_NAME_DELIMITER + getUuid() + "." + IMAGE_TYPE;
+            String imageFileName = code + IMAGE_NAME_DELIMITER + getUUID() + "." + IMAGE_TYPE;
             final String imageAbsPath = getAbsPath(image.getImageCacheDirectory()) + PATH_SEPARATOR + imageFileName;
             newImageCodePaths[y] = imageAbsPath;
 

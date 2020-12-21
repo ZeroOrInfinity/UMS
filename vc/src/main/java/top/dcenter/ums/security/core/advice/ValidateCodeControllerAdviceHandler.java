@@ -21,64 +21,61 @@
  * SOFTWARE.
  */
 
-package demo.security.advice;
+package top.dcenter.ums.security.core.advice;
 
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import top.dcenter.ums.security.common.vo.ResponseResult;
-import top.dcenter.ums.security.core.advice.SecurityControllerAdviceHandler;
-import top.dcenter.ums.security.core.exception.ExpiredSessionDetectedException;
-import top.dcenter.ums.security.core.exception.IllegalAccessUrlException;
-import top.dcenter.ums.security.core.exception.ParameterErrorException;
-import top.dcenter.ums.security.core.exception.UserNotExistException;
+import top.dcenter.ums.security.core.exception.SmsCodeRepeatedRequestException;
+import top.dcenter.ums.security.core.exception.ValidateCodeException;
+import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
+import top.dcenter.ums.security.core.exception.ValidateCodeProcessException;
+
+import static top.dcenter.ums.security.common.consts.SecurityConstants.CONTROLLER_ADVICE_ORDER_DEFAULT_VALUE;
 
 /**
- * controller 异常处理器
+ * 验证码错误处理器,如需自定义，继承此类并注入 IOC 容器即可
  * @author zhailiang
  * @author  YongWu zheng
  * @version V1.0  Created by 2020/5/2 15:35
  */
+@Order(CONTROLLER_ADVICE_ORDER_DEFAULT_VALUE - 2)
 @ControllerAdvice
-@Slf4j
-public class ControllerAdviceHandler extends SecurityControllerAdviceHandler {
+public class ValidateCodeControllerAdviceHandler {
 
-    @ExceptionHandler(UserNotExistException.class)
+    @ExceptionHandler(SmsCodeRepeatedRequestException.class)
     @ResponseBody
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseResult userNotException(UserNotExistException ex) {
-        String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getUid());
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    public ResponseResult smsCodeRepeatedRequestException(SmsCodeRepeatedRequestException ex) {
+        return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), ex.getData());
     }
 
-    @Override
-    @ExceptionHandler(ParameterErrorException.class)
+    @ExceptionHandler(ValidateCodeParamErrorException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseResult parameterErrorException(ParameterErrorException ex) {
+    public ResponseResult validateCodeParamErrorException(ValidateCodeParamErrorException ex) {
         String message = ex.getMessage();
         return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
 
-    @Override
-    @ExceptionHandler(IllegalAccessUrlException.class)
+    @ExceptionHandler(ValidateCodeProcessException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseResult illegalAccessUrlException(IllegalAccessUrlException ex) {
-        String errorMsg = ex.getMessage();
-        return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum());
+    public ResponseResult validateCodeProcessException(ValidateCodeProcessException ex) {
+        String message = ex.getMessage();
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
 
-    @Override
-    @ExceptionHandler(ExpiredSessionDetectedException.class)
+    @ExceptionHandler(ValidateCodeException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseResult expiredSessionDetectedException(ExpiredSessionDetectedException ex) {
-        String errorMsg = ex.getMessage();
-        return ResponseResult.fail(errorMsg, ex.getErrorCodeEnum());
+    public ResponseResult validateCodeException(ValidateCodeException ex) {
+        String message = ex.getMessage();
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
 
 }

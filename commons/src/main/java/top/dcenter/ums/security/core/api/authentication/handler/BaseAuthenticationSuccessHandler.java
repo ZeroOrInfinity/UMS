@@ -23,13 +23,31 @@
 
 package top.dcenter.ums.security.core.api.authentication.handler;
 
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationFailureHandler;
+import org.springframework.lang.NonNull;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * 认证失败处理器, 继承此类后，再向 IOC 容器注册自己来实现自定义功能。默认为 {@link ClientAuthenticationFailureHandler}
+ * 认证成功处理器, 继承此类后，再向 IOC 容器注册自己来实现自定义功能。默认为 {@code ClientAuthenticationSuccessHandler}
  * @author YongWu zheng
  * @version V1.0  Created by 2020/5/29 12:32
  */
-public abstract class BaseAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
+public abstract class BaseAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings("UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD")
+    protected boolean useReferer = false;
+    /**
+     * 使用 userReferer 时, 如果 referer 是属于 ignoreUrls, 则跳转到 defaultTargetUrl
+     */
+    protected Set<String> ignoreUrls = new HashSet<>();
+
+    /**
+     * 添加 ignoreUrl
+     * @param ignoreUrl  ignoreUrl
+     */
+    public void addIgnoreUrl(@NonNull String ignoreUrl) {
+        ignoreUrls.add(ignoreUrl);
+    }
 }

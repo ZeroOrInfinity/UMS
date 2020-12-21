@@ -54,6 +54,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import static top.dcenter.ums.security.common.utils.UuidUtils.getUUID;
 import static top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCodeUtil.cutImageByTemplate;
 import static top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCodeUtil.getImageByteBASE64;
 import static top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCodeUtil.getRandomImageFile;
@@ -61,7 +62,6 @@ import static top.dcenter.ums.security.core.util.ValidateCodeUtil.PATH_SEPARATOR
 import static top.dcenter.ums.security.core.util.ValidateCodeUtil.getAbsPath;
 import static top.dcenter.ums.security.core.util.ValidateCodeUtil.getFileName;
 import static top.dcenter.ums.security.core.util.ValidateCodeUtil.getImageAbsPath;
-import static top.dcenter.ums.security.core.util.ValidateCodeUtil.getUuid;
 import static top.dcenter.ums.security.core.util.ValidateCodeUtil.readFiles2CacheImageCodes;
 
 /**
@@ -459,7 +459,7 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
                 .append(IMAGE_NAME_DELIMITER)
                 .append(srcImage.getHeight())
                 .append(IMAGE_NAME_DELIMITER)
-                .append(getUuid());
+                .append(getUUID());
 
         return new SliderCodeInfo(srcImage, markImage, fileName);
 

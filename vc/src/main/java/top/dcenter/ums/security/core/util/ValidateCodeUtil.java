@@ -24,7 +24,6 @@
 package top.dcenter.ums.security.core.util;
 
 import lombok.extern.slf4j.Slf4j;
-import me.zhyd.oauth.utils.UuidUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
@@ -204,15 +203,6 @@ public final class ValidateCodeUtil {
         throw new RuntimeException("找不到图片源, 图片源路径: " + imageDirectory);
 
     }
-
-    /**
-     * 不带 - 的 uuid
-     * @return  不带 - 的 uuid 字符串
-     */
-    public static String getUuid() {
-        return UuidUtils.getUUID();
-    }
-
 
     /**
      * 使用默认字符源(2-9a-zA-Z)生成验证码

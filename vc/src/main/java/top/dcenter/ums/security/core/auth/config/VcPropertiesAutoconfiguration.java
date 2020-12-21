@@ -20,23 +20,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package top.dcenter.ums.security.core.auth.config;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import top.dcenter.ums.security.core.auth.properties.ClientProperties;
-import top.dcenter.ums.security.core.auth.properties.SmsCodeLoginAuthenticationProperties;
-import top.dcenter.ums.security.core.sign.properties.SignProperties;
+import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 
 /**
- * Properties 配置
+ * 验证码属性配置类
  * @author YongWu zheng
- * @version V1.0  Created by 2020/5/29 14:42
+ * @version V2.0  Created by 2020.12.21 16:29
  */
-@Configuration()
+@Configuration
 @Order(98)
-@EnableConfigurationProperties({ClientProperties.class, SmsCodeLoginAuthenticationProperties.class, SignProperties.class})
-public class PropertiesAutoConfiguration {
+@EnableConfigurationProperties({ValidateCodeProperties.class})
+public class VcPropertiesAutoconfiguration {
 }

@@ -50,13 +50,6 @@ import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
 @ControllerAdvice
 public class SecurityControllerAdviceHandler {
 
-    @ExceptionHandler(SmsCodeRepeatedRequestException.class)
-    @ResponseBody
-    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
-    public ResponseResult smsCodeRepeatedRequestException(SmsCodeRepeatedRequestException ex) {
-        return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), ex.getData());
-    }
-
     @ExceptionHandler(Auth2Exception.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
@@ -116,29 +109,6 @@ public class SecurityControllerAdviceHandler {
         return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
     }
     
-    @ExceptionHandler(ValidateCodeException.class)
-    @ResponseBody
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseResult validateCodeException(ValidateCodeException ex) {
-        String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
-    }
-
-    @ExceptionHandler(ValidateCodeParamErrorException.class)
-    @ResponseBody
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseResult validateCodeParamErrorException(ValidateCodeParamErrorException ex) {
-        String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
-    }
-
-    @ExceptionHandler(ValidateCodeProcessException.class)
-    @ResponseBody
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseResult validateCodeProcessException(ValidateCodeProcessException ex) {
-        String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
-    }
     @ExceptionHandler(IllegalAccessUrlException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

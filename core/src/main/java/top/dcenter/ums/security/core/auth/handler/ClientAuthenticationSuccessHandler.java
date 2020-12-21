@@ -45,7 +45,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashSet;
 
 import static org.springframework.util.StringUtils.hasText;
 import static top.dcenter.ums.security.common.utils.JsonUtil.isAjaxOrJson;
@@ -80,7 +79,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         setTargetUrlParameter(clientProperties.getTargetUrlParameter());
         setUseReferer(clientProperties.getUseReferer());
         setAlwaysUseDefaultTargetUrl(clientProperties.getAlwaysUseDefaultTargetUrl());
-        ignoreUrls = new HashSet<>();
+
         ignoreUrls.add(clientProperties.getLoginPage());
         ignoreUrls.add(clientProperties.getLogoutUrl());
 
