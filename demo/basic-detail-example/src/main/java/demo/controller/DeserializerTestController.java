@@ -59,8 +59,8 @@ import top.dcenter.ums.security.common.utils.JsonUtil;
 import top.dcenter.ums.security.common.utils.UuidUtils;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationToken;
-import top.dcenter.ums.security.core.jackson2.Auth2Jackson2Module;
-import top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration;
+import top.dcenter.ums.security.core.redis.jackson2.Auth2Jackson2Module;
+import top.dcenter.ums.security.core.redis.config.RedisCacheAutoConfiguration;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
@@ -135,11 +135,9 @@ public class DeserializerTestController {
             headers.put("alg", "HS512");
             Map<String, Object> claims = new LinkedHashMap<>();
             claims.put("jti", UuidUtils.getUUID());
+            claims.put("scp", "write read");
             Jwt jwt = new Jwt("xxxx.xxxx.xxx", Instant.now(), Instant.now().plusSeconds(5000),
                               headers, claims);
-            Set<String> scopes = new LinkedHashSet<>();
-            scopes.add("write");
-            scopes.add("read");
             List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
             JwtAuthenticationToken jwtToken = new JwtAuthenticationToken(jwt, authorities, "jwtToken");
             stringRedisTemplate.opsForValue().set("testJsonDeserializer",

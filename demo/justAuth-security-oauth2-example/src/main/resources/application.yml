@@ -228,7 +228,7 @@ ums:
       keep-alive-time: 10
       # keepAliveTime 时间单位, 默认: 毫秒
       time-unit: milliseconds
-      # 线程池名称, 默认: accessTokenJob
+      # 线程池名称, 默认: jobTask
       pool-name: accessTokenJob
       # 拒绝策略, 默认: ABORT
       rejected-execution-handler-policy: abort

@@ -48,7 +48,7 @@ import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static top.dcenter.ums.security.core.util.AuthenticationUtil.registerHandlerAndRememberMeServices;
+import static top.dcenter.ums.security.common.utils.AppContextUtil.registerHandlerAndRememberMeServices;
 
 
 /**

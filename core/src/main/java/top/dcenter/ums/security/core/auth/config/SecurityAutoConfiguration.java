@@ -23,21 +23,19 @@
 
 package top.dcenter.ums.security.core.auth.config;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import org.springframework.web.context.WebApplicationContext;
 import top.dcenter.ums.security.core.advice.SecurityControllerAdviceHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
@@ -56,7 +54,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-import static top.dcenter.ums.security.common.consts.SecurityConstants.SERVLET_CONTEXT_PATH_PARAM_NAME;
 import static top.dcenter.ums.security.core.util.MvcUtil.TOP_DOMAIN_PARAM_NAME;
 
 /**
@@ -66,6 +63,7 @@ import static top.dcenter.ums.security.core.util.MvcUtil.TOP_DOMAIN_PARAM_NAME;
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 19:59
  */
+@SuppressFBWarnings("REC_CATCH_EXCEPTION")
 @Configuration(proxyBeanMethods = false)
 @Order(98)
 @AutoConfigureAfter({PropertiesAutoConfiguration.class})
@@ -78,9 +76,6 @@ public class SecurityAutoConfiguration implements InitializingBean {
     @Autowired
     private UmsUserDetailsService umsUserDetailsService;
 
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired
-    private GenericApplicationContext applicationContext;
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
     private TenantContextHolder tenantContextHolder;
@@ -149,27 +144,14 @@ public class SecurityAutoConfiguration implements InitializingBean {
             disableAccessWarnings();
         }
 
-        // 给 MvcUtil.servletContextPath 设置 servletContextPath
+        // 给 MvcUtil.topDomain 设置 TOP_DOMAIN
         Class<MvcUtil> mvcUtilClass = MvcUtil.class;
         Class.forName(mvcUtilClass.getName());
         Field[] declaredFields = mvcUtilClass.getDeclaredFields();
         for (Field field : declaredFields)
         {
             field.setAccessible(true);
-            if (Objects.equals(field.getName(), SERVLET_CONTEXT_PATH_PARAM_NAME))
-            {
-                String contextPath;
-                try
-                {
-                    contextPath = Objects.requireNonNull(((AnnotationConfigServletWebServerApplicationContext) this.applicationContext).getServletContext()).getContextPath();
-                }
-                catch (Exception e)
-                {
-                    contextPath = Objects.requireNonNull(((WebApplicationContext) this.applicationContext).getServletContext()).getContextPath();
-                }
-                field.set(null, contextPath);
-            }
-            else if (Objects.equals(field.getName(), TOP_DOMAIN_PARAM_NAME)) {
+            if (Objects.equals(field.getName(), TOP_DOMAIN_PARAM_NAME)) {
                 field.set(null, clientProperties.getTopDomain());
             }
 

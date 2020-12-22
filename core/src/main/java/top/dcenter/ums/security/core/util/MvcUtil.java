@@ -23,9 +23,7 @@
 
 package top.dcenter.ums.security.core.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
-import top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
@@ -45,7 +43,6 @@ import static top.dcenter.ums.security.common.consts.RegexConstants.URL_SCHEME_R
  * @author YongWu zheng
  * @version V1.0  Created by 2020/9/17 18:32
  */
-@Slf4j
 public final class MvcUtil {
 
     private MvcUtil() { }
@@ -57,26 +54,12 @@ public final class MvcUtil {
     public static final String LOCALHOST = "localhost";
 
     /**
-     * servletContextPath, 在应用启动时通过 {@link SecurityAutoConfiguration} 自动注入.
-     */
-    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
-    private static String servletContextPath = "";
-
-    /**
      * 一级域名(不包括二级域名), 比如: www.example.com -> example.com, www.example.com.cn -> example.com.cn
      * 测试时用的 IP 或 localhost 直接原样设置就行.
-     * 在应用启动时通过 {@link SecurityAutoConfiguration} 自动注入.
+     * 在应用启动时通过 {@code SecurityAutoConfiguration} 自动注入.
      */
     @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
     private static String topDomain = "";
-
-    /**
-     * 获取 servletContextPath
-     * @return servletContextPath
-     */
-    public static String getServletContextPath() {
-        return servletContextPath;
-    }
 
     /**
      * 获取一级域名, 通过属性 {@code ums.client.topDomain} 设置此值.

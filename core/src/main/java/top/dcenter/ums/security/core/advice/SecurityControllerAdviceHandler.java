@@ -50,13 +50,6 @@ import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
 @ControllerAdvice
 public class SecurityControllerAdviceHandler {
 
-    @ExceptionHandler(Auth2Exception.class)
-    @ResponseBody
-    @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
-    public ResponseResult auth2Exception(Auth2Exception ex) {
-        return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), ex.getData());
-    }
-
     @SuppressWarnings("unused")
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseBody

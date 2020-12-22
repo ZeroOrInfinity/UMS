@@ -23,21 +23,20 @@
 
 package top.dcenter.ums.security.core.auth.properties;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.convert.DurationUnit;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.validation.annotation.Validated;
 import top.dcenter.ums.security.common.enums.CsrfTokenRepositoryType;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
-import top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration;
+import top.dcenter.ums.security.common.propertis.RememberMeProperties;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,7 +45,6 @@ import java.util.Set;
 
 import static top.dcenter.ums.security.common.consts.SecurityConstants.DEFAULT_LOGIN_PAGE_URL;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM;
-import static top.dcenter.ums.security.common.consts.SecurityConstants.DEFAULT_REMEMBER_ME_NAME;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.DEFAULT_SESSION_INVALID_URL;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.DEFAULT_UN_AUTHENTICATION_ROUTING_URL;
 
@@ -63,6 +61,7 @@ import static top.dcenter.ums.security.common.consts.SecurityConstants.DEFAULT_U
 public class ClientProperties {
 
     private final SessionProperties session = new SessionProperties();
+    @NestedConfigurationProperty
     private final RememberMeProperties rememberMe = new RememberMeProperties();
     private final CsrfProperties csrf = new CsrfProperties();
     private final AnonymousProperties anonymous = new AnonymousProperties();
@@ -77,7 +76,7 @@ public class ClientProperties {
      * domain: aaa.bbb.example.net -> topDomain: example.net
      * </pre>
      * 测试时用的 IP 或 localhost 直接原样设置就行.
-     * 在应用启动时通过 {@link SecurityAutoConfiguration} 自动注入 {@link MvcUtil} 字段 topDomain 中.
+     * 在应用启动时通过 {@code SecurityAutoConfiguration} 自动注入 {@link MvcUtil} 字段 topDomain 中.
      * 如在设置跨域 cookie 时可以通过 {@link MvcUtil#getTopDomain()} 方法获取.
      */
     @Setter
@@ -184,6 +183,7 @@ public class ClientProperties {
      * </pre>
      * 支持通配符 规则具体看 AntPathMatcher.match(pattern, path)
      */
+    @SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
     @Setter
     private String[] ignoringUrls;
 
@@ -300,38 +300,6 @@ public class ClientProperties {
          * session 的 cookie name, 默认为: JSESSIONID, 需要与 server.servlet.session.cookie.name 同时设置
          */
         private String sessionCookieName = "JSESSIONID";
-
-    }
-
-    @Getter
-    @Setter
-    public static class RememberMeProperties {
-
-        /**
-         * RememberMe 是否开启, 默认为 false;
-         */
-        private Boolean enable = false;
-
-        /**
-         * 设置记住我功能的 session 的缓存时长，默认 14 天. If a duration suffix is not specified, seconds will be used.
-         */
-        @DurationUnit(ChronoUnit.SECONDS)
-        private Duration rememberMeTimeout = Duration.parse("P14D");
-
-        /**
-         * 设置记住我功能的 CookieName，默认 REMEMBER_ME, 自定义 {@link RememberMeServices} 时, 此配置失效
-         */
-        private String rememberMeCookieName = DEFAULT_REMEMBER_ME_NAME;
-        /**
-         * 设置记住我功能的参数名称，默认 REMEMBER_ME
-         */
-        private String rememberMeParameter = DEFAULT_REMEMBER_ME_NAME;
-
-        /**
-         * Whether the cookie should be flagged as secure or not. Secure cookies can only be sent over an HTTPS connection and thus cannot be accidentally submitted over HTTP where they could be intercepted.
-         * By default the cookie will be secure if the request is secure. If you only want to use remember-me over HTTPS (recommended) you should set this property to true. 默认为 false。
-         */
-        private Boolean useSecureCookie = false;
 
     }
 

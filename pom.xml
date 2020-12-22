@@ -15,15 +15,15 @@
         access control function, support multi-tenancy, jwt, and sign etc...
     </description>
 
-<!--    <modules>-->
-<!--        <module>commons</module>-->
-<!--        <module>vc</module>-->
-<!--        <module>mdc</module>-->
-<!--        <module>rbac</module>-->
-<!--        <module>jwt</module>-->
-<!--        <module>core</module>-->
-<!--&lt;!&ndash;        <module>oauth</module>&ndash;&gt;-->
-<!--    </modules>-->
+    <modules>
+        <module>commons</module>
+        <module>vc</module>
+        <module>mdc</module>
+        <module>rbac</module>
+        <module>oauth</module>
+        <module>jwt</module>
+        <module>core</module>
+    </modules>
 
     <url>https://github.com/ZeroOrInfinity/UMS</url>
 
@@ -375,7 +375,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>

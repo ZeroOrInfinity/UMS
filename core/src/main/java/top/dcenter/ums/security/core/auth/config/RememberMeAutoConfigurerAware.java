@@ -40,6 +40,7 @@ import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
+import top.dcenter.ums.security.common.propertis.RememberMeProperties;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 
@@ -96,7 +97,7 @@ public class RememberMeAutoConfigurerAware implements HttpSecurityAware, Initial
     @Override
     public void preConfigure(HttpSecurity http) throws Exception {
 
-        final ClientProperties.RememberMeProperties rememberMe = clientProperties.getRememberMe();
+        final RememberMeProperties rememberMe = clientProperties.getRememberMe();
         final RememberMeConfigurer<HttpSecurity> httpSecurityRememberMeConfigurer = http.rememberMe();
         if (rememberMe.getEnable())
         // 开启 REMEMBER_ME 功能

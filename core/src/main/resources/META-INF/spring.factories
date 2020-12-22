@@ -1,14 +1,13 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   top.dcenter.ums.security.core.auth.config.PropertiesAutoConfiguration,\
-  top.dcenter.ums.security.core.oauth.config.Auth2PropertiesAutoConfiguration,\
-  top.dcenter.ums.security.core.executor.config.ExecutorPropertiesAutoConfiguration,\
+  top.dcenter.ums.security.core.redis.config.RedisPropertiesAutoConfiguration,\
+  top.dcenter.ums.security.core.tasks.config.ScheduledPropertiesAutoConfiguration,\
+  top.dcenter.ums.security.core.tasks.config.ScheduledExecutorAutoConfiguration,\
   top.dcenter.ums.security.core.auth.config.ClientAutoConfigurerAware,\
   top.dcenter.ums.security.core.tenant.config.TenantAutoConfiguration,\
   top.dcenter.ums.security.core.tenant.config.TenantAutoConfigurerAware,\
   top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration,\
-  top.dcenter.ums.security.core.auth.config.ValidateCodeBeanAutoConfiguration,\
-  top.dcenter.ums.security.core.auth.config.ValidateCodeAutoConfigurerAware,\
   top.dcenter.ums.security.core.auth.config.SmsCodeLoginAutoAuthenticationConfigurer,\
   top.dcenter.ums.security.core.auth.config.SmsCodeLoginAuthenticationAutoConfigurerAware,\
   top.dcenter.ums.security.core.auth.config.SecuritySessionAutoConfiguration,\
@@ -17,11 +16,7 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   top.dcenter.ums.security.core.auth.config.RememberMeAutoConfigurerAware,\
   top.dcenter.ums.security.core.auth.config.SecurityCsrfAutoConfiguration,\
   top.dcenter.ums.security.core.auth.config.CsrfAutoConfigurerAware,\
-  top.dcenter.ums.security.core.oauth.config.Auth2AutoConfiguration,\
-  top.dcenter.ums.security.core.oauth.config.Auth2AutoConfigurer,\
-  top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration,\
-  top.dcenter.ums.security.core.executor.config.ExecutorAutoConfiguration,\
-  top.dcenter.ums.security.core.oauth.config.Auth2AutoHttpSecurityAware,\
   top.dcenter.ums.security.core.tasks.config.ScheduleAutoConfiguration,\
   top.dcenter.ums.security.core.auth.config.CorsAutoConfigurationAware,\
+  top.dcenter.ums.security.core.redis.config.RedisCacheAutoConfiguration,\
   top.dcenter.ums.security.common.config.SecurityCoreAutoConfigurer

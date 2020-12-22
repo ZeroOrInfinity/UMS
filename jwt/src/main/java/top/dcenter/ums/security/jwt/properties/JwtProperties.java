@@ -157,7 +157,7 @@ public class JwtProperties {
     private String kid;
 
     /**
-     * 该JWT的签发者, 必须是 URL
+     * 该JWT的签发者, 必须是 URL, 根据是否需要设置
      */
     private String iss;
 

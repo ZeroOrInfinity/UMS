@@ -23,15 +23,15 @@
 
 package top.dcenter.ums.security.core.util;
 
+import org.springframework.lang.NonNull;
 import org.springframework.security.web.util.UrlUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static top.dcenter.ums.security.core.util.MvcUtil.getServletContextPath;
 
 /**
  * request 工具
@@ -47,7 +47,8 @@ public final class RequestUtil {
      * @param url   完整 url, 例如: http://xxx.aaa.com/servletContextPath/bbb/#xxx?a=b
      * @return  去除 ServletContextPath 后的 requestUri(/bbb/)
      */
-    public static String getRequestUri(String url) {
+    @NonNull
+    public static String getRequestUri(@NonNull String url, @NonNull HttpServletRequest request) {
         if (UrlUtils.isAbsoluteUrl(url))
         {
             url = url.replaceFirst("\\A[a-z0-9.+-]+://", "");
@@ -67,7 +68,7 @@ public final class RequestUtil {
             url = url.substring(0, endIndex);
         }
 
-        String servletContextPath = getServletContextPath();
+        String servletContextPath = request.getContextPath();
         if (url.startsWith(servletContextPath))
         {
             url = url.substring(servletContextPath.length());

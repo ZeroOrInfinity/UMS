@@ -24,6 +24,7 @@ package top.dcenter.ums.security.core.tasks.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
@@ -41,6 +42,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * @version V2.0  Created by 2020.11.25 14:01
  */
 @Configuration
+@AutoConfigureAfter({ScheduledExecutorAutoConfiguration.class})
 @EnableScheduling
 public class ScheduleAutoConfiguration implements SchedulingConfigurer {
 

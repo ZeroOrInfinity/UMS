@@ -29,7 +29,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import top.dcenter.ums.security.common.propertis.RememberMeProperties;
 import top.dcenter.ums.security.core.api.rememberme.repository.BasedRememberMeTokenRepositoryFactory;
+import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.rememberme.repository.JdbcTokenRepositoryFactory;
 
 import javax.sql.DataSource;
@@ -50,6 +52,11 @@ public class SecurityRememberMeAutoConfiguration {
         this.dataSource = dataSource;
     }
 
+
+    @Bean
+    public RememberMeProperties rememberMeProperties(ClientProperties clientProperties) {
+        return clientProperties.getRememberMe();
+    }
 
     /**
      * 与 spring Security RememberMe 功能相关,

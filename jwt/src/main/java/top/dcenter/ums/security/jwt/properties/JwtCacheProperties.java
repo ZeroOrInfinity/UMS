@@ -47,8 +47,8 @@ public class JwtCacheProperties {
     private Duration refreshTokenTtl = Duration.ofDays(30);
 
     /**
-     * JWT 黑名单缓存前缀, 默认: JWT:CACHE:BLACKLIST:
+     * JWT 黑名单缓存前缀, 默认: JWT:BLACKLIST:
      */
-    private String blacklistPrefix = "JWT:CACHE:BLACKLIST:";
+    private String blacklistPrefix = "JWT:BLACKLIST:";
 
 }

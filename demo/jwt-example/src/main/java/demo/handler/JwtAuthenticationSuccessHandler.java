@@ -216,7 +216,7 @@ public class JwtAuthenticationSuccessHandler extends BaseAuthenticationSuccessHa
         }
 
         // 当 targetUrl 为 登录 url 时, 设置为 defaultTargetUrl
-        if (!StringUtils.hasText(targetUrl) || isIgnoreUrl(targetUrl))
+        if (!StringUtils.hasText(targetUrl) || isIgnoreUrl(targetUrl, request))
         {
             if (this.logger.isTraceEnabled()) {
                 this.logger.trace(LogMessage.format("Using default url %s", defaultTargetUrl));
@@ -252,8 +252,8 @@ public class JwtAuthenticationSuccessHandler extends BaseAuthenticationSuccessHa
      * @param targetUrl 不能为 null
      * @return boolean
      */
-    private boolean isIgnoreUrl(final String targetUrl) {
-        String url = getRequestUri(targetUrl);
+    private boolean isIgnoreUrl(final String targetUrl, HttpServletRequest request) {
+        String url = getRequestUri(targetUrl, request);
         return ignoreUrls.stream().anyMatch(url::startsWith);
     }
 }

@@ -29,6 +29,24 @@ spring:
     # session 过期时间
     timeout: PT300s
 
+  # ===============start session 详细设置 ===============
+  redis:
+    host: 192.168.88.88
+    port: 6379
+    password:
+    database: 0
+    # 连接超时的时间
+    timeout: 10000
+    # redis-lettuce-pool
+    lettuce:
+      # 会影响应用关闭是时间, dev 模式设置为 0
+      shutdown-timeout: PT500S
+      pool:
+        max-active: 8
+        max-wait: PT10S
+        max-idle: 8
+        min-idle: 1
+
 #  security:
 #    oauth2:
 #      resourceserver:
@@ -108,7 +126,7 @@ ums:
     jks-password: 123456
     # Use the given signing algorithm . The value should be one of RS256, RS384, RS512, HS256, HS384, or HS512 . 默认: RS256
     jws-algorithms: RS256
-    # 该JWT的签发者, 必须是 URL
+    # 该JWT的签发者, 必须是 URL, 根据是否需要设置
     iss: http://localhost:9090/demo/
     bearer:
       # 是否支持从 form encoded body parameter 传递参数名称为 bearerTokenParameterName 的 bearer token 或传递参数名称为
@@ -143,8 +161,8 @@ ums:
       # 2. 目前 allowFormEncodedBodyParameter, allowUriQueryParameter 属性还不能配置, 默认都为 false, refreshTokenParameterName 总是失效.
       refresh-token-parameter-name: refresh_token
     cache:
-      # JWT 黑名单缓存前缀, 默认: JWT:CACHE:BLACKLIST:
-      blacklist-prefix: 'JWT:CACHE:BLACKLIST:'
+      # JWT 黑名单缓存前缀, 默认: JWT:BLACKLIST:
+      blacklist-prefix: 'JWT:BLACKLIST:'
       # JWT refresh token 缓存前缀, 默认: JWT:refreshToken:
       refresh-token-prefix: 'JWT:refreshToken:'
       # JWT refresh token ttl(有效期), 默认: 30 天
@@ -163,23 +181,6 @@ ums:
       auth-urls:
         - /authentication/form
       request-param-image-code-name: imageCode
-    # 短信验证码
-    sms:
-      # 设置需要短信验证码认证的 uri(必须是非 GET 请求)，多个 uri 用 “，”号分开支持通配符，如：/hello,/user/*；默认为 /authentication/form
-      auth-urls:
-        - /authentication/mobile
-      request-param-mobile-name: mobile
-      request-param-sms-code-name: smsCode
-    validate-code-cache-type: session
-
-  # ================ 手机登录配置 ================
-  mobile:
-    login:
-      # 手机验证码登录是否开启, 默认 false，
-      # 手机验证码登录开启后 必须配置 ums.codes.sms.auth-urls=/authentication/mobile
-      sms-code-login-is-open: true
-      # 手机验证码登录请求处理url, 默认 /authentication/mobile
-      login-processing-url-mobile: /authentication/mobile
 
 ---
 spring:

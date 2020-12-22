@@ -47,8 +47,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import top.dcenter.ums.security.common.utils.JsonUtil;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationToken;
-import top.dcenter.ums.security.core.jackson2.Auth2Jackson2Module;
-import top.dcenter.ums.security.core.oauth.config.RedisCacheAutoConfiguration;
+import top.dcenter.ums.security.core.redis.jackson2.Auth2Jackson2Module;
+import top.dcenter.ums.security.core.redis.config.RedisCacheAutoConfiguration;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
