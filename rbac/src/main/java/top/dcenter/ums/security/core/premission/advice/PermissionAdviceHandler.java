@@ -33,6 +33,7 @@ import top.dcenter.ums.security.common.vo.ResponseResult;
 import top.dcenter.ums.security.core.exception.RolePermissionsException;
 
 import static top.dcenter.ums.security.common.consts.SecurityConstants.CONTROLLER_ADVICE_ORDER_DEFAULT_VALUE;
+import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
 
 /**
  * RBAC 处理器,如需自定义，继承此类并注入 IOC 容器即可
@@ -47,7 +48,7 @@ public class PermissionAdviceHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseResult rolePermissionsException(RolePermissionsException ex) {
-        return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), ex.getData());
+        return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), getMdcTraceId());
     }
 
 }

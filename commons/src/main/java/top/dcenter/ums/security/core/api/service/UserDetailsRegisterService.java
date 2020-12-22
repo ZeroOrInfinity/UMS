@@ -31,6 +31,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
+import top.dcenter.ums.security.core.exception.RegisterUserNotImplementException;
 
 /**
  * 用户名密码注册、手机短信登录与 OAuth 登录的用户注册接口.
@@ -89,7 +90,7 @@ public interface UserDetailsRegisterService {
      */
     default UserDetails registerUser(@NonNull AuthUser authUser, @NonNull String username, @NonNull String defaultAuthority,
                                      @Nullable String decodeState) throws RegisterUserFailureException {
-        throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_FAILURE, null);
+        throw new RegisterUserNotImplementException(ErrorCodeEnum.USER_REGISTER_FAILURE, null);
     }
 
 }

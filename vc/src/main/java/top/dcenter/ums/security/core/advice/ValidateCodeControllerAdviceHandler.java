@@ -36,6 +36,7 @@ import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
 import top.dcenter.ums.security.core.exception.ValidateCodeProcessException;
 
 import static top.dcenter.ums.security.common.consts.SecurityConstants.CONTROLLER_ADVICE_ORDER_DEFAULT_VALUE;
+import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
 
 /**
  * 验证码错误处理器,如需自定义，继承此类并注入 IOC 容器即可
@@ -51,7 +52,7 @@ public class ValidateCodeControllerAdviceHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
     public ResponseResult smsCodeRepeatedRequestException(SmsCodeRepeatedRequestException ex) {
-        return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), ex.getData());
+        return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), getMdcTraceId());
     }
 
     @ExceptionHandler(ValidateCodeParamErrorException.class)
@@ -59,7 +60,7 @@ public class ValidateCodeControllerAdviceHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseResult validateCodeParamErrorException(ValidateCodeParamErrorException ex) {
         String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), getMdcTraceId());
     }
 
     @ExceptionHandler(ValidateCodeProcessException.class)
@@ -67,7 +68,7 @@ public class ValidateCodeControllerAdviceHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseResult validateCodeProcessException(ValidateCodeProcessException ex) {
         String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), getMdcTraceId());
     }
 
     @ExceptionHandler(ValidateCodeException.class)
@@ -75,7 +76,7 @@ public class ValidateCodeControllerAdviceHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseResult validateCodeException(ValidateCodeException ex) {
         String message = ex.getMessage();
-        return ResponseResult.fail(message, ex.getErrorCodeEnum(), ex.getData());
+        return ResponseResult.fail(message, ex.getErrorCodeEnum(), getMdcTraceId());
     }
 
 }
