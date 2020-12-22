@@ -142,7 +142,7 @@
                         console.log("")
 
                         if (undefined !== Authorization && null === Authorization) {
-                            // jwt 传输的方式是 ums.jwt.bearer.bearerTokenParameterName 方式
+                            // jwt 传输的方式是 ums.jwt.bearer.bearerTokenHeaderName 方式
                             console.log("========== 通过 响应体 获取 JWT ============")
                             accessToken = xhr.responseJSON.data.jwt;
                             console.log('accessToken: ' + accessToken);
