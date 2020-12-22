@@ -67,7 +67,8 @@ public class UserController {
 
     @RequestMapping(value = "/me", method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody
-    public ResponseResult getCurrentUser(Authentication authentication) {
+    public ResponseResult getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
         return ResponseResult.success(JsonUtil.toJsonString(principal),
                                       authentication);
