@@ -22,9 +22,11 @@
  */
 package top.dcenter.ums.security.common.api.tasks.handler;
 
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+
 /**
  * 任务处理器接口, 继承此接口并注入 IOC 容器, {@code top.dcenter.ums.security.core.tasks.config.ScheduleAutoConfiguration}
- * 会自动注册到任务注册器中.
+ * 会自动注册到 {@link ScheduledTaskRegistrar} 中.
  * @author YongWu zheng
  * @version V2.0  Created by 2020.12.21 17:07
  */
