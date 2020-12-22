@@ -17,8 +17,8 @@
 
     <modules>
         <module>commons</module>
-        <module>vc</module>
         <module>mdc</module>
+        <module>vc</module>
         <module>rbac</module>
         <module>oauth</module>
         <module>jwt</module>
