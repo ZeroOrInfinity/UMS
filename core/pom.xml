@@ -66,6 +66,12 @@
 
         <dependency>
             <groupId>top.dcenter</groupId>
+            <artifactId>ums-oauth</artifactId>
+            <version>${ums.oauth.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>top.dcenter</groupId>
             <artifactId>ums-rbac</artifactId>
             <version>${ums.rbac.version}</version>
         </dependency>
@@ -80,11 +86,6 @@
             <groupId>top.dcenter</groupId>
             <artifactId>ums-vc</artifactId>
             <version>${ums.vc.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>me.zhyd.oauth</groupId>
-            <artifactId>JustAuth</artifactId>
         </dependency>
 
         <dependency>
@@ -110,50 +111,50 @@
             <artifactId>spring-security-oauth2-resource-server</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-client</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>nimbus-jose-jwt</artifactId>
-                    <groupId>com.nimbusds</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>json-smart</artifactId>
-                    <groupId>net.minidev</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-jose</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>nimbus-jose-jwt</artifactId>
-                    <groupId>com.nimbusds</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.security</groupId>-->
+<!--            <artifactId>spring-security-oauth2-client</artifactId>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>nimbus-jose-jwt</artifactId>-->
+<!--                    <groupId>com.nimbusds</groupId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>json-smart</artifactId>-->
+<!--                    <groupId>net.minidev</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.security</groupId>-->
+<!--            <artifactId>spring-security-oauth2-jose</artifactId>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>nimbus-jose-jwt</artifactId>-->
+<!--                    <groupId>com.nimbusds</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <artifactId>nimbus-jose-jwt</artifactId>
-            <groupId>com.nimbusds</groupId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>json-smart</artifactId>
-                    <groupId>net.minidev</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <artifactId>json-smart</artifactId>
-            <groupId>net.minidev</groupId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <artifactId>nimbus-jose-jwt</artifactId>-->
+<!--            <groupId>com.nimbusds</groupId>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>json-smart</artifactId>-->
+<!--                    <groupId>net.minidev</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <artifactId>json-smart</artifactId>-->
+<!--            <groupId>net.minidev</groupId>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-core</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.security</groupId>-->
+<!--            <artifactId>spring-security-oauth2-core</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -246,7 +247,6 @@
         <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs-annotations</artifactId>
-            <scope>provided</scope>
             <optional>true</optional>
         </dependency>
 

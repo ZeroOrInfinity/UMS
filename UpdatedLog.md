@@ -1,3 +1,16 @@
+## 2.2.1
+### Fixes and Improvements:
+1. 重构: 从 ums-core 中分离出第三方授权登录功能作为单独的 ums-oauth 模块.
+2. 重构: 从 ums-core 模块分离验证码功能作为单独的 ums-vc 模块.
+3. 修复: 因未启用 JWT 功能而使 ClientAuthenticationSuccessHandler 发生 NPE 异常的 bug.
+4. 改进: ums-commons 模块添加 JobHandler.java 定时任务接口, 让修改验证码图片定时任务和第三方登录刷新 accessToken 定时任务继承此接口.
+5. 安全性: 在工具类/Context/Holder 的类上添加 final 字段并把无参构造方法设置为 private.
+6. 示例: 添加详细的控制台日志, 以便查看 JWT 流程.
+7. 示例: 修复因实现 UmsReAuthServiceImpl 一直返回 true 而导致的示例一直提示 JWT 失效的错误.
+8. 日志: 添加统一的异常日志.
+9. 日志: 规范面向用户的错误响应, 添加 MDC 链路追踪 ID, 方便定位问题.
+
+
 ## 2.2.0
 ### Fixes and Improvements:
 1. 特性: 添加 Jwt 模块, JWT 创建(通过接口自定义 Claims, 通过配置设置算法等), 校验(通过接口自定义校验规则), 刷新(自动刷新, 直接拒绝, 通过 refreshToken 刷新), 刷新的 JWT
