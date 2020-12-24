@@ -38,7 +38,7 @@ import top.dcenter.ums.security.common.utils.IpUtil;
 import top.dcenter.ums.security.common.vo.ResponseResult;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
-import top.dcenter.ums.security.core.vo.UserInfoJsonVo;
+import top.dcenter.ums.security.core.vo.AuthTokenVo;
 import top.dcenter.ums.security.jwt.JwtContext;
 
 import javax.servlet.ServletException;
@@ -95,51 +95,39 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         String userAgent = request.getHeader(SecurityConstants.HEADER_USER_AGENT);
         String sid = request.getSession(true).getId();
 
-        log.info("登录成功: user={}, ip={}, ua={}, sid={}",
+        log.info("登录成功: uid={}, ip={}, ua={}, sid={}",
                  username, ip, userAgent, sid);
 
-        UserInfoJsonVo userInfoJsonVo;
         AbstractAuthenticationToken token = (AbstractAuthenticationToken) authentication;
 
         try
         {
-            userInfoJsonVo = new UserInfoJsonVo(username,
-                                                username,
-                                                null,
-                                                null,
-                                                null,
-                                                token.getAuthorities());
-
-            // 设置 jwt
-            String jwtStringIfAllowBodyParameter = JwtContext.getJwtStringIfAllowBodyParameter(authentication);
-            if (hasText(jwtStringIfAllowBodyParameter)) {
-            	userInfoJsonVo.setJwt(jwtStringIfAllowBodyParameter);
-            }
-
-            // 设置 jwt refresh token
-            if (JwtContext.isRefreshJwtByRefreshToken()) {
-                userInfoJsonVo.setRefreshToken(JwtContext.getJwtRefreshToken());
-            }
 
             // 设置跳转的 url
             String targetUrl = determineTargetUrl(request, response);
 
-            // 判断是否返回 json 类型
-            userInfoJsonVo.setTargetUrl(getJsonTargetUrl(targetUrl, request));
-            if (LoginProcessType.JSON.equals(this.loginProcessType))
+            // 判断是否返回 json 类型 或 accept 是否要求返回 json
+            if (LoginProcessType.JSON.equals(this.loginProcessType) || isAjaxOrJson(request))
             {
                 clearAuthenticationAttributes(request);
-                responseWithJson(response, HttpStatus.OK.value(),
-                                 toJsonString(ResponseResult.success(null, userInfoJsonVo)));
-                return;
-            }
+                AuthTokenVo authTokenVo = new AuthTokenVo(username,
+                                                          username,
+                                                          null,
+                                                          null,
+                                                          getJsonTargetUrl(targetUrl, request),
+                                                          token.getAuthorities());
+                // 设置 jwt
+                String jwtStringIfAllowBodyParameter = JwtContext.getJwtStringIfAllowBodyParameter(authentication);
+                if (hasText(jwtStringIfAllowBodyParameter)) {
+                    authTokenVo.setToken(jwtStringIfAllowBodyParameter);
+                }
+                // 设置 jwt refresh token
+                if (JwtContext.isRefreshJwtByRefreshToken()) {
+                    authTokenVo.setRefreshToken(JwtContext.getJwtRefreshToken());
+                }
 
-            // 判断 accept 是否要求返回 json
-            if (isAjaxOrJson(request))
-            {
-                clearAuthenticationAttributes(request);
                 responseWithJson(response, HttpStatus.OK.value(),
-                                 toJsonString(ResponseResult.success(null, userInfoJsonVo)));
+                                 toJsonString(ResponseResult.success(null, authTokenVo)));
                 return;
             }
 
@@ -148,7 +136,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         }
         catch (Exception e)
         {
-            log.error(String.format("设置登录成功后跳转的URL失败: error=%s, user=%s, ip=%s, ua=%s, sid=%s",
+            log.error(String.format("设置登录成功后跳转的URL失败: error=%s, uid=%s, ip=%s, ua=%s, sid=%s",
                                     e.getMessage(), username, ip, userAgent, sid), e);
             super.onAuthenticationSuccess(request, response, authentication);
         }
@@ -235,7 +223,10 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
     private String getJsonTargetUrl(String targetUrl, HttpServletRequest request) {
         if (!UrlUtils.isAbsoluteUrl(targetUrl))
         {
-            targetUrl = request.getContextPath() + targetUrl;
+            String contextPath = request.getContextPath();
+            if (!targetUrl.startsWith(contextPath)) {
+                targetUrl = contextPath + targetUrl;
+            }
         }
         return targetUrl;
     }

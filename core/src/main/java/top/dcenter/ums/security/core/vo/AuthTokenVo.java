@@ -32,7 +32,7 @@ import java.util.Collection;
  * @author YongWu zheng
  * @version V1.0  Created by 2020/6/6 22:27
  */
-public class UserInfoJsonVo {
+public class AuthTokenVo {
 
     /**
      * 用户 id
@@ -43,11 +43,11 @@ public class UserInfoJsonVo {
      */
     private String username;
     /**
-     * jwt
+     * token 如: jwt
      */
-    private String jwt;
+    private String token;
     /**
-     * jwt refresh token
+     * refresh token
      */
     private String refreshToken;
     /**
@@ -59,13 +59,13 @@ public class UserInfoJsonVo {
      */
     private Collection<GrantedAuthority> authorities;
 
-    public UserInfoJsonVo() { }
+    public AuthTokenVo() { }
 
-    public UserInfoJsonVo(String id, String username, String jwt, String refreshToken, String targetUrl,
-                          Collection<GrantedAuthority> authorities) {
+    public AuthTokenVo(String id, String username, String token, String refreshToken, String targetUrl,
+                       Collection<GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
-        this.jwt = jwt;
+        this.token = token;
         this.refreshToken = refreshToken;
         this.targetUrl = targetUrl;
         this.authorities = authorities;
@@ -87,12 +87,12 @@ public class UserInfoJsonVo {
         this.username = username;
     }
 
-    public String getJwt() {
-        return jwt;
+    public String getToken() {
+        return token;
     }
 
-    public void setJwt(String jwt) {
-        this.jwt = jwt;
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getRefreshToken() {
