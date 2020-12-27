@@ -485,6 +485,25 @@ public final class JwtContext {
     }
 
     /**
+     * 获取 jwt 的有效期
+     * @param authentication    {@link Authentication}
+     * @return  返回 jwt 的有效期, 如果不支持 jwt 直接返回 null
+     */
+    @Nullable
+    public static Long getExpiresInByAuthentication(Authentication authentication) {
+        if (isNull(timeout) && isNull(bearerToken)) {
+            return null;
+        }
+
+        if ((authentication instanceof AbstractOAuth2TokenAuthenticationToken))
+        {
+            return timeout.minusSeconds(1L).getSeconds();
+        }
+
+        return null;
+    }
+
+    /**
      * 添加黑名单
      * @param oldJwt    要加入黑名单的 {@link Jwt}
      */

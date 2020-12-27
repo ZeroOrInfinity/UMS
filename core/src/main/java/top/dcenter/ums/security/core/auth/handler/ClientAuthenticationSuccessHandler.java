@@ -46,6 +46,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static java.util.Optional.ofNullable;
 import static org.springframework.util.StringUtils.hasText;
 import static top.dcenter.ums.security.common.utils.JsonUtil.isAjaxOrJson;
 import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
@@ -114,12 +115,14 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
                                                           username,
                                                           null,
                                                           null,
+                                                          -1L,
                                                           getJsonTargetUrl(targetUrl, request),
                                                           token.getAuthorities());
                 // 设置 jwt
                 String jwtStringIfAllowBodyParameter = JwtContext.getJwtStringIfAllowBodyParameter(authentication);
                 if (hasText(jwtStringIfAllowBodyParameter)) {
                     authTokenVo.setToken(jwtStringIfAllowBodyParameter);
+                    authTokenVo.setExpiresIn(ofNullable(JwtContext.getExpiresInByAuthentication(authentication)).orElse(-1L));
                 }
                 // 设置 jwt refresh token
                 if (JwtContext.isRefreshJwtByRefreshToken()) {

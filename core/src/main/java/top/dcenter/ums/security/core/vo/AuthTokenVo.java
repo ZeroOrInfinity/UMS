@@ -51,6 +51,10 @@ public class AuthTokenVo {
      */
     private String refreshToken;
     /**
+     * 有效时间（秒）, -1 表示永久
+     */
+    private Long expiresIn;
+    /**
      * 跳转 url
      */
     private String targetUrl;
@@ -61,12 +65,13 @@ public class AuthTokenVo {
 
     public AuthTokenVo() { }
 
-    public AuthTokenVo(String id, String username, String token, String refreshToken, String targetUrl,
-                       Collection<GrantedAuthority> authorities) {
+    public AuthTokenVo(String id, String username, String token, String refreshToken, Long expiresIn,
+                       String targetUrl, Collection<GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
         this.token = token;
         this.refreshToken = refreshToken;
+        this.expiresIn = expiresIn;
         this.targetUrl = targetUrl;
         this.authorities = authorities;
     }
@@ -101,6 +106,14 @@ public class AuthTokenVo {
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public Long getExpiresIn() {
+        return expiresIn;
+    }
+
+    public void setExpiresIn(Long expiresIn) {
+        this.expiresIn = expiresIn;
     }
 
     public String getTargetUrl() {
