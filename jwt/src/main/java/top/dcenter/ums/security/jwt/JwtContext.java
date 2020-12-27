@@ -105,7 +105,7 @@ public final class JwtContext {
 
     public static final String KEY_ALGORITHM = "RSA";
     public static final int KEY_SIZE = 2048;
-    public static final String BEARER = "Bearer ";
+    public static final String BEARER = "bearer ";
     /**
      * 临时存储 jwt refresh token 的值
      */
