@@ -66,8 +66,7 @@ public class DefaultAuth2UserServiceImpl implements Auth2UserService {
 			return authUser;
 		}
 		else {
-			String msg = authResponse.getMsg();
-			OAuth2Error oauth2Error = new OAuth2Error(msg,
+			OAuth2Error oauth2Error = new OAuth2Error("获取用户信息失败,",
 			                                          String.format(" for Client Registration: %s", auth2Request.getProviderId()),
 			                                          request.getRequestURI());
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
