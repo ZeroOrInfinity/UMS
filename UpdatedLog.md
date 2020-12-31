@@ -1,3 +1,20 @@
+## 2.2.2
+### Fixes and Improvements:
+1. 修复: 补全 AuthToken 与 UserConnection 建表语句, 与刷新 access Token 定时任务处理逻辑相匹配.
+2. 新增: ums-spring-boot-starter 模块替换 ums-core-spring-boot-starter 功能, ums-core-spring-boot-starter 模块只拥有用户码登录,手机登录,用户签到, jwt, mdc 功能.
+3. 改进: 添加 ums.jwt.exposeRefreshTokenUri 属性, 是否曝露通过 refreshToken 获取 JWT uri 的属性开关.
+4. 改进: 根据创建或解析 JWT 的不同场景生成 JwtDecoder.
+5. 改进: 添加 jti 黑名单校验, 有触发开关.
+6. 改进: 添加获取 JWT 存储 principal 的 claimName 的 getPrincipalClaimName() 接口, 优化一些接口的参数.
+7. 优化: 刷新与重置 jwt 的逻辑等.
+8. 日志: 优化返回前端的日志.
+9. 优化: 重命名 UserInfoJsonVo 为 AuthTokenVo, 优化 AuthenticationSuccessHandler.onAuthenticationSuccess(..) 方法逻辑.
+10. 示例: 优化 /me, 未登录时 NPE 问题.
+11. 优化: 删除 RepositoryProperties 无用的配置属性.
+12. 优化: 移动字段 auth2RedirectUrl 到 BaseAuthenticationSuccessHandler.
+
+
+
 ## 2.2.1
 ### Fixes and Improvements:
 1. 重构: 从 ums-core 中分离出第三方授权登录功能作为单独的 ums-oauth 模块.

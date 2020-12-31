@@ -114,7 +114,7 @@ ums:
     github:
       # 根据是否有设置 clientId 来动态加载相应 JustAuth 的 AuthXxxRequest
       client-id: 4d4ee00e82f669f2ea8d
-      client-secret: 953ddbe871a08d6924053531e89ecc01d87195a8
+      client-secret: 679eca4a6bde2d1a2437546b71ae952fb86514f6
     gitee:
       client-id: dcc38c801ee88f43cfc1d5c52ec579751c12610c37b87428331bd6694056648e
       client-secret: f7384969d0e93088cdab546a1cea026442c16e2476cedec02e202cc89ee773ae

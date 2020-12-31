@@ -6,7 +6,7 @@
 
     <groupId>top.dcenter</groupId>
     <artifactId>ums</artifactId>
-    <version>2.2.1</version>
+    <version>2.2.2</version>
 
     <packaging>pom</packaging>
     <name>ums</name>
@@ -15,7 +15,7 @@
         access control function, support multi-tenancy, jwt, and sign etc...
     </description>
 
-    <modules>
+    <!--<modules>
         <module>commons</module>
         <module>mdc</module>
         <module>vc</module>
@@ -23,7 +23,8 @@
         <module>oauth</module>
         <module>jwt</module>
         <module>core</module>
-    </modules>
+        <module>ums-spring-boot-starter</module>
+    </modules>-->
 
     <url>https://github.com/ZeroOrInfinity/UMS</url>
 
@@ -74,13 +75,14 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <java.version>1.8</java.version>
 
-        <ums.commons.version>2.2.1</ums.commons.version>
-        <ums.core.version>2.2.1</ums.core.version>
-        <ums.rbac.version>2.2.1</ums.rbac.version>
-        <ums.oauth.version>2.2.1</ums.oauth.version>
-        <ums.jwt.version>2.2.1</ums.jwt.version>
-        <ums.vc.version>2.2.1</ums.vc.version>
-        <ums.mdc.version>2.2.1</ums.mdc.version>
+        <ums.commons.version>2.2.2</ums.commons.version>
+        <ums.core.version>2.2.2</ums.core.version>
+        <ums.rbac.version>2.2.2</ums.rbac.version>
+        <ums.oauth.version>2.2.2</ums.oauth.version>
+        <ums.jwt.version>2.2.2</ums.jwt.version>
+        <ums.vc.version>2.2.2</ums.vc.version>
+        <ums.mdc.version>2.2.2</ums.mdc.version>
+        <ums.starter.version>2.2.2</ums.starter.version>
 
         <spring-session.version>2.3.1.RELEASE</spring-session.version>
         <spring-session-data-mongodb.version>2.3.0.RELEASE</spring-session-data-mongodb.version>

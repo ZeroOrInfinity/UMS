@@ -41,12 +41,13 @@ Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-
   | **模块**   | **功能**                                                         |
   | ------ | ------------------------------------------------------------ |
   | [commons](https://github.com/ZeroOrInfinity/UMS/tree/master/commons)   | 通用组件模块 |
-  | [core](https://github.com/ZeroOrInfinity/UMS/tree/master/core)   | 用户名密码登录/手机登录且自动注册/签到/简化HttpSecurity(session、remember me、csrf、跨域等)配置/session redis 缓存/可配置的响应方式(JSON 与 REDIRECT)返回 json 或 html 数据 |
-  | [vc](https://github.com/ZeroOrInfinity/UMS/tree/master/vc)   | 验证码 |
+  | [ums](https://github.com/ZeroOrInfinity/UMS/tree/master/ums-spring-boot-starter)   | 集成 commons/core/vc/mdc/oauth/rbac/jwt 模块 |
+  | [core](https://github.com/ZeroOrInfinity/UMS/tree/master/core)   | 用户名密码登录/手机登录且自动注册/签到/简化HttpSecurity(session、remember me、csrf、跨域等)配置/session redis 缓存/可配置的响应方式(JSON 与 REDIRECT)返回 json 或 html 数据, 集成 jwt/mdc 模块 |
+  | [vc](https://github.com/ZeroOrInfinity/UMS/tree/master/vc)   | 验证码, 集成 mdc 模块 |
   | [mdc](https://github.com/ZeroOrInfinity/UMS/tree/master/mdc)   | 基于 SLF4J MDC 机制的日志链路追踪功能 |
-  | [oauth](https://github.com/ZeroOrInfinity/UMS/tree/master/oauth)   | OAuth2 login by JustAuth |
-  | [rbac](https://github.com/ZeroOrInfinity/UMS/tree/master/rbac)   | 基于角色的访问权限控制,支持多租户 |
-  | [jwt](https://github.com/ZeroOrInfinity/UMS/tree/master/jwt)   | JWT 功能 |
+  | [oauth](https://github.com/ZeroOrInfinity/UMS/tree/master/oauth)   | OAuth2 login by JustAuth, 集成 jwt/mdc 模块 |
+  | [rbac](https://github.com/ZeroOrInfinity/UMS/tree/master/rbac)   | 基于角色的访问权限控制,支持多租户, 集成 mdc 模块 |
+  | [jwt](https://github.com/ZeroOrInfinity/UMS/tree/master/jwt)   | JWT 功能, 集成 mdc 模块 |
   | [demo](https://github.com/ZeroOrInfinity/UMS/tree/master/demo)   | basic-example/basic-detail-example/permission-example/quickStart/session-detail-example/validate-codi-example/justAuth-security-oauth2-example/tenant-example/jwt-example |
 ### demo 演示功能  
 
@@ -74,7 +75,7 @@ Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-
 ```xml
 <dependency>
     <groupId>top.dcenter</groupId>
-    <artifactId>ums-core-spring-boot-starter</artifactId>
+    <artifactId>ums-spring-boot-starter</artifactId>
     <version>[2.2.0,)</version>
 </dependency>
 ```
@@ -287,7 +288,7 @@ Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-
 ### 5\. Jackson 序列化与反序列化
 
 - 添加一些 Authentication 与 UserDetails 子类的反序列化器, 以解决 redis 缓存不能反序列化此类型的问题,
-具体配置 redis 反序列器的配置请看 [RedisCacheAutoConfiguration.getJackson2JsonRedisSerializer()](https://github.com/ZeroOrInfinity/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/redis/config/RedisCacheAutoConfiguration.java) 方法.
+具体配置 redis 反序列器的配置请看 [RedisCacheAutoConfiguration.getJackson2JsonRedisSerializer()](https://github.com/ZeroOrInfinity/UMS/blob/master/ums-spring-boot-starter/src/main/java/top/dcenter/ums/security/core/redis/config/RedisCacheAutoConfiguration.java) 方法.
 
 ```java
 // 示例

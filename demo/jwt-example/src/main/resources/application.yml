@@ -31,7 +31,7 @@ spring:
 
   # ===============start session 详细设置 ===============
   redis:
-    host: 192.168.88.88
+    host: 192.168.50.2
     port: 6379
     password:
     database: 0
@@ -40,7 +40,7 @@ spring:
     # redis-lettuce-pool
     lettuce:
       # 会影响应用关闭是时间, dev 模式设置为 0
-      shutdown-timeout: PT500S
+      shutdown-timeout: PT0S
       pool:
         max-active: 8
         max-wait: PT10S
@@ -115,9 +115,16 @@ ums:
     jwt-by-refresh-token-uri: /jwt/refreshToken
     # 是否曝露 jwtByRefreshTokenUri, 默认: false
     expose-refresh-token-uri: true
-    # JWT 剩余的有效期间隔小于此值后自动刷新 JWT, 此配置在 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时有效, 默认: 600 秒
+    # 当 JwtRefreshHandlerPolicy.AUTO_RENEW 时, JWT 剩余的有效期间隔小于此值后自动刷新 JWT;
+    # 当 JwtRefreshHandlerPolicy.REFRESH_TOKEN 时, JWT 剩余的有效期间隔小于此值后通过 refreshToken 才会刷新新的 JWT,
+    # 否则直接返回旧的 JWT. 默认: 600 秒.
     remaining-refresh-interval: PT600S
+    # jwt userId 的 claimName, 默认: sub
+    jwt-user-id-claim-name: userId
     # ========= JWK 相关 =========
+    # 用于 JWT 的 HMAC protection 的 secret, 字符长度必须大于等于 32; 当设置此属性时, 属性 jwsAlgorithms 必须是 HS256, HS384, HS512 中的一个.
+    # 注意: 属性 macsSecret 与 jksKeyPairLocation 同时配置, jksKeyPairLocation 属性优于 macsSecret.
+    macs-secret:
     # 是否曝露 jwk-set-uri, 默认: false.  如果为 true, 需要实现 JwkEndpointPermissionService 权限服务接口
     expose-jwk-set-uri: true
     # 密钥键值对(KeyPair)的别名
@@ -170,6 +177,7 @@ ums:
       refresh-token-prefix: 'JWT:refreshToken:'
       # JWT refresh token ttl(有效期), 默认: 30 天
       refresh-token-ttl: PT720H
+
 
 
 
