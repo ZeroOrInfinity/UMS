@@ -23,6 +23,7 @@
 package top.dcenter.ums.security.jwt.claims.service;
 
 import com.nimbusds.jwt.JWTClaimsSet;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -38,5 +39,13 @@ public interface GenerateClaimsSetService {
      * @param authentication    authentication
      * @return  返回 {@link JWTClaimsSet}
      */
+    @NonNull
     JWTClaimsSet generateClaimsSet(Authentication authentication);
+
+    /**
+     * 获取 JWT 存储 principal 的 claimName
+     * @return 返回 JWT 存储 principal 的 claimName
+     */
+    @NonNull
+    String getPrincipalClaimName();
 }
