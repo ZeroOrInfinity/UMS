@@ -88,7 +88,9 @@ public class JwtProperties {
     private Duration clockSkew = Duration.ofSeconds(0);
 
     /**
-     * JWT 剩余的有效期间隔小于此值后自动刷新 JWT, 此配置在 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时有效, 默认: 600 秒
+     * 当 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时, JWT 剩余的有效期间隔小于此值后自动刷新 JWT;
+     * 当 {@link JwtRefreshHandlerPolicy#REFRESH_TOKEN} 时, JWT 剩余的有效期间隔小于此值后通过 refreshToken 才会刷新新的 JWT,
+     * 否则直接返回旧的 JWT. 默认: 600 秒.
      */
     private Duration remainingRefreshInterval = Duration.ofSeconds(600);
 
