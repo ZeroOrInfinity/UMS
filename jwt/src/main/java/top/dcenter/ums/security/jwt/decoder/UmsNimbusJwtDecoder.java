@@ -36,6 +36,8 @@ import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
@@ -46,12 +48,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
@@ -62,9 +66,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.jwt.JwtContext;
+import top.dcenter.ums.security.jwt.api.validator.service.ReAuthService;
 import top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy;
 import top.dcenter.ums.security.jwt.exception.JwtInvalidException;
-import top.dcenter.ums.security.jwt.api.validator.service.ReAuthService;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
@@ -79,9 +84,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
 import static top.dcenter.ums.security.jwt.JwtContext.getClockSkew;
@@ -104,7 +111,22 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 
 	private final JWTProcessor<SecurityContext> jwtProcessor;
 	private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
+	/**
+	 * 当 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时, JWT 剩余的有效期间隔小于此值后自动刷新 JWT;
+	 * 当 {@link JwtRefreshHandlerPolicy#REFRESH_TOKEN} 时, JWT 剩余的有效期间隔小于此值后通过 refreshToken 才会刷新新的 JWT,
+	 * 否则直接返回旧的 JWT.
+	 */
+	@Getter
 	private final Duration remainingRefreshInterval;
+	/**
+	 * JWT 存储 principal 的 claimName, 通常 principal 为 userId
+	 */
+	@Getter	private final String principalClaimName;
+	/**
+	 * 是否支持 jti 黑名单, 用于防止刷新 jwt 时并发访问的问题.
+	 */
+	@Setter
+	private Boolean isSupportJtiBlacklistValidator = Boolean.TRUE;
 
 	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
 			.withDefaults(Collections.emptyMap());
@@ -120,12 +142,20 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 	 * @param jwtProcessor              the {@link JWTProcessor} to use
 	 * @param refreshHandlerPolicy      {@link Jwt} 刷新处理策略
 	 * @param remainingRefreshInterval  JWT 剩余的有效期间隔小于此值后自动刷新 JWT, 此配置在 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时有效
+	 * @param principalClaimName        JWT 存储 principal 的 claimName
 	 */
-	public UmsNimbusJwtDecoder(JWTProcessor<SecurityContext> jwtProcessor, JwtRefreshHandlerPolicy refreshHandlerPolicy, Duration remainingRefreshInterval) {
+	public UmsNimbusJwtDecoder(JWTProcessor<SecurityContext> jwtProcessor,
+	                           JwtRefreshHandlerPolicy refreshHandlerPolicy,
+	                           Duration remainingRefreshInterval,
+	                           String principalClaimName) {
+		Assert.notNull(jwtProcessor, "jwtProcessor cannot be null");
+		Assert.notNull(principalClaimName, "principalClaimName cannot be null");
+		Assert.notNull(refreshHandlerPolicy, "refreshHandlerPolicy cannot be null");
+		Assert.notNull(remainingRefreshInterval, "remainingRefreshInterval cannot be null");
 		this.refreshHandlerPolicy = refreshHandlerPolicy;
 		this.remainingRefreshInterval = remainingRefreshInterval;
-		Assert.notNull(jwtProcessor, "jwtProcessor cannot be null");
 		this.jwtProcessor = jwtProcessor;
+		this.principalClaimName = principalClaimName;
 	}
 
 	/**
@@ -162,14 +192,14 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		Jwt createdJwt = createJwt(token, jwt);
 		// AUTO_RENEW 策略时 前置校验
 		if (JwtRefreshHandlerPolicy.AUTO_RENEW.equals(this.refreshHandlerPolicy)) {
-			validateJwt(createdJwt);
+			createdJwt = validateJwt(createdJwt);
 		}
 		if (refreshHandlerPolicy.isRefresh(createdJwt, remainingRefreshInterval, getClockSkew(), reAuthService)) {
-			createdJwt = refreshHandlerPolicy.refreshHandle(createdJwt, this);
+			createdJwt = refreshHandlerPolicy.refreshHandle(createdJwt, this, principalClaimName);
 		}
 		// 不是 AUTO_RENEW 策略时 后置校验
 		if (!JwtRefreshHandlerPolicy.AUTO_RENEW.equals(this.refreshHandlerPolicy)) {
-			validateJwt(createdJwt);
+			createdJwt = validateJwt(createdJwt);
 		}
 		return createdJwt;
 	}
@@ -187,7 +217,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 			throw new BadJwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
 		}
 		Jwt createdJwt = createJwt(token, jwt);
-		validateJwt(createdJwt);
+		createdJwt = validateJwt(createdJwt);
 		return createdJwt;
 	}
 
@@ -264,13 +294,54 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		}
 	}
 
-	private void validateJwt(Jwt jwt) {
+	private Jwt validateJwt(Jwt jwt) {
+
+		if (isSupportJtiBlacklistValidator) {
+			Jwt refreshJwt = validateJti(jwt);
+			if (!Objects.equals(refreshJwt, jwt)) {
+				return refreshJwt;
+			}
+		}
+
 		OAuth2TokenValidatorResult result = this.jwtValidator.validate(jwt);
 		if (result.hasErrors()) {
 			Collection<OAuth2Error> errors = result.getErrors();
 			String validationErrorString = getJwtValidationExceptionMessage(errors);
 			throw new JwtValidationException(validationErrorString, errors);
 		}
+		return jwt;
+	}
+
+	private Jwt validateJti(Jwt jwt) {
+		// 1. 校验 jwt 是否在黑名单, 是否需要重新认证(reAuth)
+		JwtContext.BlacklistType blacklistType = JwtContext.jtiInTheBlacklist(jwt.getId());
+		try {
+	        /* - newJwtString == null 表示不在黑名单中,
+	           - newJwtString != null 表示在黑名单中, 但缓存中存储有新的且有效 JWT 则返回新的 jwt 字符串,
+	           - 抛出异常表示在黑名单中, 但缓存中没有新的 jwt 字符串, 则需要重新认证.
+	         */
+			String newJwtString = JwtContext.inBlacklistAndHasNewJwt(blacklistType);
+
+			if (nonNull(newJwtString)) {
+				// 在黑名单中, 但缓存中存储有新的且有效 JWT, 返回此 JWT
+				return decodeNotValidate(newJwtString);
+			}
+
+			// jwt 有效, 原样返回
+			return jwt;
+		}
+		catch (JwtInvalidException e) {
+			OAuth2TokenValidatorResult result =
+					OAuth2TokenValidatorResult.failure(
+							new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST,
+							                "The " + JwtClaimNames.JTI + " claim is not valid",
+							                null)
+					);
+			Collection<OAuth2Error> errors = result.getErrors();
+			String validationErrorString = getJwtValidationExceptionMessage(errors);
+			throw new JwtValidationException(validationErrorString, errors);
+		}
+
 	}
 
 	private String getJwtValidationExceptionMessage(Collection<OAuth2Error> errors) {
@@ -288,12 +359,15 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 	 * @param jwkSetUri                 the JWK Set uri to use
 	 * @param refreshHandlerPolicy      {@link Jwt} 刷新处理策略
 	 * @param remainingRefreshInterval  JWT 剩余的有效期间隔小于此值后自动刷新 JWT, 此配置在 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时有效
+	 * @param principalClaimName        JWT 存储 principal 的 claimName
 	 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
 	 */
 	public static JwkSetUriJwtDecoderBuilder withJwkSetUri(String jwkSetUri,
 	                                                       JwtRefreshHandlerPolicy refreshHandlerPolicy,
-	                                                       Duration remainingRefreshInterval) {
-		return new JwkSetUriJwtDecoderBuilder(jwkSetUri, refreshHandlerPolicy, remainingRefreshInterval);
+	                                                       Duration remainingRefreshInterval,
+	                                                       String principalClaimName) {
+		return new JwkSetUriJwtDecoderBuilder(jwkSetUri, refreshHandlerPolicy,
+		                                      remainingRefreshInterval, principalClaimName);
 	}
 
 	/**
@@ -301,12 +375,15 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 	 * @param key                       the public key to use
 	 * @param refreshHandlerPolicy      {@link Jwt} 刷新处理策略
 	 * @param remainingRefreshInterval  JWT 剩余的有效期间隔小于此值后自动刷新 JWT, 此配置在 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时有效
+	 * @param principalClaimName        JWT 存储 principal 的 claimName
 	 * @return a {@link PublicKeyJwtDecoderBuilder} for further configurations
 	 */
 	public static PublicKeyJwtDecoderBuilder withPublicKey(RSAPublicKey key,
 	                                                       JwtRefreshHandlerPolicy refreshHandlerPolicy,
-	                                                       Duration remainingRefreshInterval) {
-		return new PublicKeyJwtDecoderBuilder(key, refreshHandlerPolicy, remainingRefreshInterval);
+	                                                       Duration remainingRefreshInterval,
+	                                                       String principalClaimName) {
+		return new PublicKeyJwtDecoderBuilder(key, refreshHandlerPolicy,
+		                                      remainingRefreshInterval, principalClaimName);
 	}
 
 	/**
@@ -314,12 +391,15 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 	 * @param secretKey                 the {@code SecretKey} used to validate the MAC
 	 * @param refreshHandlerPolicy      {@link Jwt} 刷新处理策略
 	 * @param remainingRefreshInterval  JWT 剩余的有效期间隔小于此值后自动刷新 JWT, 此配置在 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时有效
+	 * @param principalClaimName        JWT 存储 principal 的 claimName
 	 * @return a {@link SecretKeyJwtDecoderBuilder} for further configurations
 	 */
 	public static SecretKeyJwtDecoderBuilder withSecretKey(SecretKey secretKey,
 	                                                       JwtRefreshHandlerPolicy refreshHandlerPolicy,
-	                                                       Duration remainingRefreshInterval) {
-		return new SecretKeyJwtDecoderBuilder(secretKey, refreshHandlerPolicy, remainingRefreshInterval);
+	                                                       Duration remainingRefreshInterval,
+	                                                       String principalClaimName) {
+		return new SecretKeyJwtDecoderBuilder(secretKey, refreshHandlerPolicy,
+		                                      remainingRefreshInterval, principalClaimName);
 	}
 
 	/**
@@ -332,6 +412,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		private final String jwkSetUri;
 		private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
 		private final Duration remainingRefreshInterval;
+		private final String principalClaimName;
 
 		@SuppressWarnings("FieldMayBeFinal")
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
@@ -344,10 +425,13 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri,
 		                                   JwtRefreshHandlerPolicy refreshHandlerPolicy,
-		                                   Duration remainingRefreshInterval) {
+		                                   Duration remainingRefreshInterval,
+		                                   String principalClaimName) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
 			Assert.notNull(refreshHandlerPolicy, "refreshHandlerPolicy cannot be null");
 			Assert.notNull(remainingRefreshInterval, "remainingRefreshInterval cannot be null");
+			Assert.notNull(principalClaimName, "principalClaimName cannot be null");
+			this.principalClaimName = principalClaimName;
 			this.jwkSetUri = jwkSetUri;
 			this.refreshHandlerPolicy = refreshHandlerPolicy;
 			this.remainingRefreshInterval = remainingRefreshInterval;
@@ -462,7 +546,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		 * @return the configured {@link UmsNimbusJwtDecoder}
 		 */
 		public UmsNimbusJwtDecoder build() {
-			return new UmsNimbusJwtDecoder(processor(), refreshHandlerPolicy, remainingRefreshInterval);
+			return new UmsNimbusJwtDecoder(processor(), refreshHandlerPolicy, remainingRefreshInterval, principalClaimName);
 		}
 
 		@SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
@@ -570,6 +654,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 
 		private JWSAlgorithm jwsAlgorithm;
 
+		private final String principalClaimName;
 		private final RSAPublicKey key;
 		private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
 		private final Duration remainingRefreshInterval;
@@ -578,10 +663,13 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 
 		private PublicKeyJwtDecoderBuilder(RSAPublicKey key,
 		                                   JwtRefreshHandlerPolicy refreshHandlerPolicy,
-		                                   Duration remainingRefreshInterval) {
+		                                   Duration remainingRefreshInterval,
+		                                   String principalClaimName) {
 			Assert.notNull(key, "key cannot be null");
 			Assert.notNull(refreshHandlerPolicy, "refreshHandlerPolicy cannot be null");
 			Assert.notNull(remainingRefreshInterval, "remainingRefreshInterval cannot be null");
+			Assert.notNull(principalClaimName, "principalClaimName cannot be null");
+			this.principalClaimName = principalClaimName;
 			this.jwsAlgorithm = JWSAlgorithm.RS256;
 			this.key = key;
 			this.refreshHandlerPolicy = refreshHandlerPolicy;
@@ -641,7 +729,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		 * @return the configured {@link UmsNimbusJwtDecoder}
 		 */
 		public UmsNimbusJwtDecoder build() {
-			return new UmsNimbusJwtDecoder(processor(), refreshHandlerPolicy, remainingRefreshInterval);
+			return new UmsNimbusJwtDecoder(processor(), refreshHandlerPolicy, remainingRefreshInterval, principalClaimName);
 		}
 
 	}
@@ -655,6 +743,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		private final SecretKey secretKey;
 		private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
 		private final Duration remainingRefreshInterval;
+		private final String principalClaimName;
 
 		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
 
@@ -662,10 +751,13 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 
 		private SecretKeyJwtDecoderBuilder(SecretKey secretKey,
 		                                   JwtRefreshHandlerPolicy refreshHandlerPolicy,
-		                                   Duration remainingRefreshInterval) {
+		                                   Duration remainingRefreshInterval,
+		                                   String principalClaimName) {
 			Assert.notNull(secretKey, "secretKey cannot be null");
 			Assert.notNull(refreshHandlerPolicy, "refreshHandlerPolicy cannot be null");
 			Assert.notNull(remainingRefreshInterval, "remainingRefreshInterval cannot be null");
+			Assert.notNull(principalClaimName, "principalClaimName cannot be null");
+			this.principalClaimName = principalClaimName;
 			this.secretKey = secretKey;
 			this.refreshHandlerPolicy = refreshHandlerPolicy;
 			this.remainingRefreshInterval = remainingRefreshInterval;
@@ -710,7 +802,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		 * @return the configured {@link UmsNimbusJwtDecoder}
 		 */
 		public UmsNimbusJwtDecoder build() {
-			return new UmsNimbusJwtDecoder(processor(), refreshHandlerPolicy, remainingRefreshInterval);
+			return new UmsNimbusJwtDecoder(processor(), refreshHandlerPolicy, remainingRefreshInterval, principalClaimName);
 		}
 
 		JWTProcessor<SecurityContext> processor() {
