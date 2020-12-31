@@ -98,9 +98,15 @@ public class JwtProperties {
     private JwtRefreshHandlerPolicy refreshHandlerPolicy = JwtRefreshHandlerPolicy.REJECT;
 
     /**
-     * 通过 refreshToken 获取 JWT uri, 默认: /jwt/refreshToken
+     * 通过 refreshToken 获取 JWT uri, 默认: /jwt/refreshToken,
+     * 注意: 当 exposeRefreshTokenUri=true 时才生效
      */
     private String jwtByRefreshTokenUri = "/jwt/refreshToken";
+
+    /**
+     * 是否曝露 jwtByRefreshTokenUri, 默认: false
+     */
+    private Boolean exposeRefreshTokenUri = Boolean.FALSE;
 
 
     // ================= JWS 与 JWK 相关 =================

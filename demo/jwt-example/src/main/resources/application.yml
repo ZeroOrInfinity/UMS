@@ -111,7 +111,10 @@ ums:
     # 注意: 此默认值适合 "单服务器" 应用, "多服务器" 应用请更改此值
     clock-skew: PT0S
     # 通过 refreshToken 获取 JWT uri, 默认: /jwt/refreshToken
+    # 注意: 当 exposeRefreshTokenUri=true 时才生效
     jwt-by-refresh-token-uri: /jwt/refreshToken
+    # 是否曝露 jwtByRefreshTokenUri, 默认: false
+    expose-refresh-token-uri: true
     # JWT 剩余的有效期间隔小于此值后自动刷新 JWT, 此配置在 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时有效, 默认: 600 秒
     remaining-refresh-interval: PT600S
     # ========= JWK 相关 =========

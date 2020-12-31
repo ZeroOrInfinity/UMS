@@ -231,6 +231,7 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean
+    @ConditionalOnProperty(prefix = "ums.jwt", name = "expose-refresh-token-uri", havingValue = "true")
     public JwtRefreshTokenController jwtRefreshTokenController(GenerateClaimsSetService generateClaimsSetService,
                                                                UmsUserDetailsService umsUserDetailsService,
                                                                JwtDecoder jwtDecoder,
