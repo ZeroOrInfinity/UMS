@@ -62,6 +62,9 @@ import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.jwt.JwtContext;
 import top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService;
 import top.dcenter.ums.security.jwt.api.endpoind.service.JwkEndpointPermissionService;
+import top.dcenter.ums.security.jwt.api.supplier.JwtClaimTypeConverterSupplier;
+import top.dcenter.ums.security.jwt.api.supplier.JwtGrantedAuthoritiesConverterSupplier;
+import top.dcenter.ums.security.jwt.api.validator.service.CustomClaimValidateService;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 import top.dcenter.ums.security.jwt.claims.service.impl.UmsCustomClaimsSetServiceImpl;
 import top.dcenter.ums.security.jwt.claims.service.impl.UmsGenerateClaimsSetServiceImpl;
@@ -74,13 +77,11 @@ import top.dcenter.ums.security.jwt.properties.BearerTokenProperties;
 import top.dcenter.ums.security.jwt.properties.JwtCacheProperties;
 import top.dcenter.ums.security.jwt.properties.JwtProperties;
 import top.dcenter.ums.security.jwt.resolver.UmsBearerTokenResolver;
-import top.dcenter.ums.security.jwt.api.supplier.JwtClaimTypeConverterSupplier;
-import top.dcenter.ums.security.jwt.api.supplier.JwtGrantedAuthoritiesConverterSupplier;
 import top.dcenter.ums.security.jwt.supplier.UmsJwtClaimTypeConverterSupplier;
 import top.dcenter.ums.security.jwt.supplier.UmsJwtGrantedAuthoritiesConverterSupplier;
 import top.dcenter.ums.security.jwt.validator.JwtNotBeforeValidator;
-import top.dcenter.ums.security.jwt.api.validator.service.CustomClaimValidateService;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPublicKey;
@@ -281,19 +282,45 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
 
     @Bean
     @Primary
-    @ConditionalOnProperty(prefix = "ums.jwt", name = "jks-key-pair-location")
     public JwtDecoder jwtDecoder(OAuth2TokenValidator<Jwt> oAuth2TokenValidator,
                                  MappedJwtClaimSetConverter mappedJwtClaimSetConverter,
+                                 @Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties,
                                  JwtProperties jwtProperties) {
 
-        this.jwtDecoder = UmsNimbusJwtDecoder.withPublicKey(this.publicKey, jwtProperties.getRefreshHandlerPolicy(),
-                                                            jwtProperties.getRemainingRefreshInterval())
-                                             .signatureAlgorithm((SignatureAlgorithm) this.jwsAlgorithm)
-                                             .build();
+        Resource jksKeyPairResource = jwtProperties.getJksKeyPairLocation();
+        String macsSecret = jwtProperties.getMacsSecret();
+        if (nonNull(jksKeyPairResource)) {
+            this.jwtDecoder = UmsNimbusJwtDecoder.withPublicKey(this.publicKey, jwtProperties.getRefreshHandlerPolicy(),
+                                                                jwtProperties.getRemainingRefreshInterval())
+                                                 .signatureAlgorithm((SignatureAlgorithm) this.jwsAlgorithm)
+                                                 .build();
+        }
+        else if (hasText(macsSecret)) {
+            this.jwtDecoder =
+                    UmsNimbusJwtDecoder.withSecretKey(new SecretKeySpec(macsSecret.getBytes(StandardCharsets.UTF_8),
+                                                                        "MAC"),
+                                                      jwtProperties.getRefreshHandlerPolicy(),
+                                                      jwtProperties.getRemainingRefreshInterval())
+                                       .build();
+        }
+        else if (nonNull(auth2ResourceServerProperties)) {
+            this.jwtDecoder =
+                    UmsNimbusJwtDecoder.withJwkSetUri(auth2ResourceServerProperties.getJwt().getJwkSetUri(),
+                                                      jwtProperties.getRefreshHandlerPolicy(),
+                                                      jwtProperties.getRemainingRefreshInterval())
+                                       .build();
+        }
+
+        if (isNull(this.jwtDecoder)) {
+            throw new RuntimeException("未成功创建 org.springframework.security.oauth2.jwt.JwtDecoder; \n" +
+                                       "当需要拥有创建 JWT 功能时需要配置 \"ums.jwt.jksKeyPairLocation\" 或 " +
+                                               "\"ums.jwt.macsSecret\" 的属性, \n" +
+                                       "当仅仅需要解析 JWT 时请配置 \"spring.security.oauth2.resourceserver.jwt.jwk-set-uri\" 属性");
+        }
 
         setJwtValidatorAndClaimSetConverter(oAuth2TokenValidator, mappedJwtClaimSetConverter, jwtDecoder);
-
         return jwtDecoder;
+
     }
 
     @Bean

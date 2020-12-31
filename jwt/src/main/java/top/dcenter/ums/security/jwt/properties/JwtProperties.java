@@ -110,6 +110,7 @@ public class JwtProperties {
 
 
     // ================= JWS 与 JWK 相关 =================
+
     /**
      * 是否曝露 jwk-set-uri, 默认: false.
      * 如果为 true, 需要实现 {@link JwkEndpointPermissionService} 权限服务接口
