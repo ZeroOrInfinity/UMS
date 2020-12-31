@@ -77,6 +77,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -240,11 +241,11 @@ public final class JwtContext {
     public static Authentication createJwtAndToJwtAuthenticationToken(@NonNull Authentication authentication,
                                      @Nullable GenerateClaimsSetService generateClaimsSetService) throws JwtCreateException {
         // 生成 Jwt 并转换为 JwtAuthenticationToken
-        if (nonNull(generateClaimsSetService) && isSupportJwt(authentication)) {
+        if (nonNull(generateClaimsSetService) && isSupportCreateJwt(authentication)) {
             try {
                 Jwt jwt = createJwt(generateClaimsSetService.generateClaimsSet(authentication));
 
-                setBearerTokenAndRefreshTokenToHeader(jwt, TRUE);
+                setBearerTokenAndRefreshTokenToHeader(jwt, TRUE, generateClaimsSetService.getPrincipalClaimName());
                 return toJwtAuthenticationToken(jwt, authentication);
             }
             catch (Exception e) {
@@ -260,8 +261,9 @@ public final class JwtContext {
     /**
      * 重置旧 {@link Jwt} 的 exp/iat/nbf 的时间戳并返回重新签名后的 {@link Jwt},
      * 注意: {@link Jwt} 中 tokenValue 的"日期"都以"时间戳"表示且"时间戳"以秒为单位
-     * @param jwt           过期的 {@link Jwt}
-     * @param jwtDecoder    {@link UmsNimbusJwtDecoder}
+     * @param jwt                   过期的 {@link Jwt}
+     * @param jwtDecoder            {@link UmsNimbusJwtDecoder}
+     * @param principalClaimName    JWT 存储 principal 的 claimName
      * @return  返回 重置旧 {@link Jwt} 的 exp/iat/nbf 的时间戳并重新签名后的 {@link Jwt}
      * @throws ParseException       重置 jwt 异常
      * @throws JOSEException        重置 jwt 异常
@@ -269,7 +271,11 @@ public final class JwtContext {
      */
     @NonNull
     public static Jwt resetJwtExpOfAutoRenewPolicy(@NonNull Jwt jwt, @NonNull UmsNimbusJwtDecoder jwtDecoder,
-                                                   @NonNull JwtRefreshHandlerPolicy policy) throws ParseException, JOSEException, JwtInvalidException {
+                                                   @NonNull JwtRefreshHandlerPolicy policy,
+                                                   @NonNull String principalClaimName)
+            throws ParseException, JOSEException, JwtInvalidException {
+
+        Jwt newJwt;
 
         if (!AUTO_RENEW.equals(policy)) {
             throw new MismatchRefreshJwtPolicyException(ErrorCodeEnum.REFRESH_JWT_POLICY_MISMATCH, getMdcTraceId());
@@ -277,18 +283,21 @@ public final class JwtContext {
 
         // 1. 校验 jwt 是否在黑名单, 是否需要重新认证(reAuth)
         BlacklistType blacklistType = jtiInTheBlacklist(jwt.getId());
-        if (blacklistType.isInBlacklist()) {
-            String blackListValue = blacklistType.getOneTimeNewJwtValue();
-            if (nonNull(blackListValue)) {
-                Jwt newJwt = jwtDecoder.decodeNotValidate(blackListValue);
-                // 新的 jwt 设置 header
-                setBearerTokenAndRefreshTokenToHeader(newJwt, FALSE);
-                return newJwt;
-            }
-            else {
-                // 需要重新认证
-                throw new JwtInvalidException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId());
-            }
+        /* - newJwtString == null 表示不在黑名单中,
+           - newJwtString != null 表示在黑名单中, 但缓存中存储有新的且有效 JWT 则返回新的 jwt 字符串,
+           - 抛出异常表示在黑名单中, 但缓存中没有新的 jwt 字符串, 则需要重新认证.
+         */
+        String newJwtString = inBlacklistAndHasNewJwt(blacklistType);
+        if (newJwtString != null) {
+            newJwt = jwtDecoder.decodeNotValidate(newJwtString);
+            // 新的 jwt 设置 header
+            setBearerTokenAndRefreshTokenToHeader(newJwt, FALSE, principalClaimName);
+            return newJwt;
+        }
+
+        if (isNull(signer)) {
+            // 当 signer 未 null 时, 表明只是解析 JWT 的场景, 不支持重新刷新 JWT, 需要重新认证
+            throw new JwtInvalidException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId());
         }
 
         // 2. 重置jwt
@@ -311,15 +320,35 @@ public final class JwtContext {
               .filter((entry -> entry.getValue() instanceof Instant))
               .forEach(entry -> entry.setValue(((Instant) entry.getValue()).getEpochSecond()));
 
-        Jwt newJwt = createJwt(getJwsHeader(), toJwtClaimsSet(claims));
+        newJwt = createJwt(getJwsHeader(), toJwtClaimsSet(claims));
 
         // 3. 添加黑名单
         addBlacklist(jwt, newJwt);
 
         // 4. 新的 jwt 设置 header, 并检查 refresh token 是否需要重新生成.
-        setBearerTokenAndRefreshTokenToHeader(newJwt, FALSE);
+        setBearerTokenAndRefreshTokenToHeader(newJwt, FALSE, principalClaimName);
 
         return newJwt;
+    }
+
+    /**
+     * 返回 null 表示不在黑名单中, 返回不为 null 则表示在黑名单中, 但缓存中存储有新的且有效 JWT 则返回新的 jwt 字符串.
+     * @param blacklistType {@link BlacklistType}
+     * @return  返回 null 表示不在黑名单中, 返回不为 null 则表示在黑名单中, 但缓存中存储有新的且有效 JWT 则返回新的 jwt 字符串.
+     * @throws JwtInvalidException  表示在黑名单中, 但缓存中没有新的 jwt 字符串, 则需要重新认证.
+     */
+    @Nullable
+    public static String inBlacklistAndHasNewJwt(@NonNull BlacklistType blacklistType) throws JwtInvalidException {
+
+        if (blacklistType.isInBlacklist()) {
+            String blackListValue = blacklistType.getOneTimeNewJwtValue();
+            // 在黑名单中, 但缓存中存储有新的且有效 JWT 则返回新的 jwt 字符串
+            return Optional.ofNullable(blackListValue)
+                           // 在黑名单中, 但缓存中没有新的 jwt 字符串, 则需要重新认证, 抛出异常
+                           .orElseThrow(() -> new JwtInvalidException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId()));
+        }
+        // 不在黑名单中, 则返回 null
+        return null;
     }
 
 
@@ -333,6 +362,7 @@ public final class JwtContext {
      */
     @NonNull
     public static BlacklistType jtiInTheBlacklist(@NonNull String jti) {
+        // 1. 从 redis jwt 黑名单中获取 jti 的值
         byte[] result = getConnection().get(getBlacklistKey(jti));
 
         String blacklistValue;
@@ -351,7 +381,7 @@ public final class JwtContext {
      *
      * @param refreshToken             refresh token
      * @param request                  {@link HttpServletRequest}
-     * @param jwtDecoder               {@link JwtDecoder}
+     * @param jwtDecoder               {@link UmsNimbusJwtDecoder}
      * @param umsUserDetailsService    {@link UmsUserDetailsService}
      * @param generateClaimsSetService {@link GenerateClaimsSetService}
      * @return 返回新的 {@link Jwt}
@@ -361,7 +391,7 @@ public final class JwtContext {
     @NonNull
     public static Jwt generateJwtByRefreshToken(@NonNull String refreshToken,
                                                 @NonNull HttpServletRequest request,
-                                                @NonNull JwtDecoder jwtDecoder,
+                                                @NonNull UmsNimbusJwtDecoder jwtDecoder,
                                                 @NonNull UmsUserDetailsService umsUserDetailsService,
                                                 @NonNull GenerateClaimsSetService generateClaimsSetService)
             throws JwtCreateException, RefreshTokenInvalidException {
@@ -377,24 +407,44 @@ public final class JwtContext {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-        // 3. 创建 JWT
-        JWTClaimsSet jwtClaimsSet = generateClaimsSetService.generateClaimsSet(authenticationToken);
-        Jwt jwt;
-        try {
-            jwt = createJwt(jwtClaimsSet);
+        // 3. 检查旧的 jwt 是否在刷新的时间访问内()
+        Jwt newJwt = null;
+        Jwt oldJwt = getJwtByRequest(request, jwtDecoder);
+        if (nonNull(oldJwt)) {
+            // 检查是否需要刷新
+            Instant expiresAt = oldJwt.getExpiresAt();
+            if (nonNull(expiresAt)) {
+                long remainingRefreshInterval = jwtDecoder.getRemainingRefreshInterval().getSeconds();
+                boolean toRefresh =
+                        (expiresAt.getEpochSecond() - Instant.now().getEpochSecond()) < remainingRefreshInterval;
+                // 没有在指定的刷新时间间隔内, 不执行刷新操作
+                if (!toRefresh) {
+                    newJwt = oldJwt;
+                }
+            }
         }
-        catch (JOSEException | ParseException e) {
-            log.error(e.getMessage(), e);
-            throw new JwtCreateException(ErrorCodeEnum.CREATE_JWT_ERROR, getMdcTraceId());
+
+        // 4. 创建 JWT
+        if (isNull(newJwt)) {
+            JWTClaimsSet jwtClaimsSet = generateClaimsSetService.generateClaimsSet(authenticationToken);
+            try {
+                newJwt = createJwt(jwtClaimsSet);
+            }
+            catch (JOSEException | ParseException e) {
+                log.error(e.getMessage(), e);
+                throw new JwtCreateException(ErrorCodeEnum.CREATE_JWT_ERROR, getMdcTraceId());
+            }
         }
 
-        // 4. 获取旧的 jwt, 未失效则添加黑名单, 以解决刷新 jwt 而引发的并发访问问题.
-        setOldJwtToBlacklist(refreshToken, request, jwtDecoder, userIdByRefreshToken, jwt);
+        // 5. oldJwt != null 且与 newJwt 不相等, 则 oldJwt 添加黑名单, 以解决刷新 jwt 而引发的并发访问问题.
+        if (nonNull(oldJwt) && !Objects.equals(newJwt, oldJwt)) {
+            setOldJwtToBlacklist(refreshToken, userIdByRefreshToken, oldJwt, newJwt);
+        }
 
-        // 5. 设置 jwt 到 header
-        setBearerTokenAndRefreshTokenToHeader(jwt, false);
+        // 6. 设置 jwt 到 header
+        setBearerTokenAndRefreshTokenToHeader(newJwt, false, jwtDecoder.getPrincipalClaimName());
 
-        return jwt;
+        return newJwt;
     }
 
     /**
@@ -512,7 +562,7 @@ public final class JwtContext {
     }
 
     /**
-     * 添加黑名单
+     * jwt 还在有效期内, 添加黑名单
      * @param oldJwt    要加入黑名单的 {@link Jwt}
      * @param newJwt    替换 oldJwt 的 {@link Jwt}, 用于旧 jwt 失效引发的并发访问问题.
      */
@@ -523,30 +573,28 @@ public final class JwtContext {
     /**
      * 获取旧的 jwt, 未失效则添加黑名单, 以解决刷新 jwt 而引发的并发访问问题.
      * @param refreshToken          refreshToken
-     * @param request               {@link HttpServletRequest}
-     * @param jwtDecoder            {@link JwtDecoder}
      * @param userIdByRefreshToken  userIdByRefreshToken
-     * @param jwt                   {@link Jwt}
+     * @param oldJwt                旧的 {@link Jwt}
+     * @param newJwt                新的 {@link Jwt}
      */
-    private static void setOldJwtToBlacklist(@NonNull String refreshToken, @NonNull HttpServletRequest request,
-                                             @NonNull JwtDecoder jwtDecoder,
+    private static void setOldJwtToBlacklist(@NonNull String refreshToken,
                                              @NonNull String userIdByRefreshToken,
-                                             @NonNull Jwt jwt) {
+                                             @NonNull Jwt oldJwt,
+                                             @NonNull Jwt newJwt) {
 
-        Jwt oldJwt = getJwtByRequest(request, jwtDecoder);
-
-        if (nonNull(oldJwt)) {
-            // 校验新 jwt 与 旧 jwt 是否相同 userId
-            Object oldUserId = oldJwt.getClaim(USER_ID.getClaimName());
-            if (!Objects.equals(oldUserId, userIdByRefreshToken)) {
-                log.error("oldUserId: {} 与 userIdByRefreshToken: {} 不匹配, refreshToken: {}",
-                          oldUserId, userIdByRefreshToken, refreshToken);
-                // userId 与 refreshToken 不匹配, 删除 refreshToken
-                getConnection().del(getRefreshTokenKey(refreshToken));
-                throw new RefreshTokenInvalidException(ErrorCodeEnum.JWT_REFRESH_TOKEN_INVALID, getMdcTraceId());
-            }
-            addBlacklist(oldJwt, jwt);
+        // 校验新 jwt 与 旧 jwt 是否相同 userId
+        Object oldUserId = oldJwt.getClaim(USER_ID.getClaimName());
+        if (!Objects.equals(oldUserId, userIdByRefreshToken)) {
+            log.error("oldUserId: {} 与 userIdByRefreshToken: {} 不匹配, refreshToken: {}",
+                      oldUserId, userIdByRefreshToken, refreshToken);
+            // userId 与 refreshToken 不匹配, 删除 refreshToken
+            getConnection().del(getRefreshTokenKey(refreshToken));
+            throw new RefreshTokenInvalidException(ErrorCodeEnum.JWT_REFRESH_TOKEN_INVALID, getMdcTraceId());
         }
+
+        addBlacklist(oldJwt, newJwt);
+
+
     }
 
     /**
@@ -624,7 +672,7 @@ public final class JwtContext {
     }
 
     /**
-     * 添加黑名单
+     * jwt 还在有效期内, 添加黑名单
      * @param oldJwt    要加入黑名单的 {@link Jwt}
      */
     private static void addBlacklist(@NonNull Jwt oldJwt, byte[] value) {
@@ -698,8 +746,11 @@ public final class JwtContext {
      * 2. refreshToken 只有在 {@link JwtRefreshHandlerPolicy#REFRESH_TOKEN} 时才回设置.
      * @param jwt                       {@link Jwt}
      * @param isGenerateRefreshToken    是否需要重新生成 refreshToken
+     * @param principalClaimName        JWT 存储 principal 的 claimName
      */
-    private static void setBearerTokenAndRefreshTokenToHeader(@NonNull Jwt jwt, @NonNull Boolean isGenerateRefreshToken) {
+    private static void setBearerTokenAndRefreshTokenToHeader(@NonNull Jwt jwt,
+                                                              @NonNull Boolean isGenerateRefreshToken,
+                                                              @NonNull String principalClaimName) {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpServletResponse response = requestAttributes.getResponse();
         // 获取 bearerToken
@@ -712,7 +763,7 @@ public final class JwtContext {
             // 设置 refreshToken 到 header
             if (REFRESH_TOKEN.equals(JwtContext.refreshHandlerPolicy)) {
                 // 生成 refreshToken 并缓存进 redis
-                String refreshToken = generateAndSaveRefreshToken(jwt.getClaimAsString(USER_ID.getClaimName()));
+                String refreshToken = generateAndSaveRefreshToken(jwt.getClaimAsString(principalClaimName));
                 String refreshTokenHeaderName = JwtContext.bearerToken.getRefreshTokenHeaderName();
                 if (!JwtContext.bearerToken.getAllowFormEncodedBodyParameter()) {
                     // 设置到请求头
@@ -735,12 +786,12 @@ public final class JwtContext {
     }
 
     /**
-     * 是否支持 jwt
+     * 是否支持创建 jwt
      * @param authentication    {@link Authentication}
      * @return  支持 jwt 则返回 true, 否则返回 false
      */
     @NonNull
-    private static Boolean isSupportJwt(@NonNull Authentication authentication) {
+    private static Boolean isSupportCreateJwt(@NonNull Authentication authentication) {
         // 是否支持 jwt
         return nonNull(signer) && !(authentication instanceof AbstractOAuth2TokenAuthenticationToken);
     }
@@ -779,7 +830,7 @@ public final class JwtContext {
     @NonNull
     private static Jwt createJwt(@NonNull JWTClaimsSet claimsSet) throws JOSEException, ParseException {
 
-        requireNonNull(signer, "signer 不存在, 不支持 JWT 功能");
+        requireNonNull(signer, "JWSSigner 不存在, 不支持创建 JWT 功能");
 
         JWSHeader jwsHeader = getJwsHeader();
 
@@ -843,7 +894,7 @@ public final class JwtContext {
      * @author YongWu zheng
      * @version V2.0  Created by 2020.12.17 23:25
      */
-    enum BlacklistType {
+    public enum BlacklistType {
         /**
          * 不在黑名单
          */
@@ -881,12 +932,6 @@ public final class JwtContext {
          */
         IN_BLACKLIST_AND_HAS_NEW_JWT {
             @Override
-            @NonNull
-            public Boolean isInBlacklist() {
-                return true;
-            }
-
-            @Override
             @Nullable
             public String getOneTimeNewJwtValue() {
                 try {
@@ -895,6 +940,12 @@ public final class JwtContext {
                 finally {
                     JWT_VALUE.remove();
                 }
+            }
+
+            @Override
+            @NonNull
+            public Boolean isInBlacklist() {
+                return true;
             }
         };
 
