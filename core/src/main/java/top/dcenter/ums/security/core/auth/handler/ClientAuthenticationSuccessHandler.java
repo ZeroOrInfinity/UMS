@@ -26,6 +26,8 @@ package top.dcenter.ums.security.core.auth.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -46,6 +48,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 import static org.springframework.util.StringUtils.hasText;
 import static top.dcenter.ums.security.common.utils.JsonUtil.isAjaxOrJson;
@@ -65,14 +68,11 @@ import static top.dcenter.ums.security.core.util.RequestUtil.getRequestUri;
 public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSuccessHandler {
 
     protected final RequestCache requestCache;
-    /**
-     * 包含 ServletContextPath
-     */
-    protected final String auth2RedirectUrl;
 
     protected final LoginProcessType loginProcessType;
 
-    public ClientAuthenticationSuccessHandler(ClientProperties clientProperties, String auth2RedirectUrl) {
+    public ClientAuthenticationSuccessHandler(@NonNull ClientProperties clientProperties,
+                                              @Nullable String auth2RedirectUrl) {
         this.auth2RedirectUrl = auth2RedirectUrl;
         this.requestCache = new HttpSessionRequestCache();
         this.loginProcessType = clientProperties.getLoginProcessType();
@@ -155,9 +155,10 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         String defaultTargetUrl = getDefaultTargetUrl();
         SavedRequest savedRequest = this.requestCache.getRequest(request, response);
 
+        //noinspection AlibabaAvoidComplexCondition
         if (isAlwaysUseDefaultTargetUrl()
             // OAuth2 回调时 referer 直接是域名, 没有带 ServletContextPath, 直接返回 defaultTargetUrl
-            || request.getServletPath().startsWith(auth2RedirectUrl)) {
+            || (nonNull(auth2RedirectUrl) && request.getServletPath().startsWith(auth2RedirectUrl))) {
             if (this.logger.isTraceEnabled()) {
                 this.logger.trace(LogMessage.format("Using default url %s", defaultTargetUrl));
             }

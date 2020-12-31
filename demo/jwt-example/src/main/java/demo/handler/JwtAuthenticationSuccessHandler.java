@@ -50,6 +50,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 import static org.springframework.util.StringUtils.hasText;
 import static top.dcenter.ums.security.common.utils.JsonUtil.isAjaxOrJson;
@@ -69,14 +70,11 @@ import static top.dcenter.ums.security.core.util.RequestUtil.getRequestUri;
 public class JwtAuthenticationSuccessHandler extends BaseAuthenticationSuccessHandler {
 
     protected final RequestCache requestCache;
-    /**
-     * 包含 ServletContextPath
-     */
-    protected final String auth2RedirectUrl = "/demo/oauth/login";
 
     protected final LoginProcessType loginProcessType;
 
     public JwtAuthenticationSuccessHandler(ClientProperties clientProperties) {
+        this.auth2RedirectUrl = "/oauth/login";
         this.requestCache = new HttpSessionRequestCache();
         this.loginProcessType = clientProperties.getLoginProcessType();
 
@@ -162,9 +160,10 @@ public class JwtAuthenticationSuccessHandler extends BaseAuthenticationSuccessHa
         String defaultTargetUrl = getDefaultTargetUrl();
         SavedRequest savedRequest = this.requestCache.getRequest(request, response);
 
+        //noinspection AlibabaAvoidComplexCondition
         if (isAlwaysUseDefaultTargetUrl()
             // OAuth2 回调时 referer 直接是域名, 没有带 ServletContextPath, 直接返回 defaultTargetUrl
-            || request.getServletPath().startsWith(auth2RedirectUrl)) {
+            || (nonNull(auth2RedirectUrl) && request.getServletPath().startsWith(auth2RedirectUrl))) {
             if (this.logger.isTraceEnabled()) {
                 this.logger.trace(LogMessage.format("Using default url %s", defaultTargetUrl));
             }

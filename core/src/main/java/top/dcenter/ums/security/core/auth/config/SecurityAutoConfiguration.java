@@ -47,7 +47,6 @@ import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationSuccessHan
 import top.dcenter.ums.security.core.auth.handler.DefaultLogoutSuccessHandler;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
-import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import java.lang.reflect.Field;
@@ -100,8 +99,8 @@ public class SecurityAutoConfiguration implements InitializingBean {
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler")
-    public BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler(Auth2Properties auth2Properties) {
-        return new ClientAuthenticationSuccessHandler(clientProperties, auth2Properties.getRedirectUrlPrefix()); }
+    public BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler() {
+        return new ClientAuthenticationSuccessHandler(clientProperties, null); }
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler")

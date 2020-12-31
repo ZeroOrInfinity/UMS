@@ -115,6 +115,8 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         this.updateConnectionTaskExecutor = updateConnectionTaskExecutor;
         this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
         this.baseAuthenticationSuccessHandler = baseAuthenticationSuccessHandler;
+        this.baseAuthenticationSuccessHandler.setAuth2RedirectUrl(auth2Properties.getRedirectUrlPrefix());
+
     }
 
     @Override

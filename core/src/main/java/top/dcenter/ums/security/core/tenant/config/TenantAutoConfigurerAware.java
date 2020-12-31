@@ -30,7 +30,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.core.auth.config.PropertiesAutoConfiguration;
-import top.dcenter.ums.security.core.oauth.config.Auth2PropertiesAutoConfiguration;
 
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +40,8 @@ import java.util.Set;
  * @version V2.0  Created by 2020.11.30 15:23
  */
 @Configuration
-@AutoConfigureAfter({PropertiesAutoConfiguration.class, Auth2PropertiesAutoConfiguration.class})
+@AutoConfigureAfter(value = {PropertiesAutoConfiguration.class},
+                    name = {"top.dcenter.ums.security.core.redis.config.RedisPropertiesAutoConfiguration"})
 public class TenantAutoConfigurerAware implements HttpSecurityAware {
     @Override
     public void configure(WebSecurity web) {

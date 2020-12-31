@@ -36,7 +36,7 @@ import java.util.Set;
  */
 public abstract class BaseAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings("UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD")
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD", "URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"})
     protected boolean useReferer = false;
     /**
      * 使用 userReferer 时, 如果 referer 是属于 ignoreUrls, 则跳转到 defaultTargetUrl
@@ -44,10 +44,20 @@ public abstract class BaseAuthenticationSuccessHandler extends SavedRequestAware
     protected Set<String> ignoreUrls = new HashSet<>();
 
     /**
+     * 第三方登录回调 URL, 不包含 ServletContextPath
+     */
+    protected String auth2RedirectUrl;
+
+    /**
      * 添加 ignoreUrl
      * @param ignoreUrl  ignoreUrl
      */
     public void addIgnoreUrl(@NonNull String ignoreUrl) {
         ignoreUrls.add(ignoreUrl);
+    }
+
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"})
+    public void setAuth2RedirectUrl(String auth2RedirectUrl) {
+        this.auth2RedirectUrl = auth2RedirectUrl;
     }
 }
