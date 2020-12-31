@@ -1,0 +1,4 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  top.dcenter.ums.security.core.redis.config.RedisPropertiesAutoConfiguration,\
+  top.dcenter.ums.security.core.redis.config.RedisCacheAutoConfiguration

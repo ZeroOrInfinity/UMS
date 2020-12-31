@@ -74,7 +74,7 @@ import static top.dcenter.ums.security.common.consts.RedisCacheConstants.USER_CO
 import static top.dcenter.ums.security.common.consts.RedisCacheConstants.USER_CONNECTION_HASH_CACHE_NAME;
 
 /**
- * 简单的实现 Redis cache 自定义配置 {@link CacheManager}, 向 IOC 容器中注入 beanName=socialRedisHashCacheManager 的实例. <br><br>
+ * 简单的实现 Redis cache 自定义配置 {@link CacheManager}, 向 IOC 容器中注入 beanName=auth2RedisHashCacheManager 的实例. <br><br>
  * 此 redis Cache 对 {@link org.springframework.data.redis.cache.RedisCache} 进行了修改, 把缓存的 KV 格式该成了 Hash 格式.<br>
  * 1. Cacheable 操作异常处理: <br>
  *     异常处理在日志中打印出错误信息，但是放行，保证redis服务器出现连接等问题的时候不影响程序的正常运行，使得能够出问题时不用缓存. <br>
@@ -173,7 +173,7 @@ public class RedisCacheAutoConfiguration {
     }
 
     /**
-     * 缓存管理器, 当 IOC 容器中有 beanName=redisCacheManager 时会替换此实例
+     * 缓存管理器, 当 IOC 容器中有 beanName=auth2RedisHashCacheManager 时会替换此实例
      * @return CacheManager
      */
     @Bean("auth2RedisHashCacheManager")

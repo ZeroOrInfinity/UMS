@@ -9,15 +9,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ums-core-spring-boot-starter</artifactId>
-    <version>${ums.core.version}</version>
-    <packaging>jar</packaging>
-
-    <name>ums-core-spring-boot-starter</name>
+    <artifactId>ums-spring-boot-starter</artifactId>
+    <version>${ums.starter.version}</version>
+    <name>ums-spring-boot-starter</name>
     <description>
-        ums-core feature: username password login, mobile login, Support multi-tenancy, sign, JWT, MDC etc.
+        ums-core feature: username password login, mobile login, OAuth2 login(JustAuth),
+        validate code(image,sms,slider), RBAC-based uri access control, Support multi-tenancy, sign etc.
     </description>
-
     <url>https://github.com/ZeroOrInfinity/UMS</url>
 
     <licenses>
@@ -59,8 +57,26 @@
 
         <dependency>
             <groupId>top.dcenter</groupId>
+            <artifactId>ums-core-spring-boot-starter</artifactId>
+            <version>${ums.core.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>top.dcenter</groupId>
             <artifactId>ums-jwt</artifactId>
             <version>${ums.jwt.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>top.dcenter</groupId>
+            <artifactId>ums-oauth</artifactId>
+            <version>${ums.oauth.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>top.dcenter</groupId>
+            <artifactId>ums-rbac</artifactId>
+            <version>${ums.rbac.version}</version>
         </dependency>
 
         <dependency>
@@ -222,7 +238,7 @@
                                     <tasks>
                                         <move
                                                 file="${project.build.directory}/original-${project.artifactId}-${project.version}.jar"
-                                              tofile="${project.build.directory}/${project.artifactId}-${project.version}.jar" />
+                                                tofile="${project.build.directory}/${project.artifactId}-${project.version}.jar" />
                                     </tasks>
                                 </configuration>
                             </execution>

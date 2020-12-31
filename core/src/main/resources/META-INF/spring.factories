@@ -1,7 +1,6 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   top.dcenter.ums.security.core.auth.config.PropertiesAutoConfiguration,\
-  top.dcenter.ums.security.core.redis.config.RedisPropertiesAutoConfiguration,\
   top.dcenter.ums.security.core.tasks.config.ScheduledPropertiesAutoConfiguration,\
   top.dcenter.ums.security.core.tasks.config.ScheduledExecutorAutoConfiguration,\
   top.dcenter.ums.security.core.auth.config.ClientAutoConfigurerAware,\
@@ -18,5 +17,4 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   top.dcenter.ums.security.core.auth.config.CsrfAutoConfigurerAware,\
   top.dcenter.ums.security.core.tasks.config.ScheduleAutoConfiguration,\
   top.dcenter.ums.security.core.auth.config.CorsAutoConfigurationAware,\
-  top.dcenter.ums.security.core.redis.config.RedisCacheAutoConfiguration,\
   top.dcenter.ums.security.common.config.SecurityCoreAutoConfigurer
