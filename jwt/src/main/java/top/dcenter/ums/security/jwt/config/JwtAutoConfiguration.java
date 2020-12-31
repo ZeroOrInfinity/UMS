@@ -235,7 +235,7 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
     @ConditionalOnProperty(prefix = "ums.jwt", name = "expose-refresh-token-uri", havingValue = "true")
     public JwtRefreshTokenController jwtRefreshTokenController(GenerateClaimsSetService generateClaimsSetService,
                                                                UmsUserDetailsService umsUserDetailsService,
-                                                               JwtDecoder jwtDecoder,
+                                                               UmsNimbusJwtDecoder jwtDecoder,
                                                                JwtProperties jwtProperties) {
         return new JwtRefreshTokenController(generateClaimsSetService, umsUserDetailsService,
                                              jwtDecoder, jwtProperties);
@@ -290,8 +290,10 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
         Resource jksKeyPairResource = jwtProperties.getJksKeyPairLocation();
         String macsSecret = jwtProperties.getMacsSecret();
         if (nonNull(jksKeyPairResource)) {
-            this.jwtDecoder = UmsNimbusJwtDecoder.withPublicKey(this.publicKey, jwtProperties.getRefreshHandlerPolicy(),
-                                                                jwtProperties.getRemainingRefreshInterval())
+            this.jwtDecoder = UmsNimbusJwtDecoder.withPublicKey(this.publicKey,
+                                                                jwtProperties.getRefreshHandlerPolicy(),
+                                                                jwtProperties.getRemainingRefreshInterval(),
+                                                                jwtProperties.getPrincipalClaimName())
                                                  .signatureAlgorithm((SignatureAlgorithm) this.jwsAlgorithm)
                                                  .build();
         }
@@ -300,14 +302,16 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
                     UmsNimbusJwtDecoder.withSecretKey(new SecretKeySpec(macsSecret.getBytes(StandardCharsets.UTF_8),
                                                                         "MAC"),
                                                       jwtProperties.getRefreshHandlerPolicy(),
-                                                      jwtProperties.getRemainingRefreshInterval())
+                                                      jwtProperties.getRemainingRefreshInterval(),
+                                                      jwtProperties.getPrincipalClaimName())
                                        .build();
         }
         else if (nonNull(auth2ResourceServerProperties)) {
             this.jwtDecoder =
                     UmsNimbusJwtDecoder.withJwkSetUri(auth2ResourceServerProperties.getJwt().getJwkSetUri(),
                                                       jwtProperties.getRefreshHandlerPolicy(),
-                                                      jwtProperties.getRemainingRefreshInterval())
+                                                      jwtProperties.getRemainingRefreshInterval(),
+                                                      jwtProperties.getPrincipalClaimName())
                                        .build();
         }
 
@@ -351,7 +355,8 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService")
     public GenerateClaimsSetService generateClaimsSetService(JwtProperties jwtProperties) {
         return new UmsGenerateClaimsSetServiceImpl(jwtProperties.getTimeout().getSeconds(),
-                                                   jwtProperties.getIss());
+                                                   jwtProperties.getIss(),
+                                                   jwtProperties.getPrincipalClaimName());
     }
 
     @Bean

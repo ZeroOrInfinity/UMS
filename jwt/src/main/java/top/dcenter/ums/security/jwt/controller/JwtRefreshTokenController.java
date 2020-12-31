@@ -38,7 +38,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -49,6 +48,7 @@ import top.dcenter.ums.security.common.vo.ResponseResult;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.jwt.JwtContext;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
+import top.dcenter.ums.security.jwt.decoder.UmsNimbusJwtDecoder;
 import top.dcenter.ums.security.jwt.exception.RefreshTokenInvalidException;
 import top.dcenter.ums.security.jwt.properties.BearerTokenProperties;
 import top.dcenter.ums.security.jwt.properties.JwtProperties;
@@ -72,7 +72,7 @@ public class JwtRefreshTokenController implements InitializingBean, ApplicationC
     private final UmsUserDetailsService umsUserDetailsService;
     private final BearerTokenProperties bearerTokenProperties;
     private final String jwtByRefreshTokenUri;
-    private final JwtDecoder jwtDecoder;
+    private final UmsNimbusJwtDecoder jwtDecoder;
 
     private ApplicationContext applicationContext;
 
@@ -80,7 +80,7 @@ public class JwtRefreshTokenController implements InitializingBean, ApplicationC
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public JwtRefreshTokenController(GenerateClaimsSetService generateClaimsSetService,
                                      UmsUserDetailsService umsUserDetailsService,
-                                     JwtDecoder jwtDecoder,
+                                     UmsNimbusJwtDecoder jwtDecoder,
                                      JwtProperties jwtProperties) {
         this.generateClaimsSetService = generateClaimsSetService;
         this.umsUserDetailsService = umsUserDetailsService;

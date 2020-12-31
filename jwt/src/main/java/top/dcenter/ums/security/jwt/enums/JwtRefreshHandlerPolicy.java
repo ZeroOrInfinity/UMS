@@ -66,15 +66,16 @@ public enum JwtRefreshHandlerPolicy implements JwtRefreshHandler {
 
         @Override
         @NonNull
-        public Jwt refreshHandle(@NonNull Jwt jwt, @NonNull UmsNimbusJwtDecoder jwtDecoder) throws JwtInvalidException  {
+        public Jwt refreshHandle(@NonNull Jwt jwt, @NonNull UmsNimbusJwtDecoder jwtDecoder,
+                                 @NonNull String principalClaimName) throws JwtInvalidException  {
             Jwt resetJwt;
             try {
-                resetJwt = JwtContext.resetJwtExpOfAutoRenewPolicy(jwt, jwtDecoder, this);
+                resetJwt = JwtContext.resetJwtExpOfAutoRenewPolicy(jwt, jwtDecoder, this, principalClaimName);
             }
             catch (ParseException | JOSEException e) {
                 log.error(e.getMessage(), e);
                 try {
-                    resetJwt = JwtContext.resetJwtExpOfAutoRenewPolicy(jwt, jwtDecoder, this);
+                    resetJwt = JwtContext.resetJwtExpOfAutoRenewPolicy(jwt, jwtDecoder, this, principalClaimName);
                 }
                 catch (Exception ex) {
                     log.error(ex.getMessage(), ex);
@@ -99,7 +100,8 @@ public enum JwtRefreshHandlerPolicy implements JwtRefreshHandler {
 
         @Override
         @NonNull
-        public Jwt refreshHandle(@NonNull Jwt jwt, @NonNull UmsNimbusJwtDecoder jwtDecoder) throws JwtExpiredException {
+        public Jwt refreshHandle(@NonNull Jwt jwt, @NonNull UmsNimbusJwtDecoder jwtDecoder,
+                                 @NonNull String principalClaimName) throws JwtExpiredException {
             throw new JwtExpiredException(ErrorCodeEnum.JWT_EXPIRED, getMdcTraceId());
         }
     },
@@ -118,7 +120,8 @@ public enum JwtRefreshHandlerPolicy implements JwtRefreshHandler {
 
         @Override
         @NonNull
-        public Jwt refreshHandle(@NonNull Jwt jwt, @NonNull UmsNimbusJwtDecoder jwtDecoder) throws JwtInvalidException {
+        public Jwt refreshHandle(@NonNull Jwt jwt, @NonNull UmsNimbusJwtDecoder jwtDecoder,
+                                 @NonNull String principalClaimName) throws JwtInvalidException {
             //  Jwt 过期直接抛出 JwtInvalidException.<br>
             throw new JwtInvalidException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId());
         }

@@ -60,13 +60,15 @@ public interface JwtRefreshHandler {
     /**
      * 刷新 Jwt 处理器, 当 jwt 刷新策略为 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时, 刷新的 jwt 直接设置到 header 中,
      * 前端可以从相应的 header 中获取.
-     * @param jwt           过期 或 需要刷新的 {@link Jwt}
-     * @param jwtDecoder    {@link UmsNimbusJwtDecoder}
+     * @param jwt                   过期 或 需要刷新的 {@link Jwt}
+     * @param jwtDecoder            {@link UmsNimbusJwtDecoder}
+     * @param principalClaimName    JWT 存储 principal 的 claimName
      * @return  返回新的 {@link Jwt}
      * @throws JwtExpiredException  Jwt 过期 异常
      * @throws JwtInvalidException  Jwt 失效 异常
      */
     @NonNull
-    Jwt refreshHandle(@NonNull Jwt jwt, @NonNull UmsNimbusJwtDecoder jwtDecoder) throws JwtExpiredException, JwtInvalidException;
+    Jwt refreshHandle(@NonNull Jwt jwt, @NonNull UmsNimbusJwtDecoder jwtDecoder,
+                      @NonNull String principalClaimName) throws JwtExpiredException, JwtInvalidException;
 
 }
