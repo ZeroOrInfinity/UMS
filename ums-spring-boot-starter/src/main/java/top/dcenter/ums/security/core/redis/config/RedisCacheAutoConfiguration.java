@@ -58,9 +58,10 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.jackson2.CoreJackson2Module;
 import org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2Module;
 import org.springframework.security.web.jackson2.WebJackson2Module;
+import org.springframework.security.web.jackson2.WebServletJackson2Module;
 import org.springframework.security.web.server.jackson2.WebServerJackson2Module;
-import top.dcenter.ums.security.core.redis.jackson2.Auth2Jackson2Module;
 import top.dcenter.ums.security.core.redis.cache.RedisHashCacheManager;
+import top.dcenter.ums.security.core.redis.jackson2.Auth2Jackson2Module;
 import top.dcenter.ums.security.core.redis.key.generator.RemoveConnectionsByConnectionKeyWithUserIdKeyGenerator;
 import top.dcenter.ums.security.core.redis.properties.RedisCacheProperties;
 
@@ -123,7 +124,7 @@ public class RedisCacheAutoConfiguration {
                                  ObjectMapper.DefaultTyping.NON_FINAL);
         om.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        om.registerModules(new CoreJackson2Module(), new WebJackson2Module(),
+        om.registerModules(new CoreJackson2Module(), new WebJackson2Module(), new WebServletJackson2Module(),
                            new JavaTimeModule(), new WebServerJackson2Module(),
                            new OAuth2ClientJackson2Module(), new Auth2Jackson2Module());
         jackson2JsonRedisSerializer.setObjectMapper(om);

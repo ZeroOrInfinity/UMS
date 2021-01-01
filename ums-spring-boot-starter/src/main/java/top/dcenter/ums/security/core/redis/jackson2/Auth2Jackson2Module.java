@@ -1,3 +1,25 @@
+/*
+ * MIT License
+ * Copyright (c) 2020-2029 YongWu zheng (dcenter.top and gitee.com/pcore and github.com/ZeroOrInfinity)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package top.dcenter.ums.security.core.redis.jackson2;
 
 import com.fasterxml.jackson.core.Version;
@@ -13,7 +35,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import top.dcenter.ums.security.core.auth.jackson.deserializes.RememberMeAuthenticationTokenJsonDeserializer;
 import top.dcenter.ums.security.core.auth.jackson.deserializes.SmsCodeLoginAuthenticationTokenJsonDeserializer;
 import top.dcenter.ums.security.core.auth.jackson.deserializes.UsernamePasswordAuthenticationTokenJsonDeserializer;
@@ -23,7 +44,6 @@ import top.dcenter.ums.security.core.oauth.deserializes.Auth2AuthenticationToken
 import top.dcenter.ums.security.core.oauth.deserializes.AuthUserJsonDeserializer;
 import top.dcenter.ums.security.core.oauth.deserializes.TemporaryUserDeserializer;
 import top.dcenter.ums.security.core.oauth.deserializes.UserDeserializer;
-import top.dcenter.ums.security.core.oauth.deserializes.WebAuthenticationDetailsDeserializer;
 import top.dcenter.ums.security.core.oauth.token.Auth2AuthenticationToken;
 import top.dcenter.ums.security.core.oauth.userdetails.TemporaryUser;
 import top.dcenter.ums.security.jwt.jackson2.deserializer.BaseJwtMixin;
@@ -64,8 +84,6 @@ public class Auth2Jackson2Module extends SimpleModule {
 		                            UserDeserializer.UserMixin.class);
 		context.setMixInAnnotations(TemporaryUser.class,
 		                            TemporaryUserDeserializer.TemporaryUserMixin.class);
-		context.setMixInAnnotations(WebAuthenticationDetails.class,
-		                            WebAuthenticationDetailsDeserializer.WebAuthenticationDetailsMixin.class);
 		context.setMixInAnnotations(AuthUser.class,
 		                            AuthUserJsonDeserializer.AuthUserMixin.class);
 		context.setMixInAnnotations(SmsCodeLoginAuthenticationToken.class,
