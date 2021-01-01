@@ -37,7 +37,6 @@ import top.dcenter.ums.security.jwt.enums.JwtCustomClaimNames;
 
 import java.time.Instant;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -85,14 +84,7 @@ public class UmsGenerateClaimsSetServiceImpl implements GenerateClaimsSetService
     public JWTClaimsSet generateClaimsSet(Authentication authentication) {
 
         // Prepare JWT with claims set
-        JWTClaimsSet.Builder builder = null;
-        if (nonNull(customClaimsSetService)) {
-            builder = new JWTClaimsSet.Builder(customClaimsSetService.toClaimsSet(authentication));
-        }
-
-        if (isNull(builder)) {
-        	builder = new JWTClaimsSet.Builder();
-        }
+        final JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
 
         // tenantId
         if (nonNull(tenantContextHolder)) {
@@ -106,8 +98,13 @@ public class UmsGenerateClaimsSetServiceImpl implements GenerateClaimsSetService
 
         // jti
         builder.jwtID(UuidUtils.getUUID());
-        builder.claim(JwtCustomClaimNames.USER_ID.getClaimName(), authentication.getName())
+        builder.claim(this.principalClaimName, authentication.getName())
                .claim(JwtClaimNames.EXP, Instant.now().plusSeconds(timeout).getEpochSecond());
+
+        if (nonNull(customClaimsSetService)) {
+            JWTClaimsSet jwtClaimsSet = customClaimsSetService.toClaimsSet(authentication);
+            jwtClaimsSet.getClaims().forEach(builder::claim);
+        }
 
         return builder.build();
     }

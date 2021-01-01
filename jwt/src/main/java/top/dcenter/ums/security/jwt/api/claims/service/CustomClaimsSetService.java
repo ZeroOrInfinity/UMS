@@ -27,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 import top.dcenter.ums.security.jwt.enums.JwtCustomClaimNames;
+import top.dcenter.ums.security.jwt.properties.JwtProperties;
 
 /**
  * 根据 {@link Authentication} 生成自定义的 {@link JWTClaimsSet} 的接口, 此接口最终回被
@@ -37,13 +38,13 @@ import top.dcenter.ums.security.jwt.enums.JwtCustomClaimNames;
 public interface CustomClaimsSetService {
 
     /**
-     * 根据 {@link Authentication} 生成自定义的 {@link JWTClaimsSet}. 不需要生成
+     * 根据 {@link Authentication} 生成自定义的 {@link JWTClaimsSet}. <br>
+     * {@link GenerateClaimsSetService#generateClaimsSet(Authentication)} 已生成
      * {@link JwtClaimNames#JTI}, {@link JwtClaimNames#ISS}, {@link JwtClaimNames#EXP},
-     * {@link JwtCustomClaimNames#TENANT_ID}, {@link JwtCustomClaimNames#USER_ID},
-     * {@link JwtCustomClaimNames#AUTHORITIES} , 即便通过此方法生成上述 Claims, 也回被
-     * {@link GenerateClaimsSetService#generateClaimsSet(Authentication)} 方法覆盖
+     * {@link JwtCustomClaimNames#TENANT_ID}, {@link JwtProperties#getPrincipalClaimName()},
+     * {@link JwtCustomClaimNames#AUTHORITIES} , 通过此方法生成上述 Claims, 可以覆盖
      * {@link JwtClaimNames#JTI}, {@link JwtClaimNames#ISS}, {@link JwtClaimNames#EXP},
-     * {@link JwtCustomClaimNames#TENANT_ID}, {@link JwtCustomClaimNames#USER_ID},
+     * {@link JwtCustomClaimNames#TENANT_ID}, {@link JwtProperties#getPrincipalClaimName()},
      * {@link JwtCustomClaimNames#AUTHORITIES} 的值.<br>
      * 注意: {@link JWTClaimsSet} 中的"日期"都以"时间戳"表示且"时间戳"以秒为单位
      * @param authentication    authentication
