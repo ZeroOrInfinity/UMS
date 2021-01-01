@@ -36,6 +36,7 @@ import top.dcenter.ums.security.jwt.exception.JwtInvalidException;
 import top.dcenter.ums.security.jwt.exception.MismatchRefreshJwtPolicyException;
 import top.dcenter.ums.security.jwt.exception.RefreshTokenInvalidException;
 import top.dcenter.ums.security.jwt.exception.RefreshTokenNotFoundException;
+import top.dcenter.ums.security.jwt.exception.SaveRefreshTokenException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -71,7 +72,7 @@ public class JwtExceptionOnceFilter extends OncePerRequestFilter {
                              HttpStatus.NOT_FOUND.value(),
                              toJsonString(fail(e.getMessage(), e.getErrorCodeEnum(), e.getData())));
         }
-        catch (JwtCreateException e) {
+        catch (JwtCreateException | SaveRefreshTokenException e) {
             log.error(e.getMessage(), e);
             responseWithJson(response,
                              HttpStatus.INTERNAL_SERVER_ERROR.value(),
