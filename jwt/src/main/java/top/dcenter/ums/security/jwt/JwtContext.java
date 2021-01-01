@@ -36,10 +36,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.types.Expiration;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
@@ -47,20 +51,21 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.common.utils.UuidUtils;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
+import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 import top.dcenter.ums.security.jwt.decoder.UmsNimbusJwtDecoder;
 import top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy;
-import top.dcenter.ums.security.jwt.exception.DuplicateRefreshTokenException;
 import top.dcenter.ums.security.jwt.exception.JwtCreateException;
 import top.dcenter.ums.security.jwt.exception.JwtExpiredException;
 import top.dcenter.ums.security.jwt.exception.JwtInvalidException;
 import top.dcenter.ums.security.jwt.exception.MismatchRefreshJwtPolicyException;
 import top.dcenter.ums.security.jwt.exception.RefreshTokenInvalidException;
+import top.dcenter.ums.security.jwt.exception.SaveRefreshTokenException;
 import top.dcenter.ums.security.jwt.properties.BearerTokenProperties;
 import top.dcenter.ums.security.jwt.properties.JwtBlacklistProperties;
 
@@ -75,19 +80,19 @@ import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static org.springframework.data.redis.connection.RedisStringCommands.SetOption.SET_IF_ABSENT;
 import static org.springframework.util.StringUtils.hasText;
 import static org.springframework.web.context.request.RequestAttributes.SCOPE_SESSION;
-import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.REFRESH_TOKEN_DUPLICATE;
 import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
 import static top.dcenter.ums.security.jwt.enums.JwtCustomClaimNames.USER_ID;
 import static top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy.AUTO_RENEW;
@@ -163,11 +168,24 @@ public final class JwtContext {
      */
     private volatile static RedisConnectionFactory redisConnectionFactory = null;
     /**
-     * RedisConnectionFactory
+     * Jackson2JsonRedisSerializer
+     * 如果支持 JWT 功能, 通过 {@code top.dcenter.ums.security.jwt.config.JwtAutoConfiguration#afterPropertiesSet()}
+     * 方法注入.
+     */
+    @SuppressWarnings("rawtypes")
+    private volatile static RedisSerializer redisSerializer = null;
+    /**
+     * JwtBlacklistProperties
      * 如果支持 JWT 功能, 通过 {@code top.dcenter.ums.security.jwt.config.JwtAutoConfiguration#afterPropertiesSet()}
      * 方法注入.
      */
     private volatile static JwtBlacklistProperties blacklistProperties = null;
+    /**
+     * {@link JwtIdService}
+     * 如果支持 JWT 功能, 通过 {@code top.dcenter.ums.security.jwt.config.JwtAutoConfiguration#afterPropertiesSet()}
+     * 方法注入.
+     */
+    private volatile static JwtIdService jwtIdService = null;
 
     /**
      * 生成 {@link JWK}, 与下面的方式等效:
@@ -245,8 +263,10 @@ public final class JwtContext {
             try {
                 Jwt jwt = createJwt(generateClaimsSetService.generateClaimsSet(authentication));
 
-                setBearerTokenAndRefreshTokenToHeader(jwt, TRUE, generateClaimsSetService.getPrincipalClaimName());
-                return toJwtAuthenticationToken(jwt, authentication);
+                String principalClaimName = generateClaimsSetService.getPrincipalClaimName();
+                setBearerTokenAndRefreshTokenToHeader(jwt, TRUE, principalClaimName);
+                return toJwtAuthenticationToken(jwt, authentication, principalClaimName,
+                                                generateClaimsSetService.getJwtGrantedAuthoritiesConverter());
             }
             catch (Exception e) {
                 String msg = String.format("创建 jwt token 失败: %s", authentication);
@@ -302,6 +322,8 @@ public final class JwtContext {
 
         // 2. 重置jwt
         Map<String, Object> claims = jwt.getClaims();
+        // 重置 jti
+        claims.put(JwtClaimNames.JTI, jwtIdService.generateJtiId());
         // 重置 exp/iat/nbf 的时间戳
         Instant now = Instant.now();
         claims.put(JwtClaimNames.EXP, now.plusSeconds(timeout.getSeconds()));
@@ -343,7 +365,7 @@ public final class JwtContext {
         if (blacklistType.isInBlacklist()) {
             String blackListValue = blacklistType.getOneTimeNewJwtValue();
             // 在黑名单中, 但缓存中存储有新的且有效 JWT 则返回新的 jwt 字符串
-            return Optional.ofNullable(blackListValue)
+            return ofNullable(blackListValue)
                            // 在黑名单中, 但缓存中没有新的 jwt 字符串, 则需要重新认证, 抛出异常
                            .orElseThrow(() -> new JwtInvalidException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId()));
         }
@@ -397,7 +419,7 @@ public final class JwtContext {
             throws JwtCreateException, RefreshTokenInvalidException {
 
         // 1. 判断 refreshToken 是否有效
-        String userIdByRefreshToken = getUserIdByRefreshToken(refreshToken);
+        String userIdByRefreshToken = getUserIdByRefreshToken(refreshToken, jwtDecoder);
         if (isNull(userIdByRefreshToken)) {
             throw new RefreshTokenInvalidException(ErrorCodeEnum.JWT_REFRESH_TOKEN_INVALID, getMdcTraceId());
         }
@@ -436,9 +458,23 @@ public final class JwtContext {
             }
         }
 
+
+        JwtAuthenticationToken jwtAuthenticationToken = null;
+        if (!blacklistProperties.getEnable()) {
+            jwtAuthenticationToken =
+                    toJwtAuthenticationToken(newJwt, authenticationToken, jwtDecoder.getPrincipalClaimName(),
+                                             generateClaimsSetService.getJwtGrantedAuthoritiesConverter());
+            SecurityContextHolder.getContext().setAuthentication(jwtAuthenticationToken);
+        }
+
         // 5. oldJwt != null 且与 newJwt 不相等, 则 oldJwt 添加黑名单, 以解决刷新 jwt 而引发的并发访问问题.
         if (nonNull(oldJwt) && !Objects.equals(newJwt, oldJwt)) {
             setOldJwtToBlacklist(refreshToken, userIdByRefreshToken, oldJwt, newJwt);
+        }
+        else {
+            final Jwt fNewJwt = newJwt;
+            ofNullable(jwtAuthenticationToken)
+                    .ifPresent((jwtToken) -> saveTokenSessionToRedis(jwtToken, fNewJwt, false));
         }
 
         // 6. 设置 jwt 到 header
@@ -554,6 +590,33 @@ public final class JwtContext {
     }
 
     /**
+     * 根据 jwtToken 字符串从 redis 中获取 {@link JwtAuthenticationToken}.
+     * 当 jwtTokenString 失效时返回 null,
+     * 当 {@link JwtBlacklistProperties#getEnable()} 为 true 时返回 null,
+     * @param jwtTokenString    {@link Jwt} 字符串
+     * @return  返回 {@link JwtAuthenticationToken}; 当 jwtTokenString 失效时返回 null,
+     * 当 {@link JwtBlacklistProperties#getEnable()} 为 true 时返回 null.
+     */
+    @Nullable
+    public static JwtAuthenticationToken getAuthenticationFromRedis(@NonNull String jwtTokenString) throws SerializationException {
+        if (blacklistProperties.getEnable()) {
+            return null;
+        }
+        byte[] authBytes = getConnection().get(jwtTokenString.getBytes(StandardCharsets.UTF_8));
+
+        if (isNull(authBytes)) {
+            return null;
+        }
+        try {
+            return (JwtAuthenticationToken) redisSerializer.deserialize(authBytes);
+        }
+        catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    /**
      * 添加黑名单
      * @param oldJwt    要加入黑名单的 {@link Jwt}
      */
@@ -571,6 +634,38 @@ public final class JwtContext {
     }
 
     /**
+     * 保存 {@link Authentication} 到 redis 缓存, {@link Jwt} 的 jwtTokenString 作为 key.
+     * 保存 authentication 到
+     * <pre>
+     *     SecurityContextHolder.getContext().setAuthentication(authentication);
+     * </pre>
+     * @param authentication    {@link Authentication}
+     * @param jwt               {@link Jwt}
+     * @param isSetContext      authentication 是否设置到 SecurityContext
+     */
+    private static void saveTokenSessionToRedis(@NonNull Authentication authentication, @NonNull Jwt jwt,
+                                                @SuppressWarnings("SameParameterValue") @NonNull Boolean isSetContext) {
+        // 如果不支持 jwt 黑名单, 添加到 redis 缓存
+        if (!blacklistProperties.getEnable()) {
+            //noinspection unchecked
+            byte[] tokenValue = redisSerializer.serialize(authentication);
+            Instant expiresAt = jwt.getExpiresAt();
+            if (isNull(expiresAt)) {
+                return;
+            }
+            if (isSetContext) {
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+            final Duration ttl = Duration.ofSeconds(expiresAt.getEpochSecond() - Instant.now().getEpochSecond());
+            ofNullable(tokenValue)
+                    .ifPresent((value) -> getConnection().set(jwt.getTokenValue().getBytes(StandardCharsets.UTF_8),
+                                                              value,
+                                                              Expiration.from(ttl),
+                                                              SET_IF_ABSENT));
+        }
+    }
+
+    /**
      * 获取旧的 jwt, 未失效则添加黑名单, 以解决刷新 jwt 而引发的并发访问问题.
      * @param refreshToken          refreshToken
      * @param userIdByRefreshToken  userIdByRefreshToken
@@ -581,6 +676,15 @@ public final class JwtContext {
                                              @NonNull String userIdByRefreshToken,
                                              @NonNull Jwt oldJwt,
                                              @NonNull Jwt newJwt) {
+        // 不支持 jwt 黑名单逻辑
+        if (!blacklistProperties.getEnable()) {
+            // 删除 redis 中的 oldJwt 缓存
+            getConnection().del(oldJwt.getTokenValue().getBytes(StandardCharsets.UTF_8));
+            // 保存 newJwt 到 redis
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            saveTokenSessionToRedis(authentication, newJwt, false);
+            return;
+        }
 
         // 校验新 jwt 与 旧 jwt 是否相同 userId
         Object oldUserId = oldJwt.getClaim(USER_ID.getClaimName());
@@ -593,7 +697,6 @@ public final class JwtContext {
         }
 
         addBlacklist(oldJwt, newJwt);
-
 
     }
 
@@ -619,7 +722,7 @@ public final class JwtContext {
         // 转换为 jwt
         try {
             if (jwtDecoder instanceof UmsNimbusJwtDecoder) {
-                oldJwt = ((UmsNimbusJwtDecoder) jwtDecoder).decodeNotRefreshToken(jwtString);
+                oldJwt = ((UmsNimbusJwtDecoder) jwtDecoder).decodeNotValidate(jwtString);
             }
             else {
                 oldJwt = jwtDecoder.decode(jwtString);
@@ -640,47 +743,83 @@ public final class JwtContext {
     /**
      * 根据 refreshToken 获取 UserId
      * @param refreshToken  refreshToken
+     * @param jwtDecoder    {@link UmsNimbusJwtDecoder}
      * @return  如果缓存中存在 refreshToken, 表示 refreshToken 有效, 返回 userId, 如果返回 null, 表示 refreshToken 无效.
      */
     @Nullable
-    private static String getUserIdByRefreshToken(@NonNull String refreshToken) {
-        byte[] result = getConnection().get(getRefreshTokenKey(refreshToken));
+    private static String getUserIdByRefreshToken(@NonNull String refreshToken, @NonNull UmsNimbusJwtDecoder jwtDecoder) {
 
-        if (isNull(result)) {
+        // 不支持 jwt 黑名单逻辑
+        if (!blacklistProperties.getEnable()) {
+            byte[] result = getConnection().get(getRefreshTokenKey(refreshToken));
+
+            if (isNull(result)) {
+                return null;
+            }
+            return new String(result, StandardCharsets.UTF_8);
+        }
+
+        // 支持 jwt 黑名单逻辑
+        Jwt refreshTokenJwt = jwtDecoder.decodeNotValidate(refreshToken);
+        Instant expiresAt = refreshTokenJwt.getExpiresAt();
+        // refreshToken 无效
+        if (isNull(expiresAt) || expiresAt.isBefore(Instant.now())) {
             return null;
         }
 
-        return new String(result, StandardCharsets.UTF_8);
+        return refreshTokenJwt.getClaim(jwtDecoder.getPrincipalClaimName());
     }
 
     /**
      * 生成 refresh token 且与 userId 一起保存到 redis 中
-     * @param userId 用户id
+     * @param userIdClaimName   userIdClaimName
+     * @param userId            用户id
      * @return  返回 refresh token
      */
     @NonNull
-    private static String generateAndSaveRefreshToken(@NonNull String userId) {
-        String uuid = UuidUtils.getUUID();
-        for (int i = 0; !saveRefreshToken(userId, uuid); i++) {
-            uuid = UuidUtils.getUUID();
-            // 最多重复三次
-            if (i == 2) {
-                throw new DuplicateRefreshTokenException(REFRESH_TOKEN_DUPLICATE, getMdcTraceId());
-            }
+    private static String generateRefreshToken(@NonNull String userIdClaimName, @NonNull String userId) {
+        String refreshToken;
+
+        // 创建 refreshToken jwt
+        JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
+        builder.claim(JwtClaimNames.JTI, jwtIdService.generateJtiId());
+        builder.claim(userIdClaimName, userId);
+        builder.claim(JwtClaimNames.EXP,
+                      Instant.now().plusSeconds(blacklistProperties.getRefreshTokenTtl().getSeconds()).toEpochMilli());
+        try {
+            Jwt jwt = createJwt(builder.build());
+            refreshToken = jwt.getTokenValue();
         }
-        return uuid;
+        catch (JOSEException | ParseException e) {
+            throw new JwtCreateException(ErrorCodeEnum.CREATE_JWT_ERROR, getMdcTraceId());
+        }
+
+        // 如果需要缓存到 redis 则缓存
+        if (!saveRefreshToken(userId, refreshToken)) {
+            throw new SaveRefreshTokenException(ErrorCodeEnum.SAVE_REFRESH_TOKEN_ERROR, getMdcTraceId());
+        }
+
+        return refreshToken;
     }
 
     /**
-     * jwt 还在有效期内, 添加黑名单
+     * jwt 还在有效期内, 添加黑名单, 如果不支持黑名单直接删除 redis 中 oldJwt 对应的 key
      * @param oldJwt    要加入黑名单的 {@link Jwt}
      */
     private static void addBlacklist(@NonNull Jwt oldJwt, byte[] value) {
+
+        // 不支持黑名单逻辑
+        if (!blacklistProperties.getEnable()) {
+            getConnection().del(getBlacklistKey(oldJwt.getTokenValue()));
+            return;
+        }
+
+        // 支持黑名单逻辑
+
         Instant expiresAt = oldJwt.getExpiresAt();
         if (isNull(expiresAt)) {
             return;
         }
-
         Instant now = Instant.now();
         // 旧的 jwt 还在有效期内
         if (expiresAt.isAfter(now.minus(clockSkew))) {
@@ -699,9 +838,16 @@ public final class JwtContext {
      */
     @NonNull
     private static Boolean saveRefreshToken(@NonNull String userId, @NonNull String refreshToken) {
+
+        // 支持 jwt 黑名单直接返回
+        if (blacklistProperties.getEnable()) {
+            return true;
+        }
+
+        // 不支持 jwt 黑名单缓存 refreshToken 到 redis
         Boolean isSuccess = getConnection().set(getRefreshTokenKey(refreshToken),
                                                 userId.getBytes(StandardCharsets.UTF_8),
-                                                Expiration.from(blacklistProperties.getRefreshTokenTtl()),
+                                                Expiration.from(blacklistProperties.getRefreshTokenTtl().minusSeconds(1L)),
                                                 SET_IF_ABSENT);
 
         if (isNull(isSuccess)) {
@@ -763,7 +909,8 @@ public final class JwtContext {
             // 设置 refreshToken 到 header
             if (REFRESH_TOKEN.equals(JwtContext.refreshHandlerPolicy)) {
                 // 生成 refreshToken 并缓存进 redis
-                String refreshToken = generateAndSaveRefreshToken(jwt.getClaimAsString(principalClaimName));
+                String refreshToken = generateRefreshToken(principalClaimName,
+                                                           jwt.getClaimAsString(principalClaimName));
                 String refreshTokenHeaderName = JwtContext.bearerToken.getRefreshTokenHeaderName();
                 if (!JwtContext.bearerToken.getAllowFormEncodedBodyParameter()) {
                     // 设置到请求头
@@ -798,14 +945,29 @@ public final class JwtContext {
 
     /**
      * 转换为 {@link JwtAuthenticationToken}
-     * @param jwt    {@link Jwt}
-     * @param authentication    {@link Authentication}
+     * @param jwt                   {@link Jwt}
+     * @param authentication        {@link Authentication}
+     * @param principalClaimName    JWT 存储 principal 的 claimName
+     * @param converter             {@link JwtGrantedAuthoritiesConverter}
      * @return  则返回 {@link JwtAuthenticationToken}
      */
     @NonNull
-    private static JwtAuthenticationToken toJwtAuthenticationToken(@NonNull Jwt jwt, @NonNull Authentication authentication) {
-        JwtAuthenticationToken jwtAuthenticationToken = new JwtAuthenticationToken(jwt, authentication.getAuthorities(), authentication.getName());
+    private static JwtAuthenticationToken toJwtAuthenticationToken(@NonNull Jwt jwt,
+                                                                   @NonNull Authentication authentication,
+                                                                   @NonNull String principalClaimName,
+                                                                   @NonNull JwtGrantedAuthoritiesConverter converter) {
+
+        Collection<GrantedAuthority> authorities = converter.convert(jwt);
+
+        JwtAuthenticationToken jwtAuthenticationToken =
+                new JwtAuthenticationToken(jwt, authorities, jwt.getClaimAsString(principalClaimName));
         jwtAuthenticationToken.setDetails(authentication.getDetails());
+
+        // 如果不支持 jwt 黑名单, 添加到 redis 缓存
+        if (!blacklistProperties.getEnable()) {
+            saveTokenSessionToRedis(jwtAuthenticationToken, jwt, false);
+        }
+
         return jwtAuthenticationToken;
     }
 
