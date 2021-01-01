@@ -25,6 +25,7 @@ package top.dcenter.ums.security.jwt.claims.service;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 
 /**
  * 根据 {@link Authentication} 生成 {@link JWTClaimsSet} 的接口
@@ -48,4 +49,11 @@ public interface GenerateClaimsSetService {
      */
     @NonNull
     String getPrincipalClaimName();
+
+    /**
+     * 获取 {@link JwtGrantedAuthoritiesConverter}
+     * @return  返回 {@link JwtGrantedAuthoritiesConverter}
+     */
+    @NonNull
+    JwtGrantedAuthoritiesConverter getJwtGrantedAuthoritiesConverter();
 }

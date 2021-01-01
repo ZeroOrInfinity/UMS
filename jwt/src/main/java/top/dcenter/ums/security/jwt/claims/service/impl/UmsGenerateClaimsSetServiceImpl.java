@@ -29,6 +29,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService;
 import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
@@ -59,6 +60,7 @@ public class UmsGenerateClaimsSetServiceImpl implements GenerateClaimsSetService
      * JWT 存储 principal 的 claimName
      */
     private final String principalClaimName;
+    private final JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter;
 
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired(required = false)
@@ -76,10 +78,13 @@ public class UmsGenerateClaimsSetServiceImpl implements GenerateClaimsSetService
      * @param iss                   {@link JwtClaimNames#ISS}
      * @param principalClaimName    JWT 存储 principal 的 claimName
      */
-    public UmsGenerateClaimsSetServiceImpl(@NonNull long timeout, @Nullable String iss, @NonNull String principalClaimName) {
+    public UmsGenerateClaimsSetServiceImpl(@NonNull long timeout, @Nullable String iss,
+                                           @NonNull String principalClaimName,
+                                           @NonNull JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter) {
         this.timeout = timeout;
         this.iss = iss;
         this.principalClaimName = principalClaimName;
+        this.jwtGrantedAuthoritiesConverter = jwtGrantedAuthoritiesConverter;
     }
 
     @Override
@@ -116,6 +121,12 @@ public class UmsGenerateClaimsSetServiceImpl implements GenerateClaimsSetService
     @NonNull
     public String getPrincipalClaimName() {
         return this.principalClaimName;
+    }
+
+    @Override
+    @NonNull
+    public JwtGrantedAuthoritiesConverter getJwtGrantedAuthoritiesConverter() {
+        return this.jwtGrantedAuthoritiesConverter;
     }
 
 }

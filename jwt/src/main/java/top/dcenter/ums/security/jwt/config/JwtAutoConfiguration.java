@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -45,6 +46,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.Resource;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -57,6 +59,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.jwt.JwtContext;
@@ -74,7 +77,6 @@ import top.dcenter.ums.security.jwt.decoder.UmsNimbusJwtDecoder;
 import top.dcenter.ums.security.jwt.endpoint.JwkEndpoint;
 import top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy;
 import top.dcenter.ums.security.jwt.factory.KeyStoreKeyFactory;
-import top.dcenter.ums.security.jwt.id.service.impl.UuidJwtIdServiceImpl;
 import top.dcenter.ums.security.jwt.properties.BearerTokenProperties;
 import top.dcenter.ums.security.jwt.properties.JwtBlacklistProperties;
 import top.dcenter.ums.security.jwt.properties.JwtProperties;
@@ -112,7 +114,8 @@ import static top.dcenter.ums.security.jwt.properties.JwtProperties.MACS_SECRET_
 @SuppressWarnings("jol")
 @Configuration
 @Order(99)
-@AutoConfigureAfter({JwtPropertiesAutoConfiguration.class})
+@AutoConfigureAfter({JwtPropertiesAutoConfiguration.class, JwtIdServiceAutoConfiguration.class,
+        RedisSerializerAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "ums.jwt", name = "enable", havingValue = "true")
 @Slf4j
 class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, InitializingBean {
@@ -146,6 +149,10 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
      */
     public static final String REDIS_CONNECTION_FACTORY = "redisConnectionFactory";
     /**
+     * {@link JwtContext} 的 redisSerializer 字段名称
+     */
+    public static final String REDIS_SERIALIZER = "redisSerializer";
+    /**
      * {@link JwtContext} 的 blacklistProperties 字段名称
      */
     public static final String BLACKLIST_PROPERTIES = "blacklistProperties";
@@ -164,10 +171,11 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
     private final String kid;
     private final BearerTokenProperties bearerTokenProperties;
     private final RedisConnectionFactory redisConnectionFactory;
+    @SuppressWarnings("rawtypes")
+    private final RedisSerializer redisSerializer;
     private final JwtBlacklistProperties jwtBlacklistProperties;
     private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
-
-    private JwtIdService jwtIdService;
+    private final JwtIdService jwtIdService;
     /**
      * JWT 的有效期
      */
@@ -186,15 +194,20 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
     @Autowired(required = false)
     private Map<String, CustomClaimValidateService> customClaimValidateServiceMap;
 
+    @SuppressWarnings({"rawtypes"})
     public JwtAutoConfiguration(JwtProperties jwtProperties,
                                 RedisConnectionFactory redisConnectionFactory,
-                                @Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties) throws Exception {
+                                @Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties,
+                                @Qualifier("jwtTokenRedisSerializer") RedisSerializer jwtRedisSerializer,
+                                JwtIdService jwtIdService) throws Exception {
         this.timeout = jwtProperties.getTimeout();
         this.bearerTokenProperties = jwtProperties.getBearer();
         this.jwtBlacklistProperties = jwtProperties.getBlacklist();
         this.redisConnectionFactory = redisConnectionFactory;
+        this.redisSerializer = jwtRedisSerializer;
         this.refreshHandlerPolicy = jwtProperties.getRefreshHandlerPolicy();
         this.clockSkew = jwtProperties.getClockSkew();
+        this.jwtIdService = jwtIdService;
 
         Resource resource = jwtProperties.getJksKeyPairLocation();
         if (nonNull(resource)) {
@@ -236,13 +249,6 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
             this.signer = null;
             this.kid = null;
         }
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.jwt.api.id.service.JwtIdService"})
-    public JwtIdService jtiIdService() {
-        this.jwtIdService = new UuidJwtIdServiceImpl();
-        return this.jwtIdService;
     }
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -368,15 +374,17 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService")
-    public GenerateClaimsSetService generateClaimsSetService(JwtProperties jwtProperties) {
+    public GenerateClaimsSetService generateClaimsSetService(JwtProperties jwtProperties,
+                                                             JwtGrantedAuthoritiesConverterSupplier jwtGrantedAuthoritiesConverterSupplier) {
         return new UmsGenerateClaimsSetServiceImpl(jwtProperties.getTimeout().getSeconds(),
                                                    jwtProperties.getIss(),
-                                                   jwtProperties.getPrincipalClaimName());
+                                                   jwtProperties.getPrincipalClaimName(),
+                                                   (JwtGrantedAuthoritiesConverter) jwtGrantedAuthoritiesConverterSupplier.getConverter());
     }
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService")
-    public CustomClaimsSetService customClaimsSetService(JwtProperties jwtProperties) {
+    public CustomClaimsSetService customClaimsSetService() {
         return new UmsCustomClaimsSetServiceImpl();
     }
 
@@ -469,6 +477,10 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
 
         if (nonNull(this.redisConnectionFactory)) {
             setFieldValue(REDIS_CONNECTION_FACTORY, this.redisConnectionFactory, null, jwtUtilClass);
+        }
+
+        if (nonNull(this.redisSerializer)) {
+            setFieldValue(REDIS_SERIALIZER, this.redisSerializer, null, jwtUtilClass);
         }
 
         if (nonNull(this.refreshHandlerPolicy)) {
