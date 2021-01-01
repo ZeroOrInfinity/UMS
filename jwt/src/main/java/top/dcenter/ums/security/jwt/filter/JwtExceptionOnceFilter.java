@@ -28,15 +28,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.web.filter.OncePerRequestFilter;
-import top.dcenter.ums.security.jwt.exception.DuplicateRefreshTokenException;
-import top.dcenter.ums.security.jwt.exception.JwkSetUriAccessDeniedException;
-import top.dcenter.ums.security.jwt.exception.JwtCreateException;
-import top.dcenter.ums.security.jwt.exception.JwtExpiredException;
-import top.dcenter.ums.security.jwt.exception.JwtInvalidException;
-import top.dcenter.ums.security.jwt.exception.MismatchRefreshJwtPolicyException;
-import top.dcenter.ums.security.jwt.exception.RefreshTokenInvalidException;
-import top.dcenter.ums.security.jwt.exception.RefreshTokenNotFoundException;
-import top.dcenter.ums.security.jwt.exception.SaveRefreshTokenException;
+import org.springframework.web.util.NestedServletException;
+import top.dcenter.ums.security.jwt.exception.*;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -90,6 +83,46 @@ public class JwtExceptionOnceFilter extends OncePerRequestFilter {
             responseWithJson(response,
                              HttpStatus.UNAUTHORIZED.value(),
                              toJsonString(fail(e.getMessage(), e.getErrorCodeEnum(), e.getData())));
+        }
+        catch (NestedServletException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof BaseUmsJwtException)
+            {
+                BaseUmsJwtException exception = ((BaseUmsJwtException) cause);
+                log.error(e.getMessage(), exception);
+                responseWithJson(response,
+                                 HttpStatus.UNAUTHORIZED.value(),
+                                 toJsonString(fail(exception.getMessage(), exception.getErrorCodeEnum(), exception.getData())));
+                return;
+            }
+            if (cause instanceof JwkSetUriAccessDeniedException)
+            {
+                JwkSetUriAccessDeniedException exception = ((JwkSetUriAccessDeniedException) cause);
+                log.error(e.getMessage(), exception);
+                responseWithJson(response,
+                                 HttpStatus.NOT_FOUND.value(),
+                                 toJsonString(fail(exception.getMessage(), exception.getErrorCodeEnum(), exception.getData())));
+                return;
+            }
+            if (cause instanceof BaseJwtException)
+            {
+                BaseJwtException exception = ((BaseJwtException) cause);
+                log.error(e.getMessage(), exception);
+                responseWithJson(response,
+                                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                                 toJsonString(fail(exception.getMessage(), exception.getErrorCodeEnum(), exception.getData())));
+                return;
+            }
+            if (cause instanceof InvalidBearerTokenException)
+            {
+                InvalidBearerTokenException exception = ((InvalidBearerTokenException) cause);
+                log.error(e.getMessage(), exception);
+                responseWithJson(response,
+                                 HttpStatus.UNAUTHORIZED.value(),
+                                 toJsonString(fail(JWT_INVALID.getMsg(), JWT_INVALID, getMdcTraceId())));
+                return;
+            }
+            throw e;
         }
 
     }

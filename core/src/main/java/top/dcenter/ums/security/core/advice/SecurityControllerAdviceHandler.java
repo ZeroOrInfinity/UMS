@@ -23,9 +23,9 @@
 
 package top.dcenter.ums.security.core.advice;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -48,6 +48,7 @@ import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
  */
 @Order(CONTROLLER_ADVICE_ORDER_DEFAULT_VALUE)
 @ControllerAdvice
+@Slf4j
 public class SecurityControllerAdviceHandler {
 
     @ExceptionHandler(RegisterUserNotImplementException.class)
@@ -147,17 +148,6 @@ public class SecurityControllerAdviceHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseResult  handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
         return ResponseResult.fail(ErrorCodeEnum.PARAMETER_ERROR.getMsg(), ErrorCodeEnum.PARAMETER_ERROR, getMdcTraceId());
-    }
-
-    @ResponseBody
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseResult exceptionHandler(Exception ex){
-        if (ex instanceof AccessDeniedException)
-        {
-            throw (AccessDeniedException) ex;
-        }
-        return ResponseResult.fail(ErrorCodeEnum.SERVER_ERROR.getMsg(), ErrorCodeEnum.SERVER_ERROR, getMdcTraceId());
     }
 
 }

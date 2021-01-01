@@ -63,6 +63,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.jwt.JwtContext;
+import top.dcenter.ums.security.jwt.advice.JwtControllerAdvice;
 import top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService;
 import top.dcenter.ums.security.jwt.api.endpoind.service.JwkEndpointPermissionService;
 import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
@@ -249,6 +250,12 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
             this.signer = null;
             this.kid = null;
         }
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.jwt.advice.JwtControllerAdvice"})
+    public JwtControllerAdvice jwtControllerAdvice() {
+        return new JwtControllerAdvice();
     }
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
