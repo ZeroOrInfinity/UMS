@@ -62,7 +62,7 @@ import top.dcenter.ums.security.jwt.exception.JwtInvalidException;
 import top.dcenter.ums.security.jwt.exception.MismatchRefreshJwtPolicyException;
 import top.dcenter.ums.security.jwt.exception.RefreshTokenInvalidException;
 import top.dcenter.ums.security.jwt.properties.BearerTokenProperties;
-import top.dcenter.ums.security.jwt.properties.JwtCacheProperties;
+import top.dcenter.ums.security.jwt.properties.JwtBlacklistProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -167,7 +167,7 @@ public final class JwtContext {
      * 如果支持 JWT 功能, 通过 {@code top.dcenter.ums.security.jwt.config.JwtAutoConfiguration#afterPropertiesSet()}
      * 方法注入.
      */
-    private volatile static JwtCacheProperties cacheProperties = null;
+    private volatile static JwtBlacklistProperties blacklistProperties = null;
 
     /**
      * 生成 {@link JWK}, 与下面的方式等效:
@@ -701,7 +701,7 @@ public final class JwtContext {
     private static Boolean saveRefreshToken(@NonNull String userId, @NonNull String refreshToken) {
         Boolean isSuccess = getConnection().set(getRefreshTokenKey(refreshToken),
                                                 userId.getBytes(StandardCharsets.UTF_8),
-                                                Expiration.from(cacheProperties.getRefreshTokenTtl()),
+                                                Expiration.from(blacklistProperties.getRefreshTokenTtl()),
                                                 SET_IF_ABSENT);
 
         if (isNull(isSuccess)) {
@@ -718,7 +718,7 @@ public final class JwtContext {
      */
     @NonNull
     private static byte[] getRefreshTokenKey(String refreshToken) {
-        return cacheProperties.getRefreshTokenPrefix().concat(refreshToken).getBytes(StandardCharsets.UTF_8);
+        return blacklistProperties.getRefreshTokenPrefix().concat(refreshToken).getBytes(StandardCharsets.UTF_8);
     }
 
     /**
@@ -728,7 +728,7 @@ public final class JwtContext {
      */
     @NonNull
     private static byte[] getBlacklistKey(String jti) {
-        return cacheProperties.getBlacklistPrefix().concat(jti).getBytes(StandardCharsets.UTF_8);
+        return blacklistProperties.getBlacklistPrefix().concat(jti).getBytes(StandardCharsets.UTF_8);
     }
 
     /**

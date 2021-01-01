@@ -34,7 +34,12 @@ import java.time.Duration;
  */
 @Getter
 @Setter
-public class JwtCacheProperties {
+public class JwtBlacklistProperties {
+
+    /**
+     * 是否支持 jwt 黑名单功能, 默认: true
+     */
+    private Boolean enable = Boolean.TRUE;
 
     /**
      * JWT refresh token 缓存前缀, 默认: JWT:refreshToken:

@@ -74,7 +74,7 @@ import top.dcenter.ums.security.jwt.endpoint.JwkEndpoint;
 import top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy;
 import top.dcenter.ums.security.jwt.factory.KeyStoreKeyFactory;
 import top.dcenter.ums.security.jwt.properties.BearerTokenProperties;
-import top.dcenter.ums.security.jwt.properties.JwtCacheProperties;
+import top.dcenter.ums.security.jwt.properties.JwtBlacklistProperties;
 import top.dcenter.ums.security.jwt.properties.JwtProperties;
 import top.dcenter.ums.security.jwt.resolver.UmsBearerTokenResolver;
 import top.dcenter.ums.security.jwt.supplier.UmsJwtClaimTypeConverterSupplier;
@@ -144,9 +144,9 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
      */
     public static final String REDIS_CONNECTION_FACTORY = "redisConnectionFactory";
     /**
-     * {@link JwtContext} 的 cacheProperties 字段名称
+     * {@link JwtContext} 的 blacklistProperties 字段名称
      */
-    public static final String CACHE_PROPERTIES = "cacheProperties";
+    public static final String BLACKLIST_PROPERTIES = "blacklistProperties";
     /**
      * {@link JwtContext} 的 refreshHandlerPolicy 字段名称
      */
@@ -158,7 +158,7 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
     private final String kid;
     private final BearerTokenProperties bearerTokenProperties;
     private final RedisConnectionFactory redisConnectionFactory;
-    private final JwtCacheProperties jwtCacheProperties;
+    private final JwtBlacklistProperties jwtBlacklistProperties;
     private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
     /**
      * JWT 的有效期
@@ -183,7 +183,7 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
                                 @Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties) throws Exception {
         this.timeout = jwtProperties.getTimeout();
         this.bearerTokenProperties = jwtProperties.getBearer();
-        this.jwtCacheProperties = jwtProperties.getCache();
+        this.jwtBlacklistProperties = jwtProperties.getBlacklist();
         this.redisConnectionFactory = redisConnectionFactory;
         this.refreshHandlerPolicy = jwtProperties.getRefreshHandlerPolicy();
         this.clockSkew = jwtProperties.getClockSkew();
@@ -446,10 +446,10 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
             setFieldValue(BEARER_TOKEN, bearerTokenProperties, null, jwtUtilClass);
         }
 
-        if (nonNull(this.jwtCacheProperties)) {
-            JwtCacheProperties jwtCacheProperties = new JwtCacheProperties();
-            BeanUtils.copyProperties(this.jwtCacheProperties, jwtCacheProperties);
-            setFieldValue(CACHE_PROPERTIES, jwtCacheProperties, null, jwtUtilClass);
+        if (nonNull(this.jwtBlacklistProperties)) {
+            JwtBlacklistProperties jwtBlacklistProperties = new JwtBlacklistProperties();
+            BeanUtils.copyProperties(this.jwtBlacklistProperties, jwtBlacklistProperties);
+            setFieldValue(BLACKLIST_PROPERTIES, jwtBlacklistProperties, null, jwtUtilClass);
         }
 
         if (nonNull(this.redisConnectionFactory)) {

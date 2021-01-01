@@ -62,7 +62,7 @@ public class JwtProperties {
      * jti 缓存(用于 refreshToken), 以及 jwt 黑名单缓存属性(旧 jwt 失效引发的并发访问问题).
      */
     @NestedConfigurationProperty
-    public final JwtCacheProperties cache = new JwtCacheProperties();
+    public final JwtBlacklistProperties blacklist = new JwtBlacklistProperties();
 
     // ================= JWT 相关 =================
 
