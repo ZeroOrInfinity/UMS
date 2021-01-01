@@ -37,7 +37,8 @@ import java.time.Duration;
 public class JwtBlacklistProperties {
 
     /**
-     * 是否支持 jwt 黑名单功能, 默认: true
+     * 是否支持 jwt 黑名单功能, 默认: true.
+     * 如果为 false, jwtToken 与 refreshToken 会保存到 redis
      */
     private Boolean enable = Boolean.TRUE;
 
