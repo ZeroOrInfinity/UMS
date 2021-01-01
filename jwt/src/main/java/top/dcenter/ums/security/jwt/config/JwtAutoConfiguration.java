@@ -62,6 +62,7 @@ import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.jwt.JwtContext;
 import top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService;
 import top.dcenter.ums.security.jwt.api.endpoind.service.JwkEndpointPermissionService;
+import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
 import top.dcenter.ums.security.jwt.api.supplier.JwtClaimTypeConverterSupplier;
 import top.dcenter.ums.security.jwt.api.supplier.JwtGrantedAuthoritiesConverterSupplier;
 import top.dcenter.ums.security.jwt.api.validator.service.CustomClaimValidateService;
@@ -73,6 +74,7 @@ import top.dcenter.ums.security.jwt.decoder.UmsNimbusJwtDecoder;
 import top.dcenter.ums.security.jwt.endpoint.JwkEndpoint;
 import top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy;
 import top.dcenter.ums.security.jwt.factory.KeyStoreKeyFactory;
+import top.dcenter.ums.security.jwt.id.service.impl.UuidJwtIdServiceImpl;
 import top.dcenter.ums.security.jwt.properties.BearerTokenProperties;
 import top.dcenter.ums.security.jwt.properties.JwtBlacklistProperties;
 import top.dcenter.ums.security.jwt.properties.JwtProperties;
@@ -151,6 +153,10 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
      * {@link JwtContext} 的 refreshHandlerPolicy 字段名称
      */
     public static final String REFRESH_HANDLER_POLICY = "refreshHandlerPolicy";
+    /**
+     * {@link JwtContext} 的 jwtIdService 字段名称
+     */
+    public static final String JWT_ID_SERVICE = "jwtIdService";
 
     private final RSAPublicKey publicKey;
     private final JWSSigner signer;
@@ -160,6 +166,8 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
     private final RedisConnectionFactory redisConnectionFactory;
     private final JwtBlacklistProperties jwtBlacklistProperties;
     private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
+
+    private JwtIdService jwtIdService;
     /**
      * JWT 的有效期
      */
@@ -228,6 +236,13 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
             this.signer = null;
             this.kid = null;
         }
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.jwt.api.id.service.JwtIdService"})
+    public JwtIdService jtiIdService() {
+        this.jwtIdService = new UuidJwtIdServiceImpl();
+        return this.jwtIdService;
     }
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -458,6 +473,10 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
 
         if (nonNull(this.refreshHandlerPolicy)) {
             setFieldValue(REFRESH_HANDLER_POLICY, this.refreshHandlerPolicy, null, jwtUtilClass);
+        }
+
+        if (nonNull(this.jwtIdService)) {
+            setFieldValue(JWT_ID_SERVICE, this.jwtIdService, null, jwtUtilClass);
         }
 
     }

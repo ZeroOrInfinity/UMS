@@ -29,9 +29,9 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
-import top.dcenter.ums.security.common.utils.UuidUtils;
 import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService;
+import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 import top.dcenter.ums.security.jwt.enums.JwtCustomClaimNames;
 
@@ -67,6 +67,9 @@ public class UmsGenerateClaimsSetServiceImpl implements GenerateClaimsSetService
     @Autowired(required = false)
     private CustomClaimsSetService customClaimsSetService;
 
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
+    @Autowired
+    private JwtIdService jwtIdService;
 
     /**
      * @param timeout               jwt 的有效期, 单位: 秒
@@ -97,7 +100,7 @@ public class UmsGenerateClaimsSetServiceImpl implements GenerateClaimsSetService
         }
 
         // jti
-        builder.jwtID(UuidUtils.getUUID());
+        builder.jwtID(this.jwtIdService.generateJtiId());
         builder.claim(this.principalClaimName, authentication.getName())
                .claim(JwtClaimNames.EXP, Instant.now().plusSeconds(timeout).getEpochSecond());
 
