@@ -420,7 +420,7 @@ public final class JwtContext {
 
         // 1. 判断 refreshToken 是否有效
         String userIdByRefreshToken = getUserIdByRefreshToken(refreshToken, jwtDecoder);
-        if (isNull(userIdByRefreshToken)) {
+        if (!hasText(userIdByRefreshToken)) {
             throw new RefreshTokenInvalidException(ErrorCodeEnum.JWT_REFRESH_TOKEN_INVALID, getMdcTraceId());
         }
 
@@ -715,7 +715,7 @@ public final class JwtContext {
                                                         bearerToken.getBearerTokenParameterName(),
                                                         bearerToken.getBearerTokenHeaderName());
 
-        if (isNull(jwtString)) {
+        if (!hasText(jwtString)) {
             return null;
         }
 
@@ -1121,7 +1121,7 @@ public final class JwtContext {
          */
         @NonNull
         public static BlacklistType getBlacklistType(@Nullable String blacklistValue) {
-            if (isNull(blacklistValue)) {
+            if (!hasText(blacklistValue)) {
                 return NOT_IN_BLACKLIST;
             }
             if (IN_BLACKLIST.name().equals(blacklistValue))
