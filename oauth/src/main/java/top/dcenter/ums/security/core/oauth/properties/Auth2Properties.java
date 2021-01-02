@@ -183,6 +183,11 @@ public class Auth2Properties {
      * 字段名称与其所代表的第三方的 providerId 相同.
      */
     @NestedConfigurationProperty
+    private BaseAuth2Properties wechatEnterpriseWeb;
+    /**
+     * 字段名称与其所代表的第三方的 providerId 相同.
+     */
+    @NestedConfigurationProperty
     private BaseAuth2Properties kujiale;
     /**
      * 字段名称与其所代表的第三方的 providerId 相同.
@@ -214,6 +219,16 @@ public class Auth2Properties {
      */
     @NestedConfigurationProperty
     private BaseAuth2Properties aliyun;
+    /**
+     * 字段名称与其所代表的第三方的 providerId 相同.
+     */
+    @NestedConfigurationProperty
+    private BaseAuth2Properties feishu;
+    /**
+     * 字段名称与其所代表的第三方的 providerId 相同.
+     */
+    @NestedConfigurationProperty
+    private BaseAuth2Properties xmly;
     /**
      * 字段名称与其所代表的第三方的 providerId 相同.
      */
