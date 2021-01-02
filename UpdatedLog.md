@@ -1,3 +1,33 @@
+## 2.2.3
+### Fixes and Improvements:
+1. 修复: jwtTokenString 因没有去除 bearer 前缀而解析错误的问题.
+2. 修复: 通过 refreshToken 刷新 jwt 时, NPE 问题. 去除重复保存到 redis 的语句.
+3. 修复: jwt 异常被 FrameworkServlet 拦截的问题.
+4. 更新: JustAuth 依赖到 1.15.9 版本.
+5. 新增: 飞书, 喜马拉雅, 企业微信网页 第三方登录.
+6. 增加: 支付宝内置的代理自定义设置.
+7. 升级: facebook api 版本到 9.0.
+8. 修改: 原来的企业微信为 企业微信二维码登录.
+9. 修改: AuthToken 添加了 refreshTokenExpireIn 字段, 相应的修改数据库操作.
+10. 重命名: ums.repository.tableName 为 ums.repository.userConnectionTableName.
+11. 新增: auth_token 建表及查询表是否存在的 sql 语句属性(ums.repository.xxx).
+12. 新增: 查询数据库名称的 sql 语句属性(ums.repository.queryDatabaseNameSql), 方便根据不同数据库自定义查询语句. 
+13. 新增: 添加 JwtIdService 接口
+14. 新增: 添加 ums.jwt.alwaysRefresh 属性, 控制通过 refreshToken 刷新 jwt 时, 是否总是返 newJwt.
+15. 添加: JwtIdService 接口, 便于自定义 jti 与 refreshToken,
+16. 添加: Jwt + session(缓存 redis) 与 jwt 两种模式, 有 ums.jwt.blacklist.enable 属性控制, enable = true 时为 jwt 模式, enable = false 时为 jwt + session 模式.
+17. 改进: refreshToken 生成格式: ums.jwt.blacklist.enable 属性, enable = true 时 refreshToken 生成 jwt, enable = false 时 refreshToken 生成 UUID.
+18. 添加: GenerateClaimsSetService 添加 getJwtGrantedAuthoritiesConverter 接口.
+19. 添加: JwtJackson2Module redis jackson2 序列化模块.
+20. 改进: 添加 SaveRefreshTokenException 异常.
+21. 优化: 增加 JwtIdServiceAutoConfiguration, 消除循环引用问题.
+22. 优化: redis 缓存序列化问题.
+23. 优化: 重命名 JwtCacheProperties 为 JwtBlacklistProperties, 添加是否支持 jwt 黑名单的开关属性 enable.
+24. 优化: 更新 generateClaimsSet() 逻辑, 由 CustomClaimSetService 的 claim 值覆盖 UmsGenerateClaimsSetServiceImpl.generateClaimsSet() 的 claim 的值.
+25. 优化: jwt-example.
+
+
+
 ## 2.2.2
 ### Fixes and Improvements:
 1. 修复: 补全 AuthToken 与 UserConnection 建表语句, 与刷新 access Token 定时任务处理逻辑相匹配.

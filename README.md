@@ -396,6 +396,9 @@ new Thread(() -> {
 }, "testMDC").start();
 ```
 
+## 友情链接
+[一个基于aws s3快速集成多storage client的启动器](https://gitee.com/opcooc/opcooc-storage-spring-boot-starter)
+
 ## 鸣谢
 ##### 感谢 JetBrains 提供的免费开源 License：
 ![JetBrains](doc/jetBrains.png)

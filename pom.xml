@@ -6,7 +6,7 @@
 
     <groupId>top.dcenter</groupId>
     <artifactId>ums</artifactId>
-    <version>2.2.2</version>
+    <version>2.2.3</version>
 
     <packaging>pom</packaging>
     <name>ums</name>
@@ -15,7 +15,7 @@
         access control function, support multi-tenancy, jwt, and sign etc...
     </description>
 
-    <!--<modules>
+<!--    <modules>
         <module>commons</module>
         <module>mdc</module>
         <module>vc</module>
@@ -75,14 +75,14 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <java.version>1.8</java.version>
 
-        <ums.commons.version>2.2.2</ums.commons.version>
-        <ums.core.version>2.2.2</ums.core.version>
-        <ums.rbac.version>2.2.2</ums.rbac.version>
-        <ums.oauth.version>2.2.2</ums.oauth.version>
-        <ums.jwt.version>2.2.2</ums.jwt.version>
-        <ums.vc.version>2.2.2</ums.vc.version>
-        <ums.mdc.version>2.2.2</ums.mdc.version>
-        <ums.starter.version>2.2.2</ums.starter.version>
+        <ums.commons.version>2.2.3</ums.commons.version>
+        <ums.core.version>2.2.3</ums.core.version>
+        <ums.rbac.version>2.2.3</ums.rbac.version>
+        <ums.oauth.version>2.2.3</ums.oauth.version>
+        <ums.jwt.version>2.2.3</ums.jwt.version>
+        <ums.vc.version>2.2.3</ums.vc.version>
+        <ums.mdc.version>2.2.3</ums.mdc.version>
+        <ums.starter.version>2.2.3</ums.starter.version>
 
         <spring-session.version>2.3.1.RELEASE</spring-session.version>
         <spring-session-data-mongodb.version>2.3.0.RELEASE</spring-session-data-mongodb.version>
@@ -94,7 +94,7 @@
         <swagger.fox.version>3.0.0</swagger.fox.version>
         <wiremock.version>2.26.3</wiremock.version>
         <commons-pool2.version>2.8.1</commons-pool2.version>
-        <just-auth.version>1.15.8</just-auth.version>
+        <just-auth.version>1.15.9</just-auth.version>
         <guava.version>30.0-jre</guava.version>
         <findbugs.jsr305.version>3.0.2</findbugs.jsr305.version>
         <spotbugs-annotations.version>3.1.12</spotbugs-annotations.version>
