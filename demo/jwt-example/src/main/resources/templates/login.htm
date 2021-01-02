@@ -14,6 +14,8 @@
 <h2>登录页面 JWT</h2>
 <h3>表单登录</h3>
 <h5>通过 查看控制台日志或POSTMAN等工具 来了解 JWT 流程.</h5>
+<h5>application.yml -> ums.jwt.blacklist.enable = false , 此时为 jwt + session(jwtToken 缓存 redis 模式)</h5>
+<h5>如果要调试 纯 jwt 模式, 请设置 application.yml -> ums.jwt.blacklist.enable = true</h5>
 <!-- 通过 th:action 的方式支持 csrf 或者 添加隐藏域<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
 <form id="reg-form" th:action="@{/authentication/form}" method="post">
     <table>
@@ -42,11 +44,28 @@
         </tr>
     </table>
 </form>
+
+<br>
+<h1>先登录获取 jwt 与 refreshToken, 看控制台打印日志</h1>
+<h5>通过设置 application.yml -> ums.jwt.blacklist 下的参数控制 jwt 传递方式</h5>
+<h5>通过 refreshToken 刷新 jwt 时, 默认 oldJwt 有效期没在 ums.jwt.remainingRefreshInterval 的时间内, 原样返回 oldJwt</h5>
+<h5>如果想重新刷新 jwt 则通过设置 ums.jwt.alwaysRefresh=true, 这样每次通过 refreshToken 刷新 jwt 则总是返回 newJwt</h5>
+<form id="refresh-token" th:action="@{/jwt/refreshToken}" method="post">
+    <tr>
+        <td ><button id="btn-ref" type="button">通过 refresh 获取 Jwt</button></td>
+    </tr>
+
+</form>
 <br><br>
 <dev id="basePath" th:basePath="@{/}" style="display: none"/>
 </body>
 <script>
     var basePath = $("#basePath").attr("basePath");
+
+    console.log("========== Authorization: 清除 缓存到本地缓存的 JWT ============")
+    console.log("")
+    window.localStorage.setItem('jwt', "");
+
     $.fn.serializeObject = function()
     {
         let o = {};
@@ -76,6 +95,75 @@
         }
         console.log(uri)
         this.setAttribute('src', uri);
+    });
+
+    $("#btn-ref").click(function(){
+        let url = $("#refresh-token").attr("action");
+        let refreshToken = window.localStorage.getItem('refresh_token');
+        if (undefined === refreshToken || null === refreshToken) {
+            refreshToken = "";
+        }
+        console.log("refreshtoken: " + refreshToken);
+        // 登录并获取 JWT
+        $.ajax({
+            url: url,
+            type: "POST",
+            dataType: "json",
+            contentType: 'application/json; charset=UTF-8',
+            headers: {
+                'refresh_token': refreshToken
+            },
+            beforeSend: function(request) {
+                // 与 headers 重复
+                // 如果 jwt 传输的方式是 ums.jwt.bearer.bearerTokenParameterName 方式, 则设置到 请求头 中
+                let jwt = window.localStorage.getItem('jwt')
+                if (undefined !== jwt && null !== jwt) {
+                    console.log("========== 访问需要权限的 API: JWT 传输的方式是 ums.jwt.bearer.bearerTokenParameterName 方式, 则设置到 请求头 中 ============")
+                    console.log("JWT 设置到 请求头 Authorization : " + jwt);
+                    console.log("")
+                    request.setRequestHeader("Authorization", jwt);
+                }
+            },
+            success: function (data) {
+                console.log("==========通过 refreshToken 刷新 jwt 成功============")
+                // 成功
+                // ...
+                console.log(data)
+
+            },
+            error: function (data) {
+                // 失败
+                console.log("********通过 refreshToken 刷新 jwt 失败*********")
+                console.log(data)
+            },
+            complete: function (xhr, data) {
+                console.log("========== 刷新 jwt 成功: 设置 jwt 到本地缓存 ============")
+                console.log("========== 通过 响应头 获取 JWT ============")
+                let accessToken;
+                //  jwt 传输的方式是 ums.jwt.bearer.bearerTokenHeaderName 方式
+                let Authorization = xhr.getResponseHeader('Authorization');
+                console.log('Authorization: ' + Authorization);
+                console.log("")
+
+                if (undefined !== Authorization && null === Authorization) {
+                    // jwt 传输的方式是 ums.jwt.bearer.bearerTokenHeaderName 方式
+                    console.log("========== 通过 响应体 获取 JWT ============")
+                    accessToken = xhr.responseJSON.data.token;
+                    console.log('accessToken: ' + accessToken);
+                    console.log("")
+                    if (undefined !== accessToken && null !== accessToken) {
+                        console.log("========== accessToken: JWT 缓存到本地缓存 ============")
+                        window.localStorage.setItem('jwt', accessToken);
+                    }
+
+                } else {
+                    console.log("========== Authorization: JWT 缓存到本地缓存 ============")
+                    console.log("")
+                    window.localStorage.setItem('jwt', Authorization);
+                }
+            }
+        })
+        return
     });
 
     function submitFormByAjax(url, formId, errorNameId, errorCodeId, imgId) {
@@ -130,6 +218,7 @@
                 complete: function (xhr, data) {
                     let accessToken;
                     let Authorization;
+                    let refresh_token;
                     /*
                         认证成功: 设置 jwt 到本地缓存
                     */
@@ -139,6 +228,11 @@
                         //  jwt 传输的方式是 ums.jwt.bearer.bearerTokenHeaderName 方式
                         Authorization = xhr.getResponseHeader('Authorization');
                         console.log('Authorization: ' + Authorization);
+                        console.log("")
+                        console.log("========== 通过 响应头 获取 refresh_token ============")
+                        //  jwt 传输的方式是 ums.jwt.bearer.bearerTokenHeaderName 方式
+                        refresh_token = xhr.getResponseHeader('refresh_token');
+                        console.log('refresh_token: ' + refresh_token);
                         console.log("")
 
                         if (undefined !== Authorization && null === Authorization) {
@@ -151,10 +245,15 @@
                                 console.log("========== accessToken: JWT 缓存到本地缓存 ============")
                                 window.localStorage.setItem('jwt', accessToken);
                             }
+
                         } else {
                             console.log("========== Authorization: JWT 缓存到本地缓存 ============")
                             console.log("")
                             window.localStorage.setItem('jwt', Authorization);
+                            if (undefined !== refresh_token && null !== refresh_token) {
+                                console.log("========== refresh_token: refresh_token 缓存到本地缓存 ============")
+                                window.localStorage.setItem('refresh_token', refresh_token);
+                            }
                         }
 
                         // 如果 jwt 传输的方式是 ums.jwt.bearer.bearerTokenParameterName 方式, 则设置到 请求体 中

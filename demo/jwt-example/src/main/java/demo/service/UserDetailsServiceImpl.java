@@ -43,7 +43,9 @@ import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *  用户密码与手机短信登录与注册服务：<br><br>
@@ -237,12 +239,47 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
 
     @Override
     public UserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
-        return null;
+        try
+        {
+            // 从缓存中查询用户信息:
+            // 从缓存中查询用户信息
+            if (this.userCache != null)
+            {
+                UserDetails userDetails = this.userCache.getUserFromCache(userId);
+                if (userDetails != null)
+                {
+                    return userDetails;
+                }
+            }
+            // 根据用户名获取用户信息
+
+            // 获取用户信息逻辑。。。
+            // ...
+
+            // 示例：只是从用户登录日志表中提取的信息，
+            log.info("Demo ======>: 登录用户名：{}, 登录成功", userId);
+            return new User(userId,
+                            passwordEncoder.encode("admin"),
+                            true,
+                            true,
+                            true,
+                            true,
+                            AuthorityUtils.commaSeparatedStringToAuthorityList("admin, ROLE_USER"));
+
+        }
+        catch (Exception e)
+        {
+            String msg = String.format("Demo ======>: 登录用户名：%s, 登录失败: %s", userId, e.getMessage());
+            log.error(msg);
+            throw new UserNotExistException(ErrorCodeEnum.QUERY_USER_INFO_ERROR, e, userId);
+        }
     }
 
     @Override
     public List<Boolean> existedByUsernames(String... usernames) throws UsernameNotFoundException {
-        return null;
+        return Arrays.stream(usernames)
+                      .map((u) -> Boolean.TRUE)
+                      .collect(Collectors.toList());
     }
 
 }

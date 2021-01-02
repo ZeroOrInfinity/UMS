@@ -119,25 +119,41 @@ ums:
     # 当 JwtRefreshHandlerPolicy.REFRESH_TOKEN 时, JWT 剩余的有效期间隔小于此值后通过 refreshToken 才会刷新新的 JWT,
     # 否则直接返回旧的 JWT. 默认: 600 秒.
     remaining-refresh-interval: PT600S
-    # jwt userId 的 claimName, 默认: sub
-    jwt-user-id-claim-name: userId
+    # Jwt 刷新处理策略, 默认: REJECT . 选项: auto_renew/refresh_token/reject
+    refresh-handler-policy: refresh_token
+
     # ========= JWK 相关 =========
+
+    # 是否曝露 jwk-set-uri, 默认: false.  如果为 true, 需要实现 JwkEndpointPermissionService 权限服务接口
+    expose-jwk-set-uri: true
+    # Use the given signing algorithm . The value should be one of RS256, RS384, RS512, HS256, HS384, or HS512 . 默认: RS256
+    jws-algorithms: RS256
     # 用于 JWT 的 HMAC protection 的 secret, 字符长度必须大于等于 32; 当设置此属性时, 属性 jwsAlgorithms 必须是 HS256, HS384, HS512 中的一个.
     # 注意: 属性 macsSecret 与 jksKeyPairLocation 同时配置, jksKeyPairLocation 属性优于 macsSecret.
     macs-secret:
-    # 是否曝露 jwk-set-uri, 默认: false.  如果为 true, 需要实现 JwkEndpointPermissionService 权限服务接口
-    expose-jwk-set-uri: true
-    # 密钥键值对(KeyPair)的别名
-    jks-alias: zyw
     # 用于 JWT 的密钥键值对(KeyPair)的文件位置; 当设置此属性时, 属性 jwsAlgorithms 必须是 RS256, RS384, RS512 中的一个.
     # 注意: 属性 macsSecret 与 jksKeyPairLocation 同时配置, jksKeyPairLocation 属性优于 macsSecret.
     jks-key-pair-location: classpath:zyw.jks
     # 密钥键值对(KeyPair)的密码
     jks-password: 123456
-    # Use the given signing algorithm . The value should be one of RS256, RS384, RS512, HS256, HS384, or HS512 . 默认: RS256
-    jws-algorithms: RS256
+    # 密钥键值对(KeyPair)的别名
+    jks-alias: zyw
+
+    # ========= ClaimSet 相关 =========
+
+    # The "kid" (key ID) parameter is used to match a specific key. This is used, for instance, to choose among a set of
+    # keys within a JWK Set during key rollover. The structure of the "kid" value is unspecified. When "kid" values
+    # are used within a JWK Set, different keys within the JWK Set SHOULD use distinct "kid" values. (One example in
+    # which different keys might use the same "kid" value is if they have different "kty" (key type) values but are
+    # considered to be equivalent alternatives by the application using them.) The "kid" value is a case-sensitive
+    # string. Use of this member is OPTIONAL. When used with JWS or JWE, the "kid" value is used to match a JWS or JWE
+    # "kid" Header Parameter value.
+    kid:
     # 该JWT的签发者, 必须是 URL, 根据是否需要设置
     iss: http://localhost:9090/demo/
+    # JWT 存储 principal 的 claimName, 默认: sub
+    principal-claim-name: sub
+
     bearer:
       # 是否支持从 form encoded body parameter 传递参数名称为 bearerTokenParameterName 的 bearer token 或传递参数名称为
       # refreshTokenParameterName 的 refresh token, 默认: false
@@ -170,16 +186,16 @@ ums:
       # 1. 属性 refreshTokenParameterName 只有在 allowFormEncodedBodyParameter 或 allowUriQueryParameter 其中一方为 true 时生效.
       # 2. 目前 allowFormEncodedBodyParameter, allowUriQueryParameter 属性还不能配置, 默认都为 false, refreshTokenParameterName 总是失效.
       refresh-token-parameter-name: refresh_token
-    cache:
+    blacklist:
+      # 是否支持 jwt 黑名单功能, 默认: true.
+      # 如果为 false, jwtToken 与 refreshToken 会保存到 redis
+      enable: false
       # JWT 黑名单缓存前缀, 默认: JWT:BLACKLIST:
       blacklist-prefix: 'JWT:BLACKLIST:'
       # JWT refresh token 缓存前缀, 默认: JWT:refreshToken:
       refresh-token-prefix: 'JWT:refreshToken:'
       # JWT refresh token ttl(有效期), 默认: 30 天
       refresh-token-ttl: PT720H
-
-
-
 
 
   # 验证码配置
