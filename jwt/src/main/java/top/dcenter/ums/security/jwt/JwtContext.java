@@ -265,8 +265,12 @@ public final class JwtContext {
 
                 String principalClaimName = generateClaimsSetService.getPrincipalClaimName();
                 setBearerTokenAndRefreshTokenToHeader(jwt, TRUE, principalClaimName);
+                /* 转换为 JwtAuthenticationToken, 再根据 isSetContext 保存 jwtAuthenticationToken 到 SecurityContext, 如果
+                   JwtBlacklistProperties.getEnable() = false, 则同时保存到 redis 缓存
+                 */
                 return toJwtAuthenticationToken(jwt, authentication, principalClaimName,
-                                                generateClaimsSetService.getJwtGrantedAuthoritiesConverter());
+                                                generateClaimsSetService.getJwtGrantedAuthoritiesConverter(),
+                                                FALSE);
             }
             catch (Exception e) {
                 String msg = String.format("创建 jwt token 失败: %s", authentication);
@@ -426,6 +430,9 @@ public final class JwtContext {
 
         // 2. 获取用户信息, 并创建 Authentication
         UserDetails userDetails = umsUserDetailsService.loadUserByUserId(userIdByRefreshToken);
+        if (isNull(userDetails)) {
+            throw new RefreshTokenInvalidException(ErrorCodeEnum.JWT_REFRESH_TOKEN_INVALID, getMdcTraceId());
+        }
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
@@ -459,22 +466,18 @@ public final class JwtContext {
         }
 
 
-        JwtAuthenticationToken jwtAuthenticationToken = null;
         if (!blacklistProperties.getEnable()) {
-            jwtAuthenticationToken =
-                    toJwtAuthenticationToken(newJwt, authenticationToken, jwtDecoder.getPrincipalClaimName(),
-                                             generateClaimsSetService.getJwtGrantedAuthoritiesConverter());
-            SecurityContextHolder.getContext().setAuthentication(jwtAuthenticationToken);
+            /* 转换为 JwtAuthenticationToken, 再根据 isSetContext 保存 jwtAuthenticationToken 到 SecurityContext, 如果
+               JwtBlacklistProperties.getEnable() = false, 则同时保存到 redis 缓存
+            */
+            toJwtAuthenticationToken(newJwt, authenticationToken, jwtDecoder.getPrincipalClaimName(),
+                                     generateClaimsSetService.getJwtGrantedAuthoritiesConverter(),
+                                     TRUE);
         }
 
         // 5. oldJwt != null 且与 newJwt 不相等, 则 oldJwt 添加黑名单, 以解决刷新 jwt 而引发的并发访问问题.
         if (nonNull(oldJwt) && !Objects.equals(newJwt, oldJwt)) {
             setOldJwtToBlacklist(refreshToken, userIdByRefreshToken, oldJwt, newJwt);
-        }
-        else {
-            final Jwt fNewJwt = newJwt;
-            ofNullable(jwtAuthenticationToken)
-                    .ifPresent((jwtToken) -> saveTokenSessionToRedis(jwtToken, fNewJwt, false));
         }
 
         // 6. 设置 jwt 到 header
@@ -680,9 +683,6 @@ public final class JwtContext {
         if (!blacklistProperties.getEnable()) {
             // 删除 redis 中的 oldJwt 缓存
             getConnection().del(oldJwt.getTokenValue().getBytes(StandardCharsets.UTF_8));
-            // 保存 newJwt 到 redis
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            saveTokenSessionToRedis(authentication, newJwt, false);
             return;
         }
 
@@ -944,18 +944,21 @@ public final class JwtContext {
     }
 
     /**
-     * 转换为 {@link JwtAuthenticationToken}
+     * 转换为 {@link JwtAuthenticationToken}, 再根据 isSetContext 保存 jwtAuthenticationToken 到 SecurityContext,
+     * 如果 {@link JwtBlacklistProperties#getEnable()} = false, 则同时保存到 redis 缓存
      * @param jwt                   {@link Jwt}
      * @param authentication        {@link Authentication}
      * @param principalClaimName    JWT 存储 principal 的 claimName
      * @param converter             {@link JwtGrantedAuthoritiesConverter}
+     * @param isSetContext          authentication 是否设置到 SecurityContext
      * @return  则返回 {@link JwtAuthenticationToken}
      */
     @NonNull
     private static JwtAuthenticationToken toJwtAuthenticationToken(@NonNull Jwt jwt,
                                                                    @NonNull Authentication authentication,
                                                                    @NonNull String principalClaimName,
-                                                                   @NonNull JwtGrantedAuthoritiesConverter converter) {
+                                                                   @NonNull JwtGrantedAuthoritiesConverter converter,
+                                                                   @NonNull Boolean isSetContext) {
 
         Collection<GrantedAuthority> authorities = converter.convert(jwt);
 
@@ -965,7 +968,10 @@ public final class JwtContext {
 
         // 如果不支持 jwt 黑名单, 添加到 redis 缓存
         if (!blacklistProperties.getEnable()) {
-            saveTokenSessionToRedis(jwtAuthenticationToken, jwt, false);
+            saveTokenSessionToRedis(jwtAuthenticationToken, jwt, isSetContext);
+        }
+        else if (isSetContext) {
+            SecurityContextHolder.getContext().setAuthentication(jwtAuthenticationToken);
         }
 
         return jwtAuthenticationToken;
