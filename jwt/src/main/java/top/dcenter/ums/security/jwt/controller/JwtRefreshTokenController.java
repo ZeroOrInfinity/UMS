@@ -71,7 +71,15 @@ public class JwtRefreshTokenController implements InitializingBean, ApplicationC
     private final GenerateClaimsSetService generateClaimsSetService;
     private final UmsUserDetailsService umsUserDetailsService;
     private final BearerTokenProperties bearerTokenProperties;
+    /**
+     * 通过 refreshToken 刷新 jwt 的 uri
+     */
     private final String jwtByRefreshTokenUri;
+    /**
+     * 通过 refreshToken 刷新 jwt 时, 如果 alwaysRefresh = false, oldJwt 剩余有效期没在 ums.jwt.remainingRefreshInterval
+     * 的时间内, 原样返回 oldJwt, 如果 ums.jwt.alwaysRefresh = true, 每次通过 refreshToken 刷新 jwt 则总是返回 newJwt.
+     */
+    private final Boolean alwaysRefresh;
     private final UmsNimbusJwtDecoder jwtDecoder;
 
     private ApplicationContext applicationContext;
@@ -87,6 +95,7 @@ public class JwtRefreshTokenController implements InitializingBean, ApplicationC
         this.jwtDecoder = jwtDecoder;
         this.bearerTokenProperties = jwtProperties.getBearer();
         this.jwtByRefreshTokenUri = jwtProperties.getJwtByRefreshTokenUri();
+        this.alwaysRefresh = jwtProperties.getAlwaysRefresh();
     }
 
     @ApiOperation(value = "根据 refreshToken 刷新 JWT", notes = "refreshToken 的值通过指定的请求头进行传递",
@@ -142,7 +151,7 @@ public class JwtRefreshTokenController implements InitializingBean, ApplicationC
 
         //noinspection unused
         // 获取 jwt, 如果需要从响应头返回则把 jwt 设置到响应头.
-        Jwt jwt = JwtContext.generateJwtByRefreshToken(refreshToken, request, jwtDecoder,
+        Jwt jwt = JwtContext.generateJwtByRefreshToken(refreshToken, alwaysRefresh, request, jwtDecoder,
                                                        umsUserDetailsService, generateClaimsSetService);
 
         // 如果需要从 body 返回

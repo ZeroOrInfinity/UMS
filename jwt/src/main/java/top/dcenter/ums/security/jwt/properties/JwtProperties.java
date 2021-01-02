@@ -95,6 +95,13 @@ public class JwtProperties {
     private Duration remainingRefreshInterval = Duration.ofSeconds(600);
 
     /**
+     * 通过 refreshToken 刷新 jwt 时, 如果 alwaysRefresh = false, oldJwt 剩余有效期没在 ums.jwt.remainingRefreshInterval 的时间内, 原样返回
+     * oldJwt, 如果 ums.jwt.alwaysRefresh = true, 每次通过 refreshToken 刷新 jwt 则总是返回 newJwt.
+     * 默认: false
+     */
+    private Boolean alwaysRefresh = Boolean.FALSE;
+
+    /**
      * {@link Jwt} 刷新处理策略, 默认: REJECT .<br>
      */
     private JwtRefreshHandlerPolicy refreshHandlerPolicy = JwtRefreshHandlerPolicy.REJECT;

@@ -406,6 +406,9 @@ public final class JwtContext {
      * 根据 refresh token 获取新 Jwt 处理器
      *
      * @param refreshToken             refresh token
+     * @param alwaysRefresh            如果 alwaysRefresh = false, oldJwt 剩余有效期没在 ums.jwt.remainingRefreshInterval
+     *                                 的时间内, 原样返回 oldJwt, 如果 ums.jwt.alwaysRefresh = true,
+     *                                 每次通过 refreshToken 刷新 jwt 则总是返回 newJwt.
      * @param request                  {@link HttpServletRequest}
      * @param jwtDecoder               {@link UmsNimbusJwtDecoder}
      * @param umsUserDetailsService    {@link UmsUserDetailsService}
@@ -416,6 +419,7 @@ public final class JwtContext {
      */
     @NonNull
     public static Jwt generateJwtByRefreshToken(@NonNull String refreshToken,
+                                                @NonNull Boolean alwaysRefresh,
                                                 @NonNull HttpServletRequest request,
                                                 @NonNull UmsNimbusJwtDecoder jwtDecoder,
                                                 @NonNull UmsUserDetailsService umsUserDetailsService,
@@ -439,7 +443,11 @@ public final class JwtContext {
         // 3. 检查旧的 jwt 是否在刷新的时间访问内()
         Jwt newJwt = null;
         Jwt oldJwt = getJwtByRequest(request, jwtDecoder);
-        if (nonNull(oldJwt)) {
+        /* 如果 alwaysRefresh = false, oldJwt 剩余有效期没在 ums.jwt.remainingRefreshInterval
+           的时间内, 原样返回 oldJwt, 如果 ums.jwt.alwaysRefresh = true,
+           每次通过 refreshToken 刷新 jwt 则总是返回 newJwt.
+         */
+        if (!alwaysRefresh && nonNull(oldJwt)) {
             // 检查是否需要刷新
             Instant expiresAt = oldJwt.getExpiresAt();
             if (nonNull(expiresAt)) {
