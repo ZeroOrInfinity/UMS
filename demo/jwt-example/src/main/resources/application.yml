@@ -113,6 +113,9 @@ ums:
     # 通过 refreshToken 获取 JWT uri, 默认: /jwt/refreshToken
     # 注意: 当 exposeRefreshTokenUri=true 时才生效
     jwt-by-refresh-token-uri: /jwt/refreshToken
+    # 通过 refreshToken 刷新 jwt 时, 如果 alwaysRefresh = false, oldJwt 剩余有效期没在 ums.jwt.remainingRefreshInterval
+    # 的时间内, 原样返回 oldJwt, 如果 ums.jwt.alwaysRefresh = true, 每次通过 refreshToken 刷新 jwt 则总是返回 newJwt. 默认: false
+    always-refresh: false
     # 是否曝露 jwtByRefreshTokenUri, 默认: false
     expose-refresh-token-uri: true
     # 当 JwtRefreshHandlerPolicy.AUTO_RENEW 时, JWT 剩余的有效期间隔小于此值后自动刷新 JWT;
@@ -196,6 +199,7 @@ ums:
       refresh-token-prefix: 'JWT:refreshToken:'
       # JWT refresh token ttl(有效期), 默认: 30 天
       refresh-token-ttl: PT720H
+
 
 
   # 验证码配置
