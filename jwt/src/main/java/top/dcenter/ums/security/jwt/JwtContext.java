@@ -313,7 +313,7 @@ public final class JwtContext {
          */
         String newJwtString = inBlacklistAndHasNewJwt(blacklistType);
         if (newJwtString != null) {
-            newJwt = jwtDecoder.decodeNotValidate(newJwtString);
+            newJwt = jwtDecoder.decodeNotValidate(removeBearerForJwtTokenString(newJwtString));
             // 新的 jwt 设置 header
             setBearerTokenAndRefreshTokenToHeader(newJwt, FALSE, principalClaimName);
             return newJwt;
@@ -722,10 +722,10 @@ public final class JwtContext {
         // 转换为 jwt
         try {
             if (jwtDecoder instanceof UmsNimbusJwtDecoder) {
-                oldJwt = ((UmsNimbusJwtDecoder) jwtDecoder).decodeNotValidate(jwtString);
+                oldJwt = ((UmsNimbusJwtDecoder) jwtDecoder).decodeNotValidate(removeBearerForJwtTokenString(jwtString));
             }
             else {
-                oldJwt = jwtDecoder.decode(jwtString);
+                oldJwt = jwtDecoder.decode(removeBearerForJwtTokenString(jwtString));
             }
         }
         catch (JwtException | JwtInvalidException | JwtExpiredException e) {
@@ -738,6 +738,19 @@ public final class JwtContext {
 
         // 返回 jwt
         return oldJwt;
+    }
+
+    /**
+     * 去除 jwtTokenString 的 "bearer " 前缀, 如果没有 "bearer " 前缀则原样返回
+     * @param jwtTokenString    jwtTokenString
+     * @return  返回去除了 "bearer " 前缀的 jwtTokenString, 如果没有 "bearer " 前缀则原样返回
+     */
+    @NonNull
+    private static String removeBearerForJwtTokenString(@NonNull String jwtTokenString) {
+        if (jwtTokenString.startsWith(BEARER)) {
+            return jwtTokenString.replaceFirst(BEARER, "");
+        }
+        return jwtTokenString;
     }
 
     /**
@@ -760,7 +773,7 @@ public final class JwtContext {
         }
 
         // 支持 jwt 黑名单逻辑
-        Jwt refreshTokenJwt = jwtDecoder.decodeNotValidate(refreshToken);
+        Jwt refreshTokenJwt = jwtDecoder.decodeNotValidate(removeBearerForJwtTokenString(refreshToken));
         Instant expiresAt = refreshTokenJwt.getExpiresAt();
         // refreshToken 无效
         if (isNull(expiresAt) || expiresAt.isBefore(Instant.now())) {
