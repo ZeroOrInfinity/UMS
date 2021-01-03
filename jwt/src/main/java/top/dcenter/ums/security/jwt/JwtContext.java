@@ -42,7 +42,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -50,8 +49,8 @@ import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
@@ -80,7 +79,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
@@ -267,8 +265,8 @@ public final class JwtContext {
                 /* 转换为 JwtAuthenticationToken, 再根据 isSetContext 保存 jwtAuthenticationToken 到 SecurityContext, 如果
                    JwtBlacklistProperties.getEnable() = false, 则同时保存到 redis 缓存
                  */
-                return toJwtAuthenticationToken(jwt, authentication, principalClaimName,
-                                                generateClaimsSetService.getJwtGrantedAuthoritiesConverter(),
+                return toJwtAuthenticationToken(jwt, authentication,
+                                                generateClaimsSetService.getJwtAuthenticationConverter(),
                                                 FALSE);
             }
             catch (Exception e) {
@@ -477,8 +475,8 @@ public final class JwtContext {
             /* 转换为 JwtAuthenticationToken, 再根据 isSetContext 保存 jwtAuthenticationToken 到 SecurityContext, 如果
                JwtBlacklistProperties.getEnable() = false, 则同时保存到 redis 缓存
             */
-            toJwtAuthenticationToken(newJwt, authenticationToken, jwtDecoder.getPrincipalClaimName(),
-                                     generateClaimsSetService.getJwtGrantedAuthoritiesConverter(),
+            toJwtAuthenticationToken(newJwt, authenticationToken,
+                                     generateClaimsSetService.getJwtAuthenticationConverter(),
                                      TRUE);
         }
 
@@ -970,22 +968,17 @@ public final class JwtContext {
      * 如果 {@link JwtBlacklistProperties#getEnable()} = false, 则同时保存到 redis 缓存
      * @param jwt                   {@link Jwt}
      * @param authentication        {@link Authentication}
-     * @param principalClaimName    JWT 存储 principal 的 claimName
-     * @param converter             {@link JwtGrantedAuthoritiesConverter}
+     * @param converter             {@link JwtAuthenticationConverter}
      * @param isSetContext          authentication 是否设置到 SecurityContext
      * @return  则返回 {@link JwtAuthenticationToken}
      */
     @NonNull
     private static JwtAuthenticationToken toJwtAuthenticationToken(@NonNull Jwt jwt,
                                                                    @NonNull Authentication authentication,
-                                                                   @NonNull String principalClaimName,
-                                                                   @NonNull JwtGrantedAuthoritiesConverter converter,
+                                                                   @NonNull JwtAuthenticationConverter converter,
                                                                    @NonNull Boolean isSetContext) {
 
-        Collection<GrantedAuthority> authorities = converter.convert(jwt);
-
-        JwtAuthenticationToken jwtAuthenticationToken =
-                new JwtAuthenticationToken(jwt, authorities, jwt.getClaimAsString(principalClaimName));
+        JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) converter.convert(jwt);
         jwtAuthenticationToken.setDetails(authentication.getDetails());
 
         // 如果不支持 jwt 黑名单, 添加到 redis 缓存

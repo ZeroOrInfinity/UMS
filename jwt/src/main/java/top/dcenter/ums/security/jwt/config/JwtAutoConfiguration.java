@@ -59,7 +59,6 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.jwt.JwtContext;
@@ -382,11 +381,11 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService")
     public GenerateClaimsSetService generateClaimsSetService(JwtProperties jwtProperties,
-                                                             JwtGrantedAuthoritiesConverterSupplier jwtGrantedAuthoritiesConverterSupplier) {
+                                                             JwtAuthenticationConverter jwtAuthenticationConverter) {
         return new UmsGenerateClaimsSetServiceImpl(jwtProperties.getTimeout().getSeconds(),
                                                    jwtProperties.getIss(),
                                                    jwtProperties.getPrincipalClaimName(),
-                                                   (JwtGrantedAuthoritiesConverter) jwtGrantedAuthoritiesConverterSupplier.getConverter());
+                                                   jwtAuthenticationConverter);
     }
 
     @Bean
