@@ -61,7 +61,11 @@ public enum JwtRefreshHandlerPolicy implements JwtRefreshHandler {
                                  @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService) throws JwtInvalidException {
             Instant expiresAt = check(jwt, reAuthService);
             long nowOfClockShew = Instant.now().minusSeconds(clockSkew.getSeconds()).getEpochSecond();
-            return (expiresAt.getEpochSecond() - nowOfClockShew) < remainingRefreshInterval.getSeconds();
+            long remainingSecond = expiresAt.getEpochSecond() - nowOfClockShew;
+            if (remainingSecond < 0) {
+                throw new JwtInvalidException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId());
+            }
+            return remainingSecond < remainingRefreshInterval.getSeconds();
         }
 
         @Override
