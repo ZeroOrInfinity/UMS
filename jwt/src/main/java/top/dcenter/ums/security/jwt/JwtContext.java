@@ -94,7 +94,6 @@ import static org.springframework.data.redis.connection.RedisStringCommands.SetO
 import static org.springframework.util.StringUtils.hasText;
 import static org.springframework.web.context.request.RequestAttributes.SCOPE_SESSION;
 import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
-import static top.dcenter.ums.security.jwt.enums.JwtCustomClaimNames.USER_ID;
 import static top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy.AUTO_RENEW;
 import static top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy.REFRESH_TOKEN;
 
@@ -485,7 +484,7 @@ public final class JwtContext {
 
         // 5. oldJwt != null 且与 newJwt 不相等, 则 oldJwt 添加黑名单, 以解决刷新 jwt 而引发的并发访问问题.
         if (nonNull(oldJwt) && !Objects.equals(newJwt, oldJwt)) {
-            setOldJwtToBlacklist(refreshToken, userIdByRefreshToken, oldJwt, newJwt);
+            setOldJwtToBlacklist(refreshToken, userIdByRefreshToken, oldJwt, newJwt, jwtDecoder.getPrincipalClaimName());
         }
 
         // 6. 设置 jwt 到 header
@@ -682,11 +681,13 @@ public final class JwtContext {
      * @param userIdByRefreshToken  userIdByRefreshToken
      * @param oldJwt                旧的 {@link Jwt}
      * @param newJwt                新的 {@link Jwt}
+     * @param principalClaimName    JWT 存储 principal 的 claimName
      */
     private static void setOldJwtToBlacklist(@NonNull String refreshToken,
                                              @NonNull String userIdByRefreshToken,
                                              @NonNull Jwt oldJwt,
-                                             @NonNull Jwt newJwt) {
+                                             @NonNull Jwt newJwt,
+                                             @NonNull String principalClaimName) {
         // 不支持 jwt 黑名单逻辑
         if (!blacklistProperties.getEnable()) {
             // 删除 redis 中的 oldJwt 缓存
@@ -695,7 +696,7 @@ public final class JwtContext {
         }
 
         // 校验新 jwt 与 旧 jwt 是否相同 userId
-        Object oldUserId = oldJwt.getClaim(USER_ID.getClaimName());
+        Object oldUserId = oldJwt.getClaim(principalClaimName);
         if (!Objects.equals(oldUserId, userIdByRefreshToken)) {
             log.error("oldUserId: {} 与 userIdByRefreshToken: {} 不匹配, refreshToken: {}",
                       oldUserId, userIdByRefreshToken, refreshToken);
