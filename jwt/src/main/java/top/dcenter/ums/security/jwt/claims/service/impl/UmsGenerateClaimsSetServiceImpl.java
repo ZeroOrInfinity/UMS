@@ -28,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
@@ -88,27 +90,45 @@ public class UmsGenerateClaimsSetServiceImpl implements GenerateClaimsSetService
         this.jwtAuthenticationConverter = jwtAuthenticationConverter;
     }
 
-    @Override
     @NonNull
-    public JWTClaimsSet generateClaimsSet(Authentication authentication) {
+    @Override
+    public JWTClaimsSet generateClaimsSet(@NonNull UserDetails userDetails, @Nullable Jwt refreshTokenJwt) {
+
+        String tenantId = null;
+        if (nonNull(tenantContextHolder)) {
+            tenantId = tenantContextHolder.getTenantId(userDetails);
+        }
 
         // Prepare JWT with claims set
-        final JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
+        final JWTClaimsSet.Builder builder = getJwtClaimsSetBuilder(tenantId,
+                                                                    userDetails.getUsername(),
+                                                                    refreshTokenJwt);
 
-        // tenantId
+        if (nonNull(refreshTokenJwt)) {
+            builder.claim(JwtCustomClaimNames.REFRESH_TOKEN_JTI.getClaimName(), refreshTokenJwt.getId());
+        }
+
+        if (nonNull(customClaimsSetService)) {
+            JWTClaimsSet jwtClaimsSet = customClaimsSetService.toClaimsSet(userDetails);
+            jwtClaimsSet.getClaims().forEach(builder::claim);
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    @NonNull
+    public JWTClaimsSet generateClaimsSet(@NonNull Authentication authentication, @Nullable Jwt refreshTokenJwt) {
+
+        String tenantId = null;
         if (nonNull(tenantContextHolder)) {
-            builder.claim(JwtCustomClaimNames.TENANT_ID.getClaimName(), tenantContextHolder.getTenantId(authentication));
+            tenantId = tenantContextHolder.getTenantId(authentication);
         }
 
-        // iss
-        if (nonNull(iss)) {
-            builder.issuer(this.iss);
-        }
-
-        // jti
-        builder.jwtID(this.jwtIdService.generateJtiId());
-        builder.claim(this.principalClaimName, authentication.getName())
-               .claim(JwtClaimNames.EXP, Instant.now().plusSeconds(timeout).getEpochSecond());
+        // Prepare JWT with claims set
+        final JWTClaimsSet.Builder builder = getJwtClaimsSetBuilder(tenantId,
+                                                                    authentication.getName(),
+                                                                    refreshTokenJwt);
 
         if (nonNull(customClaimsSetService)) {
             JWTClaimsSet jwtClaimsSet = customClaimsSetService.toClaimsSet(authentication);
@@ -128,6 +148,34 @@ public class UmsGenerateClaimsSetServiceImpl implements GenerateClaimsSetService
     @NonNull
     public JwtAuthenticationConverter getJwtAuthenticationConverter() {
         return this.jwtAuthenticationConverter;
+    }
+
+
+    private JWTClaimsSet.Builder getJwtClaimsSetBuilder(@Nullable String tenantId, @NonNull String userId,
+                                                        @Nullable Jwt refreshTokenJwt) {
+        // Prepare JWT with claims set
+        final JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
+
+        // tenantId
+        if (nonNull(tenantId)) {
+            builder.claim(JwtCustomClaimNames.TENANT_ID.getClaimName(), tenantId);
+        }
+
+        // iss
+        if (nonNull(iss)) {
+            builder.issuer(this.iss);
+        }
+
+        // jti
+        builder.jwtID(this.jwtIdService.generateJtiId());
+        builder.claim(this.principalClaimName, userId)
+               .claim(JwtClaimNames.EXP, Instant.now().plusSeconds(timeout).getEpochSecond());
+
+        if (nonNull(refreshTokenJwt)) {
+            builder.claim(JwtCustomClaimNames.REFRESH_TOKEN_JTI.getClaimName(), refreshTokenJwt.getId());
+        }
+
+        return builder;
     }
 
 }

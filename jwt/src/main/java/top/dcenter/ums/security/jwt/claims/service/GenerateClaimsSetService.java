@@ -24,8 +24,12 @@ package top.dcenter.ums.security.jwt.claims.service;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy;
 
 /**
  * 根据 {@link Authentication} 生成 {@link JWTClaimsSet} 的接口
@@ -35,13 +39,26 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 public interface GenerateClaimsSetService {
 
     /**
-     * 根据 {@link Authentication} 生成 {@link JWTClaimsSet},
-     * 注意: {@link JWTClaimsSet} 中的"日期"都以"时间戳"表示且"时间戳"以秒为单位
-     * @param authentication    authentication
+     * 根据 {@link UserDetails} 与 refreshTokenJwt 生成 {@link JWTClaimsSet},
+     * 注意: {@link JWTClaimsSet} 中的"日期"都以"时间戳"表示且"时间戳"以秒为单位,
+     * {@link JwtRefreshHandlerPolicy#REFRESH_TOKEN} 时, refreshTokenJwt 必须不为 null 值
+     * @param userDetails       {@link UserDetails}
+     * @param refreshTokenJwt   refresh token jwt
      * @return  返回 {@link JWTClaimsSet}
      */
     @NonNull
-    JWTClaimsSet generateClaimsSet(Authentication authentication);
+    JWTClaimsSet generateClaimsSet(@NonNull UserDetails userDetails, @Nullable Jwt refreshTokenJwt);
+
+    /**
+     * 根据 {@link Authentication} 与 refreshTokenJwt 生成 {@link JWTClaimsSet},
+     * 注意: {@link JWTClaimsSet} 中的"日期"都以"时间戳"表示且"时间戳"以秒为单位,
+     * {@link JwtRefreshHandlerPolicy#REFRESH_TOKEN} 时 refreshTokenJwt 必须不为 null 值
+     * @param authentication    authentication
+     * @param refreshTokenJwt   refresh token jwt
+     * @return  返回 {@link JWTClaimsSet}
+     */
+    @NonNull
+    JWTClaimsSet generateClaimsSet(@NonNull Authentication authentication, @Nullable Jwt refreshTokenJwt);
 
     /**
      * 获取 JWT 存储 principal 的 claimName
