@@ -43,6 +43,11 @@ public class JwtBlacklistProperties {
     private Boolean enable = Boolean.TRUE;
 
     /**
+     * 是否需要重新登录认证的 redis key 前缀, 默认: "JWT:REAUTH:"
+     */
+    private String reAuthPrefix = "JWT:REAUTH:";
+
+    /**
      * JWT refresh token 缓存前缀, 默认: JWT:refreshToken:
      */
     private String refreshTokenPrefix = "JWT:refreshToken:";
