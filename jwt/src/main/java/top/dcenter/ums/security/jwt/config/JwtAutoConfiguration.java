@@ -321,11 +321,12 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
                                  MappedJwtClaimSetConverter mappedJwtClaimSetConverter,
                                  @Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties,
                                  JwtProperties jwtProperties) {
-
+        JwtBlacklistProperties blacklist = jwtProperties.getBlacklist();
         Resource jksKeyPairResource = jwtProperties.getJksKeyPairLocation();
         String macsSecret = jwtProperties.getMacsSecret();
+        UmsNimbusJwtDecoder jwtDecoder = null;
         if (nonNull(jksKeyPairResource)) {
-            this.jwtDecoder = UmsNimbusJwtDecoder.withPublicKey(this.publicKey,
+            jwtDecoder = UmsNimbusJwtDecoder.withPublicKey(this.publicKey,
                                                                 jwtProperties.getRefreshHandlerPolicy(),
                                                                 jwtProperties.getRemainingRefreshInterval(),
                                                                 jwtProperties.getPrincipalClaimName())
@@ -333,7 +334,7 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
                                                  .build();
         }
         else if (hasText(macsSecret)) {
-            this.jwtDecoder =
+            jwtDecoder =
                     UmsNimbusJwtDecoder.withSecretKey(new SecretKeySpec(macsSecret.getBytes(StandardCharsets.UTF_8),
                                                                         "MAC"),
                                                       jwtProperties.getRefreshHandlerPolicy(),
@@ -342,7 +343,7 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
                                        .build();
         }
         else if (nonNull(auth2ResourceServerProperties)) {
-            this.jwtDecoder =
+            jwtDecoder =
                     UmsNimbusJwtDecoder.withJwkSetUri(auth2ResourceServerProperties.getJwt().getJwkSetUri(),
                                                       jwtProperties.getRefreshHandlerPolicy(),
                                                       jwtProperties.getRemainingRefreshInterval(),
@@ -350,14 +351,17 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
                                        .build();
         }
 
-        if (isNull(this.jwtDecoder)) {
+        if (isNull(jwtDecoder)) {
             throw new RuntimeException("未成功创建 org.springframework.security.oauth2.jwt.JwtDecoder; \n" +
                                        "当需要拥有创建 JWT 功能时需要配置 \"ums.jwt.jksKeyPairLocation\" 或 " +
                                                "\"ums.jwt.macsSecret\" 的属性, \n" +
                                        "当仅仅需要解析 JWT 时请配置 \"spring.security.oauth2.resourceserver.jwt.jwk-set-uri\" 属性");
         }
 
+        jwtDecoder.setIsSupportJtiBlacklistValidator(blacklist.getEnable());
         setJwtValidatorAndClaimSetConverter(oAuth2TokenValidator, mappedJwtClaimSetConverter, jwtDecoder);
+
+        this.jwtDecoder = jwtDecoder;
         return jwtDecoder;
 
     }

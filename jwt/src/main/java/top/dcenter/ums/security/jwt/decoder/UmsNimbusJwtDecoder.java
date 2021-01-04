@@ -78,6 +78,7 @@ import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -94,6 +95,13 @@ import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
 import static top.dcenter.ums.security.jwt.JwtContext.getClockSkew;
 
 /**
+ * 1. 增加 jwt 刷新的处理:<br>
+ *   - 因刷新 jwt, 用 oldJwt 失效而添加进黑名单, 值为 newJwt, 此时如果有携带 oldJwt 并发访问请求时,
+ *     会自动替换 oldJwt 为 newJwt.<br>
+ * 2. 增加是否需要重新登录认证处理.<br>
+ * 3. 增加只针对 refreshToken 的 decode 方法, 以提高效率.
+ * 4. 增加只针对 刚刷新的 Jwt 无校验的 decode 方法, 以提高效率.
+ *
  * A low-level Nimbus implementation of {@link JwtDecoder} which takes a raw Nimbus
  * configuration.
  *
@@ -194,7 +202,9 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		if (JwtRefreshHandlerPolicy.AUTO_RENEW.equals(this.refreshHandlerPolicy)) {
 			createdJwt = validateJwt(createdJwt);
 		}
-		if (refreshHandlerPolicy.isRefresh(createdJwt, remainingRefreshInterval, getClockSkew(), reAuthService)) {
+		if (refreshHandlerPolicy.isRefresh(createdJwt, remainingRefreshInterval,
+		                                   getClockSkew(), reAuthService,
+		                                   principalClaimName)) {
 			createdJwt = refreshHandlerPolicy.refreshHandle(createdJwt, this, principalClaimName);
 		}
 		// 不是 AUTO_RENEW 策略时 后置校验
@@ -250,6 +260,49 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		}
 	}
 
+	/**
+	 * Decode and validate the refresh token JWT from its compact claims representation format
+	 * @param token the JWT value
+	 * @return a validated {@link Jwt}
+	 * @throws JwtInvalidException  转换 token 到 Jwt 时发生错误
+	 */
+	public Jwt decodeRefreshTokenOfJwt(String token) throws JwtInvalidException {
+		try {
+			JWT parsedJwt = JWTParser.parse(token);
+
+			// Verify the signature
+			JWTClaimsSet jwtClaimsSet = this.jwtProcessor.process(parsedJwt, null);
+			Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
+			Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
+
+			requireNonNull(claims, "转换 jwtClaimsSet 到 claims 是返回 null 值");
+			// @formatter:off
+			Jwt createJwt = Jwt.withTokenValue(token)
+					           .headers((h) -> h.putAll(headers))
+					           .claims((c) -> c.putAll(claims))
+					           .build();
+			// @formatter:on
+			Instant expiresAt = createJwt.getExpiresAt();
+			if (nonNull(expiresAt) && Instant.now().minusSeconds(getClockSkew().getSeconds()).isAfter(expiresAt)) {
+				throw new JwtInvalidException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId());
+			}
+			if (reAuthService.isReAuth(createJwt)) {
+				JwtContext.addBlacklistForRefreshToken(createJwt, principalClaimName);
+				throw new JwtInvalidException(ErrorCodeEnum.JWT_RE_AUTH, getMdcTraceId());
+			}
+
+			return createJwt;
+		}
+		catch (JwtInvalidException ex) {
+			log.error("因需要重新认证, refresh token 失效", ex);
+			throw ex;
+		}
+		catch (Exception ex) {
+			log.error("转换 token 到 Jwt 时发生错误", ex);
+			throw new JwtInvalidException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId());
+		}
+	}
+
 	private JWT parse(String token) {
 		try {
 			return JWTParser.parse(token);
@@ -296,6 +349,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 
 	private Jwt validateJwt(Jwt jwt) {
 
+		// 检查黑名单中是否有刷新 Jwt , 有的话替换.
 		if (isSupportJtiBlacklistValidator) {
 			Jwt refreshJwt = validateJti(jwt);
 			if (!Objects.equals(refreshJwt, jwt)) {
