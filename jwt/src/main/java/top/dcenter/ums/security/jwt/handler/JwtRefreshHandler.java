@@ -30,6 +30,7 @@ import top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy;
 import top.dcenter.ums.security.jwt.exception.JwtExpiredException;
 import top.dcenter.ums.security.jwt.exception.JwtInvalidException;
 import top.dcenter.ums.security.jwt.api.validator.service.ReAuthService;
+import top.dcenter.ums.security.jwt.exception.JwtReAuthException;
 
 import java.time.Duration;
 
@@ -50,12 +51,16 @@ public interface JwtRefreshHandler {
      *                                 {@link JwtRefreshHandlerPolicy#REJECT} 时则不需要使用此参数.
      * @param reAuthService            用于刷新 Jwt 有效期前校验是否需要用户重新登录的服务
      * @param clockSkew                Jwt 不同服务器间的时钟偏差, 通过 {@code ums.jwt.clockSkew} 设置.
+     * @param principalClaimName       JWT 存储 principal 的 claimName
      * @return 返回 true 时表示需要刷新 {@link Jwt}
      * @throws JwtInvalidException Jwt 格式错误 或 需要重新认证
+     * @throws JwtReAuthException  Jwt 需要重新登录认证, refreshToken 也一起失效
      */
     @NonNull
     Boolean isRefresh(@NonNull Jwt jwt, @NonNull Duration remainingRefreshInterval,
-                      @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService) throws JwtInvalidException;
+                      @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService,
+                      @NonNull String principalClaimName)
+            throws JwtInvalidException, JwtReAuthException;
 
     /**
      * 刷新 Jwt 处理器, 当 jwt 刷新策略为 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时, 刷新的 jwt 直接设置到 header 中,

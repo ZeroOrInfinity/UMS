@@ -29,11 +29,12 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.jwt.Jwt;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.jwt.JwtContext;
+import top.dcenter.ums.security.jwt.api.validator.service.ReAuthService;
 import top.dcenter.ums.security.jwt.decoder.UmsNimbusJwtDecoder;
 import top.dcenter.ums.security.jwt.exception.JwtExpiredException;
 import top.dcenter.ums.security.jwt.exception.JwtInvalidException;
+import top.dcenter.ums.security.jwt.exception.JwtReAuthException;
 import top.dcenter.ums.security.jwt.handler.JwtRefreshHandler;
-import top.dcenter.ums.security.jwt.api.validator.service.ReAuthService;
 
 import java.text.ParseException;
 import java.time.Duration;
@@ -58,8 +59,10 @@ public enum JwtRefreshHandlerPolicy implements JwtRefreshHandler {
         @Override
         @NonNull
         public Boolean isRefresh(@NonNull Jwt jwt, @NonNull Duration remainingRefreshInterval,
-                                 @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService) throws JwtInvalidException {
-            Instant expiresAt = check(jwt, reAuthService);
+                                 @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService,
+                                 @NonNull String principalClaimName)
+                throws JwtInvalidException, JwtReAuthException {
+            Instant expiresAt = check(jwt, reAuthService, principalClaimName);
             long nowOfClockShew = Instant.now().minusSeconds(clockSkew.getSeconds()).getEpochSecond();
             long remainingSecond = expiresAt.getEpochSecond() - nowOfClockShew;
             if (remainingSecond < 0) {
@@ -97,8 +100,10 @@ public enum JwtRefreshHandlerPolicy implements JwtRefreshHandler {
         @Override
         @NonNull
         public Boolean isRefresh(@NonNull Jwt jwt, @NonNull Duration remainingRefreshInterval,
-                                 @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService) throws JwtInvalidException {
-            Instant expiresAt = check(jwt, reAuthService);
+                                 @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService,
+                                 @NonNull String principalClaimName)
+                throws JwtInvalidException, JwtReAuthException {
+            Instant expiresAt = check(jwt, reAuthService, principalClaimName);
             return Instant.now().minusSeconds(clockSkew.getSeconds()).isAfter(expiresAt);
         }
 
@@ -117,8 +122,10 @@ public enum JwtRefreshHandlerPolicy implements JwtRefreshHandler {
         @Override
         @NonNull
         public Boolean isRefresh(@NonNull Jwt jwt, @NonNull Duration remainingRefreshInterval,
-                                 @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService) throws JwtInvalidException {
-            Instant expiresAt = check(jwt, reAuthService);
+                                 @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService,
+                                 @NonNull String principalClaimName)
+                throws JwtInvalidException, JwtReAuthException {
+            Instant expiresAt = check(jwt, reAuthService, principalClaimName);
             return Instant.now().minusSeconds(clockSkew.getSeconds()).isAfter(expiresAt);
         }
 
@@ -133,21 +140,24 @@ public enum JwtRefreshHandlerPolicy implements JwtRefreshHandler {
 
     /**
      * 检查 {@link Jwt} 的有效性及是否需要重新认证.
-     * @param jwt               {@link Jwt}
-     * @param reAuthService     {@link ReAuthService}
+     * @param jwt                   {@link Jwt}
+     * @param reAuthService         {@link ReAuthService}
+     * @param principalClaimName    JWT 存储 principal 的 claimName
      * @return 返回 {@link Jwt} 的过期时间
      * @throws JwtInvalidException Jwt 格式错误 或 需要重新认证
      */
     @NonNull
-    private static Instant check(@NonNull Jwt jwt, @Nullable ReAuthService reAuthService) throws JwtInvalidException {
+    private static Instant check(@NonNull Jwt jwt, @Nullable ReAuthService reAuthService,
+                                 @NonNull String principalClaimName)
+            throws JwtInvalidException, JwtReAuthException {
         Instant expiresAt = jwt.getExpiresAt();
         if (isNull(expiresAt)) {
             throw new JwtInvalidException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId());
         }
         if (nonNull(reAuthService) && reAuthService.isReAuth(jwt)) {
             // 添加黑名单
-            JwtContext.addBlacklist(jwt);
-            throw new JwtInvalidException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId());
+            JwtContext.addBlacklistForReAuth(jwt, principalClaimName);
+            throw new JwtReAuthException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId());
         }
         return expiresAt;
     }
