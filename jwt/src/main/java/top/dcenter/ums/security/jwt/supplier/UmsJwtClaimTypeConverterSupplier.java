@@ -75,6 +75,7 @@ public class UmsJwtClaimTypeConverterSupplier implements JwtClaimTypeConverterSu
         map.put(JwtCustomClaimNames.CLIENT_ID.getClaimName(), getConverter(STRING_TYPE_DESCRIPTOR));
         map.put(JwtCustomClaimNames.USER_DETAILS.getClaimName(), getConverter(MAP_STRING_OBJECT_DESCRIPTOR));
         map.put(JwtCustomClaimNames.AUTHORITIES.getClaimName(), getConverter(COLLECTION_STRING_DESCRIPTOR));
+        map.put(JwtCustomClaimNames.REFRESH_TOKEN_JTI.getClaimName(), getConverter(STRING_TYPE_DESCRIPTOR));
         map.put(JwtCustomClaimNames.SCOPE.getClaimName(), getConverter(COLLECTION_STRING_DESCRIPTOR));
         map.put(JwtCustomClaimNames.SCP.getClaimName(), getConverter(COLLECTION_STRING_DESCRIPTOR));
         return Collections.unmodifiableMap(map);

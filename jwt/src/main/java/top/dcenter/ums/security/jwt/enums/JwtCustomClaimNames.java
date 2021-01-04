@@ -53,6 +53,10 @@ public enum JwtCustomClaimNames {
      */
     AUTHORITIES("authorities", "用户权限"),
     /**
+     * refresh token jti
+     */
+    REFRESH_TOKEN_JTI("rJti", "refresh token jti"),
+    /**
      * scope 权限, 与 scp 意义一样
      */
     SCOPE("scope", "scope 权限, 与 scp 意义一样"),
