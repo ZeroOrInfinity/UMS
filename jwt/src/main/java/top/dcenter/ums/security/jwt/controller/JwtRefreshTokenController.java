@@ -57,6 +57,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static java.util.Objects.isNull;
 import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
+import static top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy.REFRESH_TOKEN;
 
 /**
  * jwt refresh token controller
@@ -90,6 +91,9 @@ public class JwtRefreshTokenController implements InitializingBean, ApplicationC
                                      UmsUserDetailsService umsUserDetailsService,
                                      UmsNimbusJwtDecoder jwtDecoder,
                                      JwtProperties jwtProperties) {
+        if (!REFRESH_TOKEN.equals(jwtProperties.getRefreshHandlerPolicy())) {
+            throw new RuntimeException("ums.jwt.refreshHandlerPolicy != JwtRefreshHandlerPolicy.REFRESH_TOKEN");
+        }
         this.generateClaimsSetService = generateClaimsSetService;
         this.umsUserDetailsService = umsUserDetailsService;
         this.jwtDecoder = jwtDecoder;
