@@ -25,12 +25,14 @@ package demo.jwt.service;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService;
 import top.dcenter.ums.security.jwt.claims.service.impl.UmsCustomClaimsSetServiceImpl;
 import top.dcenter.ums.security.jwt.enums.JwtCustomClaimNames;
 import top.dcenter.ums.security.jwt.supplier.UmsJwtGrantedAuthoritiesConverterSupplier;
 
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 /**
@@ -47,16 +49,30 @@ public class DemoUmsCustomClaimsSetServiceImpl implements CustomClaimsSetService
     public JWTClaimsSet toClaimsSet(Authentication authentication) {
 
         // Prepare JWT with claims set
+        JWTClaimsSet.Builder builder = getJwtClaimsSetBuilder(authentication.getAuthorities());
+
+        return builder.build();
+    }
+
+    @Override
+    public JWTClaimsSet toClaimsSet(UserDetails userDetails) {
+        // Prepare JWT with claims set
+        JWTClaimsSet.Builder builder = getJwtClaimsSetBuilder(userDetails.getAuthorities());
+
+        return builder.build();
+    }
+
+    private JWTClaimsSet.Builder getJwtClaimsSetBuilder(Collection<? extends GrantedAuthority> authorities) {
+        // Prepare JWT with claims set
         JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
 
         // 转换为权限字符串
-        String authorities = authentication.getAuthorities()
-                                           .stream()
-                                           .map(GrantedAuthority::getAuthority)
-                                           .collect(Collectors.joining(" "));
+        String authoritiesString = authorities.stream()
+                                              .map(GrantedAuthority::getAuthority)
+                                              .collect(Collectors.joining(" "));
         // 设置权限
-        builder.claim(JwtCustomClaimNames.AUTHORITIES.getClaimName(), authorities);
+        builder.claim(JwtCustomClaimNames.AUTHORITIES.getClaimName(), authoritiesString);
 
-        return builder.build();
+        return builder;
     }
 }

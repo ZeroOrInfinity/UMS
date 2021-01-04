@@ -24,20 +24,28 @@ package demo.jwt.service;
 
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import top.dcenter.ums.security.jwt.JwtContext;
 import top.dcenter.ums.security.jwt.api.validator.service.ReAuthService;
+import top.dcenter.ums.security.jwt.properties.JwtProperties;
+import top.dcenter.ums.security.jwt.validator.UmsReAuthServiceImpl;
 
 /**
- * JWT 是否要重新认证的服务.
+ * JWT 是否要重新认证的服务. 为 {@link UmsReAuthServiceImpl} 的拷贝, 用于示例
  * @author YongWu zheng
  * @version V2.0  Created by 2020.12.20 21:42
  */
 @Service
-public class UmsReAuthServiceImpl implements ReAuthService {
+public class DemoUmsReAuthServiceImpl implements ReAuthService {
+
+    private final String principalClaimName;
+
+    public DemoUmsReAuthServiceImpl(JwtProperties jwtProperties) {
+        this.principalClaimName = jwtProperties.getPrincipalClaimName();
+    }
+
     @Override
     public Boolean isReAuth(Jwt jwt) {
-        // 业务逻辑
-        // ...
-
-        return Boolean.FALSE;
+        String userId = jwt.getClaimAsString(principalClaimName);
+        return JwtContext.isReAuth(userId);
     }
 }

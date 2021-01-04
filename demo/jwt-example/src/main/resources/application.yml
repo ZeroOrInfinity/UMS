@@ -193,6 +193,8 @@ ums:
       # 是否支持 jwt 黑名单功能, 默认: true.
       # 如果为 false, jwtToken 与 refreshToken 会保存到 redis
       enable: false
+      # 是否需要重新登录认证的 redis key 前缀, 默认: "JWT:REAUTH:"
+      re-auth-prefix: 'WT:REAUTH:'
       # JWT 黑名单缓存前缀, 默认: JWT:BLACKLIST:
       blacklist-prefix: 'JWT:BLACKLIST:'
       # JWT refresh token 缓存前缀, 默认: JWT:refreshToken:
