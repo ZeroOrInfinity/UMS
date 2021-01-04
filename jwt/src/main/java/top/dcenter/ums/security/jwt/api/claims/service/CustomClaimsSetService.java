@@ -24,6 +24,7 @@ package top.dcenter.ums.security.jwt.api.claims.service;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 import top.dcenter.ums.security.jwt.enums.JwtCustomClaimNames;
@@ -51,4 +52,19 @@ public interface CustomClaimsSetService {
      * @return  返回 {@link JWTClaimsSet}
      */
     JWTClaimsSet toClaimsSet(Authentication authentication);
+
+    /**
+     * 根据 {@link UserDetails} 生成自定义的 {@link JWTClaimsSet}. <br>
+     * {@link GenerateClaimsSetService#generateClaimsSet(UserDetails)} 已生成
+     * {@link JwtClaimNames#JTI}, {@link JwtClaimNames#ISS}, {@link JwtClaimNames#EXP},
+     * {@link JwtCustomClaimNames#TENANT_ID}, {@link JwtProperties#getPrincipalClaimName()},
+     * {@link JwtCustomClaimNames#AUTHORITIES} , 通过此方法生成上述 Claims, 可以覆盖
+     * {@link JwtClaimNames#JTI}, {@link JwtClaimNames#ISS}, {@link JwtClaimNames#EXP},
+     * {@link JwtCustomClaimNames#TENANT_ID}, {@link JwtProperties#getPrincipalClaimName()},
+     * {@link JwtCustomClaimNames#AUTHORITIES} 的值.<br>
+     * 注意: {@link JWTClaimsSet} 中的"日期"都以"时间戳"表示且"时间戳"以秒为单位
+     * @param userDetails    {@link UserDetails}
+     * @return  返回 {@link JWTClaimsSet}
+     */
+    JWTClaimsSet toClaimsSet(UserDetails userDetails);
 }
