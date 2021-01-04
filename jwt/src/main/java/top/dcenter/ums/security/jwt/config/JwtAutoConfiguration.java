@@ -69,6 +69,7 @@ import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
 import top.dcenter.ums.security.jwt.api.supplier.JwtClaimTypeConverterSupplier;
 import top.dcenter.ums.security.jwt.api.supplier.JwtGrantedAuthoritiesConverterSupplier;
 import top.dcenter.ums.security.jwt.api.validator.service.CustomClaimValidateService;
+import top.dcenter.ums.security.jwt.api.validator.service.ReAuthService;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 import top.dcenter.ums.security.jwt.claims.service.impl.UmsCustomClaimsSetServiceImpl;
 import top.dcenter.ums.security.jwt.claims.service.impl.UmsGenerateClaimsSetServiceImpl;
@@ -84,6 +85,7 @@ import top.dcenter.ums.security.jwt.resolver.UmsBearerTokenResolver;
 import top.dcenter.ums.security.jwt.supplier.UmsJwtClaimTypeConverterSupplier;
 import top.dcenter.ums.security.jwt.supplier.UmsJwtGrantedAuthoritiesConverterSupplier;
 import top.dcenter.ums.security.jwt.validator.JwtNotBeforeValidator;
+import top.dcenter.ums.security.jwt.validator.UmsReAuthServiceImpl;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -249,6 +251,12 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
             this.signer = null;
             this.kid = null;
         }
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.jwt.api.validator.service.ReAuthService"})
+    public ReAuthService reAuthService(JwtProperties jwtProperties) {
+        return new UmsReAuthServiceImpl(jwtProperties);
     }
 
     @Bean
