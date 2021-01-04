@@ -122,7 +122,7 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
                 String jwtStringIfAllowBodyParameter = JwtContext.getJwtStringIfAllowBodyParameter(authentication);
                 if (hasText(jwtStringIfAllowBodyParameter)) {
                     authTokenVo.setToken(jwtStringIfAllowBodyParameter);
-                    authTokenVo.setExpiresIn(ofNullable(JwtContext.getExpiresInByAuthentication(authentication)).orElse(-1L));
+                    authTokenVo.setExpiresIn(ofNullable(JwtContext.getJwtExpiresInByAuthentication(authentication)).orElse(-1L));
                 }
                 // 设置 jwt refresh token
                 if (JwtContext.isRefreshJwtByRefreshToken()) {
