@@ -28,6 +28,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserCache;
+import org.springframework.security.core.userdetails.UserDetails;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.TenantIdNotFoundException;
 
@@ -104,6 +105,42 @@ public interface TenantContextHolder {
         // 用户已登录的情况
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
+        String tenantId = getTenantId(authorities);
+
+        if (null == tenantId) {
+            throw new TenantIdNotFoundException(ErrorCodeEnum.TENANT_ID_NOT_FOUND, null, authentication.getName());
+        }
+
+        return tenantId;
+    }
+
+    /**
+     * 通过 {@link UserDetails} 获取租户 ID, 直接从 {@code authority} 中解析获取.
+     * @param userDetails        {@link UserDetails}
+     * @return  返回租户 id
+     * @throws TenantIdNotFoundException    获取不到租户 ID 异常
+     */
+    @NonNull
+    default String getTenantId(@NonNull UserDetails userDetails) throws TenantIdNotFoundException {
+
+        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+
+        String tenantId = getTenantId(authorities);
+
+        if (null == tenantId) {
+            throw new TenantIdNotFoundException(ErrorCodeEnum.TENANT_ID_NOT_FOUND, null, userDetails.getUsername());
+        }
+
+        return tenantId;
+    }
+
+    /**
+     * 通过 authorities 获取租户 ID, 直接从 {@code authority} 中解析获取.
+     * @param authorities   用户权限列表
+     * @return  返回 tenantId 或 null.
+     */
+    @Nullable
+    default String getTenantId(@NonNull Collection<? extends GrantedAuthority> authorities) {
         String tenantId = null;
         String auth;
         for (GrantedAuthority authority : authorities) {
@@ -113,11 +150,6 @@ public interface TenantContextHolder {
                 break;
             }
         }
-
-        if (null == tenantId) {
-            throw new TenantIdNotFoundException(ErrorCodeEnum.TENANT_ID_NOT_FOUND, null, authentication.getName());
-        }
-
         return tenantId;
     }
 }
