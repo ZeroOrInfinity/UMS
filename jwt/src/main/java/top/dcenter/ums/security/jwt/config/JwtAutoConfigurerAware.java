@@ -33,7 +33,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.ser
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtBearerTokenAuthenticationConverter;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import top.dcenter.ums.security.common.access.UmsAccessDeniedHandlerImpl;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
 import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
@@ -79,7 +79,7 @@ public class JwtAutoConfigurerAware implements HttpSecurityAware {
     public void preConfigure(HttpSecurity http) throws Exception {
 
         // 放在 WebAsyncManagerIntegrationFilter 后面, 则必定在 MdcLogFilter 后面, 方便获取 mdc 链路追踪 ID
-        http.addFilterAfter(new JwtExceptionOnceFilter(), ExceptionTranslationFilter.class);
+        http.addFilterAfter(new JwtExceptionOnceFilter(), WebAsyncManagerIntegrationFilter.class);
 
         final OAuth2ResourceServerConfigurer<HttpSecurity>.JwtConfigurer jwt =
                 http.oauth2ResourceServer()

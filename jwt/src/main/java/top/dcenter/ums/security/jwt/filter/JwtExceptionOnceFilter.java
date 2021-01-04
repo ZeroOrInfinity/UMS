@@ -93,8 +93,7 @@ public class JwtExceptionOnceFilter extends OncePerRequestFilter {
         }
         catch (NestedServletException e) {
             Throwable cause = e.getCause();
-            if (cause instanceof JwtReAuthException)
-            {
+            if (cause instanceof JwtReAuthException) {
                 JwtReAuthException exception = ((JwtReAuthException) cause);
                 log.error(exception.getMessage(), exception);
                 responseWithJson(response,
@@ -102,8 +101,7 @@ public class JwtExceptionOnceFilter extends OncePerRequestFilter {
                                  toJsonString(fail(exception.getMessage(), exception.getErrorCodeEnum(), exception.getData())));
                 return;
             }
-            if (cause instanceof BaseUmsJwtException)
-            {
+            if (cause instanceof BaseUmsJwtException) {
                 BaseUmsJwtException exception = ((BaseUmsJwtException) cause);
                 log.error(exception.getMessage(), exception);
                 responseWithJson(response,
@@ -111,8 +109,7 @@ public class JwtExceptionOnceFilter extends OncePerRequestFilter {
                                  toJsonString(fail(exception.getMessage(), exception.getErrorCodeEnum(), exception.getData())));
                 return;
             }
-            if (cause instanceof JwkSetUriAccessDeniedException)
-            {
+            if (cause instanceof JwkSetUriAccessDeniedException) {
                 JwkSetUriAccessDeniedException exception = ((JwkSetUriAccessDeniedException) cause);
                 log.error(exception.getMessage(), exception);
                 responseWithJson(response,
@@ -120,8 +117,7 @@ public class JwtExceptionOnceFilter extends OncePerRequestFilter {
                                  toJsonString(fail(exception.getMessage(), exception.getErrorCodeEnum(), exception.getData())));
                 return;
             }
-            if (cause instanceof BaseJwtException)
-            {
+            if (cause instanceof BaseJwtException) {
                 BaseJwtException exception = ((BaseJwtException) cause);
                 log.error(exception.getMessage(), exception);
                 responseWithJson(response,
@@ -129,8 +125,7 @@ public class JwtExceptionOnceFilter extends OncePerRequestFilter {
                                  toJsonString(fail(exception.getMessage(), exception.getErrorCodeEnum(), exception.getData())));
                 return;
             }
-            if (cause instanceof InvalidBearerTokenException)
-            {
+            if (cause instanceof InvalidBearerTokenException) {
                 InvalidBearerTokenException exception = ((InvalidBearerTokenException) cause);
                 log.error(exception.getMessage(), exception);
                 responseWithJson(response,
