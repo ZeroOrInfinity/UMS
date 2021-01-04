@@ -8,7 +8,7 @@
 ![SpringBoot](https://img.shields.io/badge/SpringBoot-2.3.4-green.svg)
 ![SpringSecurity](https://img.shields.io/badge/SpringSecurity-5.4.1-green.svg)
 ![SpringSession](https://img.shields.io/badge/SpringSession-2.3.1-green.svg)
-![JustAuth](https://img.shields.io/badge/JustAuth-1.15.8-green.svg)
+![JustAuth](https://img.shields.io/badge/JustAuth-1.15.9-green.svg)
 ![license](https://img.shields.io/badge/license-MIT-yellow.svg)
 
 用户管理脚手架集成：用户密码登录、手机登录、支持 JustAuth 支持的所有第三方授权登录、验证码、基于 RBAC 的访问权限控制功能、支持多租户、JWT、SLF4J-MDC、签到等功能.

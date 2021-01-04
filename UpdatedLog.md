@@ -1,3 +1,24 @@
+## 2.2.4
+### Fixes and Improvements:
+1. 修复: setOldJwtToBlacklist(..) 比较新旧 JWT 的 userId 时, 获取 userId 不一致的问题.
+2. 修复: 拦截异常错乱的问题, 添加 JwtReAuthException 异常拦截.
+3. 添加: JwtReAuthException 与相关错误码枚举.
+4. 添加: ReAuthService 接口实现 UmsReAuthServiceImpl.
+5. 添加: 自定义的 REFRESH_TOKEN_JTI(rJti) ClaimsName
+6. 属性: 添加 ums.jwt.blacklist.reAuthPrefix 属性, 是否需要重新登录认证的 redis key 前缀.
+7. 接口: isRefresh(..) 接口添加 principalClaimName 参数.
+8. 接口: 添加 JWTClaimsSet toClaimsSet(UserDetails userDetails); 接口与实现.
+9. 接口: 添加 JWTClaimsSet generateClaimsSet(UserDetails, Jwt); 接口与实现.
+10. 接口: 添加接口参数 JWTClaimsSet generateClaimsSet(Authentication, Jwt).
+11. 接口: 添加 getTenantId(UserDetails) 与 getTenantId(Collection<? extends GrantedAuthority>) 默认接口.
+12. 改进: 优化 UmsNimbusJwtDecoder 实例化, 增加只针对 refreshToken 的 decode 方法, 以提高效率
+13. 改进: JwtContext 创建与刷新 Jwt 逻辑, 增加 ReAuthService 的相关方法, 其他的一些优化及一些问题的修复.
+14. 优化: JWT 自动续期策略时判断逻辑.
+15. 优化: 修改 getJwtGrantedAuthoritiesConverter() 为 getJwtAuthenticationConverter().
+16. 其他优化:
+ 
+
+
 ## 2.2.3
 ### Fixes and Improvements:
 1. 修复: jwtTokenString 因没有去除 bearer 前缀而解析错误的问题.

@@ -5,12 +5,11 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>2.2.3</version>
+        <version>2.2.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ums-spring-boot-starter</artifactId>
-    <version>${ums.starter.version}</version>
     <name>ums-spring-boot-starter</name>
     <description>
         ums-core feature: username password login, mobile login, OAuth2 login(JustAuth),
@@ -52,43 +51,43 @@
         <dependency>
             <groupId>top.dcenter</groupId>
             <artifactId>ums-commons</artifactId>
-            <version>${ums.commons.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>top.dcenter</groupId>
             <artifactId>ums-core-spring-boot-starter</artifactId>
-            <version>${ums.core.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>top.dcenter</groupId>
             <artifactId>ums-jwt</artifactId>
-            <version>${ums.jwt.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>top.dcenter</groupId>
             <artifactId>ums-oauth</artifactId>
-            <version>${ums.oauth.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>top.dcenter</groupId>
             <artifactId>ums-rbac</artifactId>
-            <version>${ums.rbac.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>top.dcenter</groupId>
             <artifactId>ums-mdc</artifactId>
-            <version>${ums.mdc.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>top.dcenter</groupId>
             <artifactId>ums-vc</artifactId>
-            <version>${ums.vc.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
