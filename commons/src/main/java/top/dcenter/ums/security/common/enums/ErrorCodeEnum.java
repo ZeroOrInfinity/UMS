@@ -103,6 +103,7 @@ public enum ErrorCodeEnum {
     REFRESH_JWT_POLICY_MISMATCH(815, "JWT 刷新策略不匹配"),
     REFRESH_TOKEN_DUPLICATE(816, "连续三次生成 refreshToken 都重复, 可以去买彩票了"),
     SAVE_REFRESH_TOKEN_ERROR(817, "缓存 refreshToken 时发生错误"),
+    JWT_RE_AUTH(818, "JWT 需要重新登录认证"),
 
     USERNAME_USED(900, "用户名已存在"),
     USER_NOT_EXIST(901, "用户不存在"),

@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.JWT_INVALID;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.JWT_RE_AUTH;
 import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
 import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
 import static top.dcenter.ums.security.common.vo.ResponseResult.fail;
@@ -58,6 +59,12 @@ public class JwtExceptionOnceFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
+        }
+        catch (JwtReAuthException e) {
+            log.error(e.getMessage(), e);
+            responseWithJson(response,
+                             HttpStatus.UNAUTHORIZED.value(),
+                             toJsonString(fail(JWT_RE_AUTH.getMsg(), JWT_RE_AUTH, getMdcTraceId())));
         }
         catch (JwkSetUriAccessDeniedException e) {
             log.error(e.getMessage(), e);
@@ -86,10 +93,19 @@ public class JwtExceptionOnceFilter extends OncePerRequestFilter {
         }
         catch (NestedServletException e) {
             Throwable cause = e.getCause();
+            if (cause instanceof JwtReAuthException)
+            {
+                JwtReAuthException exception = ((JwtReAuthException) cause);
+                log.error(exception.getMessage(), exception);
+                responseWithJson(response,
+                                 HttpStatus.UNAUTHORIZED.value(),
+                                 toJsonString(fail(exception.getMessage(), exception.getErrorCodeEnum(), exception.getData())));
+                return;
+            }
             if (cause instanceof BaseUmsJwtException)
             {
                 BaseUmsJwtException exception = ((BaseUmsJwtException) cause);
-                log.error(e.getMessage(), exception);
+                log.error(exception.getMessage(), exception);
                 responseWithJson(response,
                                  HttpStatus.UNAUTHORIZED.value(),
                                  toJsonString(fail(exception.getMessage(), exception.getErrorCodeEnum(), exception.getData())));
@@ -98,7 +114,7 @@ public class JwtExceptionOnceFilter extends OncePerRequestFilter {
             if (cause instanceof JwkSetUriAccessDeniedException)
             {
                 JwkSetUriAccessDeniedException exception = ((JwkSetUriAccessDeniedException) cause);
-                log.error(e.getMessage(), exception);
+                log.error(exception.getMessage(), exception);
                 responseWithJson(response,
                                  HttpStatus.NOT_FOUND.value(),
                                  toJsonString(fail(exception.getMessage(), exception.getErrorCodeEnum(), exception.getData())));
@@ -107,7 +123,7 @@ public class JwtExceptionOnceFilter extends OncePerRequestFilter {
             if (cause instanceof BaseJwtException)
             {
                 BaseJwtException exception = ((BaseJwtException) cause);
-                log.error(e.getMessage(), exception);
+                log.error(exception.getMessage(), exception);
                 responseWithJson(response,
                                  HttpStatus.INTERNAL_SERVER_ERROR.value(),
                                  toJsonString(fail(exception.getMessage(), exception.getErrorCodeEnum(), exception.getData())));
@@ -116,7 +132,7 @@ public class JwtExceptionOnceFilter extends OncePerRequestFilter {
             if (cause instanceof InvalidBearerTokenException)
             {
                 InvalidBearerTokenException exception = ((InvalidBearerTokenException) cause);
-                log.error(e.getMessage(), exception);
+                log.error(exception.getMessage(), exception);
                 responseWithJson(response,
                                  HttpStatus.UNAUTHORIZED.value(),
                                  toJsonString(fail(JWT_INVALID.getMsg(), JWT_INVALID, getMdcTraceId())));
