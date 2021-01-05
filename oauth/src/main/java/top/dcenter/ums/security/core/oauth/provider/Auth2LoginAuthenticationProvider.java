@@ -75,14 +75,14 @@ import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
  * @see UsersConnectionRepository
  * @see Auth2AuthenticationToken
  * @see Auth2UserService
- * @see &#60;a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1"&#62;Section
- * 4.1 Authorization Code Grant Flow&#60;/a&#62;
- * @see &#60;a target="_blank" href=
- * "https://tools.ietf.org/html/rfc6749#section-4.1.3"&#62;Section 4.1.3 Access Token
- * Request&#60;/a&#62;
- * @see &#60;a target="_blank" href=
- * "https://tools.ietf.org/html/rfc6749#section-4.1.4"&#62;Section 4.1.4 Access Token
- * Response&#60;/a&#62;
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section
+ * 4.1 Authorization Code Grant Flow</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token
+ * Request</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token
+ * Response</a>
  */
 @SuppressWarnings({"JavaDoc", "unused"})
 @Slf4j
