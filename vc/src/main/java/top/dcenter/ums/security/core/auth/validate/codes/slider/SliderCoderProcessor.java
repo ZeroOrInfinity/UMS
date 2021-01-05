@@ -57,7 +57,7 @@ import static top.dcenter.ums.security.common.utils.UuidUtils.getUUID;
 @Slf4j
 public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
 
-    private final ValidateCodeProperties validateCodeProperties;
+    private final ValidateCodeProperties.SliderCodeProperties slider;
     /**
      * 验证码处理逻辑的默认实现抽象类.<br><br>
      *  @param validateCodeGeneratorHolder  validateCodeGeneratorHolder
@@ -69,7 +69,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
                                 @Nullable RedisConnectionFactory redisConnectionFactory) {
         super(validateCodeGeneratorHolder, validateCodeProperties.getValidateCodeCacheType(),
               SliderCode.class, redisConnectionFactory);
-        this.validateCodeProperties = validateCodeProperties;
+        this.slider = validateCodeProperties.getSlider();
     }
 
     @Override
@@ -134,12 +134,11 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         // 检测是否是第二此校验
         if (sliderCodeInSession.getSecondCheck())
         {
-            defaultValidate(request, validateCodeProperties.getSlider().getTokenRequestParamName(),
+            defaultValidate(request, slider.getTokenRequestParamName(),
                             SliderCode.class, this.validateCodeCacheType, this.redisConnectionFactory);
             return;
         }
 
-        ValidateCodeProperties.SliderCodeProperties slider = validateCodeProperties.getSlider();
         String tokenRequestParamName = slider.getTokenRequestParamName();
         String xRequestParamName = slider.getXRequestParamName();
         String yRequestParamName = slider.getYRequestParamName();
@@ -164,7 +163,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
 
         // 验证码校验
         boolean verify = sliderCodeInSession.getLocationY().equals(locationY)
-                         && Math.abs(sliderCodeInSession.getLocationX() - locationX) < 2;
+                         && Math.abs(sliderCodeInSession.getLocationX() - locationX) < slider.getRedundancyValue();
         if (!verify)
         {
             if (!sliderCodeInSession.getReuse())

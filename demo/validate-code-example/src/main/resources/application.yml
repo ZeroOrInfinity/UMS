@@ -163,6 +163,8 @@ ums:
       imageSuffix: png
       # 滑块验证码默认过期时间, 180 秒
       expire: 180
+      # 校验 SliderCode.getLocationX() 时的允许的差异值: 默认: 3 PX
+      redundancy-value: 3
       # 原始图片目录，默认 classpath:static/image/slider/original
       # 不以 "classpath:" 开头时即认为是绝对路径, 以 "classpath:" 开头时即认为是基于 classpath 的相对路径.
       original-image-directory: classpath:static/image/slider/original

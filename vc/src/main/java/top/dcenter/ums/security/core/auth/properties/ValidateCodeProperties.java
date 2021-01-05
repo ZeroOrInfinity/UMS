@@ -29,6 +29,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
 import top.dcenter.ums.security.core.api.validate.code.job.RefreshValidateCodeCacheJob;
+import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -242,6 +243,11 @@ public class ValidateCodeProperties {
          * 在模板上抠图区灰阶等级: 4-10, 数值越高, 灰色越深, 默认: 5
          */
         private Integer grayscale = 5;
+
+        /**
+         *  校验 {@link SliderCode#getLocationX()} 时的允许的差异值: 默认: 3 PX
+         */
+        private Integer redundancyValue = 3;
 
         /**
          * 模板图片与原始图片的图片后缀, 默认: png
