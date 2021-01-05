@@ -1,3 +1,9 @@
+## 2.2.5
+### Fixes and Improvements:
+1. 修复: 删除不必要的文件, 放在 git 忽略列表, 上传 maven 时自动打包了, 导致项目启动报错.
+2. 修复: 缓存验证码使用 redis 模式时, 获取不到 locationX 字段的问题.
+3. 改进: 添加 ums.codes.slider.redundancyValue 属性.校验 SliderCode#getLocationX() 时的允许的差异值: 默认: 3 PX.
+
 ## 2.2.4
 ### Fixes and Improvements:
 1. 修复: setOldJwtToBlacklist(..) 比较新旧 JWT 的 userId 时, 获取 userId 不一致的问题.
