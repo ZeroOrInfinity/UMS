@@ -23,7 +23,6 @@
 
 package top.dcenter.ums.security.core.auth.validate.codes.slider;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -60,7 +59,7 @@ public class SliderCode extends ValidateCode {
      * 是否二次校验. 流程: 第一次用户滑块完成校验一次, 并设置此属性为 true, 第二次再次校验 token
      */
     private Boolean secondCheck;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+
     private Integer locationX;
 
     private Integer locationY;

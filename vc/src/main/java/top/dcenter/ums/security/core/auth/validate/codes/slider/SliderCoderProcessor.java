@@ -87,7 +87,14 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
             {
                 return false;
             }
+
+            Integer locationX = sliderCode.getLocationX();
+            // 发生到前端数据时 移除 locationX 数据,
+            sliderCode.setLocationX(null);
             String resultJson = JsonUtil.toJsonString(sliderCode);
+            // 设置回 locationX 数据, 用于后续缓存操作
+            sliderCode.setLocationX(locationX);
+
             JsonUtil.responseWithJson(response, HttpStatus.OK.value(), resultJson);
             if (log.isDebugEnabled())
             {
