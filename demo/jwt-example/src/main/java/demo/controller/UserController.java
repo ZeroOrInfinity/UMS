@@ -23,6 +23,7 @@
 
 package demo.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -43,9 +44,11 @@ import top.dcenter.ums.security.jwt.JwtContext;
  * @author YongWu zheng
  * @version V1.0  Created by 2020/9/20 20:04
  */
+@RequiredArgsConstructor
 @Controller
 @Slf4j
 public class UserController {
+
 
     @GetMapping("/login")
     public String login() {
@@ -75,7 +78,8 @@ public class UserController {
         if (authentication instanceof JwtAuthenticationToken)
         {
             JwtAuthenticationToken jwtAuthenticationToken = ((JwtAuthenticationToken) authentication);
-            JwtAuthenticationToken authenticationFromRedis = JwtContext.getAuthenticationFromRedis(jwtAuthenticationToken.getToken().getTokenValue());
+            JwtAuthenticationToken authenticationFromRedis =
+                    (JwtAuthenticationToken) JwtContext.getAuthenticationFromRedis(jwtAuthenticationToken.getToken().getTokenValue());
             return ResponseResult.success(JsonUtil.toJsonString(principal),
                                           authenticationFromRedis);
         }

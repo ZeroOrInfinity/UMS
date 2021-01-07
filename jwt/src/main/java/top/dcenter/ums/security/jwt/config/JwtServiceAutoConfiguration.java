@@ -26,21 +26,29 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import top.dcenter.ums.security.jwt.api.cache.service.JwtCacheTransformService;
 import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
+import top.dcenter.ums.security.jwt.cache.service.UmsJwtCacheTransformServiceImpl;
 import top.dcenter.ums.security.jwt.id.service.impl.UuidJwtIdServiceImpl;
 
 /**
- * Jwt jti 或 refreshToken 生成器自动配置
+ * Jwt 服务自动配置
  * @author YongWu zheng
  * @since 2021.1.1 15:56
  */
 @Configuration
 @AutoConfigureAfter({JwtPropertiesAutoConfiguration.class})
-public class JwtIdServiceAutoConfiguration {
+public class JwtServiceAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.jwt.api.id.service.JwtIdService"})
     public JwtIdService jtiIdService() {
         return new UuidJwtIdServiceImpl();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.jwt.api.cache.service.JwtCacheTransformService"})
+    public JwtCacheTransformService<?> jwtCacheTransformService() {
+        return new UmsJwtCacheTransformServiceImpl();
     }
 }

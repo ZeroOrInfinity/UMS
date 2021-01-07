@@ -54,6 +54,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
+import top.dcenter.ums.security.jwt.api.cache.service.JwtCacheTransformService;
 import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 import top.dcenter.ums.security.jwt.decoder.UmsNimbusJwtDecoder;
@@ -184,6 +185,12 @@ public final class JwtContext {
      * 方法注入.
      */
     private volatile static JwtIdService jwtIdService = null;
+    /**
+     * {@link JwtCacheTransformService}
+     * 如果支持 JWT 功能, 通过 {@code top.dcenter.ums.security.jwt.config.JwtAutoConfiguration#afterPropertiesSet()}
+     * 方法注入.
+     */
+    private volatile static JwtCacheTransformService<?> jwtCacheTransformService = null;
 
     // ====================== JWK 相关 ======================
 
@@ -604,11 +611,11 @@ public final class JwtContext {
      * 当 jwtTokenString 失效时返回 null,
      * 当 {@link JwtBlacklistProperties#getEnable()} 为 true 时返回 null,
      * @param jwtTokenString    {@link Jwt} 字符串
-     * @return  返回 {@link JwtAuthenticationToken}; 当 jwtTokenString 失效时返回 null,
+     * @return  返回 {@link JwtCacheTransformService#getClazz()} 的类型; 当 jwtTokenString 失效时返回 null,
      * 当 {@link JwtBlacklistProperties#getEnable()} 为 true 时返回 null.
      */
     @Nullable
-    public static JwtAuthenticationToken getAuthenticationFromRedis(@NonNull String jwtTokenString) throws SerializationException {
+    public static Object getAuthenticationFromRedis(@NonNull String jwtTokenString) throws SerializationException {
         if (blacklistProperties.getEnable()) {
             return null;
         }
@@ -618,7 +625,8 @@ public final class JwtContext {
             return null;
         }
         try {
-            return (JwtAuthenticationToken) redisSerializer.deserialize(authBytes);
+            Class<?> clazz = jwtCacheTransformService.getClazz();
+            return clazz.cast(redisSerializer.deserialize(authBytes));
         }
         catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -771,7 +779,7 @@ public final class JwtContext {
         // 如果不支持 jwt 黑名单, 添加到 redis 缓存
         if (!blacklistProperties.getEnable()) {
             //noinspection unchecked
-            byte[] tokenValue = redisSerializer.serialize(authentication);
+            byte[] tokenValue = redisSerializer.serialize(jwtCacheTransformService.transform(authentication));
             Instant expiresAt = jwt.getExpiresAt();
             if (isNull(expiresAt)) {
                 return;

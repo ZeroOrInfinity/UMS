@@ -63,6 +63,7 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.jwt.JwtContext;
 import top.dcenter.ums.security.jwt.advice.JwtControllerAdvice;
+import top.dcenter.ums.security.jwt.api.cache.service.JwtCacheTransformService;
 import top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService;
 import top.dcenter.ums.security.jwt.api.endpoind.service.JwkEndpointPermissionService;
 import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
@@ -116,7 +117,7 @@ import static top.dcenter.ums.security.jwt.properties.JwtProperties.MACS_SECRET_
 @SuppressWarnings("jol")
 @Configuration
 @Order(99)
-@AutoConfigureAfter({JwtPropertiesAutoConfiguration.class, JwtIdServiceAutoConfiguration.class,
+@AutoConfigureAfter({JwtPropertiesAutoConfiguration.class, JwtServiceAutoConfiguration.class,
         RedisSerializerAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "ums.jwt", name = "enable", havingValue = "true")
 @Slf4j
@@ -166,6 +167,10 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
      * {@link JwtContext} 的 jwtIdService 字段名称
      */
     public static final String JWT_ID_SERVICE = "jwtIdService";
+    /**
+     * {@link JwtContext} 的 jwtCacheTransformService 字段名称
+     */
+    public static final String JWT_CACHE_TRANSFORM_SERVICE = "jwtCacheTransformService";
 
     private final RSAPublicKey publicKey;
     private final JWSSigner signer;
@@ -178,6 +183,7 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
     private final JwtBlacklistProperties jwtBlacklistProperties;
     private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
     private final JwtIdService jwtIdService;
+    private final JwtCacheTransformService<?> jwtCacheTransformService;
     /**
      * JWT 的有效期
      */
@@ -201,7 +207,8 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
                                 RedisConnectionFactory redisConnectionFactory,
                                 @Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties,
                                 @Qualifier("jwtTokenRedisSerializer") RedisSerializer jwtRedisSerializer,
-                                JwtIdService jwtIdService) throws Exception {
+                                JwtIdService jwtIdService,
+                                JwtCacheTransformService<?> jwtCacheTransformService) throws Exception {
         this.timeout = jwtProperties.getTimeout();
         this.bearerTokenProperties = jwtProperties.getBearer();
         this.jwtBlacklistProperties = jwtProperties.getBlacklist();
@@ -210,6 +217,7 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
         this.refreshHandlerPolicy = jwtProperties.getRefreshHandlerPolicy();
         this.clockSkew = jwtProperties.getClockSkew();
         this.jwtIdService = jwtIdService;
+        this.jwtCacheTransformService = jwtCacheTransformService;
 
         Resource resource = jwtProperties.getJksKeyPairLocation();
         if (nonNull(resource)) {
@@ -507,6 +515,10 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
 
         if (nonNull(this.jwtIdService)) {
             setFieldValue(JWT_ID_SERVICE, this.jwtIdService, null, jwtUtilClass);
+        }
+
+        if (nonNull(this.jwtCacheTransformService)) {
+            setFieldValue(JWT_CACHE_TRANSFORM_SERVICE, this.jwtCacheTransformService, null, jwtUtilClass);
         }
 
     }

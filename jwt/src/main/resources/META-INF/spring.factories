@@ -2,6 +2,6 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   top.dcenter.ums.security.jwt.config.JwtPropertiesAutoConfiguration,\
   top.dcenter.ums.security.jwt.config.RedisSerializerAutoConfiguration,\
-  top.dcenter.ums.security.jwt.config.JwtIdServiceAutoConfiguration,\
+  top.dcenter.ums.security.jwt.config.JwtServiceAutoConfiguration,\
   top.dcenter.ums.security.jwt.config.JwtAutoConfiguration,\
   top.dcenter.ums.security.jwt.config.JwtAutoConfigurerAware
