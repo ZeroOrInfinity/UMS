@@ -48,6 +48,11 @@ public class JwtBlacklistProperties {
     private String reAuthPrefix = "JWT:REAUTH:";
 
     /**
+     * 用于存储用户 Token 信息的前缀, 也可以理解为用户信息, 后面回添加 Jwt 的 jti, 默认: "JWT:tokenInfo:"
+     */
+    private String tokenInfoPrefix = "JWT:tokenInfo:";
+
+    /**
      * JWT refresh token 缓存前缀, 默认: JWT:refreshToken:
      */
     private String refreshTokenPrefix = "JWT:refreshToken:";
