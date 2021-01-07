@@ -822,7 +822,7 @@ public final class JwtContext {
             log.error("oldUserId: {} 与 userIdByRefreshToken: {} 不匹配, refreshToken: {}",
                       oldUserId, userIdByRefreshToken, refreshToken);
             // userId 与 refreshToken 不匹配, 删除 refreshToken
-            getConnection().del(getRefreshTokenKey(refreshToken));
+            getConnection().del(getRefreshTokenKey(userIdByRefreshToken));
             throw new RefreshTokenInvalidException(ErrorCodeEnum.JWT_REFRESH_TOKEN_INVALID, getMdcTraceId());
         }
 
@@ -900,14 +900,6 @@ public final class JwtContext {
     }
 
     /**
-     * 获取 {@link RedisConnection}
-     * @return  返回 {@link RedisConnection}
-     */
-    private static RedisConnection getConnection() {
-        return redisConnectionFactory.getConnection();
-    }
-
-    /**
      * 获取 jwt refresh token redis key
      * @param refreshToken  refresh token
      * @return  返回 refresh token redis key
@@ -915,6 +907,14 @@ public final class JwtContext {
     @NonNull
     private static byte[] getRefreshTokenKey(String refreshToken) {
         return blacklistProperties.getRefreshTokenPrefix().concat(refreshToken).getBytes(StandardCharsets.UTF_8);
+    }
+
+    /**
+     * 获取 {@link RedisConnection}
+     * @return  返回 {@link RedisConnection}
+     */
+    private static RedisConnection getConnection() {
+        return redisConnectionFactory.getConnection();
     }
 
     // ====================== refreshToken 辅助私有方法 ======================
