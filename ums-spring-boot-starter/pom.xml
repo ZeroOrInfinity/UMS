@@ -5,14 +5,14 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>2.2.5</version>
+        <version>2.2.6</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ums-spring-boot-starter</artifactId>
     <name>ums-spring-boot-starter</name>
     <description>
-        ums-core feature: username password login, mobile login, OAuth2 login(JustAuth),
+        feature: username password login, mobile login, OAuth2 login(JustAuth),
         validate code(image,sms,slider), RBAC-based uri access control, Support multi-tenancy, sign etc.
     </description>
     <url>https://github.com/ZeroOrInfinity/UMS</url>

@@ -1,3 +1,9 @@
+## 2.2.6
+### Fixes and Improvements:
+1. 修复: 缓存验证码使用 redis 模式时, 二次校验获取不到缓存 code 的问题.
+2. 改进: 增加 getJwtClaimsSetBuilderWithAuthorities(..) 接口, 规范对 Authorities ClaimsSet 的生成.
+
+
 ## 2.2.5
 ### Fixes and Improvements:
 1. 修复: 删除不必要的文件, 放在 git 忽略列表, 上传 maven 时自动打包了, 导致项目启动报错.
