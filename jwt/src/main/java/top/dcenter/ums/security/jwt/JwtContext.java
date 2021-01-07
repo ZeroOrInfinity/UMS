@@ -628,7 +628,7 @@ public final class JwtContext {
      * 当 {@link JwtBlacklistProperties#getEnable()} 为 true 时返回 null.
      */
     @Nullable
-    public static Object getAuthenticationFromRedis(@NonNull String jti) throws SerializationException {
+    public static Object getTokenInfoFromRedis(@NonNull String jti) throws SerializationException {
         if (blacklistProperties.getEnable()) {
             return null;
         }
