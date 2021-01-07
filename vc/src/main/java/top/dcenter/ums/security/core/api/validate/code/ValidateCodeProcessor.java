@@ -110,13 +110,13 @@ public interface ValidateCodeProcessor {
         HttpServletRequest req = request.getRequest();
         ValidateCodeType validateCodeType = getValidateCodeType();
 
-        ValidateCode codeInSession = validateCodeCacheType.getCodeInCache(request, validateCodeType,
+        ValidateCode codeInCache = validateCodeCacheType.getCodeInCache(request, validateCodeType,
                                                                           validateCodeClass, redisConnectionFactory);
         // 获取 request 中的验证码
         String codeInRequest = request.getParameter(requestParamValidateCodeName);
 
         // 检查 session 是否有值
-        if (codeInSession == null)
+        if (codeInCache == null)
         {
             throw new ValidateCodeException(VALIDATE_CODE_NOT_EXISTS_IN_CACHE, IpUtil.getRealIp(req), codeInRequest);
         }
@@ -125,7 +125,7 @@ public interface ValidateCodeProcessor {
         if (!StringUtils.hasText(codeInRequest))
         {
             // 按照逻辑是前端过滤无效参数, 如果进入此逻辑, 按非正常访问处理
-            if (!codeInSession.getReuse())
+            if (!codeInCache.getReuse())
             {
                 validateCodeCacheType.removeCache(request, validateCodeType, redisConnectionFactory);
             }
@@ -135,16 +135,16 @@ public interface ValidateCodeProcessor {
         codeInRequest = codeInRequest.trim();
 
         // 校验是否过期
-        if (codeInSession.isExpired())
+        if (codeInCache.isExpired())
         {
             validateCodeCacheType.removeCache(request, validateCodeType, redisConnectionFactory);
             throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, IpUtil.getRealIp(req), codeInRequest);
         }
 
         // 验证码校验
-        if (!codeInRequest.equalsIgnoreCase(codeInSession.getCode()))
+        if (!codeInRequest.equalsIgnoreCase(codeInCache.getCode()))
         {
-            if (!codeInSession.getReuse())
+            if (!codeInCache.getReuse())
             {
                 validateCodeCacheType.removeCache(request, validateCodeType, redisConnectionFactory);
             }
