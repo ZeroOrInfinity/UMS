@@ -474,14 +474,19 @@ public final class JwtContext {
     /**
      * 从 session 中获取 name 为 {@link #TEMPORARY_JWT_REFRESH_TOKEN} 的 值,
      * 注意: 只有在用户登录成功后且支持 refreshToken 功能,才可以获取到 refreshToken.
+     * 只能获取一次, 获取后自动删除 session 的 refreshToken
      * @return  返回 jwt refresh token, 如果不存在则返回 null
      */
     @Nullable
-    public static String getJwtRefreshToken() {
+    public static String getJwtRefreshTokenFromSession() {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        return (String) requestAttributes.getAttribute(TEMPORARY_JWT_REFRESH_TOKEN, SCOPE_SESSION);
+        String refreshToken = (String) requestAttributes.getAttribute(TEMPORARY_JWT_REFRESH_TOKEN, SCOPE_SESSION);
+        if (nonNull(refreshToken)) {
+            requestAttributes.removeAttribute(TEMPORARY_JWT_REFRESH_TOKEN, SCOPE_SESSION);
+        }
+        return refreshToken;
     }
-
+    
     /**
      * 是否通过 refreshToken 刷新 jwt
      * @return 返回 true 表示通过 refreshToken 刷新 jwt

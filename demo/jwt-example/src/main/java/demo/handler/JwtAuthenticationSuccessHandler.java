@@ -131,7 +131,7 @@ public class JwtAuthenticationSuccessHandler extends BaseAuthenticationSuccessHa
                 }
                 // 设置 jwt refresh token
                 if (JwtContext.isRefreshJwtByRefreshToken()) {
-                    authTokenVo.setRefreshToken(JwtContext.getJwtRefreshToken());
+                    authTokenVo.setRefreshToken(JwtContext.getJwtRefreshTokenFromSession());
                 }
 
                 responseWithJson(response, HttpStatus.OK.value(),
