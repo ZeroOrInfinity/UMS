@@ -105,7 +105,7 @@ ums:
   # 验证码配置
   codes:
     # 验证码缓存类型, 默认: SESSION, 可选: REDIS/SESSION
-    validate-code-cache-type: session
+    validate-code-cache-type: redis
     # 获取验证码的 url 的前缀, 默认: /code
     validate-code-url-prefix: /code
     # ===== 刷新图片验证码与滑块验证码缓存 定时任务 属性 =====
@@ -202,22 +202,22 @@ spring:
     throw-exception-if-no-handler-found: true
   thymeleaf:
     cache: false
-#  redis:
-#    host: 192.168.88.88
-#    port: 6379
-#    password:
-#    database: 0
-#    # 连接超时的时间
-#    timeout: 10000
-#    # redis-lettuce-pool
-#    lettuce:
-#      # 会影响应用关闭是时间, dev 模式设置为 0
-#      shutdown-timeout: PT0S
-#      pool:
-#        max-active: 8
-#        max-wait: PT10S
-#        max-idle: 8
-#        min-idle: 1
+  redis:
+    host: 192.168.50.2
+    port: 6379
+    password:
+    database: 0
+    # 连接超时的时间
+    timeout: 10000
+    # redis-lettuce-pool
+    lettuce:
+      # 会影响应用关闭是时间, dev 模式设置为 0
+      shutdown-timeout: PT0S
+      pool:
+        max-active: 8
+        max-wait: PT10S
+        max-idle: 8
+        min-idle: 1
 #debug: true
 
 server:

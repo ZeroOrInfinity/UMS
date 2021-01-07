@@ -23,17 +23,14 @@
 package demo.jwt.service;
 
 import com.nimbusds.jwt.JWTClaimsSet;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService;
 import top.dcenter.ums.security.jwt.claims.service.impl.UmsCustomClaimsSetServiceImpl;
 import top.dcenter.ums.security.jwt.enums.JwtCustomClaimNames;
 import top.dcenter.ums.security.jwt.supplier.UmsJwtGrantedAuthoritiesConverterSupplier;
-
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 /**
  * 只是 {@link UmsCustomClaimsSetServiceImpl} 的原样拷贝, 示例替换 {@link UmsCustomClaimsSetServiceImpl}.
@@ -45,34 +42,23 @@ import java.util.stream.Collectors;
 @Service
 public class DemoUmsCustomClaimsSetServiceImpl implements CustomClaimsSetService {
 
+    @NonNull
     @Override
-    public JWTClaimsSet toClaimsSet(Authentication authentication) {
+    public JWTClaimsSet toClaimsSet(@NonNull Authentication authentication) {
 
         // Prepare JWT with claims set
-        JWTClaimsSet.Builder builder = getJwtClaimsSetBuilder(authentication.getAuthorities());
+        JWTClaimsSet.Builder builder = getJwtClaimsSetBuilderWithAuthorities(authentication.getAuthorities());
 
         return builder.build();
     }
 
+    @NonNull
     @Override
-    public JWTClaimsSet toClaimsSet(UserDetails userDetails) {
+    public JWTClaimsSet toClaimsSet(@NonNull UserDetails userDetails) {
         // Prepare JWT with claims set
-        JWTClaimsSet.Builder builder = getJwtClaimsSetBuilder(userDetails.getAuthorities());
+        JWTClaimsSet.Builder builder = getJwtClaimsSetBuilderWithAuthorities(userDetails.getAuthorities());
 
         return builder.build();
     }
 
-    private JWTClaimsSet.Builder getJwtClaimsSetBuilder(Collection<? extends GrantedAuthority> authorities) {
-        // Prepare JWT with claims set
-        JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
-
-        // 转换为权限字符串
-        String authoritiesString = authorities.stream()
-                                              .map(GrantedAuthority::getAuthority)
-                                              .collect(Collectors.joining(" "));
-        // 设置权限
-        builder.claim(JwtCustomClaimNames.AUTHORITIES.getClaimName(), authoritiesString);
-
-        return builder;
-    }
 }
