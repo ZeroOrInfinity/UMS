@@ -23,16 +23,24 @@
 package top.dcenter.ums.security.jwt.api.claims.service;
 
 import com.nimbusds.jwt.JWTClaimsSet;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 import top.dcenter.ums.security.jwt.enums.JwtCustomClaimNames;
 import top.dcenter.ums.security.jwt.properties.JwtProperties;
+import top.dcenter.ums.security.jwt.supplier.UmsJwtGrantedAuthoritiesConverterSupplier;
+
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * 根据 {@link Authentication} 生成自定义的 {@link JWTClaimsSet} 的接口, 此接口最终回被
- * {@link GenerateClaimsSetService#generateClaimsSet(Authentication)} 方法调用.
+ * {@link GenerateClaimsSetService#generateClaimsSet(Authentication, Jwt)} 或
+ * {@link GenerateClaimsSetService#generateClaimsSet(UserDetails, Jwt)} 方法调用.
  * @author YongWu zheng
  * @version V2.0  Created by 2020.12.9 22:14
  */
@@ -40,7 +48,7 @@ public interface CustomClaimsSetService {
 
     /**
      * 根据 {@link Authentication} 生成自定义的 {@link JWTClaimsSet}. <br>
-     * {@link GenerateClaimsSetService#generateClaimsSet(Authentication)} 已生成
+     * {@link GenerateClaimsSetService#generateClaimsSet(Authentication, Jwt)} 已生成
      * {@link JwtClaimNames#JTI}, {@link JwtClaimNames#ISS}, {@link JwtClaimNames#EXP},
      * {@link JwtCustomClaimNames#TENANT_ID}, {@link JwtProperties#getPrincipalClaimName()},
      * {@link JwtCustomClaimNames#AUTHORITIES} , 通过此方法生成上述 Claims, 可以覆盖
@@ -51,11 +59,12 @@ public interface CustomClaimsSetService {
      * @param authentication    authentication
      * @return  返回 {@link JWTClaimsSet}
      */
-    JWTClaimsSet toClaimsSet(Authentication authentication);
+    @NonNull
+    JWTClaimsSet toClaimsSet(@NonNull Authentication authentication);
 
     /**
      * 根据 {@link UserDetails} 生成自定义的 {@link JWTClaimsSet}. <br>
-     * {@link GenerateClaimsSetService#generateClaimsSet(UserDetails)} 已生成
+     * {@link GenerateClaimsSetService#generateClaimsSet(UserDetails, Jwt)} 已生成
      * {@link JwtClaimNames#JTI}, {@link JwtClaimNames#ISS}, {@link JwtClaimNames#EXP},
      * {@link JwtCustomClaimNames#TENANT_ID}, {@link JwtProperties#getPrincipalClaimName()},
      * {@link JwtCustomClaimNames#AUTHORITIES} , 通过此方法生成上述 Claims, 可以覆盖
@@ -66,5 +75,27 @@ public interface CustomClaimsSetService {
      * @param userDetails    {@link UserDetails}
      * @return  返回 {@link JWTClaimsSet}
      */
-    JWTClaimsSet toClaimsSet(UserDetails userDetails);
+    @NonNull
+    JWTClaimsSet toClaimsSet(@NonNull UserDetails userDetails);
+
+    /**
+     * 根据权限集合 authorities 生成 {@link JWTClaimsSet.Builder}. 此实现与 {@link UmsJwtGrantedAuthoritiesConverterSupplier}
+     * 有关联的. 也就是说, 覆写此默认实现需要同时替换 {@link UmsJwtGrantedAuthoritiesConverterSupplier} 逻辑.
+     * @param authorities   权限集合
+     * @return  返回 {@link JWTClaimsSet.Builder}
+     */
+    @NonNull
+    default JWTClaimsSet.Builder getJwtClaimsSetBuilderWithAuthorities(@NonNull Collection<? extends GrantedAuthority> authorities) {
+        // Prepare JWT with claims set
+        JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
+
+        // 转换为权限字符串
+        String authoritiesString = authorities.stream()
+                                              .map(GrantedAuthority::getAuthority)
+                                              .collect(Collectors.joining(" "));
+        // 设置权限
+        builder.claim(JwtCustomClaimNames.AUTHORITIES.getClaimName(), authoritiesString);
+
+        return builder;
+    }
 }
