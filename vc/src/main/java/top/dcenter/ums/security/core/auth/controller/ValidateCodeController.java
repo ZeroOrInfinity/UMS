@@ -42,12 +42,12 @@ import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessor;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeProcessorHolder;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
-import top.dcenter.ums.security.core.auth.validate.codes.slider.SliderCode;
 import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.exception.ValidateCodeProcessException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import static top.dcenter.ums.security.common.consts.SecurityConstants.URL_SEPARATOR;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.GET_VALIDATE_CODE_FAILURE;
@@ -125,8 +125,10 @@ public class ValidateCodeController implements InitializingBean {
                   response = ResponseResult.class)
     @RequestMapping(value = {"/slider/check"}, method = RequestMethod.POST)
     public ResponseResult sliderCheck(HttpServletRequest request) {
-        SliderCode sliderCode = (SliderCode) request.getSession().getAttribute(ValidateCodeType.SLIDER.getKeyPrefix());
-        return ResponseResult.success(null, sliderCode.getCode());
+        HttpSession session = request.getSession();
+        String code = (String) session.getAttribute(ValidateCodeType.SLIDER.getKeyPrefix());
+        session.removeAttribute(ValidateCodeType.SLIDER.getKeyPrefix());
+        return ResponseResult.success(null, code);
     }
 
 

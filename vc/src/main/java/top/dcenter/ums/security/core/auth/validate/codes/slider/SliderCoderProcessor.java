@@ -43,6 +43,7 @@ import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static org.springframework.web.context.request.RequestAttributes.SCOPE_SESSION;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_EXPIRED;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_FAILURE;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EMPTY;
@@ -121,18 +122,18 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         // 获取 session 中的 SliderCode
         HttpServletRequest req = request.getRequest();
         ValidateCodeType sliderType = ValidateCodeType.SLIDER;
-        SliderCode sliderCodeInSession =
+        SliderCode sliderCodeInCache =
                 (SliderCode) this.validateCodeCacheType.getCodeInCache(request, sliderType,
                                                                        SliderCode.class, this.redisConnectionFactory);
 
         // 检查 session 是否有值
-        if (sliderCodeInSession == null)
+        if (sliderCodeInCache == null)
         {
             throw new ValidateCodeException(VALIDATE_CODE_NOT_EXISTS_IN_CACHE, IpUtil.getRealIp(req), request.getSessionId());
         }
 
         // 检测是否是第二此校验
-        if (sliderCodeInSession.getSecondCheck())
+        if (sliderCodeInCache.getSecondCheck())
         {
             defaultValidate(request, slider.getTokenRequestParamName(),
                             SliderCode.class, this.validateCodeCacheType, this.redisConnectionFactory);
@@ -149,9 +150,9 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         String y = request.getParameter(yRequestParamName);
 
         // 校验参数是否有效
-        checkParam(sliderType, request, !StringUtils.hasText(token), VALIDATE_CODE_NOT_EMPTY, tokenRequestParamName, sliderCodeInSession);
-        checkParam(sliderType, request, !StringUtils.hasText(x), VALIDATE_CODE_NOT_EMPTY, xRequestParamName, sliderCodeInSession);
-        checkParam(sliderType, request, !StringUtils.hasText(y), VALIDATE_CODE_NOT_EMPTY, yRequestParamName, sliderCodeInSession);
+        checkParam(sliderType, request, !StringUtils.hasText(token), VALIDATE_CODE_NOT_EMPTY, tokenRequestParamName, sliderCodeInCache);
+        checkParam(sliderType, request, !StringUtils.hasText(x), VALIDATE_CODE_NOT_EMPTY, xRequestParamName, sliderCodeInCache);
+        checkParam(sliderType, request, !StringUtils.hasText(y), VALIDATE_CODE_NOT_EMPTY, yRequestParamName, sliderCodeInCache);
 
         token = token.trim();
         Integer locationX = Integer.parseInt(x);
@@ -159,14 +160,14 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
 
 
         // 校验是否过期
-        checkParam(sliderType, request, sliderCodeInSession.isExpired(), VALIDATE_CODE_EXPIRED, token, sliderCodeInSession);
+        checkParam(sliderType, request, sliderCodeInCache.isExpired(), VALIDATE_CODE_EXPIRED, token, sliderCodeInCache);
 
         // 验证码校验
-        boolean verify = sliderCodeInSession.getLocationY().equals(locationY)
-                         && Math.abs(sliderCodeInSession.getLocationX() - locationX) < slider.getRedundancyValue();
+        boolean verify = sliderCodeInCache.getLocationY().equals(locationY)
+                         && Math.abs(sliderCodeInCache.getLocationX() - locationX) < slider.getRedundancyValue();
         if (!verify)
         {
-            if (!sliderCodeInSession.getReuse())
+            if (!sliderCodeInCache.getReuse())
             {
                 this.validateCodeCacheType.removeCache(request, sliderType, this.redisConnectionFactory);
             }
@@ -174,13 +175,16 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         }
 
         // 更新 session 中的验证码信息, 以便于第二次校验
-        sliderCodeInSession.setSecondCheck(true);
+        sliderCodeInCache.setSecondCheck(true);
         // 方便二次校验时, 调用 ValidateCodeGenerator.defaultValidate 方法.
-        sliderCodeInSession.setCode(getUUID());
+        sliderCodeInCache.setCode(getUUID());
         // 这里第一次校验通过, 第二次校验不需要使用复用功能, 不然第二次校验时不会清除 session 中的验证码缓存
-        sliderCodeInSession.setReuse(false);
+        sliderCodeInCache.setReuse(false);
 
-        this.validateCodeCacheType.save(request, sliderCodeInSession, sliderType, this.redisConnectionFactory);
+        // ValidateCodeController.sliderCheck() 需要调用.
+        request.setAttribute(getValidateCodeType().getKeyPrefix(), sliderCodeInCache.getCode(), SCOPE_SESSION);
+
+        this.validateCodeCacheType.save(request, sliderCodeInCache, sliderType, this.redisConnectionFactory);
 
     }
 
