@@ -1007,12 +1007,6 @@ public final class JwtContext {
             return null;
         }
 
-        Instant expiresAt = refreshTokenJwt.getExpiresAt();
-        // 不在黑名单, 但 refreshToken 无效
-        if (isNull(expiresAt) || expiresAt.isBefore(Instant.now())) {
-            return null;
-        }
-
         return userId;
     }
 
