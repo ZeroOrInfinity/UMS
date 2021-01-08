@@ -45,7 +45,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -945,11 +944,11 @@ public final class JwtContext {
     /**
      * 从 request 中获取 jwt
      * @param request               {@link HttpServletRequest}
-     * @param jwtDecoder            {@link JwtDecoder}
+     * @param jwtDecoder            {@link UmsNimbusJwtDecoder}
      * @return  返回 {@link Jwt}, 如果 request 中无 jwt 字符串或 jwt 字符串已失效, 则返回 null
      */
     @Nullable
-    private static Jwt getJwtByRequest(@NonNull HttpServletRequest request, @NonNull JwtDecoder jwtDecoder) {
+    private static Jwt getJwtByRequest(@NonNull HttpServletRequest request, @NonNull UmsNimbusJwtDecoder jwtDecoder) {
         Jwt oldJwt;
 
         // 获取 jwt 字符串
@@ -963,12 +962,7 @@ public final class JwtContext {
 
         // 转换为 jwt
         try {
-            if (jwtDecoder instanceof UmsNimbusJwtDecoder) {
-                oldJwt = ((UmsNimbusJwtDecoder) jwtDecoder).decodeNotRefreshToken(removeBearerForJwtTokenString(jwtString));
-            }
-            else {
-                oldJwt = jwtDecoder.decode(removeBearerForJwtTokenString(jwtString));
-            }
+            oldJwt = jwtDecoder.decodeNotRefreshToken(removeBearerForJwtTokenString(jwtString));
         }
         catch (JwtException | JwtInvalidException | JwtExpiredException e) {
             oldJwt = null;
