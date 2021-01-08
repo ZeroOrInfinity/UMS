@@ -115,7 +115,7 @@ ums:
     jwt-by-refresh-token-uri: /jwt/refreshToken
     # 通过 refreshToken 刷新 jwt 时, 如果 alwaysRefresh = false, oldJwt 剩余有效期没在 ums.jwt.remainingRefreshInterval
     # 的时间内, 原样返回 oldJwt, 如果 ums.jwt.alwaysRefresh = true, 每次通过 refreshToken 刷新 jwt 则总是返回 newJwt. 默认: false
-    always-refresh: false
+    always-refresh: true
     # 是否曝露 jwtByRefreshTokenUri, 默认: false
     expose-refresh-token-uri: true
     # 当 JwtRefreshHandlerPolicy.AUTO_RENEW 时, JWT 剩余的有效期间隔小于此值后自动刷新 JWT;
@@ -192,9 +192,11 @@ ums:
     blacklist:
       # 是否支持 jwt 黑名单功能, 默认: true.
       # 如果为 false, jwtToken 与 refreshToken 会保存到 redis
-      enable: false
+      enable: true
       # 是否需要重新登录认证的 redis key 前缀, 默认: "JWT:REAUTH:"
       re-auth-prefix: 'WT:REAUTH:'
+      # 用于存储用户 Token 信息的前缀, 也可以理解为用户信息, 后面回添加 Jwt 的 jti, 默认: "JWT:tokenInfo:"
+      tokenInfoPrefix: 'JWT:tokenInfo:'
       # JWT 黑名单缓存前缀, 默认: JWT:BLACKLIST:
       blacklist-prefix: 'JWT:BLACKLIST:'
       # JWT refresh token 缓存前缀, 默认: JWT:refreshToken:

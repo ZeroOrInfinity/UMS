@@ -104,7 +104,7 @@
             refreshToken = "";
         }
         console.log("refreshtoken: " + refreshToken);
-        // 登录并获取 JWT
+        // 刷新 JWT
         $.ajax({
             url: url,
             type: "POST",
@@ -163,6 +163,7 @@
                 }
             }
         })
+        console.log("==========通过 refreshToken 刷新 jwt 流程结束============")
         return
     });
 
