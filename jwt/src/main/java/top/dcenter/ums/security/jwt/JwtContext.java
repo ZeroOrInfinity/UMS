@@ -36,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.types.Expiration;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -165,13 +164,6 @@ public final class JwtContext {
      * 方法注入.
      */
     private volatile static RedisConnectionFactory redisConnectionFactory = null;
-    /**
-     * Jackson2JsonRedisSerializer
-     * 如果支持 JWT 功能, 通过 {@code top.dcenter.ums.security.jwt.config.JwtAutoConfiguration#afterPropertiesSet()}
-     * 方法注入.
-     */
-    @SuppressWarnings("rawtypes")
-    private volatile static RedisSerializer redisSerializer = null;
     /**
      * JwtBlacklistProperties
      * 如果支持 JWT 功能, 通过 {@code top.dcenter.ums.security.jwt.config.JwtAutoConfiguration#afterPropertiesSet()}
@@ -512,8 +504,7 @@ public final class JwtContext {
             return null;
         }
         try {
-            Class<?> clazz = jwtCacheTransformService.getClazz();
-            return clazz.cast(redisSerializer.deserialize(authBytes));
+            return jwtCacheTransformService.deserialize(authBytes);
         }
         catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -790,8 +781,7 @@ public final class JwtContext {
                                                 @SuppressWarnings("SameParameterValue") @NonNull Boolean isSetContext) {
         // 如果不支持 jwt 黑名单, 添加到 redis 缓存
         if (!blacklistProperties.getEnable()) {
-            //noinspection unchecked
-            byte[] tokenValue = redisSerializer.serialize(jwtCacheTransformService.transform(authentication));
+            byte[] tokenValue = jwtCacheTransformService.serialize(authentication);
             Instant expiresAt = jwt.getExpiresAt();
             if (isNull(expiresAt)) {
                 return;
@@ -800,11 +790,11 @@ public final class JwtContext {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
             final Duration ttl = Duration.ofSeconds(expiresAt.getEpochSecond() - Instant.now().getEpochSecond());
-            ofNullable(tokenValue)
-                    .ifPresent((value) -> getConnection().set(getTokenKey(jwt.getId()),
-                                                              value,
-                                                              Expiration.from(ttl),
-                                                              SET_IF_ABSENT));
+            getConnection().set(getTokenKey(jwt.getId()),
+                                tokenValue,
+                                Expiration.from(ttl),
+                                UPSERT);
+
         }
     }
 

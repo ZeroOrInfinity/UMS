@@ -56,9 +56,12 @@ spring:
 
 
 ums:
+  mobile:
+    login:
+      sms-code-login-is-open: true
   oauth:
     # 是否支持第三方授权登录功能, 默认: 空, 必须明确配置是否支持
-    enabled: false
+    enabled: true
   # RBAC 权限访问控制
   rbac:
     # ========= 放行权限 ==========

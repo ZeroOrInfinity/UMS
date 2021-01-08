@@ -22,6 +22,8 @@
  */
 package demo.jwt.service;
 
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Service;
 import top.dcenter.ums.security.common.utils.UuidUtils;
 import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
 
@@ -31,13 +33,16 @@ import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
  * @weixin z56133
  * @since 2021.1.6 16:23
  */
+@Service
 public class DemoUmsJwtIdServiceImpl implements JwtIdService {
     @Override
+    @NonNull
     public String generateJtiId() {
         return UuidUtils.getUUID();
     }
 
     @Override
+    @NonNull
     public String generateRefreshToken() {
         return UuidUtils.getUUID();
     }

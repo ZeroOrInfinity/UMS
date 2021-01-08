@@ -22,11 +22,12 @@
  */
 package top.dcenter.ums.security.jwt.api.cache.service;
 
+import org.springframework.data.redis.serializer.SerializationException;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
-import top.dcenter.ums.security.jwt.config.RedisSerializerAutoConfiguration;
 
 /**
- * 如果是 jwt + session 模式, 如需缓存自定义对象, 则必须实现此接口, 用于转换为缓存的对象.
+ * 如果是 jwt + session 模式, 如需缓存自定义对象, 则必须实现此接口, 用于转换缓存的对象.
  *
  * @author YongWu zheng
  * @weixin z56133
@@ -35,16 +36,28 @@ import top.dcenter.ums.security.jwt.config.RedisSerializerAutoConfiguration;
 public interface JwtCacheTransformService<T> {
 
     /**
-     * 转换为需要保存到 cache 的对象, 如果缓存到 redis, 转换类 T 必须支持 Jackson2 反序列化, 具体看 {@link RedisSerializerAutoConfiguration}.
+     * 转换为需要保存到 cache 的对象的序列化字节数组.
      * @param authentication    {@link Authentication}
-     * @return 需要缓存的对象.
+     * @return 需要缓存的对象的序列化字节数组.
      */
-    T transform(Authentication authentication);
+    @NonNull
+    byte[] serialize(@NonNull Authentication authentication);
+
+
+    /**
+     * Deserialize an object from the given binary data.
+     *
+     * @param bytes object binary representation.
+     * @return the equivalent object instance. Can be {@literal null}.
+     */
+    @NonNull
+    T deserialize(@NonNull byte[] bytes) throws SerializationException;
 
     /**
      * 保存在缓存中的对象类型
      * @return  {@code Class<T>}
      */
+    @NonNull
     Class<T> getClazz();
 
 }

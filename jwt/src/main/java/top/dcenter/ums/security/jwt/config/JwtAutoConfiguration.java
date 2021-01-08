@@ -31,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -46,7 +45,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.Resource;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -152,10 +150,6 @@ public class JwtAutoConfiguration implements ApplicationListener<ContextRefreshe
      */
     public static final String REDIS_CONNECTION_FACTORY = "redisConnectionFactory";
     /**
-     * {@link JwtContext} 的 redisSerializer 字段名称
-     */
-    public static final String REDIS_SERIALIZER = "redisSerializer";
-    /**
      * {@link JwtContext} 的 blacklistProperties 字段名称
      */
     public static final String BLACKLIST_PROPERTIES = "blacklistProperties";
@@ -178,8 +172,6 @@ public class JwtAutoConfiguration implements ApplicationListener<ContextRefreshe
     private final String kid;
     private final BearerTokenProperties bearerTokenProperties;
     private final RedisConnectionFactory redisConnectionFactory;
-    @SuppressWarnings("rawtypes")
-    private final RedisSerializer redisSerializer;
     private final JwtBlacklistProperties jwtBlacklistProperties;
     private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
     private final JwtIdService jwtIdService;
@@ -202,18 +194,15 @@ public class JwtAutoConfiguration implements ApplicationListener<ContextRefreshe
     @Autowired(required = false)
     private Map<String, CustomClaimValidateService> customClaimValidateServiceMap;
 
-    @SuppressWarnings({"rawtypes"})
     public JwtAutoConfiguration(JwtProperties jwtProperties,
                                 RedisConnectionFactory redisConnectionFactory,
                                 @Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties,
-                                @Qualifier("jwtTokenRedisSerializer") RedisSerializer jwtRedisSerializer,
                                 JwtIdService jwtIdService,
                                 JwtCacheTransformService<?> jwtCacheTransformService) throws Exception {
         this.timeout = jwtProperties.getTimeout();
         this.bearerTokenProperties = jwtProperties.getBearer();
         this.jwtBlacklistProperties = jwtProperties.getBlacklist();
         this.redisConnectionFactory = redisConnectionFactory;
-        this.redisSerializer = jwtRedisSerializer;
         this.refreshHandlerPolicy = jwtProperties.getRefreshHandlerPolicy();
         this.clockSkew = jwtProperties.getClockSkew();
         this.jwtIdService = jwtIdService;
@@ -501,10 +490,6 @@ public class JwtAutoConfiguration implements ApplicationListener<ContextRefreshe
 
         if (nonNull(this.redisConnectionFactory)) {
             setFieldValue(REDIS_CONNECTION_FACTORY, this.redisConnectionFactory, null, jwtUtilClass);
-        }
-
-        if (nonNull(this.redisSerializer)) {
-            setFieldValue(REDIS_SERIALIZER, this.redisSerializer, null, jwtUtilClass);
         }
 
         if (nonNull(this.refreshHandlerPolicy)) {
