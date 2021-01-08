@@ -121,7 +121,7 @@ import static top.dcenter.ums.security.jwt.properties.JwtProperties.MACS_SECRET_
         RedisSerializerAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "ums.jwt", name = "enable", havingValue = "true")
 @Slf4j
-class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, InitializingBean {
+public class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, InitializingBean {
 
     /**
      * {@link JwtContext} 的 signer 字段名称
@@ -329,7 +329,6 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
                                  MappedJwtClaimSetConverter mappedJwtClaimSetConverter,
                                  @Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties,
                                  JwtProperties jwtProperties) {
-        JwtBlacklistProperties blacklist = jwtProperties.getBlacklist();
         Resource jksKeyPairResource = jwtProperties.getJksKeyPairLocation();
         String macsSecret = jwtProperties.getMacsSecret();
         UmsNimbusJwtDecoder jwtDecoder = null;
