@@ -42,12 +42,12 @@ public class SmsCodeLoginAuthenticationProperties {
     /**
      * 手机验证码登录请求处理url, 默认 /authentication/mobile
      */
-    public String loginProcessingUrlMobile = DEFAULT_LOGIN_PROCESSING_URL_MOBILE;
+    private String loginProcessingUrlMobile = DEFAULT_LOGIN_PROCESSING_URL_MOBILE;
 
     /**
      * 手机验证码登录是否开启, 默认 false
      */
-    public Boolean smsCodeLoginIsOpen = false;
+    private Boolean smsCodeLoginIsOpen = false;
 
 
 
