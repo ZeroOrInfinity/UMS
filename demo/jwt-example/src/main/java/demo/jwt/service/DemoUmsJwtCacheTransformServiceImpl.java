@@ -22,10 +22,18 @@
  */
 package demo.jwt.service;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.SerializationException;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.stereotype.Service;
 import top.dcenter.ums.security.jwt.api.cache.service.JwtCacheTransformService;
 import top.dcenter.ums.security.jwt.cache.service.UmsJwtCacheTransformServiceImpl;
+
+import static java.util.Objects.nonNull;
 
 /**
  * 示例: 只是对 {@link UmsJwtCacheTransformServiceImpl} 的拷贝.
@@ -34,18 +42,38 @@ import top.dcenter.ums.security.jwt.cache.service.UmsJwtCacheTransformServiceImp
  * @weixin z56133
  * @since 2021.1.7 20:18
  */
+@RequiredArgsConstructor
+@Service
 public class DemoUmsJwtCacheTransformServiceImpl implements JwtCacheTransformService<JwtAuthenticationToken> {
 
+    @Qualifier("jwtTokenRedisSerializer")
+    private final RedisSerializer<JwtAuthenticationToken> redisSerializer;
+
     @Override
-    public JwtAuthenticationToken transform(Authentication authentication) {
+    @NonNull
+    public byte[] serialize(@NonNull Authentication authentication) throws SerializationException {
         if (authentication instanceof JwtAuthenticationToken)
         {
-            return (JwtAuthenticationToken) authentication;
+            byte[] result = redisSerializer.serialize(((JwtAuthenticationToken) authentication));
+            if (nonNull(result)) {
+                return result;
+            }
         }
-        throw new RuntimeException("必须是 org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken 类型");
+        throw new SerializationException("序列化错误");
     }
 
     @Override
+    @NonNull
+    public JwtAuthenticationToken deserialize(@NonNull byte[] bytes) throws SerializationException {
+        JwtAuthenticationToken deserialize = redisSerializer.deserialize(bytes);
+        if (nonNull(deserialize)) {
+            return deserialize;
+        }
+        throw new SerializationException("反序列化错误");
+    }
+
+    @Override
+    @NonNull
     public Class<JwtAuthenticationToken> getClazz() {
         return JwtAuthenticationToken.class;
     }

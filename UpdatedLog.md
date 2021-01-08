@@ -6,7 +6,8 @@
 4. 添加: 自动 release 到 maven 中心库的插件.
 5. 改进: jwt 模式与 jwt + session 模式. 添加 ums.jwt.blacklist.tokenInfoPrefix 属性, 完善 jwt + session 模式.
 6. 改进: 添加 UmsBearerTokenResolver 忽略解析jwt 的 urls 字段 ignoreUrls 及相关处理. 添加 UmsBearerTokenResolver 的 ignoreUrls 的自动配置.
-7. 优化: getJwtByRequest() 方法; 重复校验 refreshTokenJwt 有效性. 以及其他一些优化.
+7. 优化: JwtCacheTransformService 接口.
+8. 优化: getJwtByRequest() 方法; 重复校验 refreshTokenJwt 有效性. 以及其他一些优化.
 
 
 ## 2.2.6

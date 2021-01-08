@@ -26,6 +26,8 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import top.dcenter.ums.security.jwt.api.cache.service.JwtCacheTransformService;
 import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
 import top.dcenter.ums.security.jwt.cache.service.UmsJwtCacheTransformServiceImpl;
@@ -37,18 +39,18 @@ import top.dcenter.ums.security.jwt.id.service.impl.UuidJwtIdServiceImpl;
  * @since 2021.1.1 15:56
  */
 @Configuration
-@AutoConfigureAfter({JwtPropertiesAutoConfiguration.class})
+@AutoConfigureAfter({RedisSerializerAutoConfiguration.class})
 public class JwtServiceAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.jwt.api.id.service.JwtIdService"})
-    public JwtIdService jtiIdService() {
+    public JwtIdService jwtIdService() {
         return new UuidJwtIdServiceImpl();
     }
 
     @Bean
     @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.jwt.api.cache.service.JwtCacheTransformService"})
-    public JwtCacheTransformService<?> jwtCacheTransformService() {
-        return new UmsJwtCacheTransformServiceImpl();
+    public JwtCacheTransformService<?> jwtCacheTransformService(RedisSerializer<JwtAuthenticationToken> redisSerializer) {
+        return new UmsJwtCacheTransformServiceImpl(redisSerializer);
     }
 }
