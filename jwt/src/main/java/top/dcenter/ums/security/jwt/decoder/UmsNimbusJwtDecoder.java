@@ -280,6 +280,12 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 			if (nonNull(expiresAt) && Instant.now().minusSeconds(getClockSkew().getSeconds()).isAfter(expiresAt)) {
 				throw new JwtInvalidException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId());
 			}
+
+			// 检查是否在黑名单中.
+			if (JwtContext.refreshJwtInTheBlacklist(createJwt, principalClaimName)) {
+				throw new JwtInvalidException(ErrorCodeEnum.JWT_REFRESH_TOKEN_INVALID, getMdcTraceId());
+			}
+
 			if (reAuthService.isReAuth(createJwt)) {
 				JwtContext.addBlacklistForRefreshToken(createJwt, principalClaimName);
 				throw new JwtInvalidException(ErrorCodeEnum.JWT_RE_AUTH, getMdcTraceId());

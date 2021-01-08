@@ -586,6 +586,30 @@ public final class JwtContext {
     }
 
     /**
+     * 检查 refreshJwt 是否在黑名单中<br>
+     * @param refreshJwt            refresh jwt
+     * @param principalClaimName    JWT 存储 principal 的 claimName
+     * @return  返回 true 表示在黑名单, 返回 false 表示不在黑名单
+     */
+    @NonNull
+    public static Boolean refreshJwtInTheBlacklist(@NonNull Jwt refreshJwt,
+                                                   @NonNull String principalClaimName) {
+        // 不支持黑名单逻辑
+        if (!blacklistProperties.getEnable()) {
+            Boolean exists =
+                    getConnection().exists(getRefreshTokenKey(refreshJwt.getClaimAsString(principalClaimName)));
+            return isNull(exists) || !exists;
+        }
+
+        // 支持黑名单逻辑
+
+        // 从 redis jwt 黑名单中获取 jti 的值
+        Boolean exists = getConnection().exists(getBlacklistKey(refreshJwt.getId()));
+
+        return nonNull(exists) && exists;
+    }
+
+    /**
      * 添加 refreshToken 到 黑名单
      * @param refreshTokenJwt       refresh token jwt
      * @param principalClaimName    JWT 存储 principal 的 claimName
