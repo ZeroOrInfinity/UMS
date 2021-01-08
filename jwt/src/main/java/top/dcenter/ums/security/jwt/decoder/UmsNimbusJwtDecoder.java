@@ -37,7 +37,6 @@ import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
@@ -130,11 +129,6 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 	 * JWT 存储 principal 的 claimName, 通常 principal 为 userId
 	 */
 	@Getter	private final String principalClaimName;
-	/**
-	 * 是否支持 jti 黑名单, 用于防止刷新 jwt 时并发访问的问题.
-	 */
-	@Setter
-	private Boolean isSupportJtiBlacklistValidator = Boolean.TRUE;
 
 	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
 			.withDefaults(Collections.emptyMap());
@@ -350,11 +344,9 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 	private Jwt validateJwt(Jwt jwt) {
 
 		// 检查黑名单中是否有刷新 Jwt , 有的话替换.
-		if (isSupportJtiBlacklistValidator) {
-			Jwt refreshJwt = validateJti(jwt);
-			if (!Objects.equals(refreshJwt, jwt)) {
-				return refreshJwt;
-			}
+		Jwt refreshJwt = validateJti(jwt);
+		if (!Objects.equals(refreshJwt, jwt)) {
+			return refreshJwt;
 		}
 
 		OAuth2TokenValidatorResult result = this.jwtValidator.validate(jwt);
@@ -366,6 +358,11 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		return jwt;
 	}
 
+	/**
+	 * 校验 jwt 的 jti 是否存在黑名单中, 如果存在且带有刷新后的 jwt, 返回刷新后的 jwt.
+	 * @param jwt   需要校验的 jwt
+	 * @return  原样返回或返回刷新后的 jwt.
+	 */
 	private Jwt validateJti(Jwt jwt) {
 		// 1. 校验 jwt 是否在黑名单, 是否需要重新认证(reAuth)
 		JwtContext.BlacklistType blacklistType = JwtContext.jtiInTheBlacklist(jwt.getId());

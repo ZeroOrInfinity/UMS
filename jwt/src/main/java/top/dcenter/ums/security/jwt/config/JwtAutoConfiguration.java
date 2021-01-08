@@ -366,7 +366,6 @@ class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>
                                        "当仅仅需要解析 JWT 时请配置 \"spring.security.oauth2.resourceserver.jwt.jwk-set-uri\" 属性");
         }
 
-        jwtDecoder.setIsSupportJtiBlacklistValidator(blacklist.getEnable());
         setJwtValidatorAndClaimSetConverter(oAuth2TokenValidator, mappedJwtClaimSetConverter, jwtDecoder);
 
         this.jwtDecoder = jwtDecoder;
