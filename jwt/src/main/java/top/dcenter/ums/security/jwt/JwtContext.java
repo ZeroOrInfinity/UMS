@@ -848,9 +848,11 @@ public final class JwtContext {
         boolean isReAuthAndRefreshPolicy = isReAuth && REFRESH_TOKEN.equals(refreshHandlerPolicy);
         // 不支持黑名单逻辑
         if (!blacklistProperties.getEnable()) {
-            connection.del(getTokenKey(oldJwt.getId()));
             if (isReAuthAndRefreshPolicy) {
-                connection.del(getRefreshTokenKey(userId));
+                connection.del(getRefreshTokenKey(userId), getTokenKey(oldJwt.getId()));
+            }
+            else {
+                connection.del(getTokenKey(oldJwt.getId()));
             }
             return;
         }
