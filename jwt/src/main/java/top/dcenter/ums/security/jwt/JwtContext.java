@@ -493,7 +493,35 @@ public final class JwtContext {
         }
         return refreshToken;
     }
-    
+
+    /**
+     * 根据 jwtToken 字符串从 redis 中获取 {@link JwtAuthenticationToken}.
+     * 当 jwtTokenString 失效时返回 null,
+     * 当 {@link JwtBlacklistProperties#getEnable()} 为 true 时返回 null,
+     * @param jti   {@link Jwt} 的 {@link JwtClaimNames#JTI}
+     * @return  返回 {@link JwtCacheTransformService#getClazz()} 的类型; 当 jwtTokenString 失效时返回 null,
+     * 当 {@link JwtBlacklistProperties#getEnable()} 为 true 时返回 null.
+     */
+    @Nullable
+    public static Object getTokenInfoFromRedis(@NonNull String jti) throws SerializationException {
+        if (blacklistProperties.getEnable()) {
+            return null;
+        }
+        byte[] authBytes = getConnection().get(getTokenKey(jti));
+
+        if (isNull(authBytes)) {
+            return null;
+        }
+        try {
+            Class<?> clazz = jwtCacheTransformService.getClazz();
+            return clazz.cast(redisSerializer.deserialize(authBytes));
+        }
+        catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+    }
+
     /**
      * 是否通过 refreshToken 刷新 jwt
      * @return 返回 true 表示通过 refreshToken 刷新 jwt
@@ -506,8 +534,8 @@ public final class JwtContext {
         return REFRESH_TOKEN.equals(refreshHandlerPolicy);
     }
 
-
     // ====================== jwt 黑名单 相关 ======================
+
     /**
      * 返回 null 表示不在黑名单中, 返回不为 null 则表示在黑名单中, 但缓存中存储有新的且有效 JWT 则返回新的 jwt 字符串.
      * 注意: 必须先调用 {@link #jtiInTheBlacklist(String)}, 再调用此方法.
@@ -617,34 +645,6 @@ public final class JwtContext {
     private static void addBlacklist(@NonNull Jwt oldJwt, @NonNull Jwt newJwt,
                                      @NonNull String principalClaimName) {
         addBlacklist(oldJwt, newJwt.getTokenValue().getBytes(StandardCharsets.UTF_8), principalClaimName, FALSE);
-    }
-
-    /**
-     * 根据 jwtToken 字符串从 redis 中获取 {@link JwtAuthenticationToken}.
-     * 当 jwtTokenString 失效时返回 null,
-     * 当 {@link JwtBlacklistProperties#getEnable()} 为 true 时返回 null,
-     * @param jti   {@link Jwt} 的 {@link JwtClaimNames#JTI}
-     * @return  返回 {@link JwtCacheTransformService#getClazz()} 的类型; 当 jwtTokenString 失效时返回 null,
-     * 当 {@link JwtBlacklistProperties#getEnable()} 为 true 时返回 null.
-     */
-    @Nullable
-    public static Object getTokenInfoFromRedis(@NonNull String jti) throws SerializationException {
-        if (blacklistProperties.getEnable()) {
-            return null;
-        }
-        byte[] authBytes = getConnection().get(getTokenKey(jti));
-
-        if (isNull(authBytes)) {
-            return null;
-        }
-        try {
-            Class<?> clazz = jwtCacheTransformService.getClazz();
-            return clazz.cast(redisSerializer.deserialize(authBytes));
-        }
-        catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw e;
-        }
     }
 
     // ====================== 辅助 相关 ======================
