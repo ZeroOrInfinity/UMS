@@ -6,7 +6,7 @@
 
     <groupId>top.dcenter</groupId>
     <artifactId>ums</artifactId>
-    <version>2.2.8</version>
+    <version>2.2.9</version>
 
     <packaging>pom</packaging>
     <name>ums</name>
@@ -15,7 +15,7 @@
         access control function, support multi-tenancy, jwt, and sign etc...
     </description>
 
-    <modules>
+<!--    <modules>
         <module>commons</module>
         <module>mdc</module>
         <module>vc</module>
@@ -24,7 +24,7 @@
         <module>jwt</module>
         <module>core</module>
         <module>ums-spring-boot-starter</module>
-    </modules>
+    </modules>-->
 
     <url>https://github.com/ZeroOrInfinity/UMS</url>
 
