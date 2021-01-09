@@ -23,8 +23,7 @@ Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-
 
   - 验证码（图片，短信, 滑块）校验功能(validate code(image, SMS, slider) verification function).
   - 手机登录功能，登录后自动注册, 支持多租户(Mobile login function, automatic registration after login, Support multi-tenancy).
-  - 支持所有 JustAuth 支持的第三方授权登录，登录后自动注册 或 绑定 或 创建临时用户([TemporaryUser](https://github.com/ZeroOrInfinity/UMS/blob/master
-  /src/main/java/top/dcenter/ums/security/core/oauth/userdetails/TemporaryUser.java))(OAuth2 login and auto signUp and auto binding).
+  - 支持所有 JustAuth 支持的第三方授权登录，登录后自动注册 或 绑定 或 创建临时用户([TemporaryUser](https://github.com/ZeroOrInfinity/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/oauth/userdetails/TemporaryUser.java))(OAuth2 login and auto signUp and auto binding).
       - 支持定时刷新 accessToken, 支持分布式定时任务(Support timing refresh accessToken, support distributed timing tasks).
       - 支持第三方授权登录的用户信息表与 token 信息表的缓存功能(Support the caching function of user table and token table by OAuth2 login).
       - 支持第三方绑定(binding)与解绑(unbinding)及查询接口(top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository).
