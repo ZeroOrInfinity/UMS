@@ -321,7 +321,14 @@ jackson2JsonRedisSerializer.setObjectMapper(om);
 ------
 ## 十、[流程图](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926470&doc_id=984605): 随着版本迭代会有出入
 
-### 1. 滑块验证码(sliderValidateCode)
+### 登录流程
+![登录流程](doc/登录流程.png)
+
+### JWT
+![纯jwt流程图](doc/纯jwt流程图.png)
+![jwt-session流程图](doc/jwt-session流程图.png)
+
+### 滑块验证码(sliderValidateCode)
 
 ![sliderValidateCode](doc/sliderFlow.png)
 

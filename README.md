@@ -325,7 +325,14 @@ jackson2JsonRedisSerializer.setObjectMapper(om);
 ------
 ## 十、[流程图(Flow chart)](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%8D%81%E3%80%81%E6%B5%81%E7%A8%8B%E5%9B%BE:-%E9%9A%8F%E7%9D%80%E7%89%88%E6%9C%AC%E8%BF%AD%E4%BB%A3%E4%BC%9A%E6%9C%89%E5%87%BA%E5%85%A5): 随着版本迭代会有出入
 
-### 1. 滑块验证码(sliderValidateCode)
+### 登录流程
+![登录流程](doc/登录流程.png)
+
+### JWT
+![纯jwt流程图](doc/纯jwt流程图.png)
+![jwt-session流程图](doc/jwt-session流程图.png)
+
+### 滑块验证码(sliderValidateCode)
 
 ![sliderValidateCode](doc/sliderFlow.png)
 
