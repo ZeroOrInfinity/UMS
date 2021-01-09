@@ -90,7 +90,6 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 
 	private final Auth2UserService userService;
 	private final UmsUserDetailsService umsUserDetailsService;
-	private final UsersConnectionRepository usersConnectionRepository;
 	private final ConnectionService connectionService;
 	private final ExecutorService updateConnectionTaskExecutor;
 	private final Boolean autoSignUp;
@@ -110,13 +109,11 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 	 * End-User from the UserInfo Endpoint
 	 * @param connectionService  第三方登录成功后自动注册服务
 	 * @param umsUserDetailsService this service used for local user service
-	 * @param usersConnectionRepository    users connection repository
-	 * @param updateConnectionTaskExecutor
+	 * @param updateConnectionTaskExecutor  update connection task executor
 	 */
 	public Auth2LoginAuthenticationProvider(Auth2UserService userService,
 	                                        ConnectionService connectionService,
 	                                        UmsUserDetailsService umsUserDetailsService,
-	                                        UsersConnectionRepository usersConnectionRepository,
 	                                        ExecutorService updateConnectionTaskExecutor,
 	                                        Boolean autoSignUp,
 	                                        @Nullable GenerateClaimsSetService generateClaimsSetService,
@@ -126,7 +123,6 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 		Assert.notNull(userService, "userService cannot be null");
 		Assert.notNull(connectionService, "connectionService cannot be null");
 		Assert.notNull(umsUserDetailsService, "umsUserDetailsService cannot be null");
-		Assert.notNull(usersConnectionRepository, "usersConnectionRepository cannot be null");
 		Assert.notNull(autoSignUp, "autoSignUp cannot be null");
 		Assert.notNull(temporaryUserAuthorities, "temporaryUserAuthorities cannot be null");
 		Assert.notNull(temporaryUserPassword, "temporaryUserPassword cannot be null");
@@ -134,7 +130,6 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 		this.connectionService = connectionService;
 		this.userService = userService;
 		this.umsUserDetailsService = umsUserDetailsService;
-		this.usersConnectionRepository = usersConnectionRepository;
 		this.autoSignUp = autoSignUp;
 		this.temporaryUserAuthorities = temporaryUserAuthorities;
 		this.temporaryUserPassword = temporaryUserPassword;
@@ -156,8 +151,8 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 		//2 查询是否已经有第三方的授权记录, List 按 rank 排序, 直接取第一条记录
 		String providerUserId = authUser.getUuid();
 		final String providerId = auth2DefaultRequest.getProviderId();
-		List<ConnectionData> connectionDataList = usersConnectionRepository
-				.findConnectionByProviderIdAndProviderUserId(providerId, providerUserId);
+		List<ConnectionData> connectionDataList =
+				connectionService.findConnectionByProviderIdAndProviderUserId(providerId, providerUserId);
 
 		//3 获取 securityContext 中的 authenticationToken, 判断是否为本地登录用户(不含匿名用户)
 		final Authentication authenticationToken = SecurityContextHolder.getContext().getAuthentication();

@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthToken;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,6 +88,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
 
     @Override
     @Transactional(rollbackFor = {Exception.class}, propagation = Propagation.REQUIRES_NEW)
+    @NonNull
     public UserDetails signUp(@NonNull AuthUser authUser, @NonNull String providerId, @NonNull String encodeState) throws RegisterUserFailureException {
         // 这里为第三方登录自动注册时调用，所以这里不需要实现对用户信息的注册，可以在用户登录完成后提示用户修改用户信息。
         String username = authUser.getUsername();
@@ -133,7 +135,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
 
     @Override
     @Transactional(rollbackFor = {Exception.class}, propagation = Propagation.REQUIRED)
-    public void updateUserConnectionAndAuthToken(AuthUser authUser, ConnectionData data) throws UpdateConnectionException {
+    public void updateUserConnectionAndAuthToken(@NonNull AuthUser authUser, @NonNull ConnectionData data) throws UpdateConnectionException {
         ConnectionData connectionData = null;
         try
         {
@@ -163,9 +165,16 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
 
     @Override
     @Transactional(rollbackFor = {Exception.class}, propagation = Propagation.REQUIRED)
-    public void binding(UserDetails principal, AuthUser authUser, String providerId) {
+    public void binding(@NonNull UserDetails principal, @NonNull AuthUser authUser, @NonNull String providerId) {
         // 第三方授权登录信息绑定到本地账号, 且添加第三方授权登录信息到 user_connection 与 auth_token
         registerConnection(providerId, authUser, principal);
+    }
+
+    @Override
+    @Nullable
+    public List<ConnectionData> findConnectionByProviderIdAndProviderUserId(@NonNull String providerId,
+                                                                            @NonNull String providerUserId) {
+        return usersConnectionRepository.findConnectionByProviderIdAndProviderUserId(providerId, providerUserId);
     }
 
     /**
@@ -174,7 +183,8 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
      * @param authUser      {@link AuthUser}
      * @throws RegisterUserFailureException 注册失败
      */
-    private void registerConnection(String providerId, AuthUser authUser, UserDetails userDetails) throws RegisterUserFailureException {
+    private void registerConnection(@NonNull String providerId, @NonNull AuthUser authUser,
+                                    @NonNull UserDetails userDetails) throws RegisterUserFailureException {
 
         // 注册第三方授权登录信息到 user_connection 与 auth_token
         AuthToken token = authUser.getToken();
@@ -236,7 +246,8 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
      * @param userId        本地账户用户 Id
      * @param authToken     authToken
      */
-    private void addConnectionData(String providerId, AuthUser authUser, String userId, AuthTokenPo authToken) {
+    private void addConnectionData(@NonNull String providerId, @NonNull AuthUser authUser,
+                                   @NonNull String userId, @NonNull AuthTokenPo authToken) {
         ConnectionData connectionData = JustAuthUtil.getConnectionData(providerId, authUser, userId, authToken);
         usersConnectionRepository.addConnection(connectionData);
     }

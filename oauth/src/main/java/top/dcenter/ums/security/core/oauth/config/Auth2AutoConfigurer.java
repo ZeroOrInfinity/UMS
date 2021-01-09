@@ -41,7 +41,6 @@ import top.dcenter.ums.security.common.propertis.RememberMeProperties;
 import top.dcenter.ums.security.common.utils.AppContextUtil;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
-import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
 import top.dcenter.ums.security.core.api.oauth.service.Auth2UserService;
 import top.dcenter.ums.security.core.api.oauth.signup.ConnectionService;
 import top.dcenter.ums.security.core.api.oauth.state.service.Auth2StateCoder;
@@ -70,7 +69,6 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
     private final Auth2Properties auth2Properties;
     private final UmsUserDetailsService umsUserDetailsService;
     private final Auth2UserService auth2UserService;
-    private final UsersConnectionRepository usersConnectionRepository;
     private final ConnectionService connectionSignUp;
     private final ExecutorService updateConnectionTaskExecutor;
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
@@ -102,7 +100,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public Auth2AutoConfigurer(Auth2Properties auth2Properties, UmsUserDetailsService umsUserDetailsService,
-                               Auth2UserService auth2UserService, UsersConnectionRepository usersConnectionRepository,
+                               Auth2UserService auth2UserService,
                                ConnectionService connectionSignUp,
                                @Qualifier("updateConnectionTaskExecutor") ExecutorService updateConnectionTaskExecutor,
                                BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
@@ -110,7 +108,6 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         this.auth2Properties = auth2Properties;
         this.umsUserDetailsService = umsUserDetailsService;
         this.auth2UserService = auth2UserService;
-        this.usersConnectionRepository = usersConnectionRepository;
         this.connectionSignUp = connectionSignUp;
         this.updateConnectionTaskExecutor = updateConnectionTaskExecutor;
         this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
@@ -147,8 +144,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         // 添加 provider
         Auth2LoginAuthenticationProvider auth2LoginAuthenticationProvider = new Auth2LoginAuthenticationProvider(
                 auth2UserService, connectionSignUp, umsUserDetailsService,
-                usersConnectionRepository, updateConnectionTaskExecutor,
-                auth2Properties.getAutoSignUp(), generateClaimsSetService,
+                updateConnectionTaskExecutor, auth2Properties.getAutoSignUp(), generateClaimsSetService,
                 auth2Properties.getTemporaryUserAuthorities(), auth2Properties.getTemporaryUserPassword());
         http.authenticationProvider(postProcess(auth2LoginAuthenticationProvider));
     }
