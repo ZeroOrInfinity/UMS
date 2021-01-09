@@ -55,6 +55,12 @@ public class RepositoryProperties {
 
 
     /* ========================== 数据库初始化相关语句 ============================= */
+
+    /**
+     * 是否在启动时检查并自动创建 userConnectionTableName 与 authTokenTableName, 默认: TRUE
+     */
+    private Boolean enableStartUpInitializeTable = Boolean.TRUE;
+
     /**
      * 查询数据库名称, 默认为 mysql 查询语句.
      */
