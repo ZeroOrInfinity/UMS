@@ -1,6 +1,6 @@
 # UMS (user manage scaffolding) 用户管理脚手架: 
 
-![UMS](https://img.shields.io/badge/UMS-2.2.1-green.svg)
+![UMS](https://img.shields.io/badge/UMS-2.2.8-green.svg)
 ![JDK](https://img.shields.io/badge/JDK-1.8+-green.svg)
 ![Maven](https://img.shields.io/badge/Maven-3.6.3-green.svg)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7.27-green.svg)
@@ -26,7 +26,7 @@
       - 支持第三方授权登录的用户信息表与 token 信息表的缓存功能。
       - 支持第三方绑定与解绑及查询接口(top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository).
   - 访问权限控制功能, 支持多租户。
-  - 简化 session、remember me、csrf、跨域等配置。
+  - 简化 session、remember me、csrf、cors等配置。
   - 根据设置的响应方式（JSON 与 REDIRECT）返回 json 或 html 数据。
   - 签到功能。
   - 支持基于 SLF4J MDC 机制的日志链路追踪功能。

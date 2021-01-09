@@ -1,3 +1,10 @@
+## 2.2.8
+### Fixes and Improvements:
+1. 改进: 添加是否在启动时检查并自动创建 userConnectionTable 与 authTokenTable 控制开关属性.
+2. 改进: 解码 refresh Jwt 时添加黑名单校验.
+3. 优化: redis 操作.
+4. 文档: 添加流程图.
+
 ## 2.2.7
 ### Fixes and Improvements:
 1. 修复: 删除 refreshToken 时, 获取 refreshToken 的 redis key 错误问题.

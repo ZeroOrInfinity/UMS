@@ -1,6 +1,6 @@
 # UMS (user manage scaffolding) 用户管理脚手架: 
 
-![UMS](https://img.shields.io/badge/UMS-2.2.1-green.svg)
+![UMS](https://img.shields.io/badge/UMS-2.2.8-green.svg)
 ![JDK](https://img.shields.io/badge/JDK-1.8+-green.svg)
 ![Maven](https://img.shields.io/badge/Maven-3.6.3-green.svg)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7.27-green.svg)
@@ -26,9 +26,9 @@ Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-
   - 支持所有 JustAuth 支持的第三方授权登录，登录后自动注册 或 绑定 或 创建临时用户([TemporaryUser](https://github.com/ZeroOrInfinity/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/oauth/userdetails/TemporaryUser.java))(OAuth2 login and auto signUp and auto binding).
       - 支持定时刷新 accessToken, 支持分布式定时任务(Support timing refresh accessToken, support distributed timing tasks).
       - 支持第三方授权登录的用户信息表与 token 信息表的缓存功能(Support the caching function of user table and token table by OAuth2 login).
-      - 支持第三方绑定(binding)与解绑(unbinding)及查询接口(top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository).
+      - 支持第三方绑定(binding)与解绑(unbinding)及查询接口.
   - 访问权限控制功能, 支持多租户(Access control function, support multi tenancy).
-  - 简化 session、remember me、csrf、跨域等配置(Simplify session、remember me、csrf etc configuration).
+  - 简化 session、remember me、csrf、cors等配置(Simplify session、remember me、csrf cors etc configuration).
   - 根据设置的响应方式（JSON 与 REDIRECT）返回 json 或 html 数据.
   - 签到功能(sign).
   - 支持基于 SLF4J MDC 机制的日志链路追踪功能.
@@ -48,6 +48,7 @@ Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-
   | [rbac](https://github.com/ZeroOrInfinity/UMS/tree/master/rbac)   | 基于角色的访问权限控制,支持多租户, 集成 mdc 模块 |
   | [jwt](https://github.com/ZeroOrInfinity/UMS/tree/master/jwt)   | JWT 功能, 集成 mdc 模块 |
   | [demo](https://github.com/ZeroOrInfinity/UMS/tree/master/demo)   | basic-example/basic-detail-example/permission-example/quickStart/session-detail-example/validate-codi-example/justAuth-security-oauth2-example/tenant-example/jwt-example |
+
 ### demo 演示功能  
 
   | **demo**                   | **演示功能**                                                     |
