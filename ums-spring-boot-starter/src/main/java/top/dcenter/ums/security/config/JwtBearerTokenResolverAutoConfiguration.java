@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package top.dcenter.ums.security.core.redis.config;
+package top.dcenter.ums.security.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -40,6 +41,7 @@ import java.util.Set;
  * @since 2021.1.8 12:56
  */
 @Configuration
+@Slf4j
 @AutoConfigureAfter({Auth2AutoConfiguration.class, SecurityAutoConfiguration.class, JwtAutoConfiguration.class})
 public class JwtBearerTokenResolverAutoConfiguration implements InitializingBean, ApplicationContextAware {
 
@@ -63,11 +65,15 @@ public class JwtBearerTokenResolverAutoConfiguration implements InitializingBean
         }
     }
 
-
     @Override
     public void afterPropertiesSet() {
-        UmsBearerTokenResolver umsBearerTokenResolver = this.applicationContext.getBean(UmsBearerTokenResolver.class);
-        umsBearerTokenResolver.addIgnoreUrls(this.ignoreUrls);
+        try {
+            UmsBearerTokenResolver umsBearerTokenResolver = this.applicationContext.getBean(UmsBearerTokenResolver.class);
+            umsBearerTokenResolver.addIgnoreUrls(this.ignoreUrls);
+        }
+        catch (Exception e) {
+            log.warn("JWT 功能位开启...");
+        }
     }
 
     @Override
