@@ -929,12 +929,12 @@ public final class JwtContext {
 
     /**
      * 获取 jwt refresh token redis key
-     * @param refreshToken  refresh token
+     * @param userId  用户 Id
      * @return  返回 refresh token redis key
      */
     @NonNull
-    private static byte[] getRefreshTokenKey(String refreshToken) {
-        return blacklistProperties.getRefreshTokenPrefix().concat(refreshToken).getBytes(StandardCharsets.UTF_8);
+    private static byte[] getRefreshTokenKey(String userId) {
+        return blacklistProperties.getRefreshTokenPrefix().concat(userId).getBytes(StandardCharsets.UTF_8);
     }
 
     /**
@@ -1128,10 +1128,8 @@ public final class JwtContext {
                     // 设置到请求头
                     response.setHeader(refreshTokenHeaderName, refreshTokenJwtValue);
                 }
-                else {
-                    // 临时设置到 session, 再通过认证成功处理器获取 refresh token 通过 json 返回
-                    requestAttributes.setAttribute(TEMPORARY_JWT_REFRESH_TOKEN, refreshTokenJwtValue, SCOPE_SESSION);
-                }
+                // 临时设置到 session, 再通过认证成功处理器获取 refresh token 通过 json 返回
+                requestAttributes.setAttribute(TEMPORARY_JWT_REFRESH_TOKEN, refreshTokenJwtValue, SCOPE_SESSION);
             }
         }
 
