@@ -65,7 +65,7 @@ import static top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy.REFRESH
  * @author YongWu zheng
  * @version V2.0  Created by 2020.12.18 21:03
  */
-@Api(tags = "刷新 JWT")
+@Api(value = "刷新 JWT")
 @Controller
 public class JwtRefreshTokenController implements InitializingBean, ApplicationContextAware {
 

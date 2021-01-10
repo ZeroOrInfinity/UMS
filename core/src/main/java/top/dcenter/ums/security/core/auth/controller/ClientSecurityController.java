@@ -62,7 +62,7 @@ import static java.util.stream.Collectors.toMap;
  * @version V1.0  Created by 2020/5/3 17:43
  */
 @Slf4j
-@Api(tags = "登录路由控制")
+@Api(value = "登录路由控制")
 @ResponseBody
 public class ClientSecurityController implements BaseSecurityController, InitializingBean {
 

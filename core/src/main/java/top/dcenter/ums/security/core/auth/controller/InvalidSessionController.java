@@ -59,7 +59,7 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.redirectProc
  * @version V1.0  Created by 2020/5/3 17:43
  */
 @Slf4j
-@Api(tags = "session 失效后跳转处理")
+@Api(value = "session 失效后跳转处理")
 @ResponseBody
 public class InvalidSessionController implements InitializingBean {
 
