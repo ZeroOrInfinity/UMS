@@ -1,3 +1,12 @@
+## 2.2.10
+### Fixes and Improvements:
+1. 修复: 当不开启 jwt 时, 直接异常的 bug.
+2. 增强: 添加 UmsAuthenticationSuccessHandler.java, 增加第三方登录成功后, 获取 token 的方式及相关的配置属性, 使用示例看 justAuth-security-oauth2-example.
+3. 优化: 优化成功处理器对 session 属性清除逻辑.
+4. 优化: 优化 setBearerTokenAndRefreshTokenToHeader(..) 登录成功后 refreshToken 保存 session 方式, 以便第三方登录获取, 优化 getRefreshTokenKey(userId) 参数名称.
+5. 示例: 优化第三方登录示例, 增加第三方成功登录时获取 token 的方式.
+6. 优化: swagger.
+
 ## 2.2.9
 ### Fixes and Improvements:
 1. 优化: 接口名称 updateUserConnectionAndAuthToken(..).

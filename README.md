@@ -1,6 +1,6 @@
 # UMS (user manage scaffolding) 用户管理脚手架: 
 
-![UMS](https://img.shields.io/badge/UMS-2.2.9-green.svg)
+![UMS](https://img.shields.io/badge/UMS-2.2.10-green.svg)
 ![JDK](https://img.shields.io/badge/JDK-1.8+-green.svg)
 ![Maven](https://img.shields.io/badge/Maven-3.6.3-green.svg)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7.27-green.svg)
@@ -404,7 +404,9 @@ new Thread(() -> {
 ```
 
 ## 友情链接
-[一个基于aws s3快速集成多storage client的启动器](https://gitee.com/opcooc/opcooc-storage-spring-boot-starter)
+[一个 Spring security 集成 JustAuth 实现第三方授权登录脚手架](https://github.com/justauth/justauth-spring-boot-security-starter)
+[一个基于aws s3快速集成多storage client的启动器](https://github.com/opcooc/opcooc-storage-spring-boot-starter)
+[justAuth](https://github.com/justauth)
 
 ## 鸣谢
 ##### 感谢 JetBrains 提供的免费开源 License：

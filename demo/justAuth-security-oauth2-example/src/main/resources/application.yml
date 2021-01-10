@@ -67,7 +67,7 @@ ums:
   auto-get-token-uri: /oauth2Token
   # 第三方登录成功后, autoGetTokenUrl 获取 token 处理接口 url, 默认: /oauth2Callback
   oauth-2-callback-uri: /oauth2Callback
-  # 第三方登录成功后, getOauth2TokenUri 接收的参数名称, 默认: tk
+  # 第三方登录成功后, oauth2CallbackUri 接收的参数名称, 默认: tk
   oauth-2-token-param-name: tk
   # 存储 OAuth2Token 的临时缓存前缀: 默认: TEMP:OAuth2Token:
   temp-oauth-2-token-prefix: 'TEMP:OAuth2Token:'
