@@ -46,6 +46,7 @@ import top.dcenter.ums.security.jwt.JwtContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 import static java.util.Objects.nonNull;
@@ -56,6 +57,7 @@ import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
 import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
 import static top.dcenter.ums.security.core.util.MvcUtil.isSelfTopDomain;
 import static top.dcenter.ums.security.core.util.RequestUtil.getRequestUri;
+import static top.dcenter.ums.security.jwt.JwtContext.TEMPORARY_JWT_REFRESH_TOKEN;
 
 /**
  * 客户端认证成功处理器, 默认简单实现，需自己去实现.<br><br>
@@ -94,7 +96,8 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
         String username = authentication.getName();
         String ip = IpUtil.getRealIp(request);
         String userAgent = request.getHeader(SecurityConstants.HEADER_USER_AGENT);
-        String sid = request.getSession(true).getId();
+        HttpSession session = request.getSession(true);
+        String sid = session.getId();
 
         log.info("登录成功: uid={}, ip={}, ua={}, sid={}",
                  username, ip, userAgent, sid);
@@ -129,12 +132,14 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
                     authTokenVo.setRefreshToken(JwtContext.getJwtRefreshTokenFromSession());
                 }
 
+                clearAuthenticationAttributes(request);
                 responseWithJson(response, HttpStatus.OK.value(),
                                  toJsonString(ResponseResult.success(null, authTokenVo)));
                 return;
             }
 
             clearAuthenticationAttributes(request);
+            session.removeAttribute(TEMPORARY_JWT_REFRESH_TOKEN);
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
         }
         catch (Exception e)
