@@ -1,5 +1,7 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  top.dcenter.ums.security.config.UmsPropertiesAutoConfiguration,\
   top.dcenter.ums.security.core.redis.config.RedisPropertiesAutoConfiguration,\
-  top.dcenter.ums.security.core.redis.config.JwtBearerTokenResolverAutoConfiguration,\
+  top.dcenter.ums.security.config.JwtBearerTokenResolverAutoConfiguration,\
+  top.dcenter.ums.security.config.UmsAutoConfiguration,\
   top.dcenter.ums.security.core.redis.config.RedisCacheAutoConfiguration
