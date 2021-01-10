@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>oauth token</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@1.11.1/dist/jquery.min.js"></script>
+</head>
+<body>
+登陆中...
+<script>
+    window.onload = function () {
+        $.ajax({
+            // 如果用的是模板，则 url 可以使用注入的方式，会跟着配置动态改变
+            url: '[[@{/oauth2Callback}]]?tk=[[${tk}]]',
+            type: "POST",
+            dataType: "json",
+            contentType: 'application/json; charset=UTF-8',
+            success: function (data) {
+                console.log("--------> 获取 /oauth2Callback 数据 成功")
+                console.log("data = jwtToken#@#refreshToken#@#url 或 data = jwtToken#@#url")
+                console.log(data)
+                let splits = data.data.split("#@#");
+                console.log(splits.length)
+                if (splits.length > 2) {
+                    console.log("jwtToken: " + splits[0])
+                    console.log("refreshToken: " + splits[1])
+                    console.log("url: " + splits[2])
+                } else {
+                    console.log("jwtToken: " + splits[0])
+                    console.log("url: " + splits[1])
+                }
+                console.log();
+            },
+            error: function (data) {
+                console.log("........> 获取 /oauth2Callback 数据 错误")
+                console.log(data)
+                console.log()
+            }
+        });
+
+    }
+</script>
+</body>
+</html>

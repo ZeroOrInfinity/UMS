@@ -11,13 +11,24 @@ server:
 
 spring:
   profiles:
-    active: dev
+    active: dev,jwt
   # mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/ums?useSSL=false&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
+
+  thymeleaf:
+    encoding: utf-8
+    prefix: classpath:/templates/
+    suffix: .htm
+    servlet:
+      content-type: text/html;charset=UTF-8
+  # jackson
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
 
   # session 配置
   session:
@@ -52,6 +63,19 @@ spring:
         min-idle: 1
 # ums core
 ums:
+  # 第三方登录成功后, 返回获取 token 自动脚本页面. 默认: /oauth2Token
+  auto-get-token-uri: /oauth2Token
+  # 第三方登录成功后, autoGetTokenUrl 获取 token 处理接口 url, 默认: /oauth2Callback
+  oauth-2-callback-uri: /oauth2Callback
+  # 第三方登录成功后, getOauth2TokenUri 接收的参数名称, 默认: tk
+  oauth-2-token-param-name: tk
+  # 存储 OAuth2Token 的临时缓存前缀: 默认: TEMP:OAuth2Token:
+  temp-oauth-2-token-prefix: 'TEMP:OAuth2Token:'
+  # token 与 refreshToken 的分隔符: 默认: #@#
+  delimiter-of-token-and-refresh-token: '#@#'
+  # 第三方登录成功后, 临时存储在 redis 的 token 值的 TTL, 默认: 30 秒
+  temp-oauth-2-token-timeout: PT30S
+
   # RBAC 权限访问控制
   rbac:
     # ========= 放行权限 ==========
@@ -77,6 +101,8 @@ ums:
       - /static/**
     permit-urls:
       - /user/me
+    login-page: /login
+    success-url: /demo/index.html
 
   # ================ 基于 SLF4J MDC 机制的日志链路追踪配置属性 ================
   mdc:
@@ -294,6 +320,8 @@ spring:
   profiles: dev
   mvc:
     throw-exception-if-no-handler-found: true
+  thymeleaf:
+    cache: false
 
 #debug: true
 
