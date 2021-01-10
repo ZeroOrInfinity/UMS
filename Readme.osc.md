@@ -399,9 +399,12 @@ new Thread(() -> {
 ```
 
 ## 友情链接
-[一个 Spring security 集成 JustAuth 实现第三方授权登录脚手架](https://gitee.com/pcore/just-auth-spring-security-starter)
-[一个基于aws s3快速集成多storage client的启动器](https://gitee.com/opcooc/opcooc-storage-spring-boot-starter)
-[justAuth](https://gitee.com/yadong.zhang/JustAuth)
+
+-[一个 Spring security 集成 JustAuth 实现第三方授权登录脚手架](https://gitee.com/pcore/just-auth-spring-security-starter)
+
+-[一个基于aws s3快速集成多storage client的启动器](https://gitee.com/opcooc/opcooc-storage-spring-boot-starter)
+
+-[justAuth](https://gitee.com/yadong.zhang/JustAuth)
 
 
 ## 鸣谢

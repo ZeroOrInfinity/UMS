@@ -404,9 +404,12 @@ new Thread(() -> {
 ```
 
 ## 友情链接
-[一个 Spring security 集成 JustAuth 实现第三方授权登录脚手架](https://github.com/justauth/justauth-spring-boot-security-starter)
-[一个基于aws s3快速集成多storage client的启动器](https://github.com/opcooc/opcooc-storage-spring-boot-starter)
-[justAuth](https://github.com/justauth)
+
+- [一个 Spring security 集成 JustAuth 实现第三方授权登录脚手架](https://github.com/justauth/justauth-spring-boot-security-starter)
+
+- [一个基于aws s3快速集成多storage client的启动器](https://github.com/opcooc/opcooc-storage-spring-boot-starter)
+
+- [justAuth](https://github.com/justauth)
 
 ## 鸣谢
 ##### 感谢 JetBrains 提供的免费开源 License：
