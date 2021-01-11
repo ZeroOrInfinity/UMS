@@ -36,7 +36,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.util.StringUtils;
-import top.dcenter.ums.security.core.api.oauth.job.RefreshTokenJob;
 import top.dcenter.ums.security.core.api.oauth.repository.factory.UsersConnectionRepositoryFactory;
 import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
 import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository;
@@ -45,7 +44,7 @@ import top.dcenter.ums.security.core.api.oauth.signup.ConnectionService;
 import top.dcenter.ums.security.core.api.oauth.state.service.Auth2StateCoder;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.executor.config.ExecutorAutoConfiguration;
-import top.dcenter.ums.security.core.oauth.job.RefreshTokenJobImpl;
+import top.dcenter.ums.security.core.oauth.job.RefreshTokenJobHandler;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.properties.RepositoryProperties;
@@ -53,7 +52,6 @@ import top.dcenter.ums.security.core.oauth.repository.factory.Auth2JdbcUsersConn
 import top.dcenter.ums.security.core.oauth.repository.jdbc.Auth2JdbcUsersConnectionTokenRepository;
 import top.dcenter.ums.security.core.oauth.service.DefaultAuth2UserServiceImpl;
 import top.dcenter.ums.security.core.oauth.signup.DefaultConnectionServiceImpl;
-import top.dcenter.ums.security.core.tasks.handler.RefreshAccessTokenJobHandler;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -90,16 +88,11 @@ public class Auth2AutoConfiguration implements InitializingBean {
 
     @Bean
     @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-refresh-token-job", havingValue = "true")
-    public RefreshAccessTokenJobHandler refreshAccessTokenJobHandler(Auth2Properties properties) {
-        return new RefreshAccessTokenJobHandler(properties.getRefreshTokenJobCron());
-    }
-
-    @Bean
-    public RefreshTokenJob refreshTokenJob(UsersConnectionTokenRepository usersConnectionTokenRepository,
+    public RefreshTokenJobHandler refreshTokenJobHandler(UsersConnectionTokenRepository usersConnectionTokenRepository,
                                            UsersConnectionRepository usersConnectionRepository,
                                            @Qualifier("refreshTokenTaskExecutor") ExecutorService refreshTokenTaskExecutor) {
-        return new RefreshTokenJobImpl(usersConnectionRepository, usersConnectionTokenRepository,
-                                       auth2Properties, refreshTokenTaskExecutor);
+        return new RefreshTokenJobHandler(usersConnectionRepository, usersConnectionTokenRepository,
+                                          auth2Properties, refreshTokenTaskExecutor);
     }
 
     @Bean

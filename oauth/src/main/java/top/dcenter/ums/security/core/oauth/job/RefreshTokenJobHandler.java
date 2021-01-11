@@ -35,13 +35,13 @@ import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import top.dcenter.ums.security.core.api.oauth.job.RefreshTokenJob;
+import top.dcenter.ums.security.common.api.tasks.handler.JobHandler;
 import top.dcenter.ums.security.core.api.oauth.entity.AuthTokenPo;
-import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
 import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
-import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
 import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository;
+import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
+import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -58,7 +58,7 @@ import static top.dcenter.ums.security.core.oauth.enums.EnableRefresh.NO;
  * @version V2.0  Created by 2020/10/14 14:03
  */
 @Slf4j
-public class RefreshTokenJobImpl implements RefreshTokenJob {
+public class RefreshTokenJobHandler implements JobHandler {
 
     /**
      * refresh token 定时任务锁的 redis key
@@ -73,14 +73,14 @@ public class RefreshTokenJobImpl implements RefreshTokenJob {
     private final UsersConnectionTokenRepository usersConnectionTokenRepository;
     private final Auth2Properties auth2Properties;
     private final ExecutorService refreshTokenTaskExecutor;
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
+    private final String cronExp;
     @Autowired(required = false)
     private RedisConnectionFactory redisConnectionFactory;
 
-    public RefreshTokenJobImpl(UsersConnectionRepository usersConnectionRepository,
-                               UsersConnectionTokenRepository usersConnectionTokenRepository,
-                               Auth2Properties auth2Properties,
-                               @Qualifier("refreshTokenTaskExecutor") ExecutorService refreshTokenTaskExecutor) {
+    public RefreshTokenJobHandler(UsersConnectionRepository usersConnectionRepository,
+                                  UsersConnectionTokenRepository usersConnectionTokenRepository,
+                                  Auth2Properties auth2Properties,
+                                  @Qualifier("refreshTokenTaskExecutor") ExecutorService refreshTokenTaskExecutor) {
         Assert.notNull(refreshTokenTaskExecutor, "refreshTokenTaskExecutor cannot be null");
         Assert.notNull(usersConnectionRepository, "usersConnectionRepository cannot be null");
         Assert.notNull(usersConnectionTokenRepository, "usersConnectionTokenRepository cannot be null");
@@ -90,11 +90,11 @@ public class RefreshTokenJobImpl implements RefreshTokenJob {
         this.usersConnectionRepository = usersConnectionRepository;
         this.usersConnectionTokenRepository = usersConnectionTokenRepository;
         this.auth2Properties = auth2Properties;
+        this.cronExp = auth2Properties.getRefreshTokenJobCron();
     }
 
-
     @Override
-    public void refreshTokenJob() {
+    public void run() {
         if (this.redisConnectionFactory != null)
         {
             // 分布式
@@ -105,6 +105,11 @@ public class RefreshTokenJobImpl implements RefreshTokenJob {
             // 单机
             refreshToken();
         }
+    }
+
+    @Override
+    public String cronExp() {
+        return this.cronExp;
     }
 
     /**
