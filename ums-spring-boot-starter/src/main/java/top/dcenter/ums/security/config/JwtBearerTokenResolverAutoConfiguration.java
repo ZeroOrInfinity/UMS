@@ -72,7 +72,7 @@ public class JwtBearerTokenResolverAutoConfiguration implements InitializingBean
             umsBearerTokenResolver.addIgnoreUrls(this.ignoreUrls);
         }
         catch (Exception e) {
-            log.warn("JWT 功能位开启...");
+            log.warn("JWT 功能未开启...");
         }
     }
 
