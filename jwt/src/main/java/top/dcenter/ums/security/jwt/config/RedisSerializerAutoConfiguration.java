@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
@@ -49,6 +50,7 @@ import top.dcenter.ums.security.jwt.jackson2.JwtJackson2Module;
  */
 @Configuration
 @AutoConfigureAfter({JwtPropertiesAutoConfiguration.class})
+@ConditionalOnProperty(prefix = "ums.jwt", name = "enable", havingValue = "true")
 public class RedisSerializerAutoConfiguration {
 
     /**

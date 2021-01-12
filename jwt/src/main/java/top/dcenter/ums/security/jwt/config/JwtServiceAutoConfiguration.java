@@ -24,6 +24,7 @@ package top.dcenter.ums.security.jwt.config;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -40,6 +41,7 @@ import top.dcenter.ums.security.jwt.id.service.impl.UuidJwtIdServiceImpl;
  */
 @Configuration
 @AutoConfigureAfter({RedisSerializerAutoConfiguration.class})
+@ConditionalOnProperty(prefix = "ums.jwt", name = "enable", havingValue = "true")
 public class JwtServiceAutoConfiguration {
 
     @Bean
