@@ -32,46 +32,28 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.Resource;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.lang.NonNull;
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.jwt.JwtContext;
-import top.dcenter.ums.security.jwt.advice.JwtControllerAdvice;
 import top.dcenter.ums.security.jwt.api.cache.service.JwtCacheTransformService;
-import top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService;
 import top.dcenter.ums.security.jwt.api.endpoind.service.JwkEndpointPermissionService;
 import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
-import top.dcenter.ums.security.jwt.api.supplier.JwtClaimTypeConverterSupplier;
-import top.dcenter.ums.security.jwt.api.supplier.JwtGrantedAuthoritiesConverterSupplier;
-import top.dcenter.ums.security.jwt.api.validator.service.CustomClaimValidateService;
-import top.dcenter.ums.security.jwt.api.validator.service.ReAuthService;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
-import top.dcenter.ums.security.jwt.claims.service.impl.UmsAuthoritiesClaimsSetServiceImpl;
-import top.dcenter.ums.security.jwt.claims.service.impl.UmsGenerateClaimsSetServiceImpl;
 import top.dcenter.ums.security.jwt.controller.JwtRefreshTokenController;
 import top.dcenter.ums.security.jwt.decoder.UmsNimbusJwtDecoder;
 import top.dcenter.ums.security.jwt.endpoint.JwkEndpoint;
@@ -80,26 +62,16 @@ import top.dcenter.ums.security.jwt.factory.KeyStoreKeyFactory;
 import top.dcenter.ums.security.jwt.properties.BearerTokenProperties;
 import top.dcenter.ums.security.jwt.properties.JwtBlacklistProperties;
 import top.dcenter.ums.security.jwt.properties.JwtProperties;
-import top.dcenter.ums.security.jwt.resolver.UmsBearerTokenResolver;
-import top.dcenter.ums.security.jwt.supplier.UmsJwtClaimTypeConverterSupplier;
-import top.dcenter.ums.security.jwt.supplier.UmsJwtGrantedAuthoritiesConverterSupplier;
-import top.dcenter.ums.security.jwt.validator.JwtNotBeforeValidator;
-import top.dcenter.ums.security.jwt.validator.UmsReAuthServiceImpl;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
-import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.hasText;
 import static top.dcenter.ums.security.common.utils.ReflectionUtil.setFieldValue;
 import static top.dcenter.ums.security.jwt.properties.JwtProperties.MACS_SECRET_LENGTH;
@@ -119,7 +91,7 @@ import static top.dcenter.ums.security.jwt.properties.JwtProperties.MACS_SECRET_
         RedisSerializerAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "ums.jwt", name = "enable", havingValue = "true")
 @Slf4j
-public class JwtAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, InitializingBean {
+public class JwtAutoConfiguration implements InitializingBean {
 
     /**
      * {@link JwtContext} 的 signer 字段名称
@@ -186,19 +158,16 @@ public class JwtAutoConfiguration implements ApplicationListener<ContextRefreshe
      */
     private final Duration clockSkew;
 
-    private OAuth2TokenValidator<Jwt> oAuth2TokenValidator;
-    private MappedJwtClaimSetConverter mappedJwtClaimSetConverter;
-    private JwtDecoder jwtDecoder;
-
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired(required = false)
-    private Map<String, CustomClaimValidateService> customClaimValidateServiceMap;
+    private final OAuth2TokenValidator<Jwt> oAuth2TokenValidator;
+    private final MappedJwtClaimSetConverter mappedJwtClaimSetConverter;
 
     public JwtAutoConfiguration(JwtProperties jwtProperties,
                                 RedisConnectionFactory redisConnectionFactory,
                                 @Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties,
                                 JwtIdService jwtIdService,
-                                JwtCacheTransformService<?> jwtCacheTransformService) throws Exception {
+                                JwtCacheTransformService<?> jwtCacheTransformService,
+                                OAuth2TokenValidator<Jwt> oAuth2TokenValidator,
+                                MappedJwtClaimSetConverter mappedJwtClaimSetConverter) throws Exception {
         this.timeout = jwtProperties.getTimeout();
         this.bearerTokenProperties = jwtProperties.getBearer();
         this.jwtBlacklistProperties = jwtProperties.getBlacklist();
@@ -207,6 +176,8 @@ public class JwtAutoConfiguration implements ApplicationListener<ContextRefreshe
         this.clockSkew = jwtProperties.getClockSkew();
         this.jwtIdService = jwtIdService;
         this.jwtCacheTransformService = jwtCacheTransformService;
+        this.oAuth2TokenValidator = oAuth2TokenValidator;
+        this.mappedJwtClaimSetConverter = mappedJwtClaimSetConverter;
 
         Resource resource = jwtProperties.getJksKeyPairLocation();
         if (nonNull(resource)) {
@@ -250,18 +221,6 @@ public class JwtAutoConfiguration implements ApplicationListener<ContextRefreshe
         }
     }
 
-    @Bean
-    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.jwt.api.validator.service.ReAuthService"})
-    public ReAuthService reAuthService(JwtProperties jwtProperties) {
-        return new UmsReAuthServiceImpl(jwtProperties);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.jwt.advice.JwtControllerAdvice"})
-    public JwtControllerAdvice jwtControllerAdvice() {
-        return new JwtControllerAdvice();
-    }
-
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean
     @ConditionalOnProperty(prefix = "ums.jwt", name = "expose-refresh-token-uri", havingValue = "true")
@@ -282,41 +241,9 @@ public class JwtAutoConfiguration implements ApplicationListener<ContextRefreshe
                                jwkEndpointPermissionService, jwtProperties.getKid());
     }
 
-    /**
-     * 通过 {@code OAuth2ResourceServerConfigurer.configure(HttpSecurityBuilder)}
-     * 配置到 {@code OAuth2ResourceServerConfigurer.BearerTokenRequestMatcher}
-     * @param properties    {@link JwtProperties}
-     * @return  {@link BearerTokenResolver}
-     */
-    @Bean
-    public BearerTokenResolver bearerTokenResolver(JwtProperties properties) {
-        BearerTokenProperties bearer = properties.getBearer();
-        String bearerTokenParameterName = bearer.getBearerTokenParameterName();
-        String bearerTokenHeaderName = bearer.getBearerTokenHeaderName();
-        Boolean allowFormEncodedBodyParameter = bearer.getAllowFormEncodedBodyParameter();
-        Boolean allowUriQueryParameter = bearer.getAllowUriQueryParameter();
-
-        if (allowFormEncodedBodyParameter && allowUriQueryParameter) {
-            throw new RuntimeException("属性 allowFormEncodedBodyParameter, allowUriQueryParameter 不能同时为 true.");
-        }
-
-        if (!hasText(bearerTokenHeaderName) && !hasText(bearerTokenParameterName) ) {
-            throw new RuntimeException("属性 bearerTokenHeaderName 或 bearerTokenParameterName 不能是 null 或 空字符串.");
-        }
-
-        final UmsBearerTokenResolver bearerTokenResolver =
-                new UmsBearerTokenResolver(bearerTokenParameterName, properties.getJwtByRefreshTokenUri());
-        bearerTokenResolver.setBearerTokenHeaderName(bearerTokenHeaderName);
-        bearerTokenResolver.setAllowFormEncodedBodyParameter(allowFormEncodedBodyParameter);
-        bearerTokenResolver.setAllowUriQueryParameter(allowUriQueryParameter);
-        return bearerTokenResolver;
-    }
-
     @Bean
     @Primary
-    public JwtDecoder jwtDecoder(OAuth2TokenValidator<Jwt> oAuth2TokenValidator,
-                                 MappedJwtClaimSetConverter mappedJwtClaimSetConverter,
-                                 @Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties,
+    public JwtDecoder jwtDecoder(@Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties,
                                  JwtProperties jwtProperties) {
         Resource jksKeyPairResource = jwtProperties.getJksKeyPairLocation();
         String macsSecret = jwtProperties.getMacsSecret();
@@ -356,97 +283,10 @@ public class JwtAutoConfiguration implements ApplicationListener<ContextRefreshe
 
         setJwtValidatorAndClaimSetConverter(oAuth2TokenValidator, mappedJwtClaimSetConverter, jwtDecoder);
 
-        this.jwtDecoder = jwtDecoder;
         return jwtDecoder;
 
     }
 
-    @Bean
-    @ConditionalOnMissingBean(type = "org.springframework.security.oauth2.server.resource.authentication.JwtBearerTokenAuthenticationConverter")
-    public JwtAuthenticationConverter jwtAuthenticationConverter(JwtProperties jwtProperties,
-                                                                 JwtGrantedAuthoritiesConverterSupplier jwtGrantedAuthoritiesConverterSupplier) {
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setPrincipalClaimName(jwtProperties.getPrincipalClaimName());
-        if (nonNull(jwtGrantedAuthoritiesConverterSupplier)) {
-            jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverterSupplier.getConverter());
-        }
-        return jwtAuthenticationConverter;
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.jwt.converter.factory.JwtClaimTypeConverterSupplier")
-    public JwtClaimTypeConverterSupplier jwtClaimTypeConverterSupplier() {
-        return new UmsJwtClaimTypeConverterSupplier();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.jwt.api.supplier.JwtGrantedAuthoritiesConverterSupplier")
-    public JwtGrantedAuthoritiesConverterSupplier jwtGrantedAuthoritiesConverterSupplier() {
-        return new UmsJwtGrantedAuthoritiesConverterSupplier();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService")
-    public GenerateClaimsSetService generateClaimsSetService(JwtProperties jwtProperties,
-                                                             JwtAuthenticationConverter jwtAuthenticationConverter) {
-        return new UmsGenerateClaimsSetServiceImpl(jwtProperties.getTimeout().getSeconds(),
-                                                   jwtProperties.getIss(),
-                                                   jwtProperties.getPrincipalClaimName(),
-                                                   jwtAuthenticationConverter);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService")
-    public CustomClaimsSetService customClaimsSetService() {
-        return new UmsAuthoritiesClaimsSetServiceImpl();
-    }
-
-    /**
-     * 默认自动通过 {@link NimbusJwtDecoder#setJwtValidator(OAuth2TokenValidator)} 配置
-     * @param jwtProperties jwtProperties
-     * @return  OAuth2TokenValidator
-     */
-    @Bean
-    @ConditionalOnMissingBean(type = "org.springframework.security.oauth2.core.OAuth2TokenValidator")
-    public OAuth2TokenValidator<Jwt> oAuth2TokenValidator(JwtProperties jwtProperties) {
-
-        final Collection<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
-        // exp 校验, 由 UmsNimbusJwtDecoder 内部进行校验, 以便进行 Jwt 的自动续期逻辑
-        tokenValidators.add(new JwtNotBeforeValidator(jwtProperties.getClockSkew()));
-
-        // 设置自定义的 JWT Validator
-        if (!isEmpty(this.customClaimValidateServiceMap)) {
-            this.customClaimValidateServiceMap.values()
-                    .forEach(
-                        service -> tokenValidators.add(new JwtClaimValidator<>(service.getClaimName(),
-                                                                               service::validate))
-                    );
-        }
-
-        this.oAuth2TokenValidator = new DelegatingOAuth2TokenValidator<>(tokenValidators);
-
-        return this.oAuth2TokenValidator;
-    }
-
-    /**
-     * 默认自动通过 {@link NimbusJwtDecoder#setClaimSetConverter(Converter)} 配置
-     * @param jwtClaimTypeConverterSupplier jwtClaimTypeConverterSupplier
-     * @return  MappedJwtClaimSetConverter
-     */
-    @Bean
-    @ConditionalOnMissingBean(type = "org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter")
-    public MappedJwtClaimSetConverter mappedJwtClaimSetConverter(JwtClaimTypeConverterSupplier jwtClaimTypeConverterSupplier) {
-        // jwt claim set converter
-        if (isNull(jwtClaimTypeConverterSupplier)) {
-            this.mappedJwtClaimSetConverter = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
-        }
-        else {
-            this.mappedJwtClaimSetConverter =
-                    MappedJwtClaimSetConverter.withDefaults(jwtClaimTypeConverterSupplier.getConverter());
-        }
-
-        return this.mappedJwtClaimSetConverter;
-    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -506,47 +346,14 @@ public class JwtAutoConfiguration implements ApplicationListener<ContextRefreshe
 
     }
 
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        ApplicationContext applicationContext = event.getApplicationContext();
-        if (isNull(this.jwtDecoder)) {
-            this.jwtDecoder = applicationContext.getBean(NimbusJwtDecoder.class);
-            if (isNull(this.oAuth2TokenValidator)) {
-                //noinspection unchecked
-                this.oAuth2TokenValidator = (OAuth2TokenValidator<Jwt>) applicationContext.getBean(OAuth2TokenValidator.class);
-            }
-            if (isNull(this.mappedJwtClaimSetConverter)) {
-                this.mappedJwtClaimSetConverter = applicationContext.getBean(MappedJwtClaimSetConverter.class);
-            }
-
-            // 设置自定义的 JWT Validator 和 claim set converter
-            setJwtValidatorAndClaimSetConverter(this.oAuth2TokenValidator,
-                                                this.mappedJwtClaimSetConverter,
-                                                this.jwtDecoder);
-        }
-
-    }
-
     private void setJwtValidatorAndClaimSetConverter(@NonNull OAuth2TokenValidator<Jwt> oAuth2TokenValidator,
                                                      @NonNull MappedJwtClaimSetConverter mappedJwtClaimSetConverter,
-                                                     @NonNull JwtDecoder jwtDecoder) {
-        if (jwtDecoder instanceof NimbusJwtDecoder)
-        {
-            NimbusJwtDecoder decoder = ((NimbusJwtDecoder) jwtDecoder);
-            // 设置自定义的 JWT Validator
-            decoder.setJwtValidator(oAuth2TokenValidator);
-            // 设置自定义的 claim set converter
-            decoder.setClaimSetConverter(mappedJwtClaimSetConverter);
-        }
+                                                     @NonNull UmsNimbusJwtDecoder jwtDecoder) {
 
-        if (jwtDecoder instanceof UmsNimbusJwtDecoder)
-        {
-            UmsNimbusJwtDecoder decoder = ((UmsNimbusJwtDecoder) jwtDecoder);
-            // 设置自定义的 JWT Validator
-            decoder.setJwtValidator(oAuth2TokenValidator);
-            // 设置自定义的 claim set converter
-            decoder.setClaimSetConverter(mappedJwtClaimSetConverter);
-        }
+        // 设置自定义的 JWT Validator
+        jwtDecoder.setJwtValidator(oAuth2TokenValidator);
+        // 设置自定义的 claim set converter
+        jwtDecoder.setClaimSetConverter(mappedJwtClaimSetConverter);
     }
 
 }
