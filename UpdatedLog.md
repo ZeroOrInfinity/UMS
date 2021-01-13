@@ -1,3 +1,10 @@
+## 2.2.11
+### Fixes and Improvements:
+1. 修复: 当与 feign 模块同时使用时, 因父子容器的问题, 提前触发 ContextRefreshEvent 事件而导致的异常 bug.
+2. 修复: 当 ums.jwt.enable=false 时还是加载 jwt 配置问题.
+3. 优化: 定时任务. 异常提示信息. 接口重命名.
+
+
 ## 2.2.10
 ### Fixes and Improvements:
 1. 修复: 当不开启 jwt 时, 直接异常的 bug.
