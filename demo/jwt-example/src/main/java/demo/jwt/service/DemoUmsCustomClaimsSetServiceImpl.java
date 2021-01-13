@@ -28,12 +28,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService;
-import top.dcenter.ums.security.jwt.claims.service.impl.UmsCustomClaimsSetServiceImpl;
+import top.dcenter.ums.security.jwt.claims.service.impl.UmsAuthoritiesClaimsSetServiceImpl;
 import top.dcenter.ums.security.jwt.enums.JwtCustomClaimNames;
 import top.dcenter.ums.security.jwt.supplier.UmsJwtGrantedAuthoritiesConverterSupplier;
 
 /**
- * 只是 {@link UmsCustomClaimsSetServiceImpl} 的原样拷贝, 示例替换 {@link UmsCustomClaimsSetServiceImpl}.
+ * 只是 {@link UmsAuthoritiesClaimsSetServiceImpl} 的原样拷贝, 示例替换 {@link UmsAuthoritiesClaimsSetServiceImpl}.
  * 根据 {@link Authentication} 生成 {@link JwtCustomClaimNames#AUTHORITIES} 权限的 {@link JWTClaimsSet} 的接口简单的实现.<br>
  * 注意: 替换此 {@link JwtCustomClaimNames#AUTHORITIES} 实现时请同时替换 {@link UmsJwtGrantedAuthoritiesConverterSupplier} 实现.
  * @author YongWu zheng
