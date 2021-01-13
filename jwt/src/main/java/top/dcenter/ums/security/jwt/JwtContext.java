@@ -42,6 +42,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -720,8 +721,8 @@ public final class JwtContext {
         if ((authentication instanceof AbstractOAuth2TokenAuthenticationToken) && allowFormEncodedBodyParameter)
         {
             //noinspection unchecked
-            AbstractOAuth2TokenAuthenticationToken<Jwt> jwtAuthenticationToken =
-                    ((AbstractOAuth2TokenAuthenticationToken<Jwt>) authentication);
+            AbstractOAuth2TokenAuthenticationToken<AbstractOAuth2Token> jwtAuthenticationToken =
+                    ((AbstractOAuth2TokenAuthenticationToken<AbstractOAuth2Token>) authentication);
             return jwtAuthenticationToken.getToken().getTokenValue();
         }
 
