@@ -20,8 +20,8 @@
         <module>mdc</module>
         <module>vc</module>
         <module>rbac</module>
-        <module>oauth</module>
         <module>jwt</module>
+        <module>oauth</module>
         <module>core</module>
         <module>ums-spring-boot-starter</module>
     </modules>-->
