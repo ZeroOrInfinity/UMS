@@ -28,7 +28,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import top.dcenter.ums.security.jwt.api.supplier.JwtGrantedAuthoritiesConverterSupplier;
-import top.dcenter.ums.security.jwt.claims.service.impl.UmsCustomClaimsSetServiceImpl;
+import top.dcenter.ums.security.jwt.claims.service.impl.UmsAuthoritiesClaimsSetServiceImpl;
 import top.dcenter.ums.security.jwt.enums.JwtCustomClaimNames;
 
 import java.util.Collection;
@@ -36,7 +36,7 @@ import java.util.Collection;
 /**
  * 简单的 JWT 转 Granted Authority 的转换器, Granted Authority 都放在 {@code authorities} 字段下, 没有 {@code scope}
  * 或 {@code scp} 字段. <br>
- * 注意: 替换此实现时请同时替换 {@link UmsCustomClaimsSetServiceImpl} 实现.
+ * 注意: 替换此实现时请同时替换 {@link UmsAuthoritiesClaimsSetServiceImpl} 实现.
  * @see JwtGrantedAuthoritiesConverterSupplier
  * @author YongWu zheng
  * @version V2.0  Created by 2020.12.9 15:34

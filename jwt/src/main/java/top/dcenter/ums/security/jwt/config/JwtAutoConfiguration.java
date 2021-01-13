@@ -70,7 +70,7 @@ import top.dcenter.ums.security.jwt.api.supplier.JwtGrantedAuthoritiesConverterS
 import top.dcenter.ums.security.jwt.api.validator.service.CustomClaimValidateService;
 import top.dcenter.ums.security.jwt.api.validator.service.ReAuthService;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
-import top.dcenter.ums.security.jwt.claims.service.impl.UmsCustomClaimsSetServiceImpl;
+import top.dcenter.ums.security.jwt.claims.service.impl.UmsAuthoritiesClaimsSetServiceImpl;
 import top.dcenter.ums.security.jwt.claims.service.impl.UmsGenerateClaimsSetServiceImpl;
 import top.dcenter.ums.security.jwt.controller.JwtRefreshTokenController;
 import top.dcenter.ums.security.jwt.decoder.UmsNimbusJwtDecoder;
@@ -398,7 +398,7 @@ public class JwtAutoConfiguration implements ApplicationListener<ContextRefreshe
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService")
     public CustomClaimsSetService customClaimsSetService() {
-        return new UmsCustomClaimsSetServiceImpl();
+        return new UmsAuthoritiesClaimsSetServiceImpl();
     }
 
     /**

@@ -36,7 +36,7 @@ import top.dcenter.ums.security.jwt.supplier.UmsJwtGrantedAuthoritiesConverterSu
  * @author YongWu zheng
  * @version V2.0  Created by 2020.12.20 19:44
  */
-public class UmsCustomClaimsSetServiceImpl implements CustomClaimsSetService {
+public class UmsAuthoritiesClaimsSetServiceImpl implements CustomClaimsSetService {
 
     @NonNull
     @Override
