@@ -47,6 +47,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Objects.nonNull;
 import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
 
 /**
@@ -67,18 +68,40 @@ public class JwkEndpoint implements InitializingBean, ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
+    @SuppressWarnings({"CastCanBeRemovedNarrowingVariableType", "unchecked", "ConstantConditions"})
     public JwkEndpoint(@NonNull RSAPublicKey rsaPublicKey, @NonNull String jksAlgorithm,
                        @NonNull JwkEndpointPermissionService jwkEndpointPermissionService, @Nullable String kid) {
         this.jwkEndpointPermissionService = jwkEndpointPermissionService;
         RSAKey key = new RSAKey.Builder(rsaPublicKey).build();
-        JSONObject jsonObject = new JWKSet(key).toJSONObject();
-        //noinspection unchecked
-        Map<String, Object> publicKey = (Map<String, Object>) ((List<Object>) jsonObject.get("keys")).get(0);
+        JWKSet jwkSet = new JWKSet(key);
+        Object jwk = jwkSet.toJSONObject();
+
+        Map<String, Object> publicKey;
+        JSONObject jsonObject = null;
+        if (jwk instanceof JSONObject) 
+        {
+            jsonObject = ((JSONObject) jwk);
+            publicKey = (Map<String, Object>) ((List<Object>) jsonObject.get("keys")).get(0);
+        }
+        // 对 nimbus-jose-jwt:9.1.x 的兼容.
+        else if (jwk instanceof Map) {
+            publicKey = (Map<String, Object>) jwk;
+            publicKey = (Map<String, Object>) ((List<Object>) publicKey.get("keys")).get(0);
+        }
+        else {
+            throw new RuntimeException("生成 jws set json string 错误");
+        }
+
         publicKey.put("alg", jksAlgorithm);
         if (StringUtils.hasText(kid)) {
             publicKey.put("kid", kid);
         }
-        this.jwsSetJsonString = jsonObject.toJSONString();
+        if (nonNull(jsonObject)) {
+            this.jwsSetJsonString = jsonObject.toJSONString();
+            return;
+        }
+        // 对 nimbus-jose-jwt:9.1.x 的兼容.
+        this.jwsSetJsonString = jwk.toString();
     }
 
     @RequestMapping(path = JWS_SET_URI, method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
