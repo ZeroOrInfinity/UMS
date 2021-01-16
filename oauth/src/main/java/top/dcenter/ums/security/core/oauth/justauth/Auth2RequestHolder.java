@@ -259,7 +259,16 @@ public final class Auth2RequestHolder implements InitializingBean, ApplicationCo
         for (Field field : declaredFields)
         {
             field.setAccessible(true);
-            final Auth2Properties oriAuth2Properties = (Auth2Properties) AopProxyUtils.getSingletonTarget(auth2Properties);
+            Auth2Properties oriAuth2Properties = (Auth2Properties) AopProxyUtils.getSingletonTarget(auth2Properties);
+            if (isNull(oriAuth2Properties)) {
+                /* 增加对 spring-boot:2.4.x 的兼容性.
+                   利用反射方式对多次代理的对象:
+                      - 2.3.x为Auth2Properties$$EnhancerBySpringCGLIB$$8e8d9123@9362,
+                      - 2.4.x 为Auth2Properties@9766
+                   2.4.x进行获取对象或设置值的, 使用 AopProxyUtils.getSingletonTarget(auth2Properties) 会报 NPE 错误.
+                 */
+            	oriAuth2Properties = auth2Properties;
+            }
             Object baseProperties = field.get(oriAuth2Properties);
             if (baseProperties instanceof BaseAuth2Properties)
             {
