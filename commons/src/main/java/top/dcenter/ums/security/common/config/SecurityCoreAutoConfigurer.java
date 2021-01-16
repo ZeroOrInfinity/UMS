@@ -69,7 +69,7 @@ import static top.dcenter.ums.security.common.api.config.HttpSecurityAware.*;
  *  public class WebSecurityAutoConfigurer extends WebSecurityConfigurerAdapter { }
  *
  *  // 第二种方案: 不使用 spring.factories 加载此类, 直接注册此类到 IOC 容器.
- *  // 适合引入了除 {@code top.dcenter:ums-core-spring-boot-starter} 或 {@code top.dcenter:ums-spring-boot-starter} 模块外的其他模块.
+ *  // 适合所有模块.
  * {@code @Configuration}
  *  public class WebSecurityAutoConfigurer {
  *    {@code @Bean}
