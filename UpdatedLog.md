@@ -1,3 +1,11 @@
+## 2.2.12
+### Fixes and Improvements:
+1. 优化: 与 spring cloud: 2020.0.0 和 spring 2.4.x 集成时, 因配置文件的加载方式发送变化, 当使用 spring.factories 加载此类时, 会有如下错误提示: Found WebSecurityConfigurerAdapter as well as SecurityFilterChain. Please select just one 的问题.
+1. 兼容性: 增加对 spring-boot:2.4.x 的兼容性.
+1. 兼容性: 添加对 nimbus-jose-jwt:9.1.x 的兼容.
+
+
+
 ## 2.2.11
 ### Fixes and Improvements:
 1. 修复: 当与 feign 模块同时使用时, 因父子容器的问题, 提前触发 ContextRefreshEvent 事件而导致的异常 bug.

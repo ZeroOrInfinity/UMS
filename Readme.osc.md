@@ -269,6 +269,28 @@
     - 添加 HttpSecurity 配置, 通过下面的接口即可: `HttpSecurityAware`
     - 已有的 HttpSecurity 配置, 让原有的 HttpSecurity 配置实现此接口进行配置: `top.dcenter.security.core.api.config.HttpSecurityAware`
 
+3. 与 spring cloud: 2020.0.0 和 spring 2.4.x 集成时, 因配置文件的加载方式发送变化, 当使用 spring.factories 加载此类时,
+   会有如下错误提示: Found WebSecurityConfigurerAdapter as well as SecurityFilterChain. Please select just one .
+    - 解决方案:
+
+```java
+   // 第一种方案: 使用 spring.factories 加载此类, 再添加下面空的 WebSecurityConfigurerAdapter 配置类,
+   // 阻止 spring 自动加载方式默认的 WebSecurityConfigurerAdapter 配置.
+   // 适合引入了  top.dcenter:ums-core-spring-boot-starter 或  top.dcenter:ums-spring-boot-starter 模块
+   @Configuration
+   public class WebSecurityAutoConfigurer extends WebSecurityConfigurerAdapter { }
+
+   // 第二种方案: 不使用 spring.factories 加载此类, 直接注册此类到 IOC 容器.
+   // 适合所有模块.
+   @Configuration
+   public class WebSecurityAutoConfigurer {
+       @Bean
+       public SecurityCoreAutoConfigurer securityCoreAutoConfigurer() {
+           return new SecurityCoreAutoConfigurer();
+       }
+   }
+```
+
 ![核心配置逻辑](doc/SequenceDiagram/securityConfigurer.png) 
 
 ### 2\. 在 ServletContext 中存储的属性:
