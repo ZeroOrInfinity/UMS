@@ -24,6 +24,7 @@
 package top.dcenter.ums.security.common.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,7 +55,29 @@ import java.util.stream.Collectors;
 import static top.dcenter.ums.security.common.api.config.HttpSecurityAware.*;
 
 /**
- * 核心 HttpSecurity 安全相关配置
+ * 核心 HttpSecurity 安全相关配置.<br>
+ *
+ * 注意: 与 {@code spring cloud: 2020.0.0} 和 {@code spring 2.4.x} 集成时, 因配置文件的加载方式发送变化,
+ * 当使用 {@code spring.factories }加载此类时, 会有如下错误提示:
+ * {@code Found WebSecurityConfigurerAdapter as well as SecurityFilterChain. Please select just one} .
+ * 解决方案:
+ * <pre>
+ *  // 第一种方案: 使用 spring.factories 加载此类, 再添加下面空的 {@link WebSecurityConfigurerAdapter} 配置类,
+ *  // 阻止 spring 自动加载方式默认的 {@link WebSecurityConfigurerAdapter} 配置.
+ *  // 适合引入了 {@code top.dcenter:ums-core-spring-boot-starter} 或 {@code top.dcenter:ums-spring-boot-starter} 模块
+ * {@code @Configuration}
+ *  public class WebSecurityAutoConfigurer extends WebSecurityConfigurerAdapter { }
+ *
+ *  // 第二种方案: 不使用 spring.factories 加载此类, 直接注册此类到 IOC 容器.
+ *  // 适合引入了除 {@code top.dcenter:ums-core-spring-boot-starter} 或 {@code top.dcenter:ums-spring-boot-starter} 模块外的其他模块.
+ * {@code @Configuration}
+ *  public class WebSecurityAutoConfigurer {
+ *    {@code @Bean}
+ *     public SecurityCoreAutoConfigurer securityCoreAutoConfigurer() {
+ *         return new SecurityCoreAutoConfigurer();
+ *     }
+ *  }
+ * </pre>
  *
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 13:14
@@ -63,9 +86,10 @@ import static top.dcenter.ums.security.common.api.config.HttpSecurityAware.*;
 @Configuration
 @Order(99)
 @EnableWebSecurity
+@ConditionalOnMissingBean(type = {"top.dcenter.ums.security.common.config.SecurityCoreAutoConfigurer"})
 public class SecurityCoreAutoConfigurer extends WebSecurityConfigurerAdapter {
 
-    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
     private Map<String, HttpSecurityAware> webSecurityConfigurerMap;
 
