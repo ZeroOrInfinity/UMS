@@ -34,6 +34,7 @@ import top.dcenter.ums.security.jwt.supplier.UmsJwtClaimTypeConverterSupplier;
 
 import java.net.URL;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,6 +70,10 @@ public class DemoUmsJwtClaimTypeConverterSupplier implements JwtClaimTypeConvert
         return (source) -> CONVERSION_SERVICE.convert(source, OBJECT_TYPE_DESCRIPTOR, targetDescriptor);
     }
 
+    private static Converter<Object, Collection<String>> getCollectionConverter(String delimiter) {
+        return (source) -> Arrays.asList(((String) source).split(delimiter));
+    }
+
     @Override
     @NonNull
     public Map<String, Converter<Object, ?>> getConverter() {
@@ -78,10 +83,10 @@ public class DemoUmsJwtClaimTypeConverterSupplier implements JwtClaimTypeConvert
         map.put(JwtCustomClaimNames.TENANT_ID.getClaimName(), getConverter(STRING_TYPE_DESCRIPTOR));
         map.put(JwtCustomClaimNames.CLIENT_ID.getClaimName(), getConverter(STRING_TYPE_DESCRIPTOR));
         map.put(JwtCustomClaimNames.USER_DETAILS.getClaimName(), getConverter(MAP_STRING_OBJECT_DESCRIPTOR));
-        map.put(JwtCustomClaimNames.AUTHORITIES.getClaimName(), getConverter(COLLECTION_STRING_DESCRIPTOR));
+        map.put(JwtCustomClaimNames.AUTHORITIES.getClaimName(), getCollectionConverter(" "));
         map.put(JwtCustomClaimNames.REFRESH_TOKEN_JTI.getClaimName(), getConverter(STRING_TYPE_DESCRIPTOR));
-        map.put(JwtCustomClaimNames.SCOPE.getClaimName(), getConverter(COLLECTION_STRING_DESCRIPTOR));
-        map.put(JwtCustomClaimNames.SCP.getClaimName(), getConverter(COLLECTION_STRING_DESCRIPTOR));
+        map.put(JwtCustomClaimNames.SCOPE.getClaimName(), getCollectionConverter(" "));
+        map.put(JwtCustomClaimNames.SCP.getClaimName(), getCollectionConverter(" "));
         return Collections.unmodifiableMap(map);
     }
 }
