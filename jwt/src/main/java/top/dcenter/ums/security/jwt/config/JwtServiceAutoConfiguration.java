@@ -159,7 +159,7 @@ public class JwtServiceAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.jwt.converter.factory.JwtClaimTypeConverterSupplier")
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.jwt.api.supplier.JwtClaimTypeConverterSupplier")
     public JwtClaimTypeConverterSupplier jwtClaimTypeConverterSupplier() {
         return new UmsJwtClaimTypeConverterSupplier();
     }
