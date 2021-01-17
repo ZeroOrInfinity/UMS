@@ -272,13 +272,7 @@ public final class JwtContext {
                 }
 
                 // 生成 JWT
-                JWTClaimsSet claimsSet;
-                if (nonNull(refreshTokenJwt)) {
-                    claimsSet = generateClaimsSetService.generateClaimsSet(authentication, refreshTokenJwt);
-                }
-                else {
-                    claimsSet = generateClaimsSetService.generateClaimsSet(authentication, null);
-                }
+                JWTClaimsSet claimsSet = generateClaimsSetService.generateClaimsSet(authentication, refreshTokenJwt);
                 Jwt jwt = createJwt(claimsSet);
 
                 setBearerTokenAndRefreshTokenToHeader(jwt, refreshTokenJwt);
