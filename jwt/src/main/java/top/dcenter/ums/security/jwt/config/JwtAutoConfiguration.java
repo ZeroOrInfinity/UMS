@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
@@ -87,8 +88,7 @@ import static top.dcenter.ums.security.jwt.properties.JwtProperties.MACS_SECRET_
 @SuppressWarnings("jol")
 @Configuration
 @Order(99)
-@AutoConfigureAfter({JwtPropertiesAutoConfiguration.class, JwtServiceAutoConfiguration.class,
-        RedisSerializerAutoConfiguration.class})
+@AutoConfigureAfter({JwtPropertiesAutoConfiguration.class, JwtServiceAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "ums.jwt", name = "enable", havingValue = "true")
 @Slf4j
 public class JwtAutoConfiguration implements InitializingBean {
@@ -161,17 +161,33 @@ public class JwtAutoConfiguration implements InitializingBean {
     private final OAuth2TokenValidator<Jwt> oAuth2TokenValidator;
     private final MappedJwtClaimSetConverter mappedJwtClaimSetConverter;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public JwtAutoConfiguration(JwtProperties jwtProperties,
+                                @Autowired(required = false)
                                 RedisConnectionFactory redisConnectionFactory,
+                                @Autowired(required = false)
+                                @Qualifier("jwtRedisConnectionFactory")
+                                RedisConnectionFactory jwtRedisConnectionFactory,
                                 @Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties,
                                 JwtIdService jwtIdService,
                                 JwtCacheTransformService<?> jwtCacheTransformService,
                                 OAuth2TokenValidator<Jwt> oAuth2TokenValidator,
                                 MappedJwtClaimSetConverter mappedJwtClaimSetConverter) throws Exception {
+
+        if (isNull(redisConnectionFactory) && isNull(jwtRedisConnectionFactory)) {
+            throw new RuntimeException("redisConnectionFactory 或 jwtRedisConnectionFactory 必须实现一个");
+        }
+
+        if (nonNull(jwtRedisConnectionFactory)) {
+            this.redisConnectionFactory = jwtRedisConnectionFactory;
+        }
+        else {
+            this.redisConnectionFactory = redisConnectionFactory;
+        }
+
         this.timeout = jwtProperties.getTimeout();
         this.bearerTokenProperties = jwtProperties.getBearer();
         this.jwtBlacklistProperties = jwtProperties.getBlacklist();
-        this.redisConnectionFactory = redisConnectionFactory;
         this.refreshHandlerPolicy = jwtProperties.getRefreshHandlerPolicy();
         this.clockSkew = jwtProperties.getClockSkew();
         this.jwtIdService = jwtIdService;
