@@ -55,6 +55,7 @@ import top.dcenter.ums.security.jwt.api.cache.service.JwtCacheTransformService;
 import top.dcenter.ums.security.jwt.api.endpoind.service.JwkEndpointPermissionService;
 import top.dcenter.ums.security.jwt.api.endpoind.service.JwkSetUriPassHeaders;
 import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
+import top.dcenter.ums.security.jwt.api.validator.service.ReAuthService;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 import top.dcenter.ums.security.jwt.controller.JwtRefreshTokenController;
 import top.dcenter.ums.security.jwt.decoder.UmsNimbusJwtDecoder;
@@ -263,6 +264,7 @@ public class JwtAutoConfiguration implements InitializingBean {
     @Primary
     public JwtDecoder jwtDecoder(@Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties,
                                  @Autowired(required = false) JwkSetUriPassHeaders jwkSetUriPassHeaders,
+                                 @Autowired(required = false) ReAuthService reAuthService,
                                          JwtProperties jwtProperties) {
         Resource jksKeyPairResource = jwtProperties.getJksKeyPairLocation();
         String macsSecret = jwtProperties.getMacsSecret();
@@ -303,6 +305,7 @@ public class JwtAutoConfiguration implements InitializingBean {
                                        "当仅仅需要解析 JWT 时请配置 \"spring.security.oauth2.resourceserver.jwt.jwk-set-uri\" 属性");
         }
 
+        jwtDecoder.setReAuthService(reAuthService);
         setJwtValidatorAndClaimSetConverter(oAuth2TokenValidator, mappedJwtClaimSetConverter, jwtDecoder);
 
         return jwtDecoder;

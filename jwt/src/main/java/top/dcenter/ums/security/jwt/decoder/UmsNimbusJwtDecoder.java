@@ -37,8 +37,8 @@ import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
@@ -137,8 +137,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
 
-	@SuppressWarnings("SpringJavaAutowiredMembersInspection")
-	@Autowired(required = false)
+	@Setter
 	private ReAuthService reAuthService;
 
 	/**
