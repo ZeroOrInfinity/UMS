@@ -1,6 +1,6 @@
 # UMS (user manage scaffolding) 用户管理脚手架: 
 
-![UMS](https://img.shields.io/badge/UMS-2.2.14-green.svg)
+![UMS](https://img.shields.io/badge/UMS-2.2.15-green.svg)
 ![JDK](https://img.shields.io/badge/JDK-1.8+-green.svg)
 ![Maven](https://img.shields.io/badge/Maven-3.6.3-green.svg)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7.27-green.svg)

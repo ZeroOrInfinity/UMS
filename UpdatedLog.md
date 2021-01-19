@@ -1,3 +1,8 @@
+## 2.2.15
+### Fixes and Improvements:
+1. 改进: UmsNimbusJwtDecoder 添加从 jwkSetUri 获取 jwk 的缓存功能, 缓存时间与频率通过 JwkSetUriConfig 配置.
+
+
 ## 2.2.14
 ### Fixes and Improvements:
 1. 添加: 用于从 jwk set uri 获取 JWk 时传递 header 的参数接口.
