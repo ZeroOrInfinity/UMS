@@ -20,6 +20,7 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.source.DefaultJWKSetCache;
 import com.nimbusds.jose.jwk.source.JWKSetCache;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
@@ -67,7 +68,7 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.jwt.JwtContext;
-import top.dcenter.ums.security.jwt.api.endpoind.service.JwkSetUriPassHeaders;
+import top.dcenter.ums.security.jwt.api.endpoind.service.JwkSetUriConfig;
 import top.dcenter.ums.security.jwt.api.validator.service.ReAuthService;
 import top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy;
 import top.dcenter.ums.security.jwt.exception.JwtInvalidException;
@@ -424,7 +425,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 	public static JwkSetUriJwtDecoderBuilder withJwkSetUri(String jwkSetUri,
 	                                                       JwtRefreshHandlerPolicy refreshHandlerPolicy,
 	                                                       Duration remainingRefreshInterval,
-	                                                       @Nullable JwkSetUriPassHeaders jwkSetUriPassHeaders,
+	                                                       @Nullable JwkSetUriConfig jwkSetUriPassHeaders,
 	                                                       String principalClaimName) {
 		return new JwkSetUriJwtDecoderBuilder(jwkSetUri, refreshHandlerPolicy,
 		                                      remainingRefreshInterval,
@@ -475,7 +476,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
 		private final Duration remainingRefreshInterval;
 		private final String principalClaimName;
-		private final JwkSetUriPassHeaders jwkSetUriPassHeaders;
+		private final JwkSetUriConfig jwkSetUriConfig;
 
 		@SuppressWarnings("FieldMayBeFinal")
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
@@ -489,7 +490,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri,
 		                                   JwtRefreshHandlerPolicy refreshHandlerPolicy,
 		                                   Duration remainingRefreshInterval,
-		                                   @Nullable JwkSetUriPassHeaders jwkSetUriPassHeaders,
+		                                   @Nullable JwkSetUriConfig jwkSetUriConfig,
 		                                   String principalClaimName) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
 			Assert.notNull(refreshHandlerPolicy, "refreshHandlerPolicy cannot be null");
@@ -499,7 +500,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 			this.jwkSetUri = jwkSetUri;
 			this.refreshHandlerPolicy = refreshHandlerPolicy;
 			this.remainingRefreshInterval = remainingRefreshInterval;
-			this.jwkSetUriPassHeaders = jwkSetUriPassHeaders;
+			this.jwkSetUriConfig = jwkSetUriConfig;
 			this.jwtProcessorCustomizer = (processor) -> {
 			};
 		}
@@ -591,12 +592,20 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 				return new RemoteJWKSet<>(toURL(this.jwkSetUri), jwkSetRetriever);
 			}
 			ResourceRetriever cachingJwkSetRetriever = new CachingResourceRetriever(this.cache, jwkSetRetriever);
-			return new RemoteJWKSet<>(toURL(this.jwkSetUri), cachingJwkSetRetriever, new NoOpJwkSetCache());
+			if (nonNull(this.jwkSetUriConfig)) {
+				return new RemoteJWKSet<>(toURL(this.jwkSetUri), cachingJwkSetRetriever,
+				                          new DefaultJWKSetCache(this.jwkSetUriConfig.lifespan(),
+				                                                 this.jwkSetUriConfig.refreshTime(),
+				                                                 this.jwkSetUriConfig.timeUnit()));
+			}
+			else {
+				return new RemoteJWKSet<>(toURL(this.jwkSetUri), cachingJwkSetRetriever, new DefaultJWKSetCache());
+			}
 		}
 
 		JWTProcessor<SecurityContext> processor() {
 			ResourceRetriever jwkSetRetriever = new RestOperationsResourceRetriever(this.restOperations,
-			                                                                        this.jwkSetUriPassHeaders);
+			                                                                        this.jwkSetUriConfig);
 			JWKSource<SecurityContext> jwkSource = jwkSource(jwkSetRetriever);
 			ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 			jwtProcessor.setJWSKeySelector(jwsKeySelector(jwkSource));
@@ -684,7 +693,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 			private final Map<String, Object> headers;
 
 			RestOperationsResourceRetriever(RestOperations restOperations,
-			                                @Nullable JwkSetUriPassHeaders jwkSetUriPassHeaders) {
+			                                @Nullable JwkSetUriConfig jwkSetUriPassHeaders) {
 				Assert.notNull(restOperations, "restOperations cannot be null");
 				this.restOperations = restOperations;
 				if (nonNull(jwkSetUriPassHeaders)) {

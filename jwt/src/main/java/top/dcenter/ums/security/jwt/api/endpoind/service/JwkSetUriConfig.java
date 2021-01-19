@@ -22,21 +22,56 @@
  */
 package top.dcenter.ums.security.jwt.api.endpoind.service;
 
+import com.nimbusds.jose.jwk.source.DefaultJWKSetCache;
+import org.springframework.lang.NonNull;
+
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
- * 用于从 jwk set uri 获取 JWk 时传递 header 的参数接口, 通过{@code UmsNimbusJwtDecoder.RestOperationsResourceRetriever}
+ * 用于从 jwk set uri 获取 JWk 时传递 header,
+ * 获取 jwk set 后缓存的时间, 访问 jwk set uri 的频率 的参数接口, 通过{@code UmsNimbusJwtDecoder.RestOperationsResourceRetriever}
  * 传递 header 参数.<br>
  * 不是必须实现的接口, 可以与 {@link JwkEndpointPermissionService} 配合使用.
  * @author YongWu zheng
  * @weixin z56133
  * @since 2021.1.19 14:23
  */
-public interface JwkSetUriPassHeaders {
+public interface JwkSetUriConfig {
 
     /**
      * 用于从 jwk set uri 获取 JWk 时传递 header 的参数
      * @return  header 的参数
      */
+    @NonNull
     Map<String, Object> headers();
+
+
+    /**
+     * The lifespan of the cached JWK set, in {@link #timeUnit}s, negative
+     * means no expiration.
+     * @return 获取 jwk set 后缓存的时间
+     */
+    default long lifespan() {
+        return DefaultJWKSetCache.DEFAULT_LIFESPAN_MINUTES;
+    }
+
+    /**
+     * The refresh time of the cached JWK set, in {@link #timeUnit}s,
+     * negative means no refresh time.
+     * @return 访问 jwk set uri 的频率
+     */
+    default long refreshTime() {
+        return DefaultJWKSetCache.DEFAULT_REFRESH_TIME_MINUTES;
+    }
+
+
+    /**
+     * The time unit, may be {@code null} if no expiration / refresh time.
+     * @return {@link #lifespan()} 与 {@link #refreshTime()} 的时间单位
+     */
+    @NonNull
+    default TimeUnit timeUnit() {
+        return TimeUnit.MINUTES;
+    }
 }
