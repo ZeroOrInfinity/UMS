@@ -279,6 +279,7 @@ public class JwtAutoConfiguration implements InitializingBean {
                                                       jwtProperties.getRefreshHandlerPolicy(),
                                                       jwtProperties.getRemainingRefreshInterval(),
                                                       jwtProperties.getPrincipalClaimName())
+                                       .macAlgorithm((MacAlgorithm) this.jwsAlgorithm)
                                        .build();
         }
         else if (nonNull(auth2ResourceServerProperties)) {
@@ -287,6 +288,7 @@ public class JwtAutoConfiguration implements InitializingBean {
                                                       jwtProperties.getRefreshHandlerPolicy(),
                                                       jwtProperties.getRemainingRefreshInterval(),
                                                       jwtProperties.getPrincipalClaimName())
+                                       .jwsAlgorithm((SignatureAlgorithm) this.jwsAlgorithm)
                                        .build();
         }
 
