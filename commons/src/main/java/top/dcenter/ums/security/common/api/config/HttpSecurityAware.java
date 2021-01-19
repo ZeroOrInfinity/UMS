@@ -50,10 +50,14 @@ import java.util.Set;
  *         {@link HttpSecurityAware#postConfigure(HttpSecurity http) } 方法。<br><br>
  *      2. 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在前面处理的配置。实现
  *         {@link HttpSecurityAware#preConfigure(HttpSecurity http) } 方法。<br><br>
- *      3. WebSecurityConfigurerAdapter 多个配置类继承此类是会报错，且 authorizeRequests 配置时候要
- *         authorizeRequests().anyRequest().authenticate 放到最后，不然在之后配置的都不会生效。实现
- *         {@link HttpSecurityAware#getAuthorizeRequestMap() } 方法。<br><br>
- * 最终在：{@link SecurityCoreAutoConfigurer} 中配置. <br><br>
+ *      3. authorizeRequests 配置时候要 {@code authorizeRequests().anyRequest().authenticate} 放到最后，
+ *         不然在之后配置的都不会生效。对 authorizeRequests 的配置通过实现 {@link HttpSecurityAware#getAuthorizeRequestMap()}
+ *         方法即可. 不需要配置 {@code authorizeRequests().anyRequest().authenticate},
+ *         已在 {@link SecurityCoreAutoConfigurer} 中配置; 如需自定义 {@code authorizeRequests().anyRequest()} 的配置, 可以
+ *         通过 {@link #postConfigure(HttpSecurity)} 覆盖 {@link SecurityCoreAutoConfigurer} 中的
+ *         {@code authorizeRequests().anyRequest().authenticate} 配置.<br><br>
+ *
+ * 此接口的实现类, 最终通过：{@link SecurityCoreAutoConfigurer} 统一配置. <br><br>
  *
  * @author YongWu zheng
  * @version V1.0
@@ -137,7 +141,8 @@ public interface HttpSecurityAware {
 
     /**
      * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在前面处理的配置。<br><br>
-     * 最终在：{@link SecurityCoreAutoConfigurer} 中配置
+     * 最终在：{@link SecurityCoreAutoConfigurer} 中配置, 注意: authorizeRequests().anyRequest().authenticate
+     * 已在：{@link SecurityCoreAutoConfigurer} 中配置. 如需更改, 在 {@link #postConfigure(HttpSecurity)} 方法里覆盖.<br><br>
      * @param http  HttpSecurity
      * @throws Exception    exception
      */
@@ -145,6 +150,8 @@ public interface HttpSecurityAware {
 
     /**
      * 需要要在 WebSecurityConfigurerAdapter#configure(http) 方法中放在最后处理的配置。<br><br>
+     * 如: 需自定义 {@code authorizeRequests().anyRequest()} 的配置, 可以 通过此方法覆盖 {@link SecurityCoreAutoConfigurer}
+     *    中的 {@code authorizeRequests().anyRequest().authenticate} 配置.<br><br>
      * 最终在：{@link SecurityCoreAutoConfigurer} 中配置
      * @param http  HttpSecurity
      * @throws Exception    exception
@@ -154,14 +161,54 @@ public interface HttpSecurityAware {
     /**
      * 因为 authorizeRequests 配置时候要 authorizeRequests().anyRequest().authenticate 放到最后，<br>所以这里临时把 权限与 uri 放入 map
      * 给主配置器处理.<br><br>
-     * 最终在{@link SecurityCoreAutoConfigurer} 中 <code>configure(HttpSecurity)</code> 方法中配置, return 可以为 null 值.
-     * @return authorizeRequestMap <br> ==key== 为权限类型({@link #PERMIT_ALL},{@link #DENY_ALL},
-     * {@link #ANONYMOUS},{@link #AUTHENTICATED},{@link #FULLY_AUTHENTICATED},{@link #REMEMBER_ME},{@link #ACCESS},{@link #HAS_ROLE},{@link #HAS_ANY_ROLE},
+     * 最终在{@link SecurityCoreAutoConfigurer} 中 <code>configure(HttpSecurity)</code> 方法中配置, return 可以为 null 值.<br>
+     * 示例:
+     * <pre  class="code">
+     * Map&#60;String, Map&#60;UriHttpMethodTuple, Set&#60;String&#62;&#62;&#62; resultMap = new HashMap&#60;&#62;(16);
+     * // PERMIT_ALL = "permitAll";
+     * // DENY_ALL = "denyAll";
+     * // ANONYMOUS = "anonymous";
+     * // AUTHENTICATED = "authenticated";
+     * // FULLY_AUTHENTICATED = "fullyAuthenticated";
+     * // REMEMBER_ME = "rememberMe";
+     * // 这里只对 PERMIT_ALL 进行示例, 其他类推.
+     * Map&#60;UriHttpMethodTuple, Set&#60;String&#62;&#62; permitAllMap = new HashMap&#60;&#62;(16);
+     * permitAllMap.put(UriHttpMethodTuple.tuple(HttpMethod.GET, "/login"), null);
+     * permitAllMap.put(UriHttpMethodTuple.tuple(POST, "/signUp"), null);
+     * resultMap.put(HttpSecurityAware.PERMIT_ALL, permitAllMap);
+     * // ACCESS = "access";
+     * // HAS_ROLE = "hasRole";
+     * // HAS_ANY_ROLE = "hasAnyRole";
+     * // HAS_AUTHORITY = "hasAuthority";
+     * // HAS_ANY_AUTHORITY = "hasAnyAuthority";
+     * // HAS_IP_ADDRESS = "hasIpAddress";
+     * // 这里只对 ACCESS/HAS_ROLE/HAS_AUTHORITY/HAS_IP_ADDRESS  进行示例, 其他类推.
+     * Map&#60;UriHttpMethodTuple, Set&#60;String&#62;&#62; accessMap = new HashMap&#60;&#62;(16);
+     * permitAllMap.put(UriHttpMethodTuple.tuple(HttpMethod.GET, "/user/**"), Sets.newHashSet("isAuthenticated()"));
+     * resultMap.put(HttpSecurityAware.ACCESS, accessMap);
+     *
+     * Map&#60;UriHttpMethodTuple, Set&#60;String&#62;&#62; hasRoleMap = new HashMap&#60;&#62;(16);
+     * permitAllMap.put(UriHttpMethodTuple.tuple(HttpMethod.GET, "/order/**"), Sets.newHashSet("USER", "MEMBER"));
+     * resultMap.put(HttpSecurityAware.HAS_ROLE, hasRoleMap);
+     *
+     * Map&#60;UriHttpMethodTuple, Set&#60;String&#62;&#62; authorityMap = new HashMap&#60;&#62;(16);
+     * permitAllMap.put(UriHttpMethodTuple.tuple(HttpMethod.GET, "/vip/**"), Sets.newHashSet("VIP", "SVIP"));
+     * resultMap.put(HttpSecurityAware.HAS_AUTHORITY, authorityMap);
+     *
+     * Map&#60;UriHttpMethodTuple, Set&#60;String&#62;&#62; hasIpMap = new HashMap&#60;&#62;(16);
+     * permitAllMap.put(UriHttpMethodTuple.tuple(HttpMethod.GET, "/cfg/**"), Sets.newHashSet("8.8.8.8"));
+     * resultMap.put(HttpSecurityAware.HAS_IP_ADDRESS, hasIpMap);
+     *
+     * return resultMap;
+     * </pre>
+     * @return authorizeRequestMap(permissionType, Map(UriHttpMethodTuple, ip/authority/role/null)) <br>
+     *      ==key== 为权限类型({@link #PERMIT_ALL}, {@link #DENY_ALL}, {@link #ANONYMOUS},{@link #AUTHENTICATED},
+     *      {@link #FULLY_AUTHENTICATED}, {@link #REMEMBER_ME},{@link #ACCESS},{@link #HAS_ROLE},{@link #HAS_ANY_ROLE},
      *      {@link #HAS_AUTHORITY},{@link #HAS_ANY_AUTHORITY},{@link #HAS_IP_ADDRESS}); <br> ==value== 为{@link Map}(Map&#60;String, Set&#60;String&#62;&#62;)<br>
      *      {@link Map}(Map&#60;String, Set&#60;String&#62;&#62;)的 <br> =key= 为 UriHttpMethodTuple, <br> =value= 为 role/authority/ip 的 Set; 当
      *      authorizeRequestMap 的 ==key== 为 {@link #HAS_ROLE},{@link #HAS_ANY_ROLE}/{@link #HAS_AUTHORITY}/{@link #HAS_ANY_AUTHORITY}/
      *      {@link #HAS_IP_ADDRESS}/{@link #ACCESS}时, set 不为 null, <br> 当 authorizeRequestMap 的 ==key== 为 {@link #PERMIT_ALL}/
-     *      {@link #DENY_ALL}/ {@link #ANONYMOUS}/{@link #AUTHENTICATED}/{@link #FULLY_AUTHENTICATED}/{@link #REMEMBER_ME}时, set 可以为
+     *      {@link #DENY_ALL}/ {@link #ANONYMOUS}/{@link #AUTHENTICATED}/{@link #FULLY_AUTHENTICATED}/{@link #REMEMBER_ME}时, set 为
      *      null).
      */
     Map<String, Map<UriHttpMethodTuple, Set<String>>> getAuthorizeRequestMap();

@@ -27,7 +27,7 @@ import org.springframework.lang.NonNull;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * jws set uri 访问权限访问服务接口
+ * jws set uri 访问权限访问服务接口, 可以与 {@link JwkEndpointPermissionService} 配合使用
  * @author YongWu zheng
  * @version V2.0  Created by 2020.12.9 19:30
  */

@@ -49,6 +49,7 @@ public interface JwtCacheTransformService<T> {
      *
      * @param bytes object binary representation.
      * @return the equivalent object instance. Can be {@literal null}.
+     * @throws SerializationException 反序列化异常
      */
     @NonNull
     T deserialize(@NonNull byte[] bytes) throws SerializationException;
