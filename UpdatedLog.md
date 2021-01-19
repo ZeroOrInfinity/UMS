@@ -1,3 +1,11 @@
+## 2.2.14
+### Fixes and Improvements:
+1. 添加: 用于从 jwk set uri 获取 JWk 时传递 header 的参数接口.
+2. 改进: UmsNimbusJwtDecoder.RestOperationsResourceRetriever 类, 添加可以自定义设置 header 参数的功能.
+3. 改进: 增加使 JWT 模块可自定义 RedisConnectionFactory, 通过注入 beanName 为 jwtRedisConnectionFactory 的 RedisConnectionFactory 即可.
+4. 优化: 创建 UmsNimbusDecoder 流程.
+5. 优化: UmsNimbusJwtDecoder 的字段 reAuthService 设置方式.
+
 ## 2.2.13
 ### Fixes and Improvements:
 1. 修复: 初始化 JwtClaimTypeConverterSupplier 的 ConditionalOnMissingBean 的 type 错误.
