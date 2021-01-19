@@ -46,6 +46,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -66,6 +67,7 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.jwt.JwtContext;
+import top.dcenter.ums.security.jwt.api.endpoind.service.JwkSetUriPassHeaders;
 import top.dcenter.ums.security.jwt.api.validator.service.ReAuthService;
 import top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy;
 import top.dcenter.ums.security.jwt.exception.JwtInvalidException;
@@ -416,15 +418,19 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 	 * @param jwkSetUri                 the JWK Set uri to use
 	 * @param refreshHandlerPolicy      {@link Jwt} 刷新处理策略
 	 * @param remainingRefreshInterval  JWT 剩余的有效期间隔小于此值后自动刷新 JWT, 此配置在 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时有效
+	 * @param jwkSetUriPassHeaders      用于从 jwk set uri 获取 JWk 时传递 header 的参数
 	 * @param principalClaimName        JWT 存储 principal 的 claimName
 	 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
 	 */
 	public static JwkSetUriJwtDecoderBuilder withJwkSetUri(String jwkSetUri,
 	                                                       JwtRefreshHandlerPolicy refreshHandlerPolicy,
 	                                                       Duration remainingRefreshInterval,
+	                                                       @Nullable JwkSetUriPassHeaders jwkSetUriPassHeaders,
 	                                                       String principalClaimName) {
 		return new JwkSetUriJwtDecoderBuilder(jwkSetUri, refreshHandlerPolicy,
-		                                      remainingRefreshInterval, principalClaimName);
+		                                      remainingRefreshInterval,
+		                                      jwkSetUriPassHeaders,
+		                                      principalClaimName);
 	}
 
 	/**
@@ -470,6 +476,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
 		private final Duration remainingRefreshInterval;
 		private final String principalClaimName;
+		private final JwkSetUriPassHeaders jwkSetUriPassHeaders;
 
 		@SuppressWarnings("FieldMayBeFinal")
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
@@ -483,6 +490,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri,
 		                                   JwtRefreshHandlerPolicy refreshHandlerPolicy,
 		                                   Duration remainingRefreshInterval,
+		                                   @Nullable JwkSetUriPassHeaders jwkSetUriPassHeaders,
 		                                   String principalClaimName) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
 			Assert.notNull(refreshHandlerPolicy, "refreshHandlerPolicy cannot be null");
@@ -492,6 +500,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 			this.jwkSetUri = jwkSetUri;
 			this.refreshHandlerPolicy = refreshHandlerPolicy;
 			this.remainingRefreshInterval = remainingRefreshInterval;
+			this.jwkSetUriPassHeaders = jwkSetUriPassHeaders;
 			this.jwtProcessorCustomizer = (processor) -> {
 			};
 		}
@@ -587,7 +596,8 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		}
 
 		JWTProcessor<SecurityContext> processor() {
-			ResourceRetriever jwkSetRetriever = new RestOperationsResourceRetriever(this.restOperations);
+			ResourceRetriever jwkSetRetriever = new RestOperationsResourceRetriever(this.restOperations,
+			                                                                        this.jwkSetUriPassHeaders);
 			JWKSource<SecurityContext> jwkSource = jwkSource(jwkSetRetriever);
 			ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 			jwtProcessor.setJWSKeySelector(jwsKeySelector(jwkSource));
@@ -672,17 +682,30 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 			private static final MediaType APPLICATION_JWK_SET_JSON = new MediaType("application", "jwk-set+json");
 
 			private final RestOperations restOperations;
+			private final Map<String, Object> headers;
 
-			RestOperationsResourceRetriever(RestOperations restOperations) {
+			RestOperationsResourceRetriever(RestOperations restOperations,
+			                                @Nullable JwkSetUriPassHeaders jwkSetUriPassHeaders) {
 				Assert.notNull(restOperations, "restOperations cannot be null");
 				this.restOperations = restOperations;
+				if (nonNull(jwkSetUriPassHeaders)) {
+					this.headers = jwkSetUriPassHeaders.headers();
+				}
+				else {
+					this.headers = null;
+				}
 			}
 
 			@Override
 			public Resource retrieveResource(URL url) throws IOException {
-				HttpHeaders headers = new HttpHeaders();
-				headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, APPLICATION_JWK_SET_JSON));
-				ResponseEntity<String> response = getResponse(url, headers);
+				final HttpHeaders httpHeaders = new HttpHeaders();
+				httpHeaders.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, APPLICATION_JWK_SET_JSON));
+
+				if (nonNull(this.headers)) {
+					this.headers.forEach((key, value) -> httpHeaders.set(key, (String) value));
+				}
+
+				ResponseEntity<String> response = getResponse(url, httpHeaders);
 				if (response.getStatusCodeValue() != 200) {
 					throw new IOException(response.toString());
 				}

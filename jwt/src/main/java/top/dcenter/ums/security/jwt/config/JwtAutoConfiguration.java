@@ -53,6 +53,7 @@ import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.jwt.JwtContext;
 import top.dcenter.ums.security.jwt.api.cache.service.JwtCacheTransformService;
 import top.dcenter.ums.security.jwt.api.endpoind.service.JwkEndpointPermissionService;
+import top.dcenter.ums.security.jwt.api.endpoind.service.JwkSetUriPassHeaders;
 import top.dcenter.ums.security.jwt.api.id.service.JwtIdService;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 import top.dcenter.ums.security.jwt.controller.JwtRefreshTokenController;
@@ -257,10 +258,12 @@ public class JwtAutoConfiguration implements InitializingBean {
                                jwkEndpointPermissionService, jwtProperties.getKid());
     }
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean
     @Primary
     public JwtDecoder jwtDecoder(@Autowired(required = false) OAuth2ResourceServerProperties auth2ResourceServerProperties,
-                                 JwtProperties jwtProperties) {
+                                 @Autowired(required = false) JwkSetUriPassHeaders jwkSetUriPassHeaders,
+                                         JwtProperties jwtProperties) {
         Resource jksKeyPairResource = jwtProperties.getJksKeyPairLocation();
         String macsSecret = jwtProperties.getMacsSecret();
         UmsNimbusJwtDecoder jwtDecoder = null;
@@ -287,6 +290,7 @@ public class JwtAutoConfiguration implements InitializingBean {
                     UmsNimbusJwtDecoder.withJwkSetUri(auth2ResourceServerProperties.getJwt().getJwkSetUri(),
                                                       jwtProperties.getRefreshHandlerPolicy(),
                                                       jwtProperties.getRemainingRefreshInterval(),
+                                                      jwkSetUriPassHeaders,
                                                       jwtProperties.getPrincipalClaimName())
                                        .jwsAlgorithm((SignatureAlgorithm) this.jwsAlgorithm)
                                        .build();
