@@ -418,18 +418,18 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 	 * @param jwkSetUri                 the JWK Set uri to use
 	 * @param refreshHandlerPolicy      {@link Jwt} 刷新处理策略
 	 * @param remainingRefreshInterval  JWT 剩余的有效期间隔小于此值后自动刷新 JWT, 此配置在 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时有效
-	 * @param jwkSetUriPassHeaders      用于从 jwk set uri 获取 JWk 时传递 header 的参数
+	 * @param jwkSetUriConfig           用于从 jwk set uri 获取 JWk 时传递 header 的参数
 	 * @param principalClaimName        JWT 存储 principal 的 claimName
 	 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
 	 */
 	public static JwkSetUriJwtDecoderBuilder withJwkSetUri(String jwkSetUri,
 	                                                       JwtRefreshHandlerPolicy refreshHandlerPolicy,
 	                                                       Duration remainingRefreshInterval,
-	                                                       @Nullable JwkSetUriConfig jwkSetUriPassHeaders,
+	                                                       @Nullable JwkSetUriConfig jwkSetUriConfig,
 	                                                       String principalClaimName) {
 		return new JwkSetUriJwtDecoderBuilder(jwkSetUri, refreshHandlerPolicy,
 		                                      remainingRefreshInterval,
-		                                      jwkSetUriPassHeaders,
+		                                      jwkSetUriConfig,
 		                                      principalClaimName);
 	}
 
@@ -693,11 +693,11 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 			private final Map<String, Object> headers;
 
 			RestOperationsResourceRetriever(RestOperations restOperations,
-			                                @Nullable JwkSetUriConfig jwkSetUriPassHeaders) {
+			                                @Nullable JwkSetUriConfig jwkSetUriConfig) {
 				Assert.notNull(restOperations, "restOperations cannot be null");
 				this.restOperations = restOperations;
-				if (nonNull(jwkSetUriPassHeaders)) {
-					this.headers = jwkSetUriPassHeaders.headers();
+				if (nonNull(jwkSetUriConfig)) {
+					this.headers = jwkSetUriConfig.headers();
 				}
 				else {
 					this.headers = null;
