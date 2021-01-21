@@ -1,6 +1,8 @@
-## 2.2.15
+## 2.2.16
 ### Fixes and Improvements:
-1. 改进: UmsNimbusJwtDecoder 添加从 jwkSetUri 获取 jwk 的缓存功能, 缓存时间与频率通过 JwkSetUriConfig 配置.
+1. 新增: ums-dependencies 模块, 便于版本管理.
+2. 改进: UmsNimbusJwtDecoder 添加从 jwkSetUri 获取 jwk 的缓存功能, 缓存时间与频率通过 JwkSetUriConfig 配置.
+3. 改进: 返回访问异常时, 增加 csrf 异常详细提示.
 
 
 ## 2.2.14
