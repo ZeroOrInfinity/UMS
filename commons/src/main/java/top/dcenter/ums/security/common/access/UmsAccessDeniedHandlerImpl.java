@@ -28,7 +28,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.csrf.CsrfException;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.utils.JsonUtil;
 import top.dcenter.ums.security.common.vo.ResponseResult;
 
 import javax.servlet.RequestDispatcher;
@@ -38,7 +40,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static top.dcenter.ums.security.common.utils.JsonUtil.isAjaxOrJson;
-import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
 import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
 /**
  * 授权异常处理器
@@ -60,9 +61,7 @@ public class UmsAccessDeniedHandlerImpl implements AccessDeniedHandler {
         }
         //判断是否为ajax请求
         if (isAjaxOrJson(request)) {
-            responseWithJson(response, HttpStatus.FORBIDDEN.value(),
-                             toJsonString(ResponseResult.fail(ErrorCodeEnum.PERMISSION_DENY,
-                                                               request.getRequestURI())));
+            responseWithJson(request, response, accessDeniedException);
         }
         if (errorPage != null) {
             // Put exception into request scope (perhaps of use to a view)
@@ -76,9 +75,24 @@ public class UmsAccessDeniedHandlerImpl implements AccessDeniedHandler {
             dispatcher.forward(request, response);
         }
         else {
-            responseWithJson(response, HttpStatus.FORBIDDEN.value(),
-                             toJsonString(ResponseResult.fail(ErrorCodeEnum.PERMISSION_DENY, request.getRequestURI())));
+            responseWithJson(request, response, accessDeniedException);
         }
+    }
+
+    private void responseWithJson(HttpServletRequest request, HttpServletResponse response,
+                               AccessDeniedException accessDeniedException) throws IOException {
+        if (accessDeniedException instanceof CsrfException)
+        {
+            CsrfException deniedException = ((CsrfException) accessDeniedException);
+            JsonUtil.responseWithJson(response, HttpStatus.FORBIDDEN.value(),
+                                      toJsonString(ResponseResult.fail(deniedException.getMessage(),
+                                                              ErrorCodeEnum.CSRF_ERROR,
+                                                              request.getRequestURI())));
+            return;
+        }
+        JsonUtil.responseWithJson(response, HttpStatus.FORBIDDEN.value(),
+                                  toJsonString(ResponseResult.fail(ErrorCodeEnum.PERMISSION_DENY,
+                                                                   request.getRequestURI())));
     }
 
     /**

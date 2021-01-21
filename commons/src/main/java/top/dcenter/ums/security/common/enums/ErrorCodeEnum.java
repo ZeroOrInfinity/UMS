@@ -57,6 +57,7 @@ public enum ErrorCodeEnum {
     GET_VALIDATE_CODE_FAILURE(605, "获取验证码失败，请重试"),
     VALIDATE_CODE_FAILURE(606, "验证码校验不通过，请重试"),
     VALIDATE_CODE_NOT_EXISTS_IN_CACHE(607, "缓存中没有对应的验证码，请重新获取验证码"),
+    CSRF_ERROR(608, "CSRF 错误"),
 
     SMS_CODE_PARAMETER_ERROR(610, "短信验证码参数错误"),
     SMS_CODE_ERROR(611, "短信验证码错误"),
