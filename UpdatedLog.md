@@ -1,3 +1,8 @@
+## 2.2.17
+### Fixes and Improvements:
+1. maven 仓库 v2.2.16 发布异常 重新发版.
+
+
 ## 2.2.16
 ### Fixes and Improvements:
 1. 新增: ums-dependencies 模块, 便于版本管理.
