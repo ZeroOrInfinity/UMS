@@ -24,6 +24,7 @@
 package top.dcenter.ums.security.common.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
@@ -31,20 +32,21 @@ import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import java.time.LocalDateTime;
 
 /**
- * 简单的 Vo 对象封装, code = 0 表示处理成功信息，其他表示失败。<br><br>
+ * 简单的 Vo 对象封装, code = 200 表示处理成功信息，其他表示失败。<br><br>
  * @author zhailiang
  * @version V1.0  Created by 2020/5/3 19:39
  * @author YongWu zheng
  */
 public class ResponseResult {
     /**
-     * 0 表示处理成功信息，其他表示失败
+     * 200 表示处理成功信息，其他表示失败
      */
     private int code;
     private String msg;
     /**
      * 失败的情况下, 大部分情况返回日志链路追踪 ID
      */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Object data;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -69,7 +71,7 @@ public class ResponseResult {
     }
 
     /**
-     * 默认成功返回 code = 0
+     * 默认成功返回 code = 200
      * @return  ResponseResult
      */
     public static ResponseResult success() {
@@ -77,7 +79,7 @@ public class ResponseResult {
     }
 
     /**
-     * 默认成功返回 code = 0 与 msg
+     * 默认成功返回 code = 200 与 msg
      * @param msg   msg
      * @return  ResponseResult
      */
@@ -86,13 +88,13 @@ public class ResponseResult {
     }
 
     /**
-     * 默认成功返回 code = 0, msg, data
+     * 默认成功返回 code = 200, msg, data
      * @param msg   msg
      * @param data  data
      * @return  ResponseResult
      */
     public static ResponseResult success(String msg, Object data) {
-        ResponseResult responseResult = new ResponseResult(0);
+        ResponseResult responseResult = new ResponseResult(200);
         responseResult.setMsg(msg);
         responseResult.setData(data);
         return responseResult;
