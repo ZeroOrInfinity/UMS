@@ -129,7 +129,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 	@Getter
 	private final Duration remainingRefreshInterval;
 	/**
-	 * JWT 存储 principal 的 claimName, 通常 principal 为 userId
+	 * JWT 存储 userId 的 claimName
 	 */
 	@Getter	private final String principalClaimName;
 
@@ -284,7 +284,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 			}
 
 			// 检查是否在黑名单中.
-			if (JwtContext.refreshJwtInTheBlacklist(createJwt, principalClaimName)) {
+			if (JwtContext.isRefreshJwtInTheBlacklist(createJwt, principalClaimName)) {
 				throw new JwtInvalidException(ErrorCodeEnum.JWT_REFRESH_TOKEN_INVALID, getMdcTraceId());
 			}
 
@@ -373,7 +373,7 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 	 */
 	private Jwt validateJti(Jwt jwt) {
 		// 1. 校验 jwt 是否在黑名单, 是否需要重新认证(reAuth)
-		JwtContext.BlacklistType blacklistType = JwtContext.jtiInTheBlacklist(jwt.getId());
+		JwtContext.BlacklistType blacklistType = JwtContext.jtiInTheBlacklist(jwt);
 		try {
 	        /* - newJwtString == null 表示不在黑名单中,
 	           - newJwtString != null 表示在黑名单中, 但缓存中存储有新的且有效 JWT 则返回新的 jwt 字符串,

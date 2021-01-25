@@ -79,7 +79,7 @@ public class UserController {
         {
             JwtAuthenticationToken jwtAuthenticationToken = ((JwtAuthenticationToken) authentication);
             JwtAuthenticationToken authenticationFromRedis =
-                    (JwtAuthenticationToken) JwtContext.getTokenInfoFromRedis(jwtAuthenticationToken.getToken().getId());
+                    (JwtAuthenticationToken) JwtContext.getTokenInfoFromRedis(jwtAuthenticationToken.getToken());
             return ResponseResult.success(JsonUtil.toJsonString(principal),
                                           authenticationFromRedis);
         }

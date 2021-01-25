@@ -35,6 +35,8 @@ import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.lang.NonNull;
@@ -70,6 +72,7 @@ import top.dcenter.ums.security.jwt.properties.JwtBlacklistProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -79,6 +82,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 
@@ -183,6 +187,12 @@ public final class JwtContext {
      * 方法注入.
      */
     private volatile static JwtCacheTransformService<?> jwtCacheTransformService = null;
+    /**
+     * principalClaimName
+     * 如果支持 JWT 功能, 通过 {@code top.dcenter.ums.security.jwt.config.JwtAutoConfiguration#afterPropertiesSet()}
+     * 方法注入.
+     */
+    private volatile static  String principalClaimName = null;
 
     // ====================== JWK 相关 ======================
 
@@ -322,7 +332,7 @@ public final class JwtContext {
         }
 
         // 1. 校验 jwt 是否在黑名单, 是否需要重新认证(reAuth)
-        BlacklistType blacklistType = jtiInTheBlacklist(jwt.getId());
+        BlacklistType blacklistType = jtiInTheBlacklist(jwt);
         /* - newJwtString == null 表示不在黑名单中,
            - newJwtString != null 表示在黑名单中, 但缓存中存储有新的且有效 JWT 则返回新的 jwt 字符串,
            - 抛出异常表示在黑名单中, 但缓存中没有新的 jwt 字符串, 则需要重新认证.
@@ -484,16 +494,16 @@ public final class JwtContext {
      * 根据 jwtToken 字符串从 redis 中获取 {@link JwtAuthenticationToken}.
      * 当 jwtTokenString 失效时返回 null,
      * 当 {@link JwtBlacklistProperties#getEnable()} 为 true 时返回 null,
-     * @param jti   {@link Jwt} 的 {@link JwtClaimNames#JTI}
+     * @param jwt   {@link Jwt}
      * @return  返回 {@link JwtCacheTransformService#getClazz()} 的类型; 当 jwtTokenString 失效时返回 null,
      * 当 {@link JwtBlacklistProperties#getEnable()} 为 true 时返回 null.
      */
     @Nullable
-    public static Object getTokenInfoFromRedis(@NonNull String jti) throws SerializationException {
+    public static Object getTokenInfoFromRedis(@NonNull Jwt jwt) throws SerializationException {
         if (blacklistProperties.getEnable()) {
             return null;
         }
-        byte[] authBytes = getConnection().get(getTokenKey(jti));
+        byte[] authBytes = getConnection().get(getTokenKey(jwt));
 
         if (isNull(authBytes)) {
             return null;
@@ -523,7 +533,7 @@ public final class JwtContext {
 
     /**
      * 返回 null 表示不在黑名单中, 返回不为 null 则表示在黑名单中, 但缓存中存储有新的且有效 JWT 则返回新的 jwt 字符串.
-     * 注意: 必须先调用 {@link #jtiInTheBlacklist(String)}, 再调用此方法.
+     * 注意: 必须先调用 {@link #jtiInTheBlacklist(Jwt)}, 再调用此方法.
      * @param blacklistType {@link BlacklistType}
      * @return  返回 null 表示不在黑名单中, 返回不为 null 则表示在黑名单中, 但缓存中存储有新的且有效 JWT 则返回新的 jwt 字符串.
      * @throws JwtInvalidException  表示在黑名单中, 但缓存中没有新的 jwt 字符串, 则需要重新认证.
@@ -548,14 +558,14 @@ public final class JwtContext {
      * 此方法已调用 {@link BlacklistType#getBlacklistType(String)}, 如果返回值为
      * {@link BlacklistType#IN_BLACKLIST_AND_HAS_NEW_JWT}, 可调用 {@link BlacklistType#getOneTimeNewJwtValue()} 获取新的
      * jwt 字符串.
-     * @param jti       {@link JwtClaimNames#JTI} 的值
+     * @param jwt       {@link Jwt}
      * @return  返回 {@link BlacklistType}
      */
     @NonNull
-    public static BlacklistType jtiInTheBlacklist(@NonNull String jti) {
+    public static BlacklistType jtiInTheBlacklist(@NonNull Jwt jwt) {
         // 不支持黑名单逻辑
         if (!blacklistProperties.getEnable()) {
-            Boolean exists = getConnection().exists(getTokenKey(jti));
+            Boolean exists = getConnection().exists(getTokenKey(jwt));
             if (nonNull(exists) && exists) {
                 return BlacklistType.NOT_IN_BLACKLIST;
             }
@@ -567,7 +577,7 @@ public final class JwtContext {
         // 支持黑名单逻辑
 
         // 从 redis jwt 黑名单中获取 jti 的值
-        byte[] result = getConnection().get(getBlacklistKey(jti));
+        byte[] result = getConnection().get(getBlacklistKey(jwt.getId()));
 
         String blacklistValue;
         if (isNull(result)) {
@@ -587,8 +597,8 @@ public final class JwtContext {
      * @return  返回 true 表示在黑名单, 返回 false 表示不在黑名单
      */
     @NonNull
-    public static Boolean refreshJwtInTheBlacklist(@NonNull Jwt refreshJwt,
-                                                   @NonNull String principalClaimName) {
+    public static Boolean isRefreshJwtInTheBlacklist(@NonNull Jwt refreshJwt,
+                                                     @NonNull String principalClaimName) {
         // 不支持黑名单逻辑
         if (!blacklistProperties.getEnable()) {
             Boolean exists =
@@ -809,7 +819,7 @@ public final class JwtContext {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
             final Duration ttl = Duration.ofSeconds(expiresAt.getEpochSecond() - Instant.now().getEpochSecond());
-            getConnection().set(getTokenKey(jwt.getId()),
+            getConnection().set(getTokenKey(jwt),
                                 tokenValue,
                                 Expiration.from(ttl),
                                 UPSERT);
@@ -833,11 +843,11 @@ public final class JwtContext {
         // 不支持 jwt 黑名单逻辑
         if (!blacklistProperties.getEnable()) {
             // 删除 redis 中的 oldJwt 缓存
-            getConnection().del(getTokenKey(oldJwt.getId()));
+            getConnection().del(getTokenKey(oldJwt));
             return;
         }
 
-        // 校验新 jwt 与 旧 jwt 是否相同 userId
+        // 校验 refresh 的 jwt 与 旧 jwt 是否相同 userId
         Object oldUserId = oldJwt.getClaim(principalClaimName);
         if (!Objects.equals(oldUserId, userIdByRefreshToken)) {
             log.error("oldUserId: {} 与 userIdByRefreshToken: {} 不匹配, refreshToken: {}",
@@ -868,10 +878,12 @@ public final class JwtContext {
         // 不支持黑名单逻辑
         if (!blacklistProperties.getEnable()) {
             if (isReAuthAndRefreshPolicy) {
-                connection.del(getRefreshTokenKey(userId), getTokenKey(oldJwt.getId()));
+                connection.del(getRefreshTokenKey(userId));
+                // 删除同一用户下的所有客户端登录信息
+                delAllTokenInfoInRedisByUserId(userId, connection);
             }
             else {
-                connection.del(getTokenKey(oldJwt.getId()));
+                connection.del(getTokenKey(oldJwt));
             }
             return;
         }
@@ -897,6 +909,33 @@ public final class JwtContext {
                            value,
                            Expiration.seconds(blacklistProperties.getRefreshTokenTtl().getSeconds()),
                            SET_IF_ABSENT);
+        }
+    }
+
+    /**
+     * 删除 userId 用户所有客户端在 redis 的 tokenInfo; 发生错误未做处理, 待扩展.
+     * @param userId        用户唯一 ID
+     * @param connection    {@link RedisConnection}, 在此方法中不会关闭吃连接, 需要调用方关闭
+     */
+    private static void delAllTokenInfoInRedisByUserId(String userId, RedisConnection connection) {
+        ScanOptions options = ScanOptions.scanOptions()
+                                         .count(1000)
+                                         .match(blacklistProperties.getTokenInfoPrefix()
+                                                                   .concat(userId)
+                                                                   .concat(":*"))
+                                         .build();
+        try (Cursor<byte[]> cursor = connection.scan(options)) {
+            ArrayList<byte[]> tokenInfoKeyList = new ArrayList<>();
+            do {
+                tokenInfoKeyList.add(cursor.next());
+            }
+            while (cursor.hasNext());
+            // 删除同一用户所有客户端的 tokenInfo
+            connection.del(tokenInfoKeyList.toArray(new byte[0][0]));
+        }
+        catch (IOException e) {
+            log.error(e.getMessage(), e);
+            // 待扩展: 删除同一用户所有客户端的 tokenInfo 发生错误, 未做处理
         }
     }
 
@@ -933,13 +972,15 @@ public final class JwtContext {
     }
 
     /**
-     * 获取 jwt token redis key
-     * @param userId  用户 ID
-     * @return  返回 token 的 redis key
+     * 获取 jwt token redis key: TokenInfoPrefix + userId:jti
+     * @param jwt  {@link Jwt}
+     * @return  返回 token 的 redis key: TokenInfoPrefix + userId:jti
      */
     @NonNull
-    private static byte[] getTokenKey(String userId) {
-        return blacklistProperties.getTokenInfoPrefix().concat(userId).getBytes(StandardCharsets.UTF_8);
+    private static byte[] getTokenKey(Jwt jwt) {
+        return blacklistProperties.getTokenInfoPrefix()
+                                  .concat(jwt.getClaimAsString(principalClaimName) + ":" + jwt.getId())
+                                  .getBytes(StandardCharsets.UTF_8);
     }
 
     /**
