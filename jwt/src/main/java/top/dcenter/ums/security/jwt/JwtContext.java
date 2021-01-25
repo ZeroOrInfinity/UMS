@@ -500,20 +500,22 @@ public final class JwtContext {
      */
     @Nullable
     public static Object getTokenInfoFromRedis(@NonNull Jwt jwt) throws SerializationException {
-        if (blacklistProperties.getEnable()) {
-            return null;
-        }
-        byte[] authBytes = getConnection().get(getTokenKey(jwt));
+        try (RedisConnection connection = getConnection()) {
+            if (blacklistProperties.getEnable()) {
+                return null;
+            }
+            byte[] authBytes = connection.get(getTokenKey(jwt));
 
-        if (isNull(authBytes)) {
-            return null;
-        }
-        try {
-            return jwtCacheTransformService.deserialize(authBytes);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw e;
+            if (isNull(authBytes)) {
+                return null;
+            }
+            try {
+                return jwtCacheTransformService.deserialize(authBytes);
+            }
+            catch (Exception e) {
+                log.error(e.getMessage(), e);
+                throw e;
+            }
         }
     }
 
@@ -564,30 +566,32 @@ public final class JwtContext {
     @NonNull
     public static BlacklistType jtiInTheBlacklist(@NonNull Jwt jwt) {
         // 不支持黑名单逻辑
-        if (!blacklistProperties.getEnable()) {
-            Boolean exists = getConnection().exists(getTokenKey(jwt));
-            if (nonNull(exists) && exists) {
-                return BlacklistType.NOT_IN_BLACKLIST;
+        try (RedisConnection connection = getConnection()) {
+            if (!blacklistProperties.getEnable()) {
+                Boolean exists = connection.exists(getTokenKey(jwt));
+                if (nonNull(exists) && exists) {
+                    return BlacklistType.NOT_IN_BLACKLIST;
+                }
+                else {
+                    return BlacklistType.IN_BLACKLIST;
+                }
+            }
+
+            // 支持黑名单逻辑
+
+            // 从 redis jwt 黑名单中获取 jti 的值
+            byte[] result = connection.get(getBlacklistKey(jwt.getId()));
+
+            String blacklistValue;
+            if (isNull(result)) {
+                blacklistValue = null;
             }
             else {
-                return BlacklistType.IN_BLACKLIST;
+                blacklistValue = new String(result, StandardCharsets.UTF_8);
             }
+
+            return BlacklistType.getBlacklistType(blacklistValue);
         }
-
-        // 支持黑名单逻辑
-
-        // 从 redis jwt 黑名单中获取 jti 的值
-        byte[] result = getConnection().get(getBlacklistKey(jwt.getId()));
-
-        String blacklistValue;
-        if (isNull(result)) {
-            blacklistValue = null;
-        }
-        else {
-            blacklistValue = new String(result, StandardCharsets.UTF_8);
-        }
-
-        return BlacklistType.getBlacklistType(blacklistValue);
     }
 
     /**
@@ -599,19 +603,22 @@ public final class JwtContext {
     @NonNull
     public static Boolean isRefreshJwtInTheBlacklist(@NonNull Jwt refreshJwt,
                                                      @NonNull String principalClaimName) {
-        // 不支持黑名单逻辑
-        if (!blacklistProperties.getEnable()) {
-            Boolean exists =
-                    getConnection().exists(getRefreshTokenKey(refreshJwt.getClaimAsString(principalClaimName)));
-            return isNull(exists) || !exists;
+        try (RedisConnection connection = getConnection()) {
+            // 不支持黑名单逻辑
+            if (!blacklistProperties.getEnable()) {
+                Boolean exists =
+                        connection.exists(getRefreshTokenKey(refreshJwt.getClaimAsString(principalClaimName)));
+                return isNull(exists) || !exists;
+            }
+
+            // 支持黑名单逻辑
+
+            // 从 redis jwt 黑名单中获取 jti 的值
+            Boolean exists = connection.exists(getBlacklistKey(refreshJwt.getId()));
+
+            return nonNull(exists) && exists;
+
         }
-
-        // 支持黑名单逻辑
-
-        // 从 redis jwt 黑名单中获取 jti 的值
-        Boolean exists = getConnection().exists(getBlacklistKey(refreshJwt.getId()));
-
-        return nonNull(exists) && exists;
     }
 
     /**
@@ -620,28 +627,30 @@ public final class JwtContext {
      * @param principalClaimName    JWT 存储 principal 的 claimName
      */
     public static void addBlacklistForRefreshToken(Jwt refreshTokenJwt, String principalClaimName) {
+
         String userId = refreshTokenJwt.getClaimAsString(principalClaimName);
-        RedisConnection connection = getConnection();
+        try (RedisConnection connection = getConnection()) {
+            // 不支持黑名单逻辑
+            if (!blacklistProperties.getEnable()) {
+                connection.del(getRefreshTokenKey(userId));
+                return;
+            }
 
-        // 不支持黑名单逻辑
-        if (!blacklistProperties.getEnable()) {
-            connection.del(getRefreshTokenKey(userId));
-            return;
-        }
+            // 支持黑名单逻辑
 
-        // 支持黑名单逻辑
+            Instant expiresAt = refreshTokenJwt.getExpiresAt();
+            if (isNull(expiresAt)) {
+                return;
+            }
+            Instant now = Instant.now();
+            // jwt 还在有效期内, 放入黑名单
+            if (expiresAt.isAfter(now.minus(clockSkew))) {
+                connection.set(getBlacklistKey(refreshTokenJwt.getId()),
+                               BlacklistType.IN_BLACKLIST.name().getBytes(StandardCharsets.UTF_8),
+                               Expiration.seconds(expiresAt.getEpochSecond() - now.getEpochSecond() + clockSkew.getSeconds()),
+                               SET_IF_ABSENT);
+            }
 
-        Instant expiresAt = refreshTokenJwt.getExpiresAt();
-        if (isNull(expiresAt)) {
-            return;
-        }
-        Instant now = Instant.now();
-        // jwt 还在有效期内, 放入黑名单
-        if (expiresAt.isAfter(now.minus(clockSkew))) {
-            connection.set(getBlacklistKey(refreshTokenJwt.getId()),
-                           BlacklistType.IN_BLACKLIST.name().getBytes(StandardCharsets.UTF_8),
-                           Expiration.seconds(expiresAt.getEpochSecond() - now.getEpochSecond() + clockSkew.getSeconds()),
-                           SET_IF_ABSENT);
         }
     }
 
@@ -760,14 +769,17 @@ public final class JwtContext {
      */
     @NonNull
     public static Boolean addReAuthFlag(@NonNull String userId) {
-        Boolean result = getConnection().set(getReAuthKey(userId),
-                                             "1".getBytes(StandardCharsets.UTF_8),
-                                             Expiration.seconds(blacklistProperties.getRefreshTokenTtl().getSeconds()),
-                                             SET_IF_ABSENT);
-        if (isNull(result)) {
-            return FALSE;
+        try (RedisConnection connection = getConnection()) {
+            Boolean result = connection.set(getReAuthKey(userId),
+                                                 "1".getBytes(StandardCharsets.UTF_8),
+                                                 Expiration.seconds(blacklistProperties.getRefreshTokenTtl().getSeconds()),
+                                                 SET_IF_ABSENT);
+            if (isNull(result)) {
+                return FALSE;
+            }
+            return result;
+
         }
-        return result;
     }
 
     /**
@@ -777,8 +789,10 @@ public final class JwtContext {
      */
     @NonNull
     public static Boolean isReAuth(@NonNull String userId) {
-        Boolean exists = getConnection().exists(getReAuthKey(userId));
-        return nonNull(exists) && exists;
+        try (RedisConnection connection = getConnection()) {
+            Boolean exists = connection.exists(getReAuthKey(userId));
+            return nonNull(exists) && exists;
+        }
     }
 
     // ====================== 内部私有方法 ======================
@@ -790,7 +804,9 @@ public final class JwtContext {
      * @param userId    用户 ID
      */
     private static void removeReAuthFlag(@NonNull String userId) {
-        getConnection().del(getReAuthKey(userId));
+        try (RedisConnection connection = getConnection()) {
+            connection.del(getReAuthKey(userId));
+        }
 
     }
 
@@ -808,6 +824,7 @@ public final class JwtContext {
      */
     private static void saveTokenSessionToRedis(@NonNull Authentication authentication, @NonNull Jwt jwt,
                                                 @SuppressWarnings("SameParameterValue") @NonNull Boolean isSetContext) {
+
         // 如果不支持 jwt 黑名单, 添加到 redis 缓存
         if (!blacklistProperties.getEnable()) {
             byte[] tokenValue = jwtCacheTransformService.serialize(authentication);
@@ -819,11 +836,12 @@ public final class JwtContext {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
             final Duration ttl = Duration.ofSeconds(expiresAt.getEpochSecond() - Instant.now().getEpochSecond());
-            getConnection().set(getTokenKey(jwt),
-                                tokenValue,
-                                Expiration.from(ttl),
-                                UPSERT);
-
+            try (RedisConnection connection = getConnection()) {
+                connection.set(getTokenKey(jwt),
+                               tokenValue,
+                               Expiration.from(ttl),
+                               UPSERT);
+            }
         }
     }
 
@@ -840,24 +858,26 @@ public final class JwtContext {
                                              @NonNull Jwt oldJwt,
                                              @NonNull Jwt newJwt,
                                              @NonNull String principalClaimName) {
-        // 不支持 jwt 黑名单逻辑
-        if (!blacklistProperties.getEnable()) {
-            // 删除 redis 中的 oldJwt 缓存
-            getConnection().del(getTokenKey(oldJwt));
-            return;
-        }
+        try (RedisConnection connection = getConnection()) {
+            // 不支持 jwt 黑名单逻辑
+            if (!blacklistProperties.getEnable()) {
+                // 删除 redis 中的 oldJwt 缓存
+                connection.del(getTokenKey(oldJwt));
+                return;
+            }
 
-        // 校验 refresh 的 jwt 与 旧 jwt 是否相同 userId
-        Object oldUserId = oldJwt.getClaim(principalClaimName);
-        if (!Objects.equals(oldUserId, userIdByRefreshToken)) {
-            log.error("oldUserId: {} 与 userIdByRefreshToken: {} 不匹配, refreshToken: {}",
-                      oldUserId, userIdByRefreshToken, refreshToken);
-            // userId 与 refreshToken 不匹配, 删除 refreshToken
-            getConnection().del(getRefreshTokenKey(userIdByRefreshToken));
-            throw new RefreshTokenInvalidException(ErrorCodeEnum.JWT_REFRESH_TOKEN_INVALID, getMdcTraceId());
-        }
+            // 校验 refresh 的 jwt 与 旧 jwt 是否相同 userId
+            Object oldUserId = oldJwt.getClaim(principalClaimName);
+            if (!Objects.equals(oldUserId, userIdByRefreshToken)) {
+                log.error("oldUserId: {} 与 userIdByRefreshToken: {} 不匹配, refreshToken: {}",
+                          oldUserId, userIdByRefreshToken, refreshToken);
+                // userId 与 refreshToken 不匹配, 删除 refreshToken
+                connection.del(getRefreshTokenKey(userIdByRefreshToken));
+                throw new RefreshTokenInvalidException(ErrorCodeEnum.JWT_REFRESH_TOKEN_INVALID, getMdcTraceId());
+            }
 
-        addBlacklist(oldJwt, newJwt, principalClaimName);
+            addBlacklist(oldJwt, newJwt, principalClaimName);
+        }
 
     }
 
@@ -873,42 +893,43 @@ public final class JwtContext {
                                      @NonNull String principalClaimName,
                                      @NonNull Boolean isReAuth) {
         String userId = oldJwt.getClaimAsString(principalClaimName);
-        RedisConnection connection = getConnection();
         boolean isReAuthAndRefreshPolicy = isReAuth && REFRESH_TOKEN.equals(refreshHandlerPolicy);
-        // 不支持黑名单逻辑
-        if (!blacklistProperties.getEnable()) {
+        try (RedisConnection connection = getConnection()) {
+            // 不支持黑名单逻辑
+            if (!blacklistProperties.getEnable()) {
+                if (isReAuthAndRefreshPolicy) {
+                    connection.del(getRefreshTokenKey(userId));
+                    // 删除同一用户下的所有客户端登录信息
+                    delAllTokenInfoInRedisByUserId(userId, connection);
+                }
+                else {
+                    connection.del(getTokenKey(oldJwt));
+                }
+                return;
+            }
+
+            // 支持黑名单逻辑
+
+            Instant expiresAt = oldJwt.getExpiresAt();
+            if (isNull(expiresAt)) {
+                return;
+            }
+            Instant now = Instant.now();
+            // 旧的 jwt 还在有效期内, 放入黑名单
+            if (expiresAt.isAfter(now.minus(clockSkew))) {
+                connection.set(getBlacklistKey(oldJwt.getId()),
+                               value,
+                               Expiration.seconds(expiresAt.getEpochSecond() - now.getEpochSecond() + clockSkew.getSeconds()),
+                               SET_IF_ABSENT);
+            }
+            // 如果需要重新认证, 对 refreshToken 也一并加入黑名单.
             if (isReAuthAndRefreshPolicy) {
-                connection.del(getRefreshTokenKey(userId));
-                // 删除同一用户下的所有客户端登录信息
-                delAllTokenInfoInRedisByUserId(userId, connection);
+                String rJti = oldJwt.getClaimAsString(JwtCustomClaimNames.REFRESH_TOKEN_JTI.getClaimName());
+                connection.set(getBlacklistKey(rJti),
+                               value,
+                               Expiration.seconds(blacklistProperties.getRefreshTokenTtl().getSeconds()),
+                               SET_IF_ABSENT);
             }
-            else {
-                connection.del(getTokenKey(oldJwt));
-            }
-            return;
-        }
-
-        // 支持黑名单逻辑
-
-        Instant expiresAt = oldJwt.getExpiresAt();
-        if (isNull(expiresAt)) {
-            return;
-        }
-        Instant now = Instant.now();
-        // 旧的 jwt 还在有效期内, 放入黑名单
-        if (expiresAt.isAfter(now.minus(clockSkew))) {
-            connection.set(getBlacklistKey(oldJwt.getId()),
-                           value,
-                           Expiration.seconds(expiresAt.getEpochSecond() - now.getEpochSecond() + clockSkew.getSeconds()),
-                           SET_IF_ABSENT);
-        }
-        // 如果需要重新认证, 对 refreshToken 也一并加入黑名单.
-        if (isReAuthAndRefreshPolicy) {
-            String rJti = oldJwt.getClaimAsString(JwtCustomClaimNames.REFRESH_TOKEN_JTI.getClaimName());
-            connection.set(getBlacklistKey(rJti),
-                           value,
-                           Expiration.seconds(blacklistProperties.getRefreshTokenTtl().getSeconds()),
-                           SET_IF_ABSENT);
         }
     }
 
@@ -1040,26 +1061,27 @@ public final class JwtContext {
             throws JwtInvalidException {
 
         String userId = refreshTokenJwt.getClaimAsString(principalClaimName);
-        RedisConnection connection = getConnection();
+        try (RedisConnection connection = getConnection()) {
+            // 不支持 jwt 黑名单逻辑
+            if (!blacklistProperties.getEnable()) {
+                Boolean exists = connection.exists(getRefreshTokenKey(userId));
 
-        // 不支持 jwt 黑名单逻辑
-        if (!blacklistProperties.getEnable()) {
-            Boolean exists = connection.exists(getRefreshTokenKey(userId));
+                if (isNull(exists) || !exists) {
+                    return null;
+                }
+                return userId;
+            }
 
-            if (isNull(exists) || !exists) {
+            // 支持 jwt 黑名单逻辑
+            Boolean exists = connection.exists(getBlacklistKey(refreshTokenJwt.getId()));
+            if (nonNull(exists) && exists) {
+                // 在黑名单
                 return null;
             }
+
             return userId;
         }
 
-        // 支持 jwt 黑名单逻辑
-        Boolean exists = connection.exists(getBlacklistKey(refreshTokenJwt.getId()));
-        if (nonNull(exists) && exists) {
-            // 在黑名单
-            return null;
-        }
-
-        return userId;
     }
 
     /**
@@ -1104,20 +1126,22 @@ public final class JwtContext {
     @NonNull
     private static Boolean saveRefreshToken(@NonNull String userId, @NonNull String refreshToken) {
 
-        // 不支持 jwt 黑名单则缓存 refreshToken 到 redis
-        if (!blacklistProperties.getEnable() && REFRESH_TOKEN.equals(refreshHandlerPolicy)) {
-            Boolean isSuccess = getConnection().set(getRefreshTokenKey(userId),
-                                                    refreshToken.getBytes(StandardCharsets.UTF_8),
-                                                    Expiration.from(blacklistProperties.getRefreshTokenTtl().minusSeconds(1L)),
-                                                    UPSERT);
-            if (isNull(isSuccess)) {
-                return false;
+        try (RedisConnection connection = getConnection()) {
+            // 不支持 jwt 黑名单则缓存 refreshToken 到 redis
+            if (!blacklistProperties.getEnable() && REFRESH_TOKEN.equals(refreshHandlerPolicy)) {
+                Boolean isSuccess = connection.set(getRefreshTokenKey(userId),
+                                                   refreshToken.getBytes(StandardCharsets.UTF_8),
+                                                   Expiration.from(blacklistProperties.getRefreshTokenTtl().minusSeconds(1L)),
+                                                   UPSERT);
+                if (isNull(isSuccess)) {
+                    return false;
+                }
+                return isSuccess;
             }
-            return isSuccess;
-        }
 
-        // 支持 jwt 黑名单直接返回
-        return true;
+            // 支持 jwt 黑名单直接返回
+            return true;
+        }
 
     }
 

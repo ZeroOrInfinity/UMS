@@ -58,13 +58,16 @@ public class Oauth2TokenHandlerController {
     @RequestMapping(value = "/oauth2Callback", method = {RequestMethod.POST})
     @ResponseBody
     public ResponseResult oAuth2LoginSuccessCallback(@RequestParam("tk") String tk) {
-        if (hasText(tk)) {
-            byte[] bytes = getConnection().get((umsProperties.getTempOauth2TokenPrefix() + tk).getBytes(StandardCharsets.UTF_8));
-            if (nonNull(bytes)) {
-                return ResponseResult.success(null, new String(bytes, StandardCharsets.UTF_8));
+        try (RedisConnection connection = getConnection()) {
+            if (hasText(tk)) {
+                byte[] bytes =
+                        connection.get((umsProperties.getTempOauth2TokenPrefix() + tk).getBytes(StandardCharsets.UTF_8));
+                if (nonNull(bytes)) {
+                    return ResponseResult.success(null, new String(bytes, StandardCharsets.UTF_8));
+                }
             }
+            return ResponseResult.fail(ErrorCodeEnum.NOT_FOUND);
         }
-        return ResponseResult.fail(ErrorCodeEnum.NOT_FOUND);
     }
 
     @NonNull

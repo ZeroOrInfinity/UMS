@@ -144,9 +144,11 @@ public class UmsAuthenticationSuccessHandler extends BaseAuthenticationSuccessHa
                     }
                     tkValue = tkValue.concat(umsProperties.getDelimiterOfTokenAndRefreshToken())
                                      .concat(targetUrl);
-                    getConnection().setEx((umsProperties.getTempOauth2TokenPrefix() + uuid).getBytes(StandardCharsets.UTF_8),
-                                          umsProperties.getTempOauth2TokenTimeout().getSeconds(),
-                                          tkValue.getBytes(StandardCharsets.UTF_8));
+                    try (RedisConnection connection = getConnection()) {
+                        connection.setEx((umsProperties.getTempOauth2TokenPrefix() + uuid).getBytes(StandardCharsets.UTF_8),
+                                              umsProperties.getTempOauth2TokenTimeout().getSeconds(),
+                                              tkValue.getBytes(StandardCharsets.UTF_8));
+                    }
                 }
 
                 clearAuthenticationAttributes(request);
