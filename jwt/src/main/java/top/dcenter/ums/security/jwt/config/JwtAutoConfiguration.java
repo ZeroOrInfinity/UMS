@@ -139,6 +139,10 @@ public class JwtAutoConfiguration implements InitializingBean {
      * {@link JwtContext} 的 jwtCacheTransformService 字段名称
      */
     public static final String JWT_CACHE_TRANSFORM_SERVICE = "jwtCacheTransformService";
+    /**
+     * {@link JwtContext} 的 principalClaimName 字段名称
+     */
+    public static final String PRINCIPAL_CLAIM_NAME = "principalClaimName";
 
     private final RSAPublicKey publicKey;
     private final JWSSigner signer;
@@ -150,6 +154,7 @@ public class JwtAutoConfiguration implements InitializingBean {
     private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
     private final JwtIdService jwtIdService;
     private final JwtCacheTransformService<?> jwtCacheTransformService;
+    private String principalClaimName;
     /**
      * JWT 的有效期
      */
@@ -196,6 +201,7 @@ public class JwtAutoConfiguration implements InitializingBean {
         this.jwtCacheTransformService = jwtCacheTransformService;
         this.oAuth2TokenValidator = oAuth2TokenValidator;
         this.mappedJwtClaimSetConverter = mappedJwtClaimSetConverter;
+        this.principalClaimName = jwtProperties.getPrincipalClaimName();
 
         Resource resource = jwtProperties.getJksKeyPairLocation();
         if (nonNull(resource)) {
@@ -366,6 +372,10 @@ public class JwtAutoConfiguration implements InitializingBean {
 
         if (nonNull(this.jwtCacheTransformService)) {
             setFieldValue(JWT_CACHE_TRANSFORM_SERVICE, this.jwtCacheTransformService, null, jwtUtilClass);
+        }
+
+        if (nonNull(this.principalClaimName)) {
+            setFieldValue(PRINCIPAL_CLAIM_NAME, this.principalClaimName, null, jwtUtilClass);
         }
 
     }
