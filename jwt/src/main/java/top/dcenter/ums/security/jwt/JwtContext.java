@@ -277,8 +277,7 @@ public final class JwtContext {
                 Jwt refreshTokenJwt = null;
                 if (REFRESH_TOKEN.equals(JwtContext.refreshHandlerPolicy)) {
                     // 生成 refreshToken 并缓存进 redis
-                    String principalClaimName = generateClaimsSetService.getPrincipalClaimName();
-                    refreshTokenJwt = generateRefreshToken(principalClaimName, authentication.getName());
+                    refreshTokenJwt = generateRefreshToken(authentication.getName());
                 }
 
                 // 生成 JWT
@@ -313,7 +312,6 @@ public final class JwtContext {
      * 注意: {@link Jwt} 中 tokenValue 的"日期"都以"时间戳"表示且"时间戳"以秒为单位
      * @param jwt                   过期的 {@link Jwt}
      * @param jwtDecoder            {@link UmsNimbusJwtDecoder}
-     * @param principalClaimName    JWT 存储 principal 的 claimName
      * @return  返回 重置旧 {@link Jwt} 的 exp/iat/nbf 的时间戳并重新签名后的 {@link Jwt}
      * @throws ParseException       重置 jwt 异常
      * @throws JOSEException        重置 jwt 异常
@@ -321,8 +319,7 @@ public final class JwtContext {
      */
     @NonNull
     public static Jwt resetJwtExpOfAutoRenewPolicy(@NonNull Jwt jwt, @NonNull UmsNimbusJwtDecoder jwtDecoder,
-                                                   @NonNull JwtRefreshHandlerPolicy policy,
-                                                   @NonNull String principalClaimName)
+                                                   @NonNull JwtRefreshHandlerPolicy policy)
             throws ParseException, JOSEException, JwtInvalidException {
 
         Jwt newJwt;
@@ -375,7 +372,7 @@ public final class JwtContext {
         newJwt = createJwt(getJwsHeader(), toJwtClaimsSet(claims));
 
         // 3. 添加黑名单
-        addBlacklist(jwt, newJwt, principalClaimName);
+        addBlacklist(jwt, newJwt);
 
         // 4. 新的 jwt 设置 header, 并检查 refresh token 是否需要重新生成.
         setBearerTokenAndRefreshTokenToHeader(newJwt, null);
@@ -409,7 +406,7 @@ public final class JwtContext {
 
         // 1. 获取 userId 且判断 refreshToken 是否有效
         Jwt refreshTokenJwt = jwtDecoder.decodeRefreshTokenOfJwt(removeBearerForJwtTokenString(refreshToken));
-        String userIdByRefreshToken = getUserIdByRefreshToken(refreshTokenJwt, jwtDecoder.getPrincipalClaimName());
+        String userIdByRefreshToken = getUserIdByRefreshToken(refreshTokenJwt);
         if (!hasText(userIdByRefreshToken)) {
             throw new RefreshTokenInvalidException(ErrorCodeEnum.JWT_REFRESH_TOKEN_INVALID, getMdcTraceId());
         }
@@ -465,7 +462,7 @@ public final class JwtContext {
 
         // 5. oldJwt != null 且与 newJwt 不相等, 则 oldJwt 添加黑名单, 以解决刷新 jwt 而引发的并发访问问题.
         if (nonNull(oldJwt) && !Objects.equals(newJwt, oldJwt)) {
-            setOldJwtToBlacklist(refreshToken, userIdByRefreshToken, oldJwt, newJwt, jwtDecoder.getPrincipalClaimName());
+            setOldJwtToBlacklist(refreshToken, userIdByRefreshToken, oldJwt, newJwt);
         }
 
         // 6. 设置 jwt 到 header
@@ -597,12 +594,10 @@ public final class JwtContext {
     /**
      * 检查 refreshJwt 是否在黑名单中<br>
      * @param refreshJwt            refresh jwt
-     * @param principalClaimName    JWT 存储 principal 的 claimName
      * @return  返回 true 表示在黑名单, 返回 false 表示不在黑名单
      */
     @NonNull
-    public static Boolean isRefreshJwtInTheBlacklist(@NonNull Jwt refreshJwt,
-                                                     @NonNull String principalClaimName) {
+    public static Boolean isRefreshJwtInTheBlacklist(@NonNull Jwt refreshJwt) {
         try (RedisConnection connection = getConnection()) {
             // 不支持黑名单逻辑
             if (!blacklistProperties.getEnable()) {
@@ -624,9 +619,8 @@ public final class JwtContext {
     /**
      * 添加 refreshToken 到 黑名单
      * @param refreshTokenJwt       refresh token jwt
-     * @param principalClaimName    JWT 存储 principal 的 claimName
      */
-    public static void addBlacklistForRefreshToken(Jwt refreshTokenJwt, String principalClaimName) {
+    public static void addBlacklistForRefreshToken(@NonNull Jwt refreshTokenJwt) {
 
         String userId = refreshTokenJwt.getClaimAsString(principalClaimName);
         try (RedisConnection connection = getConnection()) {
@@ -657,22 +651,18 @@ public final class JwtContext {
     /**
      * 添加黑名单
      * @param oldJwt                要加入黑名单的 {@link Jwt}
-     * @param principalClaimName    JWT 存储 principal 的 claimName
      */
-    public static void addBlacklistForReAuth(@NonNull Jwt oldJwt, @NonNull String principalClaimName) {
-        addBlacklist(oldJwt, BlacklistType.IN_BLACKLIST.name().getBytes(StandardCharsets.UTF_8),
-                     principalClaimName, TRUE);
+    public static void addBlacklistForReAuth(@NonNull Jwt oldJwt) {
+        addBlacklist(oldJwt, BlacklistType.IN_BLACKLIST.name().getBytes(StandardCharsets.UTF_8), TRUE);
     }
 
     /**
      * jwt 还在有效期内, 添加黑名单
      * @param oldJwt                要加入黑名单的 {@link Jwt}
      * @param newJwt                替换 oldJwt 的 {@link Jwt}, 用于旧 jwt 失效引发的并发访问问题.
-     * @param principalClaimName    JWT 存储 principal 的 claimName
      */
-    private static void addBlacklist(@NonNull Jwt oldJwt, @NonNull Jwt newJwt,
-                                     @NonNull String principalClaimName) {
-        addBlacklist(oldJwt, newJwt.getTokenValue().getBytes(StandardCharsets.UTF_8), principalClaimName, FALSE);
+    private static void addBlacklist(@NonNull Jwt oldJwt, @NonNull Jwt newJwt) {
+        addBlacklist(oldJwt, newJwt.getTokenValue().getBytes(StandardCharsets.UTF_8), FALSE);
     }
 
     // ====================== 辅助 相关 ======================
@@ -851,13 +841,11 @@ public final class JwtContext {
      * @param userIdByRefreshToken  userIdByRefreshToken
      * @param oldJwt                旧的 {@link Jwt}
      * @param newJwt                新的 {@link Jwt}
-     * @param principalClaimName    JWT 存储 principal 的 claimName
      */
     private static void setOldJwtToBlacklist(@NonNull String refreshToken,
                                              @NonNull String userIdByRefreshToken,
                                              @NonNull Jwt oldJwt,
-                                             @NonNull Jwt newJwt,
-                                             @NonNull String principalClaimName) {
+                                             @NonNull Jwt newJwt) {
         try (RedisConnection connection = getConnection()) {
             // 不支持 jwt 黑名单逻辑
             if (!blacklistProperties.getEnable()) {
@@ -876,7 +864,7 @@ public final class JwtContext {
                 throw new RefreshTokenInvalidException(ErrorCodeEnum.JWT_REFRESH_TOKEN_INVALID, getMdcTraceId());
             }
 
-            addBlacklist(oldJwt, newJwt, principalClaimName);
+            addBlacklist(oldJwt, newJwt);
         }
 
     }
@@ -886,12 +874,9 @@ public final class JwtContext {
      * 如果 isReAuth 为 true 则也把 refreshToken 放入黑名单.
      * @param oldJwt                要加入黑名单的 {@link Jwt}
      * @param value                 newJwt 的 byte 数组 或 "IN_BLACKLIST", 用于旧 jwt 失效引发的并发访问问题.
-     * @param principalClaimName    JWT 存储 principal 的 claimName
      * @param isReAuth              是否重新认证
      */
-    private static void addBlacklist(@NonNull Jwt oldJwt, @NonNull byte[] value,
-                                     @NonNull String principalClaimName,
-                                     @NonNull Boolean isReAuth) {
+    private static void addBlacklist(@NonNull Jwt oldJwt, @NonNull byte[] value, @NonNull Boolean isReAuth) {
         String userId = oldJwt.getClaimAsString(principalClaimName);
         boolean isReAuthAndRefreshPolicy = isReAuth && REFRESH_TOKEN.equals(refreshHandlerPolicy);
         try (RedisConnection connection = getConnection()) {
@@ -947,10 +932,9 @@ public final class JwtContext {
                                          .build();
         try (Cursor<byte[]> cursor = connection.scan(options)) {
             ArrayList<byte[]> tokenInfoKeyList = new ArrayList<>();
-            do {
+            while (cursor.hasNext()) {
                 tokenInfoKeyList.add(cursor.next());
             }
-            while (cursor.hasNext());
             // 删除同一用户所有客户端的 tokenInfo
             connection.del(tokenInfoKeyList.toArray(new byte[0][0]));
         }
@@ -1052,12 +1036,11 @@ public final class JwtContext {
     /**
      * 根据 refreshToken 获取 UserId, 并校验 refreshToken 的有效性
      * @param refreshTokenJwt       refreshToken
-     * @param principalClaimName    JWT 存储 principal 的 claimName
      * @return  如果缓存中存在 refreshToken, 表示 refreshToken 有效, 返回 userId, 如果返回 null, 表示 refreshToken 无效.
      * @throws JwtInvalidException refreshToken 失效
      */
     @Nullable
-    private static String getUserIdByRefreshToken(@NonNull Jwt refreshTokenJwt, @NonNull String principalClaimName)
+    private static String getUserIdByRefreshToken(@NonNull Jwt refreshTokenJwt)
             throws JwtInvalidException {
 
         String userId = refreshTokenJwt.getClaimAsString(principalClaimName);
@@ -1086,18 +1069,17 @@ public final class JwtContext {
 
     /**
      * 生成 refresh token 且与 userId 一起保存到 redis 中
-     * @param userIdClaimName   userIdClaimName
-     * @param userId            用户id
+     * @param userId   用户id
      * @return  返回 refresh token
      */
     @NonNull
-    private static Jwt generateRefreshToken(@NonNull String userIdClaimName, @NonNull String userId) {
+    private static Jwt generateRefreshToken(@NonNull String userId) {
         String refreshToken;
         Jwt jwt;
         // 创建 refreshToken jwt
         JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
         builder.claim(JwtClaimNames.JTI, jwtIdService.generateJtiId());
-        builder.claim(userIdClaimName, userId);
+        builder.claim(principalClaimName, userId);
         builder.claim(JwtClaimNames.EXP,
                       Instant.now().plusSeconds(blacklistProperties.getRefreshTokenTtl().getSeconds()).toEpochMilli());
         try {

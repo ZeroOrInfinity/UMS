@@ -51,15 +51,13 @@ public interface JwtRefreshHandler {
      *                                 {@link JwtRefreshHandlerPolicy#REJECT} 时则不需要使用此参数.
      * @param reAuthService            用于刷新 Jwt 有效期前校验是否需要用户重新登录的服务
      * @param clockSkew                Jwt 不同服务器间的时钟偏差, 通过 {@code ums.jwt.clockSkew} 设置.
-     * @param principalClaimName       JWT 存储 principal 的 claimName
      * @return 返回 true 时表示需要刷新 {@link Jwt}
      * @throws JwtInvalidException Jwt 格式错误 或 需要重新认证
      * @throws JwtReAuthException  Jwt 需要重新登录认证, refreshToken 也一起失效
      */
     @NonNull
     Boolean isRefresh(@NonNull Jwt jwt, @NonNull Duration remainingRefreshInterval,
-                      @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService,
-                      @NonNull String principalClaimName)
+                      @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService)
             throws JwtInvalidException, JwtReAuthException;
 
     /**
@@ -67,13 +65,11 @@ public interface JwtRefreshHandler {
      * 前端可以从相应的 header 中获取.
      * @param jwt                   过期 或 需要刷新的 {@link Jwt}
      * @param jwtDecoder            {@link UmsNimbusJwtDecoder}
-     * @param principalClaimName    JWT 存储 principal 的 claimName
      * @return  返回新的 {@link Jwt}
      * @throws JwtExpiredException  Jwt 过期 异常
      * @throws JwtInvalidException  Jwt 失效 异常
      */
     @NonNull
-    Jwt refreshHandle(@NonNull Jwt jwt, @NonNull UmsNimbusJwtDecoder jwtDecoder,
-                      @NonNull String principalClaimName) throws JwtExpiredException, JwtInvalidException;
+    Jwt refreshHandle(@NonNull Jwt jwt, @NonNull UmsNimbusJwtDecoder jwtDecoder) throws JwtExpiredException, JwtInvalidException;
 
 }

@@ -276,19 +276,17 @@ public class JwtAutoConfiguration implements InitializingBean {
         UmsNimbusJwtDecoder jwtDecoder = null;
         if (nonNull(jksKeyPairResource)) {
             jwtDecoder = UmsNimbusJwtDecoder.withPublicKey(this.publicKey,
-                                                                jwtProperties.getRefreshHandlerPolicy(),
-                                                                jwtProperties.getRemainingRefreshInterval(),
-                                                                jwtProperties.getPrincipalClaimName())
-                                                 .signatureAlgorithm((SignatureAlgorithm) this.jwsAlgorithm)
-                                                 .build();
+                                                           jwtProperties.getRefreshHandlerPolicy(),
+                                                           jwtProperties.getRemainingRefreshInterval())
+                                            .signatureAlgorithm((SignatureAlgorithm) this.jwsAlgorithm)
+                                            .build();
         }
         else if (hasText(macsSecret)) {
             jwtDecoder =
                     UmsNimbusJwtDecoder.withSecretKey(new SecretKeySpec(macsSecret.getBytes(StandardCharsets.UTF_8),
                                                                         "MAC"),
                                                       jwtProperties.getRefreshHandlerPolicy(),
-                                                      jwtProperties.getRemainingRefreshInterval(),
-                                                      jwtProperties.getPrincipalClaimName())
+                                                      jwtProperties.getRemainingRefreshInterval())
                                        .macAlgorithm((MacAlgorithm) this.jwsAlgorithm)
                                        .build();
         }
@@ -297,8 +295,7 @@ public class JwtAutoConfiguration implements InitializingBean {
                     UmsNimbusJwtDecoder.withJwkSetUri(auth2ResourceServerProperties.getJwt().getJwkSetUri(),
                                                       jwtProperties.getRefreshHandlerPolicy(),
                                                       jwtProperties.getRemainingRefreshInterval(),
-                                                      jwkSetUriConfig,
-                                                      jwtProperties.getPrincipalClaimName())
+                                                      jwkSetUriConfig)
                                        .jwsAlgorithm((SignatureAlgorithm) this.jwsAlgorithm)
                                        .build();
         }

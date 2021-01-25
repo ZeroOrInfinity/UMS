@@ -140,12 +140,6 @@ public class UmsGenerateClaimsSetServiceImpl implements GenerateClaimsSetService
 
     @Override
     @NonNull
-    public String getPrincipalClaimName() {
-        return this.principalClaimName;
-    }
-
-    @Override
-    @NonNull
     public JwtAuthenticationConverter getJwtAuthenticationConverter() {
         return this.jwtAuthenticationConverter;
     }

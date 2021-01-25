@@ -61,13 +61,6 @@ public interface GenerateClaimsSetService {
     JWTClaimsSet generateClaimsSet(@NonNull Authentication authentication, @Nullable Jwt refreshTokenJwt);
 
     /**
-     * 获取 JWT 存储 principal 的 claimName
-     * @return 返回 JWT 存储 principal 的 claimName
-     */
-    @NonNull
-    String getPrincipalClaimName();
-
-    /**
      * 获取 {@link JwtAuthenticationConverter}
      * @return  返回 {@link JwtAuthenticationConverter}
      */
