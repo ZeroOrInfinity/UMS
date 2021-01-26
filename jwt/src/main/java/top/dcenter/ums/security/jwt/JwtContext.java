@@ -791,12 +791,12 @@ public final class JwtContext {
     // ====================== ReAuthService 私有方法 ======================
 
     /**
-     * 删除需要用户重新登录认证的标志, 注意: 需要用户登录成功时调用.
+     * 删除需要用户重新登录认证的标志以及对应的锁标志, 注意: 需要用户登录成功时调用.
      * @param userId    用户 ID
      */
     private static void removeReAuthFlag(@NonNull String userId) {
         try (RedisConnection connection = getConnection()) {
-            connection.del(getReAuthKey(userId));
+            connection.del(getReAuthKey(userId), getDelAllTokenInfoInRedisLockKey(userId));
         }
 
     }
@@ -925,25 +925,29 @@ public final class JwtContext {
      * @param connection    {@link RedisConnection}, 在此方法中不会关闭吃连接, 需要调用方关闭
      */
     private static void delAllTokenInfoInRedisByUserId(String userId, RedisConnection connection) {
-        ScanOptions options = ScanOptions.scanOptions()
-                                         .count(1000)
-                                         .match(blacklistProperties.getTokenInfoPrefix()
-                                                                   .concat(userId)
-                                                                   .concat(":*"))
-                                         .build();
-        try (Cursor<byte[]> cursor = connection.scan(options)) {
-            ArrayList<byte[]> tokenInfoKeyList = new ArrayList<>();
-            while (cursor.hasNext()) {
-                tokenInfoKeyList.add(cursor.next());
+        // 用于防止用户并发访问时重复执行删除动作(scan)
+        if (getDelAllTokenInfoInRedisLock(userId, connection)) {
+            ScanOptions options = ScanOptions.scanOptions()
+                                             .count(1000)
+                                             .match(blacklistProperties.getTokenInfoPrefix()
+                                                                       .concat(userId)
+                                                                       .concat(":*"))
+                                             .build();
+            try (Cursor<byte[]> cursor = connection.scan(options)) {
+                ArrayList<byte[]> tokenInfoKeyList = new ArrayList<>();
+                while (cursor.hasNext()) {
+                    tokenInfoKeyList.add(cursor.next());
+                }
+                // 删除同一用户所有客户端的 tokenInfo
+                if (!CollectionUtils.isEmpty(tokenInfoKeyList)) {
+                    connection.del(tokenInfoKeyList.toArray(new byte[0][0]));
+                }
             }
-            // 删除同一用户所有客户端的 tokenInfo
-            if (!CollectionUtils.isEmpty(tokenInfoKeyList)) {
-                connection.del(tokenInfoKeyList.toArray(new byte[0][0]));
+            catch (IOException e) {
+                log.error(e.getMessage(), e);
+                connection.del(getDelAllTokenInfoInRedisLockKey(userId));
+                // 待扩展: 删除同一用户所有客户端的 tokenInfo 发生错误, 未做处理
             }
-        }
-        catch (IOException e) {
-            log.error(e.getMessage(), e);
-            // 待扩展: 删除同一用户所有客户端的 tokenInfo 发生错误, 未做处理
         }
     }
 
@@ -967,6 +971,30 @@ public final class JwtContext {
     @NonNull
     private static byte[] getReAuthKey(String userId) {
         return blacklistProperties.getReAuthPrefix().concat(userId).getBytes(StandardCharsets.UTF_8);
+    }
+
+    /**
+     * 获取删除 redis 中指定用户的所有 TokenInfo 的 redis 锁的 key
+     * @param userId  用户 Id
+     * @return  返回 删除 redis 中指定用户的所有 TokenInfo 的 redis 锁的 key
+     */
+    @NonNull
+    private static byte[] getDelAllTokenInfoInRedisLockKey(String userId) {
+        return blacklistProperties.getReAuthPrefix().concat("LOCK:" + userId).getBytes(StandardCharsets.UTF_8);
+    }
+
+    /**
+     * JWT + SESSION 模式时:
+     * 获取删除 redis 中指定用户的所有 TokenInfo 的 redis 锁, 用于防止重复执行删除动作(含scan),
+     * @param userId        用户 Id
+     * @param connection    {@link RedisConnection}, 在此方法中不会关闭吃连接, 需要调用方关闭
+     * @return  返回 true 表示执行 删除 redis 中指定用户的所有 TokenInfo 操作, 返回 false 表示不需要执行 删除 redis 中指定用户的所有 TokenInfo 操作.
+     */
+    @NonNull
+    private static Boolean getDelAllTokenInfoInRedisLock(String userId, RedisConnection connection) {
+        byte[] lockKey = getDelAllTokenInfoInRedisLockKey(userId);
+        Boolean lock = connection.setNX(lockKey, "1".getBytes(StandardCharsets.UTF_8));
+        return ofNullable(lock).orElse(false);
     }
 
     /**
