@@ -1,15 +1,37 @@
-# UMS (user manage scaffolding) 用户管理脚手架: 
+# UMS 用户管理脚手架
 
-![UMS](https://img.shields.io/badge/UMS-2.2.17-green.svg)
-![JDK](https://img.shields.io/badge/JDK-1.8+-green.svg)
-![Maven](https://img.shields.io/badge/Maven-3.6.3-green.svg)
-![MySQL](https://img.shields.io/badge/MySQL-5.7.27-green.svg)
-![Redis](https://img.shields.io/badge/Redis-5.0.3-green.svg)
-![SpringBoot](https://img.shields.io/badge/SpringBoot-2.3.4-green.svg)
-![SpringSecurity](https://img.shields.io/badge/SpringSecurity-5.4.1-green.svg)
-![SpringSession](https://img.shields.io/badge/SpringSession-2.3.1-green.svg)
-![JustAuth](https://img.shields.io/badge/JustAuth-1.15.9-green.svg)
-![license](https://img.shields.io/badge/license-MIT-yellow.svg)
+
+<p align="center" style="font-size: 32px">
+  <strong>UMS 是一个非侵入式、与业务高度解耦、可自定义的用户管理脚手架</strong>
+</p>
+
+<p align="center">
+	<a target="_blank" href="https://search.maven.org/search?q=g:top.dcenter%20AND%20a:ums-spring-boot-starter">
+		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.18-green.svg" />
+	</a>
+	<a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">
+		<img alt='license' src="https://img.shields.io/badge/license-MIT-yellow.svg" />
+	</a>
+	<a target="_blank" href="https://www.oracle.com/technetwork/java/javase/downloads/index.html">
+		<img alt='JDK' src="https://img.shields.io/badge/JDK-1.8+-green.svg" />
+	</a>
+	<a target="_blank" href="https://gitee.com/pcore/UMS/wikis/pages" title="参考文档">
+		<img alt='Docs' src="https://img.shields.io/badge/Docs-latest-blueviolet.svg" />
+	</a>
+	<a target="_blank" href='https://gitee.com/pcore/UMS/stargazers'>
+	  <img alt='gitee star' src='https://gitee.com/pcore/UMS/badge/star.svg?theme=white'/>
+	</a>
+	<a target="_blank" href='https://github.com/ZeroOrInfinity/UMS'>
+		<img alt="github star" src="https://img.shields.io/github/stars/ZeroOrInfinity/UMS?style=social"/>
+	</a>
+    <img alt="MySQL" src="https://img.shields.io/badge/MySQL-5.7.27-green.svg"/>
+    <img alt="Redis" src="https://img.shields.io/badge/Redis-5.0.3-green.svg"/>
+    <img alt="SpringBoot" src="https://img.shields.io/badge/SpringBoot-2.3.4-green.svg"/>
+    <img alt="SpringSecurity" src="https://img.shields.io/badge/SpringSecurity-5.4.1-green.svg"/>
+    <img alt="SpringSession" src="https://img.shields.io/badge/SpringSession-2.3.1-green.svg"/>
+    <img alt="JustAuth" src="https://img.shields.io/badge/JustAuth-1.15.9-green.svg"/>
+
+</p>
 
 用户管理脚手架集成：用户密码登录、手机登录、支持所有 JustAuth 支持的第三方授权登录、验证码、基于 RBAC 的访问权限控制功能, 支持多租户、JWT、SLF4J-MDC、签到等功能。
 通过配置文件与实现 **用户服务, 短信发送服务, 获取角色权限服务** 三个 API 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑。
@@ -45,6 +67,7 @@
   | [oauth](https://gitee.com/pcore/UMS/tree/master/oauth)   | OAuth2 login by JustAuth, 集成 jwt/mdc 模块 |
   | [rbac](https://gitee.com/pcore/UMS/tree/master/rbac)   | 基于角色的访问权限控制,支持多租户, 集成 mdc 模块 |
   | [jwt](https://gitee.com/pcore/UMS/tree/master/jwt)   | JWT 功能, 集成 mdc 模块 |
+  | [Dependencies](https://gitee.com/pcore/UMS/tree/master/ums-dependencies)   | UMS Dependencies |
   | [demo](https://gitee.com/pcore/UMS/tree/master/demo)   | basic-example/basic-detail-example/permission-example/quickStart/session-detail-example/validate-codi-example/justAuth-security-oauth2-example/tenant-example/jwt-example |
 ### demo 演示功能 
  
@@ -84,8 +107,8 @@
 ------
 ## 四、`快速开始`：
 
-- [Gitee 文档](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926257&doc_id=984605) | [Github 文档](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%9B%9B%E3%80%81%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B(Quick-Start))
 - example: [quickStart](https://gitee.com/pcore/UMS/tree/master/demo/quickStart)
+- [Gitee](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926257&doc_id=984605) | [Github](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%9B%9B%E3%80%81%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B(Quick-Start))
 ------
 ## 五、接口使用说明:
 

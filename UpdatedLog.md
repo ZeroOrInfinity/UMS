@@ -1,7 +1,19 @@
+## 2.2.18
+### Fixes and Improvements:
+1. 修复: 对 RedisConnection 进行操作后未进行关闭的问题.
+2. 修复: 解析 jwt 时, getCollectionConverter(..) NPE.
+3. 改进: jwt + session 模式, 当需要重新认证时, 增加对应的 redis lock, 避免重复执行删除 userId 用户所有客户端在 redis 的 tokenInfo 的删除动作(含scan).
+4. 改进: 更新 TokenKey 格式为: tokenKeyPrefix + userId:jti.
+5. 改进: 在 jwt + session 模式, 当用户需要 reAuth 时, 删除此用户所有的登陆 tokenKey 信息.
+6. 优化: principalClaimName 注入 JwtContext.
+7. 优化: principalClaimName 参数传递问题.
+8. 添加: 数据库 schema sql 文件.
+9. 优化: ResponseResult 返回成功 code 0 -> 200.
+
+
 ## 2.2.17
 ### Fixes and Improvements:
 1. maven 仓库 v2.2.16 发布异常 重新发版.
-
 
 ## 2.2.16
 ### Fixes and Improvements:

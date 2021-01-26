@@ -1,71 +1,95 @@
-# UMS (user manage scaffolding) 用户管理脚手架: 
+# User management scaffolding
 
-![UMS](https://img.shields.io/badge/UMS-2.2.17-green.svg)
-![JDK](https://img.shields.io/badge/JDK-1.8+-green.svg)
-![Maven](https://img.shields.io/badge/Maven-3.6.3-green.svg)
-![MySQL](https://img.shields.io/badge/MySQL-5.7.27-green.svg)
-![Redis](https://img.shields.io/badge/Redis-5.0.3-green.svg)
-![SpringBoot](https://img.shields.io/badge/SpringBoot-2.3.4-green.svg)
-![SpringSecurity](https://img.shields.io/badge/SpringSecurity-5.4.1-green.svg)
-![SpringSession](https://img.shields.io/badge/SpringSession-2.3.1-green.svg)
-![JustAuth](https://img.shields.io/badge/JustAuth-1.15.9-green.svg)
-![license](https://img.shields.io/badge/license-MIT-yellow.svg)
 
-用户管理脚手架集成：用户密码登录、手机登录、支持 JustAuth 支持的所有第三方授权登录、验证码、基于 RBAC 的访问权限控制功能、支持多租户、JWT、SLF4J-MDC、签到等功能.
-通过配置文件与实现 **用户服务, 短信发送服务, 获取角色权限服务** 三个 API 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑.
+<p align="center" style="font-size: 32px">
+  <strong>UMS is a non-intrusive, highly decoupled from business, customizable user management scaffolding</strong>
+</p>
+
+<p align="center">
+	<a target="_blank" href="https://search.maven.org/search?q=g:top.dcenter%20AND%20a:ums-spring-boot-starter">
+		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.18-green.svg" />
+	</a>
+	<a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">
+		<img alt='license' src="https://img.shields.io/badge/license-MIT-yellow.svg" />
+	</a>
+	<a target="_blank" href="https://www.oracle.com/technetwork/java/javase/downloads/index.html">
+		<img alt='JDK' src="https://img.shields.io/badge/JDK-1.8+-green.svg" />
+	</a>
+	<a target="_blank" href="https://github.com/ZeroOrInfinity/UMS/wiki" title="参考文档">
+		<img alt='Docs' src="https://img.shields.io/badge/Docs-latest-blueviolet.svg" />
+	</a>
+	<a target="_blank" href='https://gitee.com/pcore/UMS/stargazers'>
+	  <img alt='gitee star' src='https://gitee.com/pcore/UMS/badge/star.svg?theme=white'/>
+	</a>
+	<a target="_blank" href='https://github.com/ZeroOrInfinity/UMS'>
+		<img alt="github star" src="https://img.shields.io/github/stars/ZeroOrInfinity/UMS?style=social"/>
+	</a>
+    <img alt="MySQL" src="https://img.shields.io/badge/MySQL-5.7.27-green.svg"/>
+    <img alt="Redis" src="https://img.shields.io/badge/Redis-5.0.3-green.svg"/>
+    <img alt="SpringBoot" src="https://img.shields.io/badge/SpringBoot-2.3.4-green.svg"/>
+    <img alt="SpringSecurity" src="https://img.shields.io/badge/SpringSecurity-5.4.1-green.svg"/>
+    <img alt="SpringSession" src="https://img.shields.io/badge/SpringSession-2.3.1-green.svg"/>
+    <img alt="JustAuth" src="https://img.shields.io/badge/JustAuth-1.15.9-green.svg"/>
+
+</p>
+
 
 User management scaffolding, integration: User password login, mobile login, OAuth2 login(Based on JustAuth), 
-Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-MDC, sign etc...
+Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-MDC, signed etc...
 
 ![ums-arch](doc/ums-arch.png)
 ------
-## 一、`UMS 功能列表(UMS feature list)`：
+## 一、`UMS feature list`：
 
-  - 验证码（图片，短信, 滑块）校验功能(validate code(image, SMS, slider) verification function).
-  - 手机登录功能，登录后自动注册, 支持多租户(Mobile login function, automatic registration after login, Support multi-tenancy).
-  - 支持所有 JustAuth 支持的第三方授权登录，登录后自动注册 或 绑定 或 创建临时用户([TemporaryUser](https://github.com/ZeroOrInfinity/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/oauth/userdetails/TemporaryUser.java))(OAuth2 login and auto signUp and auto binding).
-      - 支持定时刷新 accessToken, 支持分布式定时任务(Support timing refresh accessToken, support distributed timing tasks).
-      - 支持第三方授权登录的用户信息表与 token 信息表的缓存功能(Support the caching function of user table and token table by OAuth2 login).
-      - 支持第三方绑定(binding)与解绑(unbinding)及查询接口.
-  - 访问权限控制功能, 支持多租户(Access control function, support multi tenancy).
-  - 简化 session、remember me、csrf、cors等配置(Simplify session、remember me、csrf cors etc configuration).
-  - 根据设置的响应方式（JSON 与 REDIRECT）返回 json 或 html 数据.
-  - 签到功能(sign).
-  - 支持基于 SLF4J MDC 机制的日志链路追踪功能.
-  - JWT 创建(通过接口自定义 Claims, 通过配置设置算法等), 校验(通过接口自定义校验规则), 刷新(自动刷新, 直接拒绝, 通过 refreshToken 刷新), 刷新的 JWT 使旧 jwt
-   失效引发的并发访问问题及黑名单.
+  - validate code(image, SMS, slider) verification function.
+  - Mobile login function, automatic registration after login, Support multi-tenancy.
+  - Support all third-party authorized logins supported by JustAuth, after login, automatically register or bind or create temporary users([TemporaryUser](https://github.com/ZeroOrInfinity/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/oauth/userdetails/TemporaryUser.java)).
+      - Support timing refresh accessToken, support distributed timing tasks.
+      - Support the caching function of user table and token table by OAuth2 login.
+      - Support third-party binding and unbinding and query interfaces.
+  - Access control function, support multi tenancy.
+  - Simplify session、remember me、csrf cors etc configuration.
+  - Return json or html data according to the set response method (JSON and REDIRECT).
+  - signed function.
+  - Support log link tracking function based on SLF4J MDC mechanism.
+  - JWT creation, verification, refresh, concurrent access problems caused by jwt invalid, and blacklist functions.
   
-### 模块功能 
+### Module function 
 
-  | **模块**   | **功能**                                                         |
+  | **Module**   | **Function**                                                         |
   | ------ | ------------------------------------------------------------ |
-  | [commons](https://github.com/ZeroOrInfinity/UMS/tree/master/commons)   | 通用组件模块 |
-  | [ums](https://github.com/ZeroOrInfinity/UMS/tree/master/ums-spring-boot-starter)   | 集成 commons/core/vc/mdc/oauth/rbac/jwt 模块 |
-  | [core](https://github.com/ZeroOrInfinity/UMS/tree/master/core)   | 用户名密码登录/手机登录且自动注册/签到/简化HttpSecurity(session、remember me、csrf、跨域等)配置/session redis 缓存/可配置的响应方式(JSON 与 REDIRECT)返回 json 或 html 数据, 集成 jwt/mdc 模块 |
-  | [vc](https://github.com/ZeroOrInfinity/UMS/tree/master/vc)   | 验证码, 集成 mdc 模块 |
-  | [mdc](https://github.com/ZeroOrInfinity/UMS/tree/master/mdc)   | 基于 SLF4J MDC 机制的日志链路追踪功能 |
-  | [oauth](https://github.com/ZeroOrInfinity/UMS/tree/master/oauth)   | OAuth2 login by JustAuth, 集成 jwt/mdc 模块 |
-  | [rbac](https://github.com/ZeroOrInfinity/UMS/tree/master/rbac)   | 基于角色的访问权限控制,支持多租户, 集成 mdc 模块 |
-  | [jwt](https://github.com/ZeroOrInfinity/UMS/tree/master/jwt)   | JWT 功能, 集成 mdc 模块 |
+  | [commons](https://github.com/ZeroOrInfinity/UMS/tree/master/commons)   | common component module |
+  | [ums](https://github.com/ZeroOrInfinity/UMS/tree/master/ums-spring-boot-starter)   | Integrated commons/core/vc/mdc/oauth/rbac/jwt module |
+  | [core](https://github.com/ZeroOrInfinity/UMS/tree/master/core)   | Username password login/Mobile login and automatic registration/signed/Simplify session、remember me、csrf cors etc configuration/session redis cache/Return json or html data according to the set response method (JSON and REDIRECT)/JWT/mdc model |
+  | [vc](https://github.com/ZeroOrInfinity/UMS/tree/master/vc)   | validate code(image, SMS, slider) verification function, integrated mdc model |
+  | [mdc](https://github.com/ZeroOrInfinity/UMS/tree/master/mdc)   | Support log link tracking function based on SLF4J MDC mechanism |
+  | [oauth](https://github.com/ZeroOrInfinity/UMS/tree/master/oauth)   | OAuth2 login by JustAuth, integrated jwt/mdc model |
+  | [rbac](https://github.com/ZeroOrInfinity/UMS/tree/master/rbac)   | RBAC-based access control, supports multi-tenancy, integrated mdc model |
+  | [jwt](https://github.com/ZeroOrInfinity/UMS/tree/master/jwt)   | JWT function, integrated mdc model |
+  | [dependencies](https://github.com/ZeroOrInfinity/UMS/tree/master/ums-dependencies)   | UMS Dependencies |
   | [demo](https://github.com/ZeroOrInfinity/UMS/tree/master/demo)   | basic-example/basic-detail-example/permission-example/quickStart/session-detail-example/validate-codi-example/justAuth-security-oauth2-example/tenant-example/jwt-example |
 
-### demo 演示功能  
+### demo
 
-  | **demo**                   | **演示功能**                                                     |
+  | **demo**                   | **demo function**                                                     |
   | ---------------------- | ------------------------------------------------------------ |
-  | [basic-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-example)         | 基本功能: 最简单的配置                             |
-  | [basic-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-detail-example)   | 基本功能详细的配置: 含anonymous/session简单配置/rememberMe/csrf/跨域/登录路由/签到, 不包含session详细配置/验证码/手机登录/权限. |
-  | [permission-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/permission-example)     | 基于 RBAC 的权限功能设置                          |
-  | [quickStart](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/quickStart)             | 快速开始示例                                                 |
-  | [multi-tenancy-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/tenant-example)             | 多租户注册与登录示例                                                 |  
-  | [justAuth-security-oauth2-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/justAuth-security-oauth2-example)             | 第三方授权登录详细示例, MDC 日志链路追踪配置                                                |
-  | [session-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/session-detail-example) | session 与 session 缓存详细配置                   |
-  | [validate-code-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/validate-code-example)  | 基本功能: 验证码(含滑块验证码), 手机登录配置  |
-  | [jwt-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/jwt-example)  | JWT 功能示例  |
+  | [basic-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-example)         | Basic function: the simplest configuration                             |
+  | [basic-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-detail-example)   | Detailed configuration of basic functions: anonymous/session simple configuration/rememberMe/csrf/cors/login routing/signed |
+  | [permission-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/permission-example)     | RBAC-based permission function settings                          |
+  | [quickStart](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/quickStart)             | quick start example                                                 |
+  | [multi-tenancy-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/tenant-example)             | multi tenant registration and login example                                                 |  
+  | [justAuth-security-oauth2-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/justAuth-security-oauth2-example)             | Detailed example of third-party authorized login, MDC log link tracking configuration                                               |
+  | [session-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/session-detail-example) | Session and session cache detailed configuration                |
+  | [validate-code-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/validate-code-example)  | Basic functions: verification code (including slider verification code), mobile login configuration  |
+  | [jwt-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/jwt-example)  | JWT function example  |
 
-### [Github 更新日志(UpdatedLog)](https://github.com/ZeroOrInfinity/UMS/blob/master/UpdatedLog.md) | [Gitee 更新日志](https://gitee.com/pcore/UMS/blob/master/UpdatedLog.md)
 
-### [Github 文档地址](https://github.com/ZeroOrInfinity/UMS/wiki) | [Gitee 文档地址](https://gitee.com/pcore/UMS/wikis/pages)
+[![CN doc](https://img.shields.io/badge/Gitee-更新日志-blue.svg)](https://gitee.com/pcore/UMS/blob/master/UpdatedLog.md)
+[![EN doc](https://img.shields.io/badge/Github-UpdatedLog-blue.svg)](https://github.com/ZeroOrInfinity/UMS/blob/master/UpdatedLog.md)
+
+[![CN doc](https://img.shields.io/badge/Gitee-文档-blue.svg)](https://gitee.com/pcore/UMS/wikis/pages)
+[![EN doc](https://img.shields.io/badge/Github-document-blue.svg)](https://github.com/ZeroOrInfinity/UMS/wiki)
+
 
 ### 微信群：UMS 添加微信(z56133)备注(UMS) 
 ![weixin](doc/weixin.png)
@@ -82,24 +106,23 @@ Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-
 ------
 ## 三、`TODO List`:
 
-- 1\. 拆分微服务, OAuth2 authenticate server
+- 1\. microservices, OAuth2 authenticate server
 
 ------
-## 四、`快速开始(Quick Start)`：
+## 四、`Quick Start`：
 
-- [Gitee 文档](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926257&doc_id=984605) | [Github 文档](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%9B%9B%E3%80%81%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B(Quick-Start))
 - example: [quickStart](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/quickStart)
-
+- [Gitee](https://gitee.com/pcore/UMS/wikis/pages?sort_id=2926257&doc_id=984605) | [Github](https://github.com/ZeroOrInfinity/UMS/wiki/%E5%9B%9B%E3%80%81%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B(Quick-Start))
 ------
 
-## 五、接口使用说明(`Interface instructions`):
+## 五、Interface instructions:
 
-### 实现对应功能时需要实现的接口(The interface that needs to be implemented when the corresponding function is present)：  
+### The interface that needs to be implemented when the corresponding function is present:  
   
-1. 用户服务(user service): `必须实现(Must implemente)`
+1. user service: `Must implemente`
    - [UmsUserDetailsService](https://github.com/ZeroOrInfinity/UMS/blob/master/commons/src/main/java/top/dcenter/ums/security/core/api/service/UmsUserDetailsService.java)    
 
-2. 访问权限控制功能(Access control function): 基于 RBAC 的访问权限控制: 支持多租户与SCOPE
+2. RBAC-based access control: Support multi-tenancy
     - [UriAuthorizeService](https://github.com/ZeroOrInfinity/UMS/blob/master/rbac/src/main/java/top/dcenter/ums/security/core/api/permission/service/UriAuthorizeService.java): `推荐通过实现 AbstractUriAuthorizeService 来实现此接口`
     - [AbstractUriAuthorizeService](https://github.com/ZeroOrInfinity/UMS/blob/master/rbac/src/main/java/top/dcenter/ums/security/core/api/permission/service/AbstractUriAuthorizeService.java): `必须实现(Must implemente)`
         

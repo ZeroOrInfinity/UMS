@@ -18,7 +18,7 @@
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
     </root>
-    <logger name="top.dcenter" level="INFO" additivity="false">
+    <logger name="top.dcenter" level="TRACE" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
     <logger name="demo" level="INFO" additivity="false">
