@@ -51,6 +51,7 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
@@ -936,7 +937,9 @@ public final class JwtContext {
                 tokenInfoKeyList.add(cursor.next());
             }
             // 删除同一用户所有客户端的 tokenInfo
-            connection.del(tokenInfoKeyList.toArray(new byte[0][0]));
+            if (!CollectionUtils.isEmpty(tokenInfoKeyList)) {
+                connection.del(tokenInfoKeyList.toArray(new byte[0][0]));
+            }
         }
         catch (IOException e) {
             log.error(e.getMessage(), e);
