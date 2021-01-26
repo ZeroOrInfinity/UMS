@@ -39,6 +39,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static java.util.Objects.isNull;
+
 /**
  * jwt claim set converter supplier
  * @see JwtClaimTypeConverterSupplier
@@ -67,7 +69,14 @@ public class UmsJwtClaimTypeConverterSupplier implements JwtClaimTypeConverterSu
     }
 
     private static Converter<Object, Collection<String>> getCollectionConverter(String delimiter) {
-        return (source) -> Arrays.asList(((String) source).split(delimiter));
+        return (source) -> {
+            //noinspection ConstantConditions
+            if (isNull(source)) {
+                return null;
+            }
+            return Arrays.asList(((String) source).split(delimiter));
+        };
+
     }
 
     @Override
