@@ -52,6 +52,7 @@ import org.springframework.security.oauth2.server.resource.authentication.Abstra
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
@@ -526,7 +527,13 @@ public final class JwtContext {
         if (isNull(refreshHandlerPolicy)) {
             return FALSE;
         }
-        return REFRESH_TOKEN.equals(refreshHandlerPolicy);
+        boolean isRefreshPolicy = REFRESH_TOKEN.equals(refreshHandlerPolicy);
+        if (!isRefreshPolicy) {
+            return FALSE;
+        }
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        String refreshToken = (String) requestAttributes.getAttribute(TEMPORARY_JWT_REFRESH_TOKEN, SCOPE_SESSION);
+        return StringUtils.hasText(refreshToken);
     }
 
     // ====================== jwt 黑名单 相关 ======================
