@@ -118,7 +118,8 @@ public class ClientAuthenticationSuccessHandler extends BaseAuthenticationSucces
                                                           username,
                                                           null,
                                                           null,
-                                                          -1L,
+                                                          null,
+                                                          null,
                                                           getJsonTargetUrl(targetUrl, request),
                                                           token.getAuthorities());
                 // 设置 jwt

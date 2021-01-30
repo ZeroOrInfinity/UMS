@@ -120,9 +120,10 @@ public class JwtAuthenticationSuccessHandler extends BaseAuthenticationSuccessHa
                                                           username,
                                                           null,
                                                           null,
-                                                          -1L,
+                                                          null,
+                                                          null,
                                                           getJsonTargetUrl(targetUrl, request),
-                                                          token.getAuthorities());
+                                                          null);
                 // 设置 jwt
                 String jwtStringIfAllowBodyParameter = JwtContext.getJwtStringIfAllowBodyParameter(authentication);
                 if (hasText(jwtStringIfAllowBodyParameter)) {
