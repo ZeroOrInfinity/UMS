@@ -30,10 +30,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.TimeoutOptions;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
+import io.lettuce.core.resource.ClientResources;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -45,8 +52,11 @@ import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.connection.RedisConfiguration;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisNode;
+import org.springframework.data.redis.connection.RedisPassword;
+import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -60,13 +70,18 @@ import org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2M
 import org.springframework.security.web.jackson2.WebJackson2Module;
 import org.springframework.security.web.jackson2.WebServletJackson2Module;
 import org.springframework.security.web.server.jackson2.WebServerJackson2Module;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.core.redis.cache.RedisHashCacheManager;
 import top.dcenter.ums.security.core.redis.jackson2.Auth2Jackson2Module;
 import top.dcenter.ums.security.core.redis.key.generator.RemoveConnectionsByConnectionKeyWithUserIdKeyGenerator;
 import top.dcenter.ums.security.core.redis.properties.RedisCacheProperties;
 
-import java.time.Duration;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -83,6 +98,8 @@ import static top.dcenter.ums.security.common.consts.RedisCacheConstants.USER_CO
  * 当然也可自定义 {@link CachingConfigurerSupport} .<br>
  * 2. 缓存穿透: 对查询结果 null 值进行缓存, 添加时更新缓存 null 值, 或者 删除此缓存.<br>
  * 3. 取缓存 TTL 的 20% 作为动态的随机变量上下浮动, 防止同时缓存失效而缓存击穿.<br>
+ * @author Mark Paluch
+ * @author Andy Wilkinson
  * @author YongWu zheng
  * @version V2.0  Created by  2020-06-11 22:57
  */
@@ -99,15 +116,22 @@ public class RedisCacheAutoConfiguration {
     public static final String REDIS_CACHE_KEY_SEPARATE = ":";
 
     private final RedisCacheProperties redisCacheProperties;
-    private final RedisProperties redisProperties;
+    private final RedisProperties properties;
+    private final RedisSentinelConfiguration sentinelConfiguration;
+    private final RedisClusterConfiguration clusterConfiguration;
 
-    public RedisCacheAutoConfiguration(RedisCacheProperties redisCacheProperties, RedisProperties redisProperties) {
+    public RedisCacheAutoConfiguration(RedisCacheProperties redisCacheProperties,
+                                       RedisProperties properties,
+                                       ObjectProvider<RedisSentinelConfiguration> sentinelConfigurationProvider,
+                                       ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider) {
         this.redisCacheProperties = redisCacheProperties;
         Set<String> cacheNames = redisCacheProperties.getCache().getCacheNames();
         cacheNames.add(USER_CONNECTION_CACHE_NAME);
         cacheNames.add(USER_CONNECTION_HASH_CACHE_NAME);
         cacheNames.add(USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME);
-        this.redisProperties = redisProperties;
+        this.properties = properties;
+        this.sentinelConfiguration = sentinelConfigurationProvider.getIfAvailable();
+        this.clusterConfiguration = clusterConfigurationProvider.getIfAvailable();
     }
 
     /**
@@ -135,51 +159,15 @@ public class RedisCacheAutoConfiguration {
     private static Jackson2JsonRedisSerializer jackson2JsonRedisSerializer =
             getJackson2JsonRedisSerializer();
 
-
-    /**
-     * 自定义 LettuceConnectionFactory
-     */
-    private LettuceConnectionFactory createLettuceConnectionFactory(
-            int dbIndex, String hostName, int port, String password,
-            int maxIdle, int minIdle, int maxActive,
-            Long maxWait, Long timeOut, Duration shutdownTimeOut){
-
-        //redis配置
-        RedisConfiguration redisConfiguration = new
-                RedisStandaloneConfiguration(hostName, port);
-        ((RedisStandaloneConfiguration) redisConfiguration).setDatabase(dbIndex);
-        ((RedisStandaloneConfiguration) redisConfiguration).setPassword(password);
-
-        //连接池配置
-        //noinspection rawtypes
-        GenericObjectPoolConfig genericObjectPoolConfig = new GenericObjectPoolConfig();
-        genericObjectPoolConfig.setMaxIdle(maxIdle);
-        genericObjectPoolConfig.setMinIdle(minIdle);
-        genericObjectPoolConfig.setMaxTotal(maxActive);
-        genericObjectPoolConfig.setMaxWaitMillis(maxWait);
-        //redis客户端配置
-        LettucePoolingClientConfiguration.LettucePoolingClientConfigurationBuilder
-                builder =  LettucePoolingClientConfiguration.builder().
-                commandTimeout(Duration.ofMillis(timeOut));
-
-        builder.shutdownTimeout(shutdownTimeOut);
-        builder.poolConfig(genericObjectPoolConfig);
-        LettuceClientConfiguration lettuceClientConfiguration = builder.build();
-        //根据配置和客户端配置创建连接
-        LettuceConnectionFactory lettuceConnectionFactory = new
-                LettuceConnectionFactory(redisConfiguration,lettuceClientConfiguration);
-
-        lettuceConnectionFactory.afterPropertiesSet();
-        return lettuceConnectionFactory;
-    }
-
     /**
      * 缓存管理器, 当 IOC 容器中有 beanName=auth2RedisHashCacheManager 时会替换此实例
      * @return CacheManager
      */
     @Bean("auth2RedisHashCacheManager")
     @ConditionalOnMissingBean(name = "auth2RedisHashCacheManager")
-    public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
+    public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory,
+                                          ObjectProvider<LettuceClientConfigurationBuilderCustomizer> builderCustomizers,
+                                          ClientResources clientResources) {
 
         RedisCacheProperties.Cache cache = redisCacheProperties.getCache();
 
@@ -191,19 +179,11 @@ public class RedisCacheAutoConfiguration {
             lettuceConnectionFactory = (LettuceConnectionFactory) redisConnectionFactory;
         } else
         {
-            RedisProperties.Lettuce lettuce = redisProperties.getLettuce();
-            RedisProperties.Pool lettucePool = lettuce.getPool();
-            lettuceConnectionFactory = createLettuceConnectionFactory
-                    (cache.getDatabaseIndex(),
-                     redisProperties.getHost(),
-                     redisProperties.getPort(),
-                     redisProperties.getPassword(),
-                     lettucePool.getMaxIdle(),
-                     lettucePool.getMinIdle(),
-                     lettucePool.getMaxActive(),
-                     lettucePool.getMaxWait().getSeconds(),
-                     redisProperties.getTimeout().toMillis(),
-                     lettuce.getShutdownTimeout());
+            // 自定义 redis
+            LettuceClientConfiguration clientConfig = getLettuceClientConfiguration(builderCustomizers, clientResources,
+                                                                                    getProperties().getLettuce().getPool());
+            lettuceConnectionFactory =  createLettuceConnectionFactory(clientConfig);
+
         }
 
         RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig();
@@ -308,5 +288,272 @@ public class RedisCacheAutoConfiguration {
         public CacheErrorHandler errorHandler() {
             return this.cacheErrorHandler;
         }
+    }
+
+    private LettuceConnectionFactory createLettuceConnectionFactory(LettuceClientConfiguration clientConfiguration) {
+        final RedisSentinelConfiguration sentinelConfig = getSentinelConfig();
+        if (sentinelConfig != null) {
+            sentinelConfig.setDatabase(redisCacheProperties.getCache().getDatabaseIndex());
+            return new LettuceConnectionFactory(sentinelConfig, clientConfiguration);
+        }
+        if (getClusterConfiguration() != null) {
+            return new LettuceConnectionFactory(getClusterConfiguration(), clientConfiguration);
+        }
+        final RedisStandaloneConfiguration standaloneConfig = getStandaloneConfig();
+        standaloneConfig.setDatabase(redisCacheProperties.getCache().getDatabaseIndex());
+        return new LettuceConnectionFactory(standaloneConfig, clientConfiguration);
+    }
+
+    private LettuceClientConfiguration getLettuceClientConfiguration(
+            ObjectProvider<LettuceClientConfigurationBuilderCustomizer> builderCustomizers,
+            ClientResources clientResources, RedisProperties.Pool pool) {
+        LettuceClientConfiguration.LettuceClientConfigurationBuilder builder = createBuilder(pool);
+        applyProperties(builder);
+        if (StringUtils.hasText(getProperties().getUrl())) {
+            customizeConfigurationFromUrl(builder);
+        }
+        builder.clientOptions(initializeClientOptionsBuilder().timeoutOptions(TimeoutOptions.enabled()).build());
+        builder.clientResources(clientResources);
+        builderCustomizers.orderedStream().forEach((customizer) -> customizer.customize(builder));
+        return builder.build();
+    }
+
+    private LettuceClientConfiguration.LettuceClientConfigurationBuilder createBuilder(RedisProperties.Pool pool) {
+        if (pool == null) {
+            return LettuceClientConfiguration.builder();
+        }
+        return new PoolBuilderFactory().createBuilder(pool);
+    }
+
+    private LettuceClientConfiguration.LettuceClientConfigurationBuilder applyProperties(
+            LettuceClientConfiguration.LettuceClientConfigurationBuilder builder) {
+        if (getProperties().isSsl()) {
+            builder.useSsl();
+        }
+        if (getProperties().getTimeout() != null) {
+            builder.commandTimeout(getProperties().getTimeout());
+        }
+        if (getProperties().getLettuce() != null) {
+            RedisProperties.Lettuce lettuce = getProperties().getLettuce();
+            if (lettuce.getShutdownTimeout() != null && !lettuce.getShutdownTimeout().isZero()) {
+                builder.shutdownTimeout(getProperties().getLettuce().getShutdownTimeout());
+            }
+        }
+        if (StringUtils.hasText(getProperties().getClientName())) {
+            builder.clientName(getProperties().getClientName());
+        }
+        return builder;
+    }
+
+    private ClientOptions.Builder initializeClientOptionsBuilder() {
+        if (getProperties().getCluster() != null) {
+            ClusterClientOptions.Builder builder = ClusterClientOptions.builder();
+            RedisProperties.Lettuce.Cluster.Refresh refreshProperties = getProperties().getLettuce().getCluster().getRefresh();
+            ClusterTopologyRefreshOptions.Builder refreshBuilder = ClusterTopologyRefreshOptions.builder();
+            if (refreshProperties.getPeriod() != null) {
+                refreshBuilder.enablePeriodicRefresh(refreshProperties.getPeriod());
+            }
+            if (refreshProperties.isAdaptive()) {
+                refreshBuilder.enableAllAdaptiveRefreshTriggers();
+            }
+            return builder.topologyRefreshOptions(refreshBuilder.build());
+        }
+        return ClientOptions.builder();
+    }
+
+    private void customizeConfigurationFromUrl(LettuceClientConfiguration.LettuceClientConfigurationBuilder builder) {
+        ConnectionInfo connectionInfo = parseUrl(getProperties().getUrl());
+        if (connectionInfo.isUseSsl()) {
+            builder.useSsl();
+        }
+    }
+
+    /**
+     * Inner class to allow optional commons-pool2 dependency.
+     */
+    private static class PoolBuilderFactory {
+
+        LettuceClientConfiguration.LettuceClientConfigurationBuilder createBuilder(RedisProperties.Pool properties) {
+            return LettucePoolingClientConfiguration.builder().poolConfig(getPoolConfig(properties));
+        }
+
+        private GenericObjectPoolConfig<?> getPoolConfig(RedisProperties.Pool properties) {
+            GenericObjectPoolConfig<?> config = new GenericObjectPoolConfig<>();
+            config.setMaxTotal(properties.getMaxActive());
+            config.setMaxIdle(properties.getMaxIdle());
+            config.setMinIdle(properties.getMinIdle());
+            if (properties.getTimeBetweenEvictionRuns() != null) {
+                config.setTimeBetweenEvictionRunsMillis(properties.getTimeBetweenEvictionRuns().toMillis());
+            }
+            if (properties.getMaxWait() != null) {
+                config.setMaxWaitMillis(properties.getMaxWait().toMillis());
+            }
+            return config;
+        }
+
+    }
+
+    protected final RedisStandaloneConfiguration getStandaloneConfig() {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        if (StringUtils.hasText(this.properties.getUrl())) {
+            ConnectionInfo connectionInfo = parseUrl(this.properties.getUrl());
+            config.setHostName(connectionInfo.getHostName());
+            config.setPort(connectionInfo.getPort());
+            config.setPassword(RedisPassword.of(connectionInfo.getPassword()));
+        }
+        else {
+            config.setHostName(this.properties.getHost());
+            config.setPort(this.properties.getPort());
+            config.setPassword(RedisPassword.of(this.properties.getPassword()));
+        }
+        config.setDatabase(this.properties.getDatabase());
+        return config;
+    }
+
+    protected final RedisSentinelConfiguration getSentinelConfig() {
+        if (this.sentinelConfiguration != null) {
+            return this.sentinelConfiguration;
+        }
+        RedisProperties.Sentinel sentinelProperties = this.properties.getSentinel();
+        if (sentinelProperties != null) {
+            RedisSentinelConfiguration config = new RedisSentinelConfiguration();
+            config.master(sentinelProperties.getMaster());
+            config.setSentinels(createSentinels(sentinelProperties));
+            if (this.properties.getPassword() != null) {
+                config.setPassword(RedisPassword.of(this.properties.getPassword()));
+            }
+            if (sentinelProperties.getPassword() != null) {
+                config.setSentinelPassword(RedisPassword.of(sentinelProperties.getPassword()));
+            }
+            config.setDatabase(this.properties.getDatabase());
+            return config;
+        }
+        return null;
+    }
+
+    /**
+     * Create a {@link RedisClusterConfiguration} if necessary.
+     * @return {@literal null} if no cluster settings are set.
+     */
+    protected final RedisClusterConfiguration getClusterConfiguration() {
+        if (this.clusterConfiguration != null) {
+            return this.clusterConfiguration;
+        }
+        if (this.properties.getCluster() == null) {
+            return null;
+        }
+        RedisProperties.Cluster clusterProperties = this.properties.getCluster();
+        RedisClusterConfiguration config = new RedisClusterConfiguration(clusterProperties.getNodes());
+        if (clusterProperties.getMaxRedirects() != null) {
+            config.setMaxRedirects(clusterProperties.getMaxRedirects());
+        }
+        if (this.properties.getPassword() != null) {
+            config.setPassword(RedisPassword.of(this.properties.getPassword()));
+        }
+        return config;
+    }
+
+    protected final RedisProperties getProperties() {
+        return this.properties;
+    }
+
+    private List<RedisNode> createSentinels(RedisProperties.Sentinel sentinel) {
+        List<RedisNode> nodes = new ArrayList<>();
+        for (String node : sentinel.getNodes()) {
+            try {
+                String[] parts = StringUtils.split(node, ":");
+                Assert.state(parts.length == 2, "Must be defined as 'host:port'");
+                nodes.add(new RedisNode(parts[0], Integer.parseInt(parts[1])));
+            }
+            catch (RuntimeException ex) {
+                throw new IllegalStateException("Invalid redis sentinel property '" + node + "'", ex);
+            }
+        }
+        return nodes;
+    }
+
+    protected ConnectionInfo parseUrl(String url) {
+        try {
+            URI uri = new URI(url);
+            String scheme = uri.getScheme();
+            if (!"redis".equals(scheme) && !"rediss".equals(scheme)) {
+                throw new RedisUrlSyntaxException(url);
+            }
+            boolean useSsl = ("rediss".equals(scheme));
+            String password = null;
+            if (uri.getUserInfo() != null) {
+                password = uri.getUserInfo();
+                int index = password.indexOf(':');
+                if (index >= 0) {
+                    password = password.substring(index + 1);
+                }
+            }
+            return new ConnectionInfo(uri, useSsl, password);
+        }
+        catch (URISyntaxException ex) {
+            throw new RedisUrlSyntaxException(url, ex);
+        }
+    }
+
+    static class ConnectionInfo {
+
+        private final URI uri;
+
+        private final boolean useSsl;
+
+        private final String password;
+
+        ConnectionInfo(URI uri, boolean useSsl, String password) {
+            this.uri = uri;
+            this.useSsl = useSsl;
+            this.password = password;
+        }
+
+        boolean isUseSsl() {
+            return this.useSsl;
+        }
+
+        String getHostName() {
+            return this.uri.getHost();
+        }
+
+        int getPort() {
+            return this.uri.getPort();
+        }
+
+        String getPassword() {
+            return this.password;
+        }
+
+    }
+
+    /**
+     * Exception thrown when a Redis URL is malformed or invalid.
+     *
+     * @author Scott Frederick
+     */
+    static class RedisUrlSyntaxException extends RuntimeException {
+
+        private static final long serialVersionUID = -525702723177852412L;
+        private final String url;
+
+        RedisUrlSyntaxException(String url, Exception cause) {
+            super(buildMessage(url), cause);
+            this.url = url;
+        }
+
+        RedisUrlSyntaxException(String url) {
+            super(buildMessage(url));
+            this.url = url;
+        }
+
+        String getUrl() {
+            return this.url;
+        }
+
+        private static String buildMessage(String url) {
+            return "Invalid Redis URL '" + url + "'";
+        }
+
     }
 }
