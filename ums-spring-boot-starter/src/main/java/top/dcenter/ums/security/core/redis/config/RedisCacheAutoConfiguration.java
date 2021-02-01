@@ -85,6 +85,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.Objects.nonNull;
 import static top.dcenter.ums.security.common.consts.RedisCacheConstants.USER_CONNECTION_CACHE_NAME;
 import static top.dcenter.ums.security.common.consts.RedisCacheConstants.USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME;
 import static top.dcenter.ums.security.common.consts.RedisCacheConstants.USER_CONNECTION_HASH_CACHE_NAME;
@@ -462,7 +463,7 @@ public class RedisCacheAutoConfiguration {
         for (String node : sentinel.getNodes()) {
             try {
                 String[] parts = StringUtils.split(node, ":");
-                Assert.state(parts.length == 2, "Must be defined as 'host:port'");
+                Assert.state(nonNull(parts) && parts.length == 2, "Must be defined as 'host:port'");
                 nodes.add(new RedisNode(parts[0], Integer.parseInt(parts[1])));
             }
             catch (RuntimeException ex) {
