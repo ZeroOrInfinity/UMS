@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -37,7 +38,10 @@ import java.time.LocalDateTime;
  * @version V1.0  Created by 2020/5/3 19:39
  * @author YongWu zheng
  */
-public class ResponseResult {
+public class ResponseResult implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     /**
      * 200 表示处理成功信息，其他表示失败
      */
@@ -51,6 +55,8 @@ public class ResponseResult {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime timestamp;
+
+    private ResponseResult() { }
 
     private ResponseResult(int code, String msg) {
         this.code = code;
