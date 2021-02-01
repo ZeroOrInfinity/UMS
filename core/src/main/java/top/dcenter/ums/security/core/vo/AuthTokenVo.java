@@ -23,6 +23,7 @@
 
 package top.dcenter.ums.security.core.vo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
@@ -32,6 +33,7 @@ import java.util.Collection;
  * @author YongWu zheng
  * @version V1.0  Created by 2020/6/6 22:27
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthTokenVo {
 
     /**
