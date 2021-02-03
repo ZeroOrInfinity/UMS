@@ -1,3 +1,15 @@
+## 2.2.19
+### Fixes and Improvements:
+1. ums-oauth/修复: 修复 user_connection 与 auth_token 建表语句的bug.
+2. ums/改进: 修复可能发生的 NPE 问题.
+3. core/改进: 添加 refreshTokenExpiresIn 字段, 及 json 序列化优化.
+4. commons/改进: 添加 json 序列化的支持.
+5. ums/改进: 增加对自定义 RedisConnectionFactory 集群与哨兵模式的支持.
+6. 优化: isRefreshJwtByRefreshToken() 逻辑.
+7. 优化: AuthTokenVo.java, 区分 token 与 refresh token 的过期时间.
+8. 优化: 给 nexus-staging-maven-plugin 添加超时设置.
+
+
 ## 2.2.18
 ### Fixes and Improvements:
 1. 修复: 对 RedisConnection 进行操作后未进行关闭的问题.

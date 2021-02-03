@@ -7,7 +7,7 @@
 
 <p align="center">
 	<a target="_blank" href="https://search.maven.org/search?q=g:top.dcenter%20AND%20a:ums-spring-boot-starter">
-		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.18-green.svg" />
+		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.19-green.svg" />
 	</a>
 	<a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">
 		<img alt='license' src="https://img.shields.io/badge/license-MIT-yellow.svg" />
@@ -219,6 +219,8 @@ Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-
 
 11. [ConnectionService](https://github.com/ZeroOrInfinity/UMS/blob/master/oauth/src/main/java/top/dcenter/ums/security/core/api/oauth/signup/ConnectionService.java): 第三方授权登录用户的注册, 绑定, 更新第三方用户信息与 accessToken 信息的接口, 一般**不需要用户实现**.
       除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
+    - 注意:  要替换内置 `auth_token` 与 `user_connection` 表的实现逻辑, 实现此接口注入 IOC 容器即可, 且设置属性 `ums.repository.
+      enableStartUpInitializeTable = false` .
 
 12. 自定义 OAuth2 Login 扩展接口: 内置两个自定义 providerId(ums.oauth.customize 与 ums.oauth.gitlabPrivate)
     
