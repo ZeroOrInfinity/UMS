@@ -286,7 +286,7 @@ public final class JwtContext {
                 JWTClaimsSet claimsSet = generateClaimsSetService.generateClaimsSet(authentication, refreshTokenJwt);
                 Jwt jwt = createJwt(claimsSet);
 
-                setBearerTokenAndRefreshTokenToHeader(jwt, refreshTokenJwt);
+                setBearerTokenAndRefreshTokenToHeader(jwt, refreshTokenJwt, FALSE);
                 /* 转换为 JwtAuthenticationToken, 再根据 isSetContext 保存 jwtAuthenticationToken 到 SecurityContext, 如果
                    JwtBlacklistProperties.getEnable() = false, 则同时保存到 redis 缓存
                  */
@@ -340,7 +340,7 @@ public final class JwtContext {
         if (newJwtString != null) {
             newJwt = jwtDecoder.decodeNotValidate(removeBearerForJwtTokenString(newJwtString));
             // 新的 jwt 设置 header
-            setBearerTokenAndRefreshTokenToHeader(newJwt, null);
+            setBearerTokenAndRefreshTokenToHeader(newJwt, null, FALSE);
             return newJwt;
         }
 
@@ -377,7 +377,7 @@ public final class JwtContext {
         addBlacklist(jwt, newJwt);
 
         // 4. 新的 jwt 设置 header, 并检查 refresh token 是否需要重新生成.
-        setBearerTokenAndRefreshTokenToHeader(newJwt, null);
+        setBearerTokenAndRefreshTokenToHeader(newJwt, null, FALSE);
 
         return newJwt;
     }
@@ -468,7 +468,7 @@ public final class JwtContext {
         }
 
         // 6. 设置 jwt 到 header
-        setBearerTokenAndRefreshTokenToHeader(newJwt, refreshTokenJwt);
+        setBearerTokenAndRefreshTokenToHeader(newJwt, refreshTokenJwt, TRUE);
 
         return newJwt;
     }
@@ -1185,11 +1185,13 @@ public final class JwtContext {
      * 注意: <br>
      * 1. {@link BearerTokenProperties#getAllowFormEncodedBodyParameter()} = false 才会设置 bearerToken 与 refreshToken 到 Header.<br>
      * 2. refreshToken 只有在 {@link JwtRefreshHandlerPolicy#REFRESH_TOKEN} 时才回设置.
-     * @param jwt                       {@link Jwt}
-     * @param refreshTokenJwt           refreshToken {@link Jwt}, 可以为 null 值.
+     * @param jwt                           {@link Jwt}
+     * @param refreshTokenJwt               refreshToken {@link Jwt}, 可以为 null 值.
+     * @param isGenerateJwtByRefreshToken   is generate jwt by refresh token
      */
     private static void setBearerTokenAndRefreshTokenToHeader(@NonNull Jwt jwt,
-                                                              @Nullable Jwt refreshTokenJwt) {
+                                                              @Nullable Jwt refreshTokenJwt,
+                                                              @NonNull Boolean isGenerateJwtByRefreshToken) {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpServletResponse response = requestAttributes.getResponse();
         // 获取 bearerToken
@@ -1208,8 +1210,10 @@ public final class JwtContext {
                     // 设置到请求头
                     response.setHeader(refreshTokenHeaderName, refreshTokenJwtValue);
                 }
-                // 临时设置到 session, 再通过认证成功处理器获取 refresh token 通过 json 返回
-                requestAttributes.setAttribute(TEMPORARY_JWT_REFRESH_TOKEN, refreshTokenJwtValue, SCOPE_SESSION);
+                if (isGenerateJwtByRefreshToken) {
+                    // 临时设置到 session, 再通过认证成功处理器获取 refresh token 通过 json 返回
+                    requestAttributes.setAttribute(TEMPORARY_JWT_REFRESH_TOKEN, refreshTokenJwtValue, SCOPE_SESSION);
+                }
             }
         }
 
