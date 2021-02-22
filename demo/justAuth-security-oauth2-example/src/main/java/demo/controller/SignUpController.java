@@ -28,12 +28,15 @@ import me.zhyd.oauth.model.AuthUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
@@ -53,10 +56,14 @@ import top.dcenter.ums.security.core.oauth.token.Auth2AuthenticationToken;
 import top.dcenter.ums.security.core.oauth.userdetails.TemporaryUser;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.nonNull;
+import static org.springframework.util.StringUtils.hasText;
+import static top.dcenter.ums.security.core.oauth.filter.login.Auth2LoginAuthenticationFilter.TEMPORARY_USERNAME_PARAM_NAME;
+import static top.dcenter.ums.security.core.oauth.filter.login.Auth2LoginAuthenticationFilter.TEMPORARY_USER_CACHE_KEY_PREFIX;
 
 /**
  * 展示用户第一次第三方授权登录时, 不支持自动注册, 获取临时用户信息(含第三方的用户信息)的方式与自定义注册, 比如获取临时用户信息两种方式:
@@ -86,6 +93,10 @@ public class SignUpController {
      */
     private final Integer timeout;
 
+    private final Auth2Properties auth2Properties;
+
+    private final RedisConnectionFactory redisConnectionFactory;
+
     @Autowired
     private ConnectionService connectionService;
 
@@ -98,44 +109,67 @@ public class SignUpController {
     @Autowired
     private Auth2StateCoder auth2StateCoder;
 
-    public SignUpController(Auth2Properties auth2Properties) {
+    public SignUpController(Auth2Properties auth2Properties,
+                            @Autowired(required = false)
+                            @Nullable RedisConnectionFactory redisConnectionFactory) {
+        this.auth2Properties = auth2Properties;
         this.timeout = Math.toIntExact(auth2Properties.getProxy().getTimeout().toMillis());
+        this.redisConnectionFactory = redisConnectionFactory;
     }
 
-    @GetMapping("/signUpAgain")
+    @GetMapping("/signUp")
     @ResponseBody
-    public Map<String, Object> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails,
-                                              @SuppressWarnings("unused") HttpServletRequest request) {
-        Map<String, Object> map = new HashMap<>(2);
-        map.put("userDetails", userDetails);
-        map.put("securityContextHolder", SecurityContextHolder.getContext().getAuthentication());
+    public String signUp(@AuthenticationPrincipal UserDetails userDetails, HttpServletRequest request, Model model) {
+
+        // 此方法未测试, 只是提供第三方登录自定义注册的大体的逻辑.
+        // 如果需要进一步的自定义注册逻辑查看 DemoSignUpUrlAuthenticationSuccessHandler #58 行说明.
 
         log.info(JsonUtil.toJsonString(userDetails));
 
+        String temporaryUsername = request.getParameter(TEMPORARY_USERNAME_PARAM_NAME);
+
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        final Object principal = authentication.getPrincipal();
-        if (principal instanceof TemporaryUser)
-        {
-            TemporaryUser temporaryUser = ((TemporaryUser) principal);
-            log.info(JsonUtil.toJsonString(temporaryUser));
-            final AuthUser authUser = temporaryUser.getAuthUser();
-            log.info(JsonUtil.toJsonString(authUser));
+        model.addAttribute("securityContextHolder", authentication);
 
-            // 从 request 获取前端提交数据
-            // ...
+        // 测试是否自动注册
+        //            boolean autoSignUp = auth2Properties.getAutoSignUp();
+        boolean autoSignUp = false;
+        String signUpUrl = auth2Properties.getSignUpUrl();
 
-            UserDetails newUserDetails;
+        UserDetails newUserDetails = null;
+        AuthUser authUser = null;
 
-            // 测试是否自动注册
-            boolean autoSignUp = false;
-            //noinspection ConstantConditions
-            if (autoSignUp) {
-                // 演示 1. start: 自动注册逻辑
-                 newUserDetails = connectionService.signUp(authUser, authUser.getSource(), temporaryUser.getEncodeState());
-                // 演示 1. end: 自动注册逻辑
+        //noinspection ConstantConditions
+        if (!autoSignUp && hasText(signUpUrl)) {
+            TemporaryUser temporaryUser;
+            // 从 redis 中获取
+            if (nonNull(redisConnectionFactory)) {
+                byte[] bytes = redisConnectionFactory.getConnection()
+                                                     .get((TEMPORARY_USER_CACHE_KEY_PREFIX + temporaryUsername)
+                                                                  .getBytes(StandardCharsets.UTF_8));
+                if (nonNull(bytes)) {
+                    temporaryUser = JsonUtil.json2Object(new String(bytes, StandardCharsets.UTF_8), TemporaryUser.class);
+                }
+                else {
+                    temporaryUser = null;
+                }
             }
+            // 从 session 中获取
             else {
+                temporaryUser = (TemporaryUser) request.getSession()
+                                                       .getAttribute(TEMPORARY_USER_CACHE_KEY_PREFIX + temporaryUsername);
+            }
+
+            if (nonNull(temporaryUser)) {
+                model.addAttribute("temporaryUser", temporaryUser);
+                log.info(JsonUtil.toJsonString(temporaryUser));
+                authUser = temporaryUser.getAuthUser();
+                log.info(JsonUtil.toJsonString(authUser));
+
+                // 从 request 获取前端提交数据
+                // ...
+
                 // 演示 2. start: 自定义注册用户逻辑
                 final String encodeState = temporaryUser.getEncodeState();
                 final String authorities =
@@ -151,16 +185,14 @@ public class SignUpController {
                     // 重名检查
                     username = null;
                     final List<Boolean> existedByUserIds = umsUserDetailsService.existedByUsernames(usernames);
-                    for(int i = 0, len = existedByUserIds.size(); i < len; i++) {
-                        if (!existedByUserIds.get(i))
-                        {
+                    for (int i = 0, len = existedByUserIds.size(); i < len; i++) {
+                        if (!existedByUserIds.get(i)) {
                             username = usernames[i];
                             break;
                         }
                     }
                     // 用户重名, 自动注册失败
-                    if (username == null)
-                    {
+                    if (username == null) {
                         throw new RegisterUserFailureException(ErrorCodeEnum.USERNAME_USED, authUser.getUsername());
                     }
 
@@ -178,6 +210,16 @@ public class SignUpController {
                     // 第三方授权登录信息绑定到本地账号, 且添加第三方授权登录信息到 user_connection 与 auth_token
                     registerConnection(authUser.getSource(), authUser, newUserDetails);
 
+                    model.addAttribute("newUserDetails", newUserDetails);
+
+                    // 创建新的成功认证 token
+                    Auth2AuthenticationToken auth2AuthenticationToken =
+                            new Auth2AuthenticationToken(newUserDetails, newUserDetails.getAuthorities(), authUser.getSource());
+                    auth2AuthenticationToken.setDetails(authentication.getDetails());
+                    // 更新 SecurityContextHolder
+                    SecurityContextHolder.getContext().setAuthentication(auth2AuthenticationToken);
+                    // 自己的其他更新逻辑 ...
+
                 }
                 catch (Exception e) {
                     log.error(String.format("OAuth2自动注册失败: error=%s, username=%s, authUser=%s",
@@ -185,21 +227,11 @@ public class SignUpController {
                     throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_FAILURE, username);
                 }
                 // 演示 2. end: 自定义注册用户逻辑
-
             }
-
-
-            // 创建新的成功认证 token
-            Auth2AuthenticationToken auth2AuthenticationToken =
-                    new Auth2AuthenticationToken(newUserDetails, newUserDetails.getAuthorities(), authUser.getSource());
-            auth2AuthenticationToken.setDetails(authentication.getDetails());
-            // 更新 SecurityContextHolder
-            SecurityContextHolder.getContext().setAuthentication(auth2AuthenticationToken);
-            // 自己的其他更新逻辑 ...
 
         }
 
-        return map;
+        return "signUp";
     }
 
     /**

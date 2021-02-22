@@ -29,6 +29,7 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.StringUtils;
+import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.userdetails.TemporaryUser;
 import top.dcenter.ums.security.common.vo.ResponseResult;
 
@@ -41,7 +42,7 @@ import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
 import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
 
 /**
- * 演示 signUpUrl 设置为 null 时的一种处理方式
+ * 演示 {@link Auth2Properties#getSignUpUrl()} 为 null 时的一种处理方式
  * @author YongWu zheng
  * @version V2.0  Created by 2020/10/30 10:19
  */
@@ -54,12 +55,13 @@ public class DemoSignUpUrlAuthenticationSuccessHandler extends SavedRequestAware
             throws IOException {
 
 
-        // start: 判断是否为临时用户, 进行相关逻辑的处理
+        // start: 判断是否为临时用户, 进行相关逻辑的处理; 前提是: ums.oauth.signUpUrl 为空, 才会执行此逻辑.
+        // 如果: ums.oauth.signUpUrl != null, 这执行 Auth2LoginAuthenticationFilter #208 行的逻辑.
         final Object principal = authentication.getPrincipal();
         if (principal instanceof TemporaryUser)
         {
             TemporaryUser temporaryUser = ((TemporaryUser) principal);
-            // 自己的处理逻辑, 如返回 json 数据
+            // 自己的处理逻辑, 如返回 json 数据, 返回指定注册页面
             // ...
             return;
         }

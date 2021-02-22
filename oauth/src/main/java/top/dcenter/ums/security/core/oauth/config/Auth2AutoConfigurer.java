@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
@@ -73,6 +74,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
     private final ExecutorService updateConnectionTaskExecutor;
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
     private final BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler;
+    private final RedisConnectionFactory redisConnectionFactory;
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
     private Auth2StateCoder auth2StateCoder;
@@ -104,7 +106,9 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
                                ConnectionService connectionSignUp,
                                @Qualifier("updateConnectionTaskExecutor") ExecutorService updateConnectionTaskExecutor,
                                BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
-                               BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler) {
+                               BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
+                               @Autowired(required = false)
+                               RedisConnectionFactory redisConnectionFactory) {
         this.auth2Properties = auth2Properties;
         this.umsUserDetailsService = umsUserDetailsService;
         this.auth2UserService = auth2UserService;
@@ -112,6 +116,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         this.updateConnectionTaskExecutor = updateConnectionTaskExecutor;
         this.baseAuthenticationFailureHandler = baseAuthenticationFailureHandler;
         this.baseAuthenticationSuccessHandler = baseAuthenticationSuccessHandler;
+        this.redisConnectionFactory = redisConnectionFactory;
         this.baseAuthenticationSuccessHandler.setAuth2RedirectUrl(auth2Properties.getRedirectUrlPrefix());
 
     }
@@ -123,7 +128,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         String filterProcessesUrl = auth2Properties.getRedirectUrlPrefix();
         Auth2LoginAuthenticationFilter auth2LoginAuthenticationFilter =
                 new Auth2LoginAuthenticationFilter(filterProcessesUrl, auth2Properties.getSignUpUrl(),
-                                                   authenticationDetailsSource);
+                                                   authenticationDetailsSource, redisConnectionFactory);
         AuthenticationManager sharedObject = http.getSharedObject(AuthenticationManager.class);
         auth2LoginAuthenticationFilter.setAuthenticationManager(sharedObject);
         AppContextUtil.registerHandlerAndRememberMeServices(auth2LoginAuthenticationFilter,

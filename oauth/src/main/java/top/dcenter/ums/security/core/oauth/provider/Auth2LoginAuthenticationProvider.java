@@ -295,7 +295,15 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 		                                                                                 providerId);
 		auth2AuthenticationToken.setDetails(loginToken.getDetails());
 
-		return JwtContext.createJwtAndToJwtAuthenticationToken(auth2AuthenticationToken, this.generateClaimsSetService);
+		// fix 当不支持自动注册时, 因转换成 JWT 而获取不到临时用户的 bug.
+		if (!(userDetails instanceof TemporaryUser)) {
+			// 返回 JwtAuthenticationToken
+			return JwtContext.createJwtAndToJwtAuthenticationToken(auth2AuthenticationToken, this.generateClaimsSetService);
+		}
+		else {
+			// 临时用户直接返回 Auth2AuthenticationToken
+			return auth2AuthenticationToken;
+		}
 	}
 
 	/**

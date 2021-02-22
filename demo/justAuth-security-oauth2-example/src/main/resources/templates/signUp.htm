@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html xmlns:th="http://www.w3.org/1999/xhtml" lang="zh" >
 <head>
     <meta charset="UTF-8">
     <title>index</title>
@@ -11,7 +11,10 @@
 <p>注意: 当 autoSignUp = false 时, 此属性才生效. </p>
 <p>例如: </p>
 <p>1. 设置值 "/signUp", 则跳转指定到 "/signUp" 进行注册. </p>
-<p>2. 想返回自定义 json 数据到前端, 这里要设置 null , 在 Auth2LoginAuthenticationFilter 设置的 AuthenticationSuccessHandler 上处理返回 json;
+<p>2. 想返回自定义 json 数据到前端, 这里要设置 为空 , 在 Auth2LoginAuthenticationFilter 设置的 AuthenticationSuccessHandler 上处理返回 json;
     判断是否为临时用户的条件是: Authentication.getPrincipal() 是否为 TemporaryUser 类型.</p>
+securityContextHolder: <span th:text="${securityContextHolder}"></span>
+temporaryUser: <span th:text="${temporaryUser}"></span>
+newUserDetails: <span th:text="${newUserDetails}"></span>
 </body>
 </html>
