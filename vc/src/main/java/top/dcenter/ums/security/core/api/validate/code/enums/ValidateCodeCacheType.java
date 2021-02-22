@@ -96,7 +96,7 @@ public enum ValidateCodeCacheType {
                             @NonNull ValidateCodeType validateCodeType,
                             @Nullable RedisConnectionFactory redisConnectionFactory) {
 
-            Objects.requireNonNull(redisConnectionFactory, "stringRedisTemplate cannot be null");
+            Objects.requireNonNull(redisConnectionFactory, "redisConnectionFactory cannot be null");
 
             try {
                 removeUnnecessaryFieldValue(validateCode);
