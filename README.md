@@ -7,7 +7,7 @@
 
 <p align="center">
 	<a target="_blank" href="https://search.maven.org/search?q=g:top.dcenter%20AND%20a:ums-spring-boot-starter">
-		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.19-green.svg" />
+		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.20-green.svg" />
 	</a>
 	<a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">
 		<img alt='license' src="https://img.shields.io/badge/license-MIT-yellow.svg" />

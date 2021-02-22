@@ -1,3 +1,9 @@
+## 2.2.20
+### Fixes and Improvements:
+1. oauth/修复: 第三方登录不支持自动注册且开启 jwt 功能时, 不能跳转 signUpUrl 的问题.
+2. jwt/改进: 生成 refreshToken 后响应的方式.
+3. vc/改进: 短信验证码校验时增加对手机号的校验.
+
 ## 2.2.19
 ### Fixes and Improvements:
 1. ums-oauth/修复: 修复 user_connection 与 auth_token 建表语句的bug.
