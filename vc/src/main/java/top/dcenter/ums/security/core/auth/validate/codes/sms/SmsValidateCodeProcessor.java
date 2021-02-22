@@ -33,16 +33,18 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import top.dcenter.ums.security.common.consts.RegexConstants;
+import top.dcenter.ums.security.common.utils.IpUtil;
 import top.dcenter.ums.security.core.api.validate.code.AbstractValidateCodeProcessor;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
+import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGenerator;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCodeGeneratorHolder;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeCacheType;
 import top.dcenter.ums.security.core.api.validate.code.enums.ValidateCodeType;
 import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.exception.SmsCodeRepeatedRequestException;
+import top.dcenter.ums.security.core.exception.ValidateCodeException;
 import top.dcenter.ums.security.core.exception.ValidateCodeParamErrorException;
-import top.dcenter.ums.security.common.utils.IpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,9 +55,14 @@ import static org.springframework.http.HttpStatus.OK;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.MOBILE_FORMAT_ERROR;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.MOBILE_PARAMETER_ERROR;
 import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.SMS_CODE_REPEATED_REQUEST;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_ERROR;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_EXPIRED;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EMPTY;
+import static top.dcenter.ums.security.common.enums.ErrorCodeEnum.VALIDATE_CODE_NOT_EXISTS_IN_CACHE;
 import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
 import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
 import static top.dcenter.ums.security.common.vo.ResponseResult.success;
+import static top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender.SMS_CODE_SEPARATOR;
 
 
 /**
@@ -111,7 +118,12 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
                     return false;
                 }
 
-                final boolean result = smsCodeSender.sendSms(mobile, validateCode.getCode());
+                // 去除手机号前缀
+                String smsCode = validateCode.getCode();
+                int indexOf = smsCode.indexOf(SMS_CODE_SEPARATOR);
+                smsCode = smsCode.substring(indexOf + SMS_CODE_SEPARATOR.length());
+
+                final boolean result = smsCodeSender.sendSms(mobile, smsCode);
                 responseWithJson(response, OK.value(), toJsonString(success("", validateCode.getExpireIn())));
 
                 return result;
@@ -139,6 +151,62 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
         }
 
         throw new ValidateCodeParamErrorException(MOBILE_FORMAT_ERROR, mobile, ip);
+    }
+
+    @Override
+    public void validate(ServletWebRequest request) throws ValidateCodeException {
+        ValidateCodeType validateCodeType = getValidateCodeType();
+        ValidateCodeGenerator<?> validateCodeGenerator = getValidateCodeGenerator(validateCodeType);
+
+        // 获取 session 中的验证码
+        HttpServletRequest req = request.getRequest();
+
+        ValidateCode codeInCache = validateCodeCacheType.getCodeInCache(request, validateCodeType,
+                                                                        validateCodeClass, redisConnectionFactory);
+        // 获取 手机号
+        String mobile = request.getParameter(validateCodeProperties.getSms().getRequestParamMobileName());
+        // 获取 request 中的验证码, 增加对手机号的校验
+        String codeInRequest = mobile + SMS_CODE_SEPARATOR +
+                request.getParameter(validateCodeGenerator.getRequestParamValidateCodeName());
+
+        // 检查 session 是否有值
+        if (codeInCache == null)
+        {
+            throw new ValidateCodeException(VALIDATE_CODE_NOT_EXISTS_IN_CACHE, IpUtil.getRealIp(req), codeInRequest);
+        }
+
+        // 校验参数是否有效
+        if (!StringUtils.hasText(codeInRequest))
+        {
+            // 按照逻辑是前端过滤无效参数, 如果进入此逻辑, 按非正常访问处理
+            if (!codeInCache.getReuse())
+            {
+                validateCodeCacheType.removeCache(request, validateCodeType, redisConnectionFactory);
+            }
+            throw new ValidateCodeException(VALIDATE_CODE_NOT_EMPTY, IpUtil.getRealIp(req), validateCodeType.name());
+        }
+
+        codeInRequest = codeInRequest.trim();
+
+        // 校验是否过期
+        if (codeInCache.isExpired())
+        {
+            validateCodeCacheType.removeCache(request, validateCodeType, redisConnectionFactory);
+            throw new ValidateCodeException(VALIDATE_CODE_EXPIRED, IpUtil.getRealIp(req), codeInRequest);
+        }
+
+        // 验证码校验
+        if (!codeInRequest.equalsIgnoreCase(codeInCache.getCode()))
+        {
+            if (!codeInCache.getReuse())
+            {
+                validateCodeCacheType.removeCache(request, validateCodeType, redisConnectionFactory);
+            }
+            throw new ValidateCodeException(VALIDATE_CODE_ERROR, IpUtil.getRealIp(req), codeInRequest);
+        }
+
+        validateCodeCacheType.removeCache(request, validateCodeType, redisConnectionFactory);
+
     }
 
     @Override

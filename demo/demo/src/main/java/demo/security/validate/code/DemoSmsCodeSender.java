@@ -25,10 +25,14 @@ package demo.security.validate.code;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
 import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.ValidateCodeUtil;
+
+import static java.util.Objects.nonNull;
 
 /**
  * 自定义发送短信验证码
@@ -55,15 +59,24 @@ public class DemoSmsCodeSender implements SmsCodeSender {
     @Override
     public ValidateCode getCode() {
         ValidateCodeProperties.SmsCodeProperties smsCodeProp = this.validateCodeProperties.getSms();
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        String mobile = null;
+        if (nonNull(requestAttributes)) {
+            mobile = (String) requestAttributes.getAttribute(smsCodeProp.getRequestParamMobileName(),
+                                                             RequestAttributes.SCOPE_REQUEST);
+
+        }
+
         int expireIn = smsCodeProp.getExpire();
         int codeLength = smsCodeProp.getLength();
 
         String code = ValidateCodeUtil.generateNumberVerifyCode(codeLength);
+
         if (log.isDebugEnabled())
         {
             log.debug("Demo =======>: {} = {}", this.validateCodeProperties.getSms().getRequestParamSmsCodeName(),
                       code);
         }
-        return new ValidateCode(code, expireIn);
+        return new ValidateCode(mobile + code, expireIn);
     }
 }

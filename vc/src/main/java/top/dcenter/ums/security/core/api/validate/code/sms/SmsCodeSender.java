@@ -37,6 +37,11 @@ import top.dcenter.ums.security.core.auth.validate.codes.sms.DefaultSmsCodeSende
 public interface SmsCodeSender {
 
     /**
+     * 用于分隔手机号与短信验证码的分隔符
+     */
+    String SMS_CODE_SEPARATOR = "::";
+
+    /**
      * 通过第三方发送短信验证码接口
      * @param mobile     手机号码
      * @param validateCode  验证码

@@ -24,10 +24,14 @@
 package top.dcenter.ums.security.core.auth.validate.codes.sms;
 
 import lombok.extern.slf4j.Slf4j;
-import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
+import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.util.ValidateCodeUtil;
+
+import static java.util.Objects.nonNull;
 
 /**
  * 默认短信发送器，无任何实现, 建议自己自定义 {@link SmsCodeSender} , 并注入 IOC 容器, 会替代此类
@@ -53,11 +57,19 @@ public class DefaultSmsCodeSender implements SmsCodeSender {
     @Override
     public ValidateCode getCode() {
         ValidateCodeProperties.SmsCodeProperties smsCodeProp = this.validateCodeProperties.getSms();
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        String mobile = null;
+        if (nonNull(requestAttributes)) {
+            mobile = (String) requestAttributes.getAttribute(smsCodeProp.getRequestParamMobileName(),
+                                                             RequestAttributes.SCOPE_REQUEST);
+
+        }
+
         int expireIn = smsCodeProp.getExpire();
         int codeLength = smsCodeProp.getLength();
 
         String code = ValidateCodeUtil.generateNumberVerifyCode(codeLength);
 
-        return new ValidateCode(code, expireIn);
+        return new ValidateCode(mobile + SMS_CODE_SEPARATOR + code, expireIn);
     }
 }
