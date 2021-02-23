@@ -24,8 +24,8 @@
 package top.dcenter.ums.security.core.auth.validate.codes.sms;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import top.dcenter.ums.security.core.api.validate.code.ValidateCode;
 import top.dcenter.ums.security.core.api.validate.code.sms.SmsCodeSender;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
@@ -57,12 +57,10 @@ public class DefaultSmsCodeSender implements SmsCodeSender {
     @Override
     public ValidateCode getCode() {
         ValidateCodeProperties.SmsCodeProperties smsCodeProp = this.validateCodeProperties.getSms();
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         String mobile = null;
         if (nonNull(requestAttributes)) {
-            mobile = (String) requestAttributes.getAttribute(smsCodeProp.getRequestParamMobileName(),
-                                                             RequestAttributes.SCOPE_REQUEST);
-
+            mobile = requestAttributes.getRequest().getParameter(smsCodeProp.getRequestParamMobileName());
         }
 
         int expireIn = smsCodeProp.getExpire();
