@@ -215,11 +215,12 @@ public class Auth2LoginAuthenticationFilter extends AbstractAuthenticationProces
             String key = TEMPORARY_USER_CACHE_KEY_PREFIX + username;
             if (nonNull(redisConnectionFactory)) {
                 // 存入 redis
-                RedisConnection connection = redisConnectionFactory.getConnection();
-                connection.set(key.getBytes(StandardCharsets.UTF_8),
-                               JsonUtil.toJsonString(temporaryUser).getBytes(StandardCharsets.UTF_8),
-                               Expiration.from(86400L, TimeUnit.SECONDS),
-                               RedisStringCommands.SetOption.UPSERT);
+                try (RedisConnection connection = redisConnectionFactory.getConnection()) {
+                    connection.set(key.getBytes(StandardCharsets.UTF_8),
+                                   JsonUtil.toJsonString(temporaryUser).getBytes(StandardCharsets.UTF_8),
+                                   Expiration.from(86400L, TimeUnit.SECONDS),
+                                   RedisStringCommands.SetOption.UPSERT);
+                }
             }
             else {
                 // 存入 session

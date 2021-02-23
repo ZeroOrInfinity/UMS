@@ -35,8 +35,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
+import top.dcenter.ums.security.common.jackson.SimpleGrantedAuthorityMixin;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -67,6 +69,7 @@ public final class JsonUtil {
     static {
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         OBJECT_MAPPER.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        OBJECT_MAPPER.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
         // 解决jackson2无法反序列化LocalDateTime的问题
         OBJECT_MAPPER.registerModule(new JavaTimeModule());
     }

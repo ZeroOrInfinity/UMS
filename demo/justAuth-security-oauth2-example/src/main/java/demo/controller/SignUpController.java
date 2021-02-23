@@ -28,6 +28,7 @@ import me.zhyd.oauth.model.AuthUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
@@ -38,7 +39,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.common.utils.JsonUtil;
 import top.dcenter.ums.security.core.api.oauth.entity.AuthTokenPo;
@@ -118,7 +118,6 @@ public class SignUpController {
     }
 
     @GetMapping("/signUp")
-    @ResponseBody
     public String signUp(@AuthenticationPrincipal UserDetails userDetails, HttpServletRequest request, Model model) {
 
         // 此方法未测试, 只是提供第三方登录自定义注册的大体的逻辑.
@@ -144,15 +143,16 @@ public class SignUpController {
         if (!autoSignUp && hasText(signUpUrl)) {
             TemporaryUser temporaryUser;
             // 从 redis 中获取
+            byte[] key = (TEMPORARY_USER_CACHE_KEY_PREFIX + temporaryUsername).getBytes(StandardCharsets.UTF_8);
             if (nonNull(redisConnectionFactory)) {
-                byte[] bytes = redisConnectionFactory.getConnection()
-                                                     .get((TEMPORARY_USER_CACHE_KEY_PREFIX + temporaryUsername)
-                                                                  .getBytes(StandardCharsets.UTF_8));
-                if (nonNull(bytes)) {
-                    temporaryUser = JsonUtil.json2Object(new String(bytes, StandardCharsets.UTF_8), TemporaryUser.class);
-                }
-                else {
-                    temporaryUser = null;
+                try (RedisConnection connection = redisConnectionFactory.getConnection()) {
+                    byte[] bytes = connection.get(key);
+                    if (nonNull(bytes)) {
+                        temporaryUser = JsonUtil.json2Object(new String(bytes, StandardCharsets.UTF_8), TemporaryUser.class);
+                    }
+                    else {
+                        temporaryUser = null;
+                    }
                 }
             }
             // 从 session 中获取
@@ -220,12 +220,18 @@ public class SignUpController {
                     SecurityContextHolder.getContext().setAuthentication(auth2AuthenticationToken);
                     // 自己的其他更新逻辑 ...
 
+
                 }
                 catch (Exception e) {
                     log.error(String.format("OAuth2自动注册失败: error=%s, username=%s, authUser=%s",
                                             e.getMessage(), username, JsonUtil.toJsonString(authUser)), e);
                     throw new RegisterUserFailureException(ErrorCodeEnum.USER_REGISTER_FAILURE, username);
                 }
+
+                try (RedisConnection connection = redisConnectionFactory.getConnection()) {
+                    connection.del(key);
+                }
+
                 // 演示 2. end: 自定义注册用户逻辑
             }
 
