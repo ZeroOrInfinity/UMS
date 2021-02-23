@@ -101,6 +101,17 @@ ums:
       - '/order/**=/login'
       - '/file/**=/login'
       - '/social/**=/signIn.html'
+    # ============= csrf =============
+    csrf:
+      # csrf 是否开启, 默认为 false;
+      csrf-is-open: false
+      # 忽略指定请求的 CSRF 防护, 默认为 空 Set
+      ignoring-ant-matcher-urls:
+        - /authentication/form
+        - /logout
+        # - /authentication/mobile
+      # csrf tokenRepository 的存储类型, 默认为 session. 因为 session 可以配置缓存在 redis 等, 也可以自己自定义, 例如: redis
+      token-repository-type: session
 
   # 验证码配置
   codes:

@@ -156,7 +156,7 @@
             </td>
         </tr>
         <tr>
-            <td ><button id="btn-reg-sli" type="button">登录ajax</button></td>
+            <td ><button id="btn-reg-sli" type="submit">登录ajax</button></td>
         </tr>
     </table>
 </form>
@@ -287,6 +287,12 @@
                 type: "POST",
                 dataType: "json",
                 contentType: 'application/json; charset=UTF-8',
+                beforeSend: function(request) {
+                    // 设置 X-CSRF-TOKEN
+                    let csrf = $(formId + " input[type=hidden]").val();
+                    console.log("csrf: " + csrf);
+                    request.setRequestHeader("X-CSRF-TOKEN", csrf);
+                },
                 success: function (data) {
                     $(errorNameId).text("")
                     $(errorCodeId).text("")
