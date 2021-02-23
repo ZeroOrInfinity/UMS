@@ -1,3 +1,9 @@
+## 2.2.21
+### Fixes and Improvements:
+1. vc/修复: 获取不到手机号的问题.
+2. oauth/commons/修复: TemporaryUser 序列化问题.
+3. vc-example/修复: 开启 csrf 且通过 json 格式提交表单时, 获取不到 csrfToken 的问题.
+
 ## 2.2.20
 ### Fixes and Improvements:
 1. oauth/修复: 第三方登录不支持自动注册且开启 jwt 功能时, 不能跳转 signUpUrl 的问题.
