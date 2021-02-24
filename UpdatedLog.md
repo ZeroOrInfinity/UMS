@@ -1,3 +1,8 @@
+## 2.2.22
+### Fixes and Improvements:
+1. jwt/兼容性: 增加对 springBoot 高版本的 JwtAuthenticationConverter 兼容性.
+2. oauth/改进: ConnectionService.java 针对第三方增加解绑接口并添加默认实现.
+
 ## 2.2.21
 ### Fixes and Improvements:
 1. vc/修复: 获取不到手机号的问题.
