@@ -31,6 +31,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.util.Assert;
 import org.springframework.util.StreamUtils;
 import top.dcenter.ums.security.jwt.api.endpoind.service.JwkEndpointPermissionService;
@@ -153,7 +154,8 @@ public class JwtProperties {
 
     // ================= ClaimSet 相关 =================
     /**
-     * JWT 存储 principal 的 claimName, 默认: sub
+     * JWT 存储 principal 的 claimName, 默认: sub .<br>
+     * 注意: 如果是高版本的 {@link JwtAuthenticationConverter}, 高版本没有 {@code principalClaimName} 字段, 所以必须是此默认值.
      */
     private String principalClaimName = JwtClaimNames.SUB;
 

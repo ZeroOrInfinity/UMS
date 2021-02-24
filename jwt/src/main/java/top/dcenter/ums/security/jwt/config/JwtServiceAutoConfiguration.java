@@ -22,6 +22,7 @@
  */
 package top.dcenter.ums.security.jwt.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -69,6 +70,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.hasText;
+import static top.dcenter.ums.security.jwt.config.JwtAutoConfiguration.PRINCIPAL_CLAIM_NAME;
 
 /**
  * Jwt 服务自动配置
@@ -78,6 +80,7 @@ import static org.springframework.util.StringUtils.hasText;
 @Configuration
 @AutoConfigureAfter({RedisSerializerAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "ums.jwt", name = "enable", havingValue = "true")
+@Slf4j
 public class JwtServiceAutoConfiguration {
 
     @Bean
@@ -151,7 +154,15 @@ public class JwtServiceAutoConfiguration {
     public JwtAuthenticationConverter jwtAuthenticationConverter(JwtProperties jwtProperties,
                                                                  JwtGrantedAuthoritiesConverterSupplier jwtGrantedAuthoritiesConverterSupplier) {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setPrincipalClaimName(jwtProperties.getPrincipalClaimName());
+        try {
+            // 增加对 springBoot 高版本的 JwtAuthenticationConverter 兼容性
+            jwtAuthenticationConverter.getClass().getDeclaredField(PRINCIPAL_CLAIM_NAME);
+
+            jwtAuthenticationConverter.setPrincipalClaimName(jwtProperties.getPrincipalClaimName());
+        }
+        catch (NoSuchFieldException e) {
+            log.info("ums.jwt.principalClaimName must be sub");
+        }
         if (nonNull(jwtGrantedAuthoritiesConverterSupplier)) {
             jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverterSupplier.getConverter());
         }
