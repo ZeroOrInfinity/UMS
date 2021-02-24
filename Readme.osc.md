@@ -1,13 +1,12 @@
 # UMS 用户管理脚手架
 
-
 <p align="center" style="font-size: 32px">
   <strong>UMS 是一个非侵入式、与业务高度解耦、可自定义的用户管理脚手架</strong>
 </p>
 
 <p align="center">
 	<a target="_blank" href="https://search.maven.org/search?q=g:top.dcenter%20AND%20a:ums-spring-boot-starter">
-		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.21-green.svg" />
+		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.22-green.svg" />
 	</a>
 	<a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">
 		<img alt='license' src="https://img.shields.io/badge/license-MIT-yellow.svg" />
@@ -458,5 +457,5 @@ new Thread(() -> {
 
 
 ## 鸣谢
-##### 感谢 JetBrains 提供的免费开源 License：
+##### 感谢 JetBrains 提供的免费 IntelliJ IDEA Ultimate：
 ![JetBrains](doc/jetBrains.png)
