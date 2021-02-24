@@ -48,7 +48,7 @@ import top.dcenter.ums.security.core.api.oauth.signup.ConnectionService;
 import top.dcenter.ums.security.core.api.oauth.state.service.Auth2StateCoder;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
-import top.dcenter.ums.security.core.exception.UnBindingExcepition;
+import top.dcenter.ums.security.core.exception.UnBindingException;
 import top.dcenter.ums.security.core.oauth.justauth.util.JustAuthUtil;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 
@@ -186,7 +186,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
         if (!isCurrentUserAndValid) {
             log.warn("用户 {} 进行解绑操作时, 用户未登录或不是当前用户; userId: {}, providerId: {}, providerUserId: {}",
                      authentication.getName(), userId, providerId, providerUserId);
-            throw new UnBindingExcepition(ErrorCodeEnum.UN_BINDING_ERROR, userId);
+            throw new UnBindingException(ErrorCodeEnum.UN_BINDING_ERROR, userId);
         }
         // 解除绑定(第三方)
         usersConnectionRepository.removeConnection(userId, new ConnectionKey(providerId, providerUserId));

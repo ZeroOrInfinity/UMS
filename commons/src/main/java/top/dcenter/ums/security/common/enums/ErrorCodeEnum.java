@@ -120,6 +120,8 @@ public enum ErrorCodeEnum {
 
     AUTH2_PROVIDER_NOT_SUPPORT(960, "此服务商的第三方授权登录不支持"),
     UN_BINDING_ERROR(961, "解绑第三方账号异常"),
+    BINDING_ERROR(962, "绑定第三方账号异常"),
+    BOUND_ERROR(963, "此第三方账号已绑定在其他账号上"),
 
     TENANT_ID_NOT_FOUND(970, "获取不到租户 ID "),
 
