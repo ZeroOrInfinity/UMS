@@ -79,6 +79,7 @@ public enum ErrorCodeEnum {
     CUSTOMIZE_CODE_ERROR(670, "验证码错误"),
 
     PARAMETER_ERROR(700, "参数错误"),
+    BUSINESS_ERROR(701, "业务异常"),
 
     ADD_ROLE_PERMISSION_FAILURE(710, "添加角色资源权限失败"),
     DEL_ROLE_PERMISSION_FAILURE(720, "删除角色资源权限失败"),
@@ -118,6 +119,7 @@ public enum ErrorCodeEnum {
     REFRESH_TOKEN_FAILURE(950, "refresh Token 刷新失败"),
 
     AUTH2_PROVIDER_NOT_SUPPORT(960, "此服务商的第三方授权登录不支持"),
+    UN_BINDING_ERROR(961, "解绑第三方账号异常"),
 
     TENANT_ID_NOT_FOUND(970, "获取不到租户 ID "),
 

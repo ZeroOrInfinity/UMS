@@ -28,9 +28,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.common.vo.ResponseResult;
 import top.dcenter.ums.security.core.exception.AbstractResponseJsonAuthenticationException;
 import top.dcenter.ums.security.core.exception.Auth2Exception;
+import top.dcenter.ums.security.core.exception.BusinessException;
 import top.dcenter.ums.security.core.exception.RefreshTokenFailureException;
 
 import static top.dcenter.ums.security.common.consts.SecurityConstants.CONTROLLER_ADVICE_ORDER_DEFAULT_VALUE;
@@ -64,5 +66,12 @@ public class Auth2ControllerAdviceHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseResult refreshTokenFailureException(RefreshTokenFailureException ex) {
         return ResponseResult.fail(ex.getMessage(), ex.getErrorCodeEnum(), getMdcTraceId());
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseResult  businessException(BusinessException e){
+        return ResponseResult.fail(e.getMessage(), ErrorCodeEnum.BUSINESS_ERROR, getMdcTraceId());
     }
 }

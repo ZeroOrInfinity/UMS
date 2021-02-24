@@ -143,6 +143,13 @@ public class SecurityControllerAdviceHandler {
         return ResponseResult.fail(errorMsg, ErrorCodeEnum.UNAUTHORIZED, getMdcTraceId());
     }
 
+    @ExceptionHandler(BusinessException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseResult  businessException(BusinessException e){
+        return ResponseResult.fail(e.getMessage(), ErrorCodeEnum.BUSINESS_ERROR, getMdcTraceId());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)

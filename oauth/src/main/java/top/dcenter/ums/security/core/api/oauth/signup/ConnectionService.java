@@ -68,6 +68,14 @@ public interface ConnectionService {
 	void binding(@NonNull UserDetails principal, @NonNull AuthUser authUser, @NonNull String providerId);
 
 	/**
+	 * 解除绑定(第三方)
+	 * @param userId            用户 Id
+	 * @param providerId        第三方服务商 Id
+	 * @param providerUserId    第三方用户 Id
+	 */
+	void unbinding(@NonNull String userId, @NonNull String providerId, @NonNull String providerUserId);
+
+	/**
 	 * 根据 providerId 与 providerUserId 获取 ConnectionData list.
 	 * @param providerId        第三方服务商, 如: qq, github
 	 * @param providerUserId    第三方用户 Id
