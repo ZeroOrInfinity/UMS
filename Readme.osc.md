@@ -6,7 +6,7 @@
 
 <p align="center">
 	<a target="_blank" href="https://search.maven.org/search?q=g:top.dcenter%20AND%20a:ums-spring-boot-starter">
-		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.22-green.svg" />
+		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.23-green.svg" />
 	</a>
 	<a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">
 		<img alt='license' src="https://img.shields.io/badge/license-MIT-yellow.svg" />
@@ -27,7 +27,6 @@
     <img alt="Redis" src="https://img.shields.io/badge/Redis-5.0.3-green.svg"/>
     <img alt="SpringBoot" src="https://img.shields.io/badge/SpringBoot-2.3.4-green.svg"/>
     <img alt="SpringSecurity" src="https://img.shields.io/badge/SpringSecurity-5.4.1-green.svg"/>
-    <img alt="SpringSession" src="https://img.shields.io/badge/SpringSession-2.3.1-green.svg"/>
     <img alt="JustAuth" src="https://img.shields.io/badge/JustAuth-1.15.9-green.svg"/>
 
 </p>

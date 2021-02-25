@@ -1,3 +1,11 @@
+## 2.2.23
+### Fixes and Improvements:
+1. oauth/修复: 当本地登录用户为临时登录用户时绑定异常, 当本地登录用户的 Authentication 为 JwtAuthenticationToken 时绑定异常.
+2. jwt/添加: AuthenticationToUserDetailsConverter.java 接口并实现此接口.
+3. oauth/改进: 添加 expireIn2Timestamp 重载方法.
+4. oauth/新增: BindingException.java, 重命名 UnBindingException.java.
+5. commons/优化: 接口添加 NonNull 注释标识.
+
 ## 2.2.22
 ### Fixes and Improvements:
 1. jwt/兼容性: 增加对 springBoot 高版本的 JwtAuthenticationConverter 兼容性.
