@@ -39,6 +39,7 @@ import org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import top.dcenter.ums.security.common.api.userdetails.converter.AuthenticationToUserDetailsConverter;
 import top.dcenter.ums.security.jwt.advice.JwtControllerAdvice;
 import top.dcenter.ums.security.jwt.api.cache.service.JwtCacheTransformService;
 import top.dcenter.ums.security.jwt.api.claims.service.CustomClaimsSetService;
@@ -58,6 +59,7 @@ import top.dcenter.ums.security.jwt.properties.JwtProperties;
 import top.dcenter.ums.security.jwt.resolver.UmsBearerTokenResolver;
 import top.dcenter.ums.security.jwt.supplier.UmsJwtClaimTypeConverterSupplier;
 import top.dcenter.ums.security.jwt.supplier.UmsJwtGrantedAuthoritiesConverterSupplier;
+import top.dcenter.ums.security.jwt.userdetails.converter.Oauth2TokenAuthenticationTokenToUserConverter;
 import top.dcenter.ums.security.jwt.validator.JwtNotBeforeValidator;
 import top.dcenter.ums.security.jwt.validator.UmsReAuthServiceImpl;
 
@@ -82,6 +84,12 @@ import static top.dcenter.ums.security.jwt.config.JwtAutoConfiguration.PRINCIPAL
 @ConditionalOnProperty(prefix = "ums.jwt", name = "enable", havingValue = "true")
 @Slf4j
 public class JwtServiceAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.common.api.userdetails.converter.AuthenticationToUserDetailsConverter"})
+    public AuthenticationToUserDetailsConverter authenticationToUserDetailsConverter() {
+        return new Oauth2TokenAuthenticationTokenToUserConverter();
+    }
 
     @Bean
     @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.jwt.api.id.service.JwtIdService"})
