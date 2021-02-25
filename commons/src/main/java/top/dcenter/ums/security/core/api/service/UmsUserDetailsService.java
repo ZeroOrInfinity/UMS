@@ -24,6 +24,7 @@
 package top.dcenter.ums.security.core.api.service;
 
 import me.zhyd.oauth.model.AuthUser;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -51,7 +52,8 @@ public interface UmsUserDetailsService extends UserDetailsService, UserDetailsRe
      * @return the UserDetails requested, 注意 {@link UserDetails#getUsername()} 中的 username 即视为 userId
      * @throws UsernameNotFoundException    没有此 userId 的用户
      */
-    UserDetails loadUserByUserId(String userId) throws UsernameNotFoundException;
+    @NonNull
+    UserDetails loadUserByUserId(@NonNull String userId) throws UsernameNotFoundException;
 
     /**
      * 在本地账户中检查是否存在 usernames, usernames 为本地账户的 usernames. 如果是多租户系统, 查询时通过 {@link TenantContextHolder#getTenantId()} 来获取租户 id.<br>
@@ -60,7 +62,8 @@ public interface UmsUserDetailsService extends UserDetailsService, UserDetailsRe
      * @return usernames    是否存在的列表(true 表示存在), 与传入的 usernames 顺序一一对应
      * @throws IOException  数据库查询异常
      */
-    List<Boolean> existedByUsernames(String... usernames) throws IOException;
+    @NonNull
+    List<Boolean> existedByUsernames(@NonNull String... usernames) throws IOException;
 
     /**
      * {@link #existedByUsernames(String...)} usernames 生成规则.
@@ -68,7 +71,8 @@ public interface UmsUserDetailsService extends UserDetailsService, UserDetailsRe
      * @param authUser     第三方用户信息
      * @return  返回一个 username 数组
      */
-    default String[] generateUsernames(AuthUser authUser) {
+    @NonNull
+    default String[] generateUsernames(@NonNull AuthUser authUser) {
         return new String[]{
                 authUser.getUsername(),
                 // providerId = authUser.getSource()
