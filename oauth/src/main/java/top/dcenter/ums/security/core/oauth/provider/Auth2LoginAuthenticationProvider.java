@@ -18,6 +18,7 @@ package top.dcenter.ums.security.core.oauth.provider;
 
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthUser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -25,6 +26,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -35,7 +37,10 @@ import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.util.Assert;
+import top.dcenter.ums.security.common.api.userdetails.converter.AuthenticationToUserDetailsConverter;
 import top.dcenter.ums.security.core.api.oauth.entity.ConnectionData;
 import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
@@ -52,6 +57,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import static java.util.Objects.isNull;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
 
@@ -96,6 +102,7 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 	private final String temporaryUserAuthorities;
 	private final String temporaryUserPassword;
 	private final GenerateClaimsSetService generateClaimsSetService;
+	private final AuthenticationToUserDetailsConverter authenticationToUserDetailsConverter;
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 	private UserCache userCache = new NullUserCache();
@@ -107,9 +114,14 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 	 * parameters.
 	 * @param userService the service used for obtaining the user attributes of the
 	 * End-User from the UserInfo Endpoint
-	 * @param connectionService  第三方登录成功后自动注册服务
-	 * @param umsUserDetailsService this service used for local user service
+	 * @param connectionService             第三方登录成功后自动注册服务
+	 * @param umsUserDetailsService         this service used for local user service
 	 * @param updateConnectionTaskExecutor  update connection task executor
+	 * @param autoSignUp                    第三方登录是否自动注册
+	 * @param generateClaimsSetService      {@link GenerateClaimsSetService}
+	 * @param temporaryUserAuthorities      临时权限
+	 * @param temporaryUserPassword         临时密码
+	 * @param authenticationToUserDetailsConverter  authentication to user details converter
 	 */
 	public Auth2LoginAuthenticationProvider(Auth2UserService userService,
 	                                        ConnectionService connectionService,
@@ -118,7 +130,9 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 	                                        Boolean autoSignUp,
 	                                        @Nullable GenerateClaimsSetService generateClaimsSetService,
 	                                        String temporaryUserAuthorities,
-	                                        String temporaryUserPassword) {
+	                                        String temporaryUserPassword,
+	                                        @Autowired(required = false)
+	                                        AuthenticationToUserDetailsConverter authenticationToUserDetailsConverter) {
 		Assert.notNull(updateConnectionTaskExecutor, "updateConnectionTaskExecutor cannot be null");
 		Assert.notNull(userService, "userService cannot be null");
 		Assert.notNull(connectionService, "connectionService cannot be null");
@@ -134,6 +148,7 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 		this.temporaryUserAuthorities = temporaryUserAuthorities;
 		this.temporaryUserPassword = temporaryUserPassword;
 		this.generateClaimsSetService = generateClaimsSetService;
+		this.authenticationToUserDetailsConverter = authenticationToUserDetailsConverter;
 	}
 
 	@SuppressWarnings("AlibabaMethodTooLong")
@@ -160,7 +175,28 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 		if (authenticationToken != null && authenticationToken.isAuthenticated()
 				&& !(authenticationToken instanceof AnonymousAuthenticationToken))
 		{
-			principal = authenticationToken.getPrincipal();
+			if (authenticationToken instanceof AbstractOAuth2TokenAuthenticationToken<?>) {
+
+				if (isNull(authenticationToUserDetailsConverter)) {
+					throw new InternalAuthenticationServiceException(
+							"AuthenticationToUserDetailsConverter cannot be null");
+				}
+
+				try {
+					//noinspection unchecked
+					principal =
+							authenticationToUserDetailsConverter
+									.convert((AbstractOAuth2TokenAuthenticationToken<OAuth2AccessToken>) authenticationToken);
+				}
+				catch (IllegalArgumentException e) {
+					throw new InternalAuthenticationServiceException(
+							"AbstractOAuth2TokenAuthenticationToken convert to UserDetails error", e);
+				}
+			}
+			else {
+				principal = authenticationToken.getPrincipal();
+			}
+
 		}
 
 		boolean cacheWasUsed = false;
@@ -200,11 +236,13 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 			// 本地用户已登录, 绑定
 			else
 			{
-				if (principal instanceof UserDetails)
+				if ((principal instanceof UserDetails) && !(principal instanceof TemporaryUser))
 				{
 					// 当 principal 为 UserDetails 类型是进行绑定操作.
 					connectionService.binding((UserDetails) principal, authUser, providerId);
+					return authenticationToken;
 				}
+				throw new InternalAuthenticationServiceException("principal is TemporaryUser or not UserDetails");
 			}
 		}
 		//4.2 有第三方登录记录
@@ -259,7 +297,7 @@ public class Auth2LoginAuthenticationProvider implements AuthenticationProvider 
 		                                                   auth2DefaultRequest.getAuthSource());
 
 		// 6 本地登录用户, 直接返回
-		if (principal != null)
+		if (principal != null && !(principal instanceof TemporaryUser))
 		{
 			return authenticationToken;
 		}

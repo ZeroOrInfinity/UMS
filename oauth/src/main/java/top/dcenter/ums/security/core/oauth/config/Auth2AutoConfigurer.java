@@ -38,6 +38,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import top.dcenter.ums.security.common.api.userdetails.converter.AuthenticationToUserDetailsConverter;
 import top.dcenter.ums.security.common.propertis.RememberMeProperties;
 import top.dcenter.ums.security.common.utils.AppContextUtil;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
@@ -75,6 +76,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
     private final BaseAuthenticationFailureHandler baseAuthenticationFailureHandler;
     private final BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler;
     private final RedisConnectionFactory redisConnectionFactory;
+    private final AuthenticationToUserDetailsConverter authenticationToUserDetailsConverter;
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
     private Auth2StateCoder auth2StateCoder;
@@ -108,7 +110,9 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
                                BaseAuthenticationFailureHandler baseAuthenticationFailureHandler,
                                BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler,
                                @Autowired(required = false)
-                               RedisConnectionFactory redisConnectionFactory) {
+                               RedisConnectionFactory redisConnectionFactory,
+                               @Autowired(required = false)
+                               AuthenticationToUserDetailsConverter authenticationToUserDetailsConverter) {
         this.auth2Properties = auth2Properties;
         this.umsUserDetailsService = umsUserDetailsService;
         this.auth2UserService = auth2UserService;
@@ -118,6 +122,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         this.baseAuthenticationSuccessHandler = baseAuthenticationSuccessHandler;
         this.redisConnectionFactory = redisConnectionFactory;
         this.baseAuthenticationSuccessHandler.setAuth2RedirectUrl(auth2Properties.getRedirectUrlPrefix());
+        this.authenticationToUserDetailsConverter = authenticationToUserDetailsConverter;
 
     }
 
@@ -150,7 +155,8 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         Auth2LoginAuthenticationProvider auth2LoginAuthenticationProvider = new Auth2LoginAuthenticationProvider(
                 auth2UserService, connectionSignUp, umsUserDetailsService,
                 updateConnectionTaskExecutor, auth2Properties.getAutoSignUp(), generateClaimsSetService,
-                auth2Properties.getTemporaryUserAuthorities(), auth2Properties.getTemporaryUserPassword());
+                auth2Properties.getTemporaryUserAuthorities(), auth2Properties.getTemporaryUserPassword(),
+                authenticationToUserDetailsConverter);
         http.authenticationProvider(postProcess(auth2LoginAuthenticationProvider));
     }
 
