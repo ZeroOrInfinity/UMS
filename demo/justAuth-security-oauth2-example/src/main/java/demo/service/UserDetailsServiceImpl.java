@@ -252,8 +252,9 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
      * @param authUser     第三方用户信息
      * @return  返回一个 username 数组
      */
+    @NonNull
     @Override
-    public String[] generateUsernames(AuthUser authUser) {
+    public String[] generateUsernames(@NonNull AuthUser authUser) {
         return new String[]{
                 authUser.getUsername(),
                 // providerId = authUser.getSource()

@@ -238,20 +238,21 @@ public class LoginSocialUserDetailsServiceImpl implements UmsUserDetailsService 
         return result;
     }
 
+    @NonNull
     @Override
-    public UserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
+    public UserDetails loadUserByUserId(@NonNull String userId) throws UsernameNotFoundException {
         // TODO
         return null;
     }
-
+    @NonNull
     @Override
-    public List<Boolean> existedByUsernames(String... usernames) throws UsernameNotFoundException {
+    public List<Boolean> existedByUsernames(@NonNull String... usernames) throws UsernameNotFoundException {
         // TODO
         return null;
     }
-
+    @NonNull
     @Override
-    public String[] generateUsernames(AuthUser authUser) {
+    public String[] generateUsernames(@NonNull AuthUser authUser) {
         return new String[]{
                 authUser.getUsername(),
                 // providerId = authUser.getSource()

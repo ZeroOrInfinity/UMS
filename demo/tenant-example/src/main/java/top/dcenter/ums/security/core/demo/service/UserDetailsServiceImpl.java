@@ -256,16 +256,16 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
 
         return user;
     }
-
+    @NonNull
     @Override
-    public UserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
+    public UserDetails loadUserByUserId(@NonNull String userId) throws UsernameNotFoundException {
         UserDetails userDetails = loadUserByUsername(userId);
         User.withUserDetails(userDetails);
         return User.withUserDetails(userDetails).build();
     }
-
+    @NonNull
     @Override
-    public List<Boolean> existedByUsernames(String... usernames) throws UsernameNotFoundException {
+    public List<Boolean> existedByUsernames(@NonNull String... usernames) throws UsernameNotFoundException {
         // ... 在本地账户上查询 userIds 是否已被使用
         List<Boolean> list = new ArrayList<>();
         list.add(true);

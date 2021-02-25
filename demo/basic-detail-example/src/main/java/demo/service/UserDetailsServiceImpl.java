@@ -234,15 +234,15 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
         }
         return result;
     }
-
+    @NonNull
     @Override
-    public UserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
+    public UserDetails loadUserByUserId(@NonNull String userId) throws UsernameNotFoundException {
         // TODO
         return null;
     }
-
+    @NonNull
     @Override
-    public List<Boolean> existedByUsernames(String... usernames) throws UsernameNotFoundException {
+    public List<Boolean> existedByUsernames(@NonNull String... usernames) throws UsernameNotFoundException {
         // TODO
         return null;
     }
