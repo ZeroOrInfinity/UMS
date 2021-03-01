@@ -1,3 +1,11 @@
+## 2.2.24
+### Fixes and Improvements:
+1. core/修复: 手机登录自动注册失效的问题.
+2. core/新增: 无效 session 时转发策略, 通过 ums.client.session.forwardOrRedirect = true 设置.
+3. jwt/改进: 当在非认证服务器上时, 不在对 jwt 进行是否重新认证的校验.
+4. commons/改进: 增加 json2Object(String, TypeReference<T>) 方法.
+5. commons/优化: isAjaxOrJson(..) 逻辑.
+
 ## 2.2.23
 ### Fixes and Improvements:
 1. oauth/修复: 当本地登录用户为临时登录用户时绑定异常, 当本地登录用户的 Authentication 为 JwtAuthenticationToken 时绑定异常.
