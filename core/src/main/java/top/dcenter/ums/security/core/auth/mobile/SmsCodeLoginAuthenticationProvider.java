@@ -29,6 +29,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 
@@ -62,7 +63,15 @@ public class SmsCodeLoginAuthenticationProvider implements AuthenticationProvide
         {
             return authentication;
         }
-        UserDetails user = this.userDetailsService.loadUserByUsername((String) authenticationToken.getPrincipal());
+
+        UserDetails user;
+        try {
+            user = this.userDetailsService.loadUserByUsername((String) authenticationToken.getPrincipal());
+        }
+        catch (UsernameNotFoundException e) {
+            user = null;
+        }
+
         if (user == null)
         {
             user = this.userDetailsService.registerUser((String) authenticationToken.getPrincipal());
