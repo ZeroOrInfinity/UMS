@@ -25,6 +25,7 @@ package top.dcenter.ums.security.common.utils;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -137,6 +138,23 @@ public final class JsonUtil {
         }
         catch (JsonProcessingException e) {
             log.error(String.format("[%s] 反序列化为 [%s] 时错误: %s", jsonString, clz.getName(), e.getMessage()), e);
+            return null;
+        }
+    }
+
+    /**
+     * 使用 {@link ObjectMapper} 把 jsonString 反序列化为 T 对象.
+     * @param jsonString    json string
+     * @param valueTypeRef  要反序列化的目标 type
+     * @return  返回反序列化对象, 如果反序列化错误返回 null
+     */
+    @Nullable
+    public static <T> T json2Object(@NonNull String jsonString, @NonNull TypeReference<T> valueTypeRef) {
+        try {
+            return OBJECT_MAPPER.readValue(jsonString, valueTypeRef);
+        }
+        catch (JsonProcessingException e) {
+            log.error(String.format("[%s] 反序列化为 [%s] 时错误: %s", jsonString, valueTypeRef.getType(), e.getMessage()), e);
             return null;
         }
     }
