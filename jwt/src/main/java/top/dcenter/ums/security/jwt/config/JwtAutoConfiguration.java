@@ -277,7 +277,8 @@ public class JwtAutoConfiguration implements InitializingBean {
         if (nonNull(jksKeyPairResource)) {
             jwtDecoder = UmsNimbusJwtDecoder.withPublicKey(this.publicKey,
                                                            jwtProperties.getRefreshHandlerPolicy(),
-                                                           jwtProperties.getRemainingRefreshInterval())
+                                                           jwtProperties.getRemainingRefreshInterval(),
+                                                           Boolean.TRUE)
                                             .signatureAlgorithm((SignatureAlgorithm) this.jwsAlgorithm)
                                             .build();
         }
@@ -286,7 +287,8 @@ public class JwtAutoConfiguration implements InitializingBean {
                     UmsNimbusJwtDecoder.withSecretKey(new SecretKeySpec(macsSecret.getBytes(StandardCharsets.UTF_8),
                                                                         "MAC"),
                                                       jwtProperties.getRefreshHandlerPolicy(),
-                                                      jwtProperties.getRemainingRefreshInterval())
+                                                      jwtProperties.getRemainingRefreshInterval(),
+                                                      Boolean.TRUE)
                                        .macAlgorithm((MacAlgorithm) this.jwsAlgorithm)
                                        .build();
         }
@@ -295,7 +297,8 @@ public class JwtAutoConfiguration implements InitializingBean {
                     UmsNimbusJwtDecoder.withJwkSetUri(auth2ResourceServerProperties.getJwt().getJwkSetUri(),
                                                       jwtProperties.getRefreshHandlerPolicy(),
                                                       jwtProperties.getRemainingRefreshInterval(),
-                                                      jwkSetUriConfig)
+                                                      jwkSetUriConfig,
+                                                      Boolean.FALSE)
                                        .jwsAlgorithm((SignatureAlgorithm) this.jwsAlgorithm)
                                        .build();
         }

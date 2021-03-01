@@ -59,9 +59,9 @@ public enum JwtRefreshHandlerPolicy implements JwtRefreshHandler {
         @Override
         @NonNull
         public Boolean isRefresh(@NonNull Jwt jwt, @NonNull Duration remainingRefreshInterval,
-                                 @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService)
-                throws JwtInvalidException, JwtReAuthException {
-            Instant expiresAt = check(jwt, reAuthService);
+                                 @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService,
+                                 @NonNull Boolean isReAuth) throws JwtInvalidException, JwtReAuthException {
+            Instant expiresAt = check(jwt, reAuthService, isReAuth);
             long nowOfClockShew = Instant.now().minusSeconds(clockSkew.getSeconds()).getEpochSecond();
             long remainingSecond = expiresAt.getEpochSecond() - nowOfClockShew;
             if (remainingSecond < 0) {
@@ -98,9 +98,9 @@ public enum JwtRefreshHandlerPolicy implements JwtRefreshHandler {
         @Override
         @NonNull
         public Boolean isRefresh(@NonNull Jwt jwt, @NonNull Duration remainingRefreshInterval,
-                                 @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService)
-                throws JwtInvalidException, JwtReAuthException {
-            Instant expiresAt = check(jwt, reAuthService);
+                                 @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService,
+                                 @NonNull Boolean isReAuth) throws JwtInvalidException, JwtReAuthException {
+            Instant expiresAt = check(jwt, reAuthService, isReAuth);
             return Instant.now().minusSeconds(clockSkew.getSeconds()).isAfter(expiresAt);
         }
 
@@ -118,9 +118,9 @@ public enum JwtRefreshHandlerPolicy implements JwtRefreshHandler {
         @Override
         @NonNull
         public Boolean isRefresh(@NonNull Jwt jwt, @NonNull Duration remainingRefreshInterval,
-                                 @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService)
-                throws JwtInvalidException, JwtReAuthException {
-            Instant expiresAt = check(jwt, reAuthService);
+                                 @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService,
+                                 @NonNull Boolean isReAuth) throws JwtInvalidException, JwtReAuthException {
+            Instant expiresAt = check(jwt, reAuthService, isReAuth);
             return Instant.now().minusSeconds(clockSkew.getSeconds()).isAfter(expiresAt);
         }
 
@@ -136,17 +136,19 @@ public enum JwtRefreshHandlerPolicy implements JwtRefreshHandler {
      * 检查 {@link Jwt} 的有效性及是否需要重新认证.
      * @param jwt                   {@link Jwt}
      * @param reAuthService         {@link ReAuthService}
+     * @param isReAuth              是否需要重新认证检查
      * @return 返回 {@link Jwt} 的过期时间
      * @throws JwtInvalidException Jwt 格式错误 或 需要重新认证
      */
     @NonNull
-    private static Instant check(@NonNull Jwt jwt, @Nullable ReAuthService reAuthService)
+    private static Instant check(@NonNull Jwt jwt, @Nullable ReAuthService reAuthService, @NonNull Boolean isReAuth)
             throws JwtInvalidException, JwtReAuthException {
         Instant expiresAt = jwt.getExpiresAt();
         if (isNull(expiresAt)) {
             throw new JwtInvalidException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId());
         }
-        if (nonNull(reAuthService) && reAuthService.isReAuth(jwt)) {
+
+        if (isReAuth && nonNull(reAuthService) && reAuthService.isReAuth(jwt)) {
             // 添加黑名单
             JwtContext.addBlacklistForReAuth(jwt);
             throw new JwtReAuthException(ErrorCodeEnum.JWT_INVALID, getMdcTraceId());

@@ -51,14 +51,15 @@ public interface JwtRefreshHandler {
      *                                 {@link JwtRefreshHandlerPolicy#REJECT} 时则不需要使用此参数.
      * @param reAuthService            用于刷新 Jwt 有效期前校验是否需要用户重新登录的服务
      * @param clockSkew                Jwt 不同服务器间的时钟偏差, 通过 {@code ums.jwt.clockSkew} 设置.
+     * @param isReAuth                 是否需要重新认证检查
      * @return 返回 true 时表示需要刷新 {@link Jwt}
      * @throws JwtInvalidException Jwt 格式错误 或 需要重新认证
      * @throws JwtReAuthException  Jwt 需要重新登录认证, refreshToken 也一起失效
      */
     @NonNull
     Boolean isRefresh(@NonNull Jwt jwt, @NonNull Duration remainingRefreshInterval,
-                      @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService)
-            throws JwtInvalidException, JwtReAuthException;
+                      @NonNull Duration clockSkew, @Nullable ReAuthService reAuthService,
+                      @NonNull Boolean isReAuth) throws JwtInvalidException, JwtReAuthException;
 
     /**
      * 刷新 Jwt 处理器, 当 jwt 刷新策略为 {@link JwtRefreshHandlerPolicy#AUTO_RENEW} 时, 刷新的 jwt 直接设置到 header 中,
