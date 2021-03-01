@@ -266,7 +266,6 @@ public final class AuthenticationUtil {
             }
         }
 
-        session = request.getSession();
         session.removeAttribute(SecurityConstants.SESSION_ENHANCE_CHECK_KEY);
 
         if (originalUrl != null)

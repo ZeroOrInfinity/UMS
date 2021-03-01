@@ -50,7 +50,6 @@ import static top.dcenter.ums.security.core.util.AuthenticationUtil.determineInv
 public final class DefaultRedirectInvalidSessionStrategy implements InvalidSessionStrategy {
 	private final String destinationUrl;
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
-	private boolean createNewSession = true;
 	private final AntPathMatcher matcher;
 	private final RequestCache requestCache;
 
@@ -74,15 +73,4 @@ public final class DefaultRedirectInvalidSessionStrategy implements InvalidSessi
 		redirectStrategy.sendRedirect(request, response, redirectUrl);
 	}
 
-	/**
-	 * Determines whether a new session should be created before redirecting (to avoid
-	 * possible looping issues where the same session ID is sent with the redirected
-	 * request). Alternatively, ensure that the configured URL does not pass through the
-	 * {@code SessionManagementFilter}.
-	 *
-	 * @param createNewSession defaults to {@code true}.
-	 */
-	public void setCreateNewSession(boolean createNewSession) {
-		this.createNewSession = createNewSession;
-	}
 }

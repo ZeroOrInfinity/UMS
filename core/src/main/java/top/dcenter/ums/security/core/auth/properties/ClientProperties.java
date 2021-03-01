@@ -288,7 +288,13 @@ public class ClientProperties {
         private SessionCreationPolicy sessionCreationPolicy = SessionCreationPolicy.ALWAYS;
 
         /**
+         * 无效 session 处理请求的方式: true 表示创建新的 session 并转发, false 表示重定向(invalidSessionUrl). 默认: true
+         */
+        private Boolean forwardOrRedirect = Boolean.TRUE;
+
+        /**
          * session 失效后跳转地址(必须自己实现), loginProcessType=redirect 时有效. 默认: /session/invalid, <br><br>
+         * 注意: forwardOrRedirect 为 false 时有效.
          *
          */
         private String invalidSessionUrl = DEFAULT_SESSION_INVALID_URL;

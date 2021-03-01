@@ -143,7 +143,10 @@ ums:
       enable-session-url-rewriting: false
       # concurrent session 失效后跳转地址(必须自己实现), login-process-type=redirect 时有效. 默认: /
       invalid-session-of-concurrent-url: /concurrentSession.html
+      # 无效 session 处理请求的方式: true 表示创建新的 session 并转发, false 表示重定向(invalidSessionUrl). 默认: true
+      forward-or-redirect: true
       # session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /session/invalid,
+      # 注意: forwardOrRedirect 为 false 时有效.
       invalid-session-url: /session/invalid
       # session 的 cookie name, 默认为: JSESSIONID, 需要与 server.servlet.session.cookie.name 同时设置
       session-cookie-name: SID

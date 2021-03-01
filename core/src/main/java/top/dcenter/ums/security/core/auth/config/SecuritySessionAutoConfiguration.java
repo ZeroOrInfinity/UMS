@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,6 +42,7 @@ import top.dcenter.ums.security.core.api.session.SessionEnhanceCheckService;
 import top.dcenter.ums.security.core.auth.controller.InvalidSessionController;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.session.filter.SessionEnhanceCheckFilter;
+import top.dcenter.ums.security.core.auth.session.strategy.DefaultForwardInvalidSessionStrategy;
 import top.dcenter.ums.security.core.auth.session.strategy.DefaultRedirectInvalidSessionStrategy;
 import top.dcenter.ums.security.core.auth.session.strategy.EnhanceConcurrentControlAuthenticationStrategy;
 
@@ -75,6 +77,7 @@ public class SecuritySessionAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.auth.controller.InvalidSessionController")
+    @ConditionalOnProperty(prefix = "ums.client.session", name = "forward-or-redirect", havingValue = "false")
     public InvalidSessionController invalidSessionController() {
         return new InvalidSessionController(clientProperties);
     }
@@ -87,8 +90,16 @@ public class SecuritySessionAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(type = "org.springframework.security.web.session.InvalidSessionStrategy")
-    public InvalidSessionStrategy invalidSessionStrategy() {
+    @ConditionalOnProperty(prefix = "ums.client.session", name = "forward-or-redirect", havingValue = "false")
+    public InvalidSessionStrategy redirectInvalidSessionStrategy() {
         return new DefaultRedirectInvalidSessionStrategy(clientProperties.getSession().getInvalidSessionUrl());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(type = "org.springframework.security.web.session.InvalidSessionStrategy")
+    @ConditionalOnProperty(prefix = "ums.client.session", name = "forward-or-redirect", havingValue = "true")
+    public InvalidSessionStrategy forwardInvalidSessionStrategy() {
+        return new DefaultForwardInvalidSessionStrategy();
     }
 
     @Bean

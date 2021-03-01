@@ -82,13 +82,12 @@ public class InvalidSessionController implements InitializingBean {
 
 
     @ApiOperation(value = "session 失效后跳转处理", notes = "获取原始请求 uri, 根据 LoginProcessType 进行跳转登录接口或返回相应 json 数据",
-                  httpMethod = "GET")
-    @RequestMapping(value = "/session/invalid", method = RequestMethod.GET)
+            httpMethod = "GET,POST,PUT,DELETE,PATCH,OPTIONS")
+    @RequestMapping(value = "/session/invalid", method = {RequestMethod.GET, RequestMethod.POST,
+            RequestMethod.DELETE, RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.OPTIONS})
     @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
     public void invalidSessionHandler(HttpServletRequest request, HttpServletResponse response) {
-
-        try
-        {
+        try {
             // 设置跳转的 url
             String redirectUrl = getOriginalUrl(requestCache, request, response, loginPage);
 
@@ -96,8 +95,7 @@ public class InvalidSessionController implements InitializingBean {
                                                  redirectStrategy, ErrorCodeEnum.INVALID_SESSION,
                                                  redirectUrl);
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             String requestUri = request.getRequestURI();
             String ip = IpUtil.getRealIp(request);
             String msg = String.format("IllegalAccessUrlException: ip=%s, uri=%s, sid=%s, error=%s",
