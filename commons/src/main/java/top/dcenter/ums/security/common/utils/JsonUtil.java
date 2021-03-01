@@ -55,6 +55,8 @@ import static top.dcenter.ums.security.common.consts.SecurityConstants.HEADER_AC
  */
 public final class JsonUtil {
 
+    public static final String ANY_ACCEPT = "*/*";
+
     private JsonUtil() { }
 
     private static final Logger log = LoggerFactory.getLogger(JsonUtil.class);
@@ -84,6 +86,9 @@ public final class JsonUtil {
         //判断是否为ajax请求 或 支持接收 json 格式
         String xRequestedWith = request.getHeader(HEADER_X_REQUESTED_WITH_NAME);
         String accept = request.getHeader(HEADER_ACCEPT);
+        if (ANY_ACCEPT.equals(accept)) {
+            return true;
+        }
         return (StringUtils.hasText(accept) && accept.contains(MediaType.APPLICATION_JSON_VALUE))
                 || (xRequestedWith != null && xRequestedWith.equalsIgnoreCase(X_REQUESTED_WITH));
     }
