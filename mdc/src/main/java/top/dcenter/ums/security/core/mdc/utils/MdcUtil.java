@@ -23,13 +23,14 @@
 package top.dcenter.ums.security.core.mdc.utils;
 
 import org.slf4j.MDC;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import top.dcenter.ums.security.core.api.mdc.MdcIdGenerator;
 import top.dcenter.ums.security.core.mdc.MdcIdType;
 
 import java.util.Map;
 
-import static top.dcenter.ums.security.core.mdc.filter.MdcLogFilter.MDC_KEY;
+import static org.springframework.util.StringUtils.hasText;
 
 /**
  * mdc 工具
@@ -37,6 +38,11 @@ import static top.dcenter.ums.security.core.mdc.filter.MdcLogFilter.MDC_KEY;
  * @version V2.0  Created by 2020.11.27 20:53
  */
 public final class MdcUtil {
+
+    /**
+     * 在输出日志中加上指定的 MDC_TRACE_ID
+     */
+    public static final String MDC_KEY = "MDC_TRACE_ID";
 
     private MdcUtil() {}
 
@@ -55,12 +61,33 @@ public final class MdcUtil {
     }
 
     /**
+     * 获取当前线程的 MDC 日志链路追踪 ID; 如没有日志链路追踪 ID, 生成日志链路追踪 ID.
+     * @param type          MDC id 类型
+     * @param idGenerator   MDC id 生成器.
+     * @return  返回 MDC 日志链路追踪 ID, 如果不存在, 返回 null
+     */
+    @NonNull
+    public static String getMdcTraceId(@NonNull MdcIdType type, @Nullable MdcIdGenerator idGenerator) {
+        try {
+            String id = MDC.get(MDC_KEY);
+            if (hasText(id)) {
+            	return id;
+            }
+            return getMdcId(type, idGenerator);
+        }
+        catch (Exception e) {
+            return getMdcId(type, idGenerator);
+        }
+    }
+
+    /**
      * 获取基于 SLF4J MDC 机制实现日志链路追踪 ID
      * @param type          MDC id 类型
      * @param idGenerator   MDC id 生成器.
      * @return  返回 MDC 日志链路追踪 ID
      */
-    public static String getMdcId(MdcIdType type, MdcIdGenerator idGenerator) {
+    @NonNull
+    public static String getMdcId(@NonNull MdcIdType type, @Nullable MdcIdGenerator idGenerator) {
         if (MdcIdType.CUSTOMIZE_ID.equals(type) && idGenerator != null) {
             return idGenerator.getMdcId();
         }
@@ -68,13 +95,15 @@ public final class MdcUtil {
     }
 
     /**
-     * 装饰 task, 如没有日志链路追踪 ID, 添加日志链路追踪 ID.
+     * 装饰 task, 如没有日志链路追踪 ID, 生成日志链路追踪 ID.
      * @param task          任务
      * @param idType        MDC id 类型
      * @param idGenerator   mdc id 生成器
      * @return  返回装饰后的 task
      */
-    public static Runnable decorateTasks(Runnable task, MdcIdType idType, MdcIdGenerator idGenerator) {
+    @NonNull
+    public static Runnable decorateTasks(@NonNull Runnable task, @NonNull MdcIdType idType,
+                                         @Nullable MdcIdGenerator idGenerator) {
         return () -> {
             Map<String, String> contextMap = MDC.getCopyOfContextMap();
             boolean isRemoveMdcId = false;
@@ -86,7 +115,7 @@ public final class MdcUtil {
             task.run();
 
             if (isRemoveMdcId) {
-                MDC.clear();
+                MDC.remove(MDC_KEY);
             }
         };
     }

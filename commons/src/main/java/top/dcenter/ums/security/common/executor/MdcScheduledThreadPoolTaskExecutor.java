@@ -24,6 +24,8 @@ package top.dcenter.ums.security.common.executor;
 
 import org.slf4j.MDC;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import top.dcenter.ums.security.common.utils.UuidUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +40,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
+
+import static top.dcenter.ums.security.common.consts.MdcConstants.MDC_KEY;
 
 /**
  * 实现 基于 SLF4J MDC 机制的日志链路追踪功能. <br>
@@ -172,17 +176,20 @@ public class MdcScheduledThreadPoolTaskExecutor extends ScheduledThreadPoolExecu
      * @param runnable {@link Runnable}
      * @param context  父线程 MDC 内容
      */
-    private void run(Runnable runnable, Map<String, String> context) {
+    private void run(@NonNull Runnable runnable, @Nullable Map<String, String> context) {
         // 设置 MDC 内容给子线程
         if (context != null) {
             MDC.setContextMap(context);
+        }
+        else {
+            MDC.put(MDC_KEY, UuidUtils.getUUID());
         }
         try {
             runnable.run();
         }
         finally {
             // 清空 MDC 内容
-            MDC.clear();
+            MDC.remove(MDC_KEY);
         }
     }
 
@@ -192,17 +199,21 @@ public class MdcScheduledThreadPoolTaskExecutor extends ScheduledThreadPoolExecu
      * @param task    {@link Callable}
      * @param context 父线程 MDC 内容
      */
-    private <V> V call(Callable<V> task, Map<String, String> context) throws Exception {
+    @NonNull
+    private <V> V call(@NonNull Callable<V> task, @Nullable Map<String, String> context) throws Exception {
         // 设置 MDC 内容给子线程
         if (context != null) {
             MDC.setContextMap(context);
+        }
+        else {
+            MDC.put(MDC_KEY, UuidUtils.getUUID());
         }
         try {
             return task.call();
         }
         finally {
             // 清空 MDC 内容
-            MDC.clear();
+            MDC.remove(MDC_KEY);
         }
     }
 

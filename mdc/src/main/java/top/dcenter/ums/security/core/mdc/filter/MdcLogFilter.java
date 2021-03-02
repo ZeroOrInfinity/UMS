@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.MDC_KEY;
 import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcId;
 
 /**
@@ -52,11 +53,6 @@ import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcId;
 public class MdcLogFilter extends OncePerRequestFilter {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-    /**
-     * 在输出日志中加上指定的 MDC_TRACE_ID
-     */
-    public static final String MDC_KEY = "MDC_TRACE_ID";
 
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired(required = false)
@@ -95,10 +91,10 @@ public class MdcLogFilter extends OncePerRequestFilter {
             catch (Exception e) {
                 log.error(e.getMessage(), e);
                 request.setAttribute(MDC_KEY, token);
-                MDC.clear();
+                MDC.remove(MDC_KEY);
                 throw e;
             }
-            MDC.clear();
+            MDC.remove(MDC_KEY);
             return;
         }
 
