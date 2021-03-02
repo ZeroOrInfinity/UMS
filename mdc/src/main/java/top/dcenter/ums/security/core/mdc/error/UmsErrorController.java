@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Objects.nonNull;
-import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.MDC_KEY;
+import static top.dcenter.ums.security.common.consts.MdcConstants.MDC_KEY;
 
 /**
  * Ums 全局异常处理, 添加 MDC 链路追踪 ID

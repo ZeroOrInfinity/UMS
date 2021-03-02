@@ -31,6 +31,7 @@ import top.dcenter.ums.security.core.mdc.MdcIdType;
 import java.util.Map;
 
 import static org.springframework.util.StringUtils.hasText;
+import static top.dcenter.ums.security.common.consts.MdcConstants.MDC_KEY;
 
 /**
  * mdc 工具
@@ -38,11 +39,6 @@ import static org.springframework.util.StringUtils.hasText;
  * @version V2.0  Created by 2020.11.27 20:53
  */
 public final class MdcUtil {
-
-    /**
-     * 在输出日志中加上指定的 MDC_TRACE_ID
-     */
-    public static final String MDC_KEY = "MDC_TRACE_ID";
 
     private MdcUtil() {}
 

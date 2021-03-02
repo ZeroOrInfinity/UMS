@@ -42,7 +42,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.MDC_KEY;
+import static top.dcenter.ums.security.common.consts.MdcConstants.MDC_KEY;
 import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcId;
 
 /**
