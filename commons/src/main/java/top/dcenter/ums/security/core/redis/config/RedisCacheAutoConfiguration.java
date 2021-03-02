@@ -29,15 +29,18 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.TimeoutOptions;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import io.lettuce.core.resource.ClientResources;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
@@ -66,14 +69,12 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.lang.NonNull;
 import org.springframework.security.jackson2.CoreJackson2Module;
-import org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2Module;
 import org.springframework.security.web.jackson2.WebJackson2Module;
 import org.springframework.security.web.jackson2.WebServletJackson2Module;
 import org.springframework.security.web.server.jackson2.WebServerJackson2Module;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.core.redis.cache.RedisHashCacheManager;
-import top.dcenter.ums.security.core.redis.jackson2.Auth2Jackson2Module;
 import top.dcenter.ums.security.core.redis.key.generator.RemoveConnectionsByConnectionKeyWithUserIdKeyGenerator;
 import top.dcenter.ums.security.core.redis.properties.RedisCacheProperties;
 
@@ -81,10 +82,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static top.dcenter.ums.security.common.consts.RedisCacheConstants.USER_CONNECTION_CACHE_NAME;
 import static top.dcenter.ums.security.common.consts.RedisCacheConstants.USER_CONNECTION_HASH_ALL_CLEAR_CACHE_NAME;
@@ -107,9 +110,9 @@ import static top.dcenter.ums.security.common.consts.RedisCacheConstants.USER_CO
 @Configuration
 @ConditionalOnProperty(prefix = "ums.cache.redis", name = "open", havingValue = "true")
 @EnableCaching
-@Slf4j
 public class RedisCacheAutoConfiguration {
 
+    public static final Logger log = LoggerFactory.getLogger(RedisCacheAutoConfiguration.class);
     /**
      * redis cache 解析Key：根据分隔符 "__" 来判断是否是 hash 类型
      */
@@ -120,12 +123,15 @@ public class RedisCacheAutoConfiguration {
     private final RedisProperties properties;
     private final RedisSentinelConfiguration sentinelConfiguration;
     private final RedisClusterConfiguration clusterConfiguration;
+    private final Map<String, SimpleModule> jackson2ModuleMap;
 
     public RedisCacheAutoConfiguration(RedisCacheProperties redisCacheProperties,
                                        RedisProperties properties,
                                        ObjectProvider<RedisSentinelConfiguration> sentinelConfigurationProvider,
-                                       ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider) {
+                                       ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider,
+                                       @Autowired(required = false) Map<String, SimpleModule> jackson2ModuleMap) {
         this.redisCacheProperties = redisCacheProperties;
+        this.jackson2ModuleMap = jackson2ModuleMap;
         Set<String> cacheNames = redisCacheProperties.getCache().getCacheNames();
         cacheNames.add(USER_CONNECTION_CACHE_NAME);
         cacheNames.add(USER_CONNECTION_HASH_CACHE_NAME);
@@ -140,7 +146,7 @@ public class RedisCacheAutoConfiguration {
      * 序列化器
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private static Jackson2JsonRedisSerializer getJackson2JsonRedisSerializer(){
+    private Jackson2JsonRedisSerializer getJackson2JsonRedisSerializer(){
         Jackson2JsonRedisSerializer jackson2JsonRedisSerializer;
         jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
         ObjectMapper om = new ObjectMapper();
@@ -149,16 +155,23 @@ public class RedisCacheAutoConfiguration {
                                  ObjectMapper.DefaultTyping.NON_FINAL);
         om.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        om.registerModules(new CoreJackson2Module(), new WebJackson2Module(), new WebServletJackson2Module(),
-                           new JavaTimeModule(), new WebServerJackson2Module(),
-                           new OAuth2ClientJackson2Module(), new Auth2Jackson2Module());
+
+        Set<SimpleModule> simpleModuleSet;
+        if (isNull(this.jackson2ModuleMap)) {
+            simpleModuleSet = new HashSet<>(5, 1.F);
+        }
+        else {
+            simpleModuleSet = new HashSet<>(this.jackson2ModuleMap.values());
+        }
+        simpleModuleSet.add(new CoreJackson2Module());
+        simpleModuleSet.add(new WebJackson2Module());
+        simpleModuleSet.add(new WebServletJackson2Module());
+        simpleModuleSet.add(new JavaTimeModule());
+        simpleModuleSet.add(new WebServerJackson2Module());
+        om.registerModules(simpleModuleSet);
         jackson2JsonRedisSerializer.setObjectMapper(om);
         return jackson2JsonRedisSerializer;
     }
-
-    @SuppressWarnings({"FieldMayBeFinal", "rawtypes"})
-    private static Jackson2JsonRedisSerializer jackson2JsonRedisSerializer =
-            getJackson2JsonRedisSerializer();
 
     /**
      * 缓存管理器, 当 IOC 容器中有 beanName=auth2RedisHashCacheManager 时会替换此实例
@@ -192,9 +205,11 @@ public class RedisCacheAutoConfiguration {
         //noinspection unchecked
         defaultCacheConfig = defaultCacheConfig.entryTtl(cache.getDefaultExpireTime())
                 // 设置 key为string序列化
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeKeysWith(RedisSerializationContext.SerializationPair
+                                           .fromSerializer(new StringRedisSerializer()))
                 // 设置value为json序列化
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer));
+                .serializeValuesWith(RedisSerializationContext.SerializationPair
+                                             .fromSerializer(getJackson2JsonRedisSerializer()));
                 // 不缓存空值
                 //.disableCachingNullValues()
 

@@ -23,6 +23,7 @@
 
 package top.dcenter.ums.security.core.auth.config;
 
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -47,6 +48,7 @@ import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationSuccessHan
 import top.dcenter.ums.security.core.auth.handler.DefaultLogoutSuccessHandler;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
+import top.dcenter.ums.security.core.redis.jackson2.AuthJackson2Module;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import java.lang.reflect.Field;
@@ -95,6 +97,11 @@ public class SecurityAutoConfiguration implements InitializingBean {
             {sha256}97cde38028ad898ebc02e690819fa220e88c62e0699403e94fff291cfffaf8410849f27605abcbc0
          */
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    @Bean
+    public SimpleModule authJackson2Module() {
+        return new AuthJackson2Module();
     }
 
     @Bean

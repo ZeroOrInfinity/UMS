@@ -23,6 +23,7 @@
 
 package top.dcenter.ums.security.core.oauth.config;
 
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,7 @@ import top.dcenter.ums.security.core.oauth.repository.factory.Auth2JdbcUsersConn
 import top.dcenter.ums.security.core.oauth.repository.jdbc.Auth2JdbcUsersConnectionTokenRepository;
 import top.dcenter.ums.security.core.oauth.service.DefaultAuth2UserServiceImpl;
 import top.dcenter.ums.security.core.oauth.signup.DefaultConnectionServiceImpl;
+import top.dcenter.ums.security.core.redis.jackson2.Auth2Jackson2Module;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -84,6 +86,11 @@ public class Auth2AutoConfiguration implements InitializingBean {
         this.repositoryProperties = repositoryProperties;
         this.auth2Properties = auth2Properties;
         this.dataSource = dataSource;
+    }
+
+    @Bean
+    public SimpleModule auth2Jackson2Module() {
+        return new Auth2Jackson2Module();
     }
 
     @Bean

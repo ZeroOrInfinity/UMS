@@ -20,7 +20,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import java.io.Serializable;
 
 /**
- * The unique business key for a {@link ConnectionData} instance.
+ * The unique business key for a {@code ConnectionData} instance.
  * A composite key that consists of the providerId (e.g. "facebook") plus providerUserId (e.g. "125660").
  * Provides the basis for connection equals() and hashCode().
  * @author Keith Donald

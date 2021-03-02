@@ -23,8 +23,6 @@
 
 package top.dcenter.ums.security.core.redis.properties;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
@@ -37,7 +35,6 @@ import java.util.Set;
  * @author YongWu zheng
  * @version V1.0  Created by 2020/6/15 19:29
  */
-@Getter
 @ConfigurationProperties("ums.cache.redis")
 public class RedisCacheProperties {
 
@@ -47,20 +44,14 @@ public class RedisCacheProperties {
     /**
      * Redis cache is open, 默认 false
      */
-    @Setter
     private Boolean open = false;
 
     /**
      * 是否使用 spring IOC 容器中的 RedisConnectionFactory， 默认： false. <br>
      * 如果使用 spring IOC 容器中的 RedisConnectionFactory，则要注意 cache.database-index 要与 spring.redis.database 一样。
      */
-    @Setter
     private Boolean useIocRedisConnectionFactory = false;
 
-
-
-    @Getter
-    @Setter
     public static class Cache {
 
         /**
@@ -81,6 +72,56 @@ public class RedisCacheProperties {
          */
         private Set<String> cacheNames = new HashSet<>();
 
+        public Integer getDatabaseIndex() {
+            return databaseIndex;
+        }
+
+        public void setDatabaseIndex(Integer databaseIndex) {
+            this.databaseIndex = databaseIndex;
+        }
+
+        public Duration getDefaultExpireTime() {
+            return defaultExpireTime;
+        }
+
+        public void setDefaultExpireTime(Duration defaultExpireTime) {
+            this.defaultExpireTime = defaultExpireTime;
+        }
+
+        public Duration getEntryTtl() {
+            return entryTtl;
+        }
+
+        public void setEntryTtl(Duration entryTtl) {
+            this.entryTtl = entryTtl;
+        }
+
+        public Set<String> getCacheNames() {
+            return cacheNames;
+        }
+
+        public void setCacheNames(Set<String> cacheNames) {
+            this.cacheNames = cacheNames;
+        }
     }
 
+    public Cache getCache() {
+        return cache;
+    }
+
+    public Boolean getOpen() {
+        return open;
+    }
+
+    public void setOpen(Boolean open) {
+        this.open = open;
+    }
+
+    public Boolean getUseIocRedisConnectionFactory() {
+        return useIocRedisConnectionFactory;
+    }
+
+    public void setUseIocRedisConnectionFactory(Boolean useIocRedisConnectionFactory) {
+        this.useIocRedisConnectionFactory = useIocRedisConnectionFactory;
+    }
 }

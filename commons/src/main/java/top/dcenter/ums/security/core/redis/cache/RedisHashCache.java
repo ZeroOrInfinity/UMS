@@ -23,6 +23,7 @@
 
 package top.dcenter.ums.security.core.redis.cache;
 
+import org.springframework.cache.Cache;
 import org.springframework.cache.support.NullValue;
 import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.core.convert.ConversionFailedException;
@@ -40,6 +41,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
+import top.dcenter.ums.security.core.redis.config.RedisCacheAutoConfiguration;
 
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
@@ -52,8 +54,6 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static top.dcenter.ums.security.core.redis.config.RedisCacheAutoConfiguration.REDIS_CACHE_HASH_KEY_SEPARATE;
 
 
 /**
@@ -141,7 +141,7 @@ public class RedisHashCache extends RedisCache {
     @SuppressWarnings("unchecked")
     public synchronized <T> T get(@NonNull Object key, @NonNull Callable<T> valueLoader) {
 
-        ValueWrapper result = get(key);
+        Cache.ValueWrapper result = get(key);
 
         if (result != null)
         {
@@ -182,7 +182,7 @@ public class RedisHashCache extends RedisCache {
     }
 
     @Override
-    public ValueWrapper putIfAbsent(@NonNull Object key, @Nullable Object value) {
+    public Cache.ValueWrapper putIfAbsent(@NonNull Object key, @Nullable Object value) {
 
         Object cacheValue = preProcessCacheValue(value);
 
@@ -412,7 +412,7 @@ public class RedisHashCache extends RedisCache {
     private Object[] parsingKey(Object key) {
         if (key instanceof String)
         {
-            return Optional.ofNullable((Object[]) StringUtils.split((String) key, REDIS_CACHE_HASH_KEY_SEPARATE))
+            return Optional.ofNullable((Object[]) StringUtils.split((String) key, RedisCacheAutoConfiguration.REDIS_CACHE_HASH_KEY_SEPARATE))
                            .orElse(new Object[]{key});
         }
         return new Object[]{key};
@@ -477,7 +477,7 @@ public class RedisHashCache extends RedisCache {
         }
         catch (Exception e)
         {
-            throw new ValueRetrievalException(key, valueLoader, e);
+            throw new Cache.ValueRetrievalException(key, valueLoader, e);
         }
     }
 }

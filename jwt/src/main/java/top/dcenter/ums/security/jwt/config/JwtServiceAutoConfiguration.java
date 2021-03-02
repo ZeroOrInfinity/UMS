@@ -22,6 +22,7 @@
  */
 package top.dcenter.ums.security.jwt.config;
 
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -54,6 +55,7 @@ import top.dcenter.ums.security.jwt.claims.service.impl.UmsAuthoritiesClaimsSetS
 import top.dcenter.ums.security.jwt.claims.service.impl.UmsGenerateClaimsSetServiceImpl;
 import top.dcenter.ums.security.jwt.decoder.UmsNimbusJwtDecoder;
 import top.dcenter.ums.security.jwt.id.service.impl.UuidJwtIdServiceImpl;
+import top.dcenter.ums.security.jwt.jackson2.JwtJackson2Module;
 import top.dcenter.ums.security.jwt.properties.BearerTokenProperties;
 import top.dcenter.ums.security.jwt.properties.JwtProperties;
 import top.dcenter.ums.security.jwt.resolver.UmsBearerTokenResolver;
@@ -84,6 +86,11 @@ import static top.dcenter.ums.security.jwt.config.JwtAutoConfiguration.PRINCIPAL
 @ConditionalOnProperty(prefix = "ums.jwt", name = "enable", havingValue = "true")
 @Slf4j
 public class JwtServiceAutoConfiguration {
+
+    @Bean
+    public SimpleModule jwtJackson2Module() {
+        return new JwtJackson2Module();
+    }
 
     @Bean
     @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.common.api.userdetails.converter.AuthenticationToUserDetailsConverter"})
