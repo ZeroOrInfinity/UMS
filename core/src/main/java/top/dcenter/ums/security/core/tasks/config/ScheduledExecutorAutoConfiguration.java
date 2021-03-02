@@ -28,7 +28,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import top.dcenter.ums.security.common.executor.DefaultThreadFactory;
-import top.dcenter.ums.security.common.executor.MdcScheduledThreadPoolTaskExecutor;
+import top.dcenter.ums.security.common.executor.MdcScheduledThreadPoolExecutor;
 import top.dcenter.ums.security.core.tasks.properties.JobTaskScheduledExecutorProperties;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,7 +37,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 实现 基于 SLF4J MDC 机制的日志链路追踪功能的 {@link MdcScheduledThreadPoolTaskExecutor}}
+ * 实现 基于 SLF4J MDC 机制的日志链路追踪功能的 {@link MdcScheduledThreadPoolExecutor}}
  * @author YongWu zheng
  * @version V1.0  Created by 2020-10-15 10:21
  */
@@ -56,9 +56,9 @@ public class ScheduledExecutorAutoConfiguration implements DisposableBean {
     @Bean
     public ScheduledExecutorService jobTaskScheduledExecutor() {
         ScheduledThreadPoolExecutor scheduledThreadPoolExecutor =
-                new MdcScheduledThreadPoolTaskExecutor(jobTaskScheduledExecutorProperties.getCorePoolSize(),
-                                                       getThreadFactory(jobTaskScheduledExecutorProperties.getPoolName()),
-                                                       jobTaskScheduledExecutorProperties.getRejectedExecutionHandlerPolicy()
+                new MdcScheduledThreadPoolExecutor(jobTaskScheduledExecutorProperties.getCorePoolSize(),
+                                                   getThreadFactory(jobTaskScheduledExecutorProperties.getPoolName()),
+                                                   jobTaskScheduledExecutorProperties.getRejectedExecutionHandlerPolicy()
                                                                                          .getRejectedHandler());
         scheduledThreadPoolExecutor.setKeepAliveTime(jobTaskScheduledExecutorProperties.getKeepAliveTime(),
                                                      jobTaskScheduledExecutorProperties.getTimeUnit());

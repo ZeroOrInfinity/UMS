@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import top.dcenter.ums.security.common.executor.DefaultThreadFactory;
-import top.dcenter.ums.security.common.executor.MdcScheduledThreadPoolTaskExecutor;
+import top.dcenter.ums.security.common.executor.MdcScheduledThreadPoolExecutor;
 import top.dcenter.ums.security.common.executor.MdcThreadPoolTaskExecutor;
 import top.dcenter.ums.security.core.executor.properties.ExecutorProperties;
 
@@ -41,7 +41,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 实现 基于 SLF4J MDC 机制的日志链路追踪功能的 {@link MdcScheduledThreadPoolTaskExecutor} 与 {@link MdcThreadPoolTaskExecutor}
+ * 实现 基于 SLF4J MDC 机制的日志链路追踪功能的 {@link MdcScheduledThreadPoolExecutor} 与 {@link MdcThreadPoolTaskExecutor}
  * 1. 第三方授权登录 AccessToken 维护有效期定时任务配置.<br>
  * 2. 第三方授权登录时, 异步更新用户的第三方授权用户信息的 Executor 属性配置
  * @author YongWu zheng

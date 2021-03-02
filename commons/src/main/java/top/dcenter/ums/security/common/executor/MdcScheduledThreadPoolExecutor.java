@@ -45,23 +45,25 @@ import static top.dcenter.ums.security.common.consts.MdcConstants.MDC_KEY;
 
 /**
  * 实现 基于 SLF4J MDC 机制的日志链路追踪功能. <br>
- * {@link MdcScheduledThreadPoolTaskExecutor#remove(Runnable)} 类内部调用有效, 通过实例调用此方法失效
+ * {@link MdcScheduledThreadPoolExecutor#remove(Runnable)} 类内部调用有效, 通过实例调用此方法失效
+ * @author YongWu zheng
+ * @version V2.0  Created by  2020-12-22 10:52
  */
-public class MdcScheduledThreadPoolTaskExecutor extends ScheduledThreadPoolExecutor {
+public class MdcScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor {
 
-    public MdcScheduledThreadPoolTaskExecutor(int corePoolSize) {
+    public MdcScheduledThreadPoolExecutor(int corePoolSize) {
         super(corePoolSize);
     }
 
-    public MdcScheduledThreadPoolTaskExecutor(int corePoolSize, ThreadFactory threadFactory) {
+    public MdcScheduledThreadPoolExecutor(int corePoolSize, ThreadFactory threadFactory) {
         super(corePoolSize, threadFactory);
     }
 
-    public MdcScheduledThreadPoolTaskExecutor(int corePoolSize, RejectedExecutionHandler handler) {
+    public MdcScheduledThreadPoolExecutor(int corePoolSize, RejectedExecutionHandler handler) {
         super(corePoolSize, handler);
     }
 
-    public MdcScheduledThreadPoolTaskExecutor(int corePoolSize, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
+    public MdcScheduledThreadPoolExecutor(int corePoolSize, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
         super(corePoolSize, threadFactory, handler);
     }
 
