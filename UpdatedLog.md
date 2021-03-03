@@ -1,3 +1,12 @@
+## 2.2.25
+### Fixes and Improvements:
+1. ums/修复: 第三方登录成功时可能获取不到 refresh token 的问题以及 targetUrl 不带 ContextPath 的问题.
+2. ums/重构: RedisCache 相关功能类.
+3. commons/重命名: MdcScheduledThreadPoolExecutor.
+4. oauth/新增: ConnectionService 查询当前账号下的所有绑定的第三方账号接口并实现.
+5. mdc/优化.
+6. jwt-example/改进.
+
 ## 2.2.24
 ### Fixes and Improvements:
 1. core/修复: 手机登录自动注册失效的问题.

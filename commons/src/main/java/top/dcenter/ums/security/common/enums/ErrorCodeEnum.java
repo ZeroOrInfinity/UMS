@@ -119,9 +119,14 @@ public enum ErrorCodeEnum {
     REFRESH_TOKEN_FAILURE(950, "refresh Token 刷新失败"),
 
     AUTH2_PROVIDER_NOT_SUPPORT(960, "此服务商的第三方授权登录不支持"),
-    UN_BINDING_ERROR(961, "解绑第三方账号异常"),
-    BINDING_ERROR(962, "绑定第三方账号异常"),
+    UN_BINDING_ERROR(961, "解绑第三方账号失败"),
+    BINDING_ERROR(962, "绑定第三方账号失败"),
     BOUND_ERROR(963, "此第三方账号已绑定在其他账号上"),
+    UN_BINDING_YOURSELF_ERROR(964, "不支持解绑自己"),
+    UN_BINDING_LOGGED_ERROR(965, "不能解绑的已登录的账号"),
+    UN_BINDING_NOT_OAUTH2(966, "只能解绑第三方的账号"),
+    UN_BINDING_ILLEGAL(967, "不能解绑的不属于自己的第三方账号"),
+
 
     TENANT_ID_NOT_FOUND(970, "获取不到租户 ID "),
 
