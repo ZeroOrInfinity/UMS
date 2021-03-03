@@ -19,6 +19,8 @@ import me.zhyd.oauth.model.AuthUser;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.MultiValueMap;
+import top.dcenter.ums.security.core.api.oauth.dto.ConnectionDto;
 import top.dcenter.ums.security.core.api.oauth.entity.ConnectionData;
 import top.dcenter.ums.security.core.api.oauth.repository.exception.UpdateConnectionException;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
@@ -84,4 +86,23 @@ public interface ConnectionService {
 	@Nullable
 	List<ConnectionData> findConnectionByProviderIdAndProviderUserId(@NonNull String providerId,
 	                                                                 @NonNull String providerUserId);
+
+	/**
+	 * Find all connections the current user has across all providers.
+	 * The returned map contains an entry for each provider the user is connected to.
+	 * The key for each entry is the providerId, and the value is the list of {@link ConnectionData}s that exist between the user and that provider.
+	 * For example, if the user is connected once to Facebook and twice to Twitter, the returned map would contain two entries with the following structure:
+	 * <pre>
+	 * {
+	 *     "qq" -&gt; Connection("Jack") ,
+	 *     "github"  -&gt; Connection("Tomas"), Connection("Jessica")
+	 * }
+	 * </pre>
+	 * The returned map is sorted by providerId and entry values are ordered by rank.
+	 * Returns an empty map if the user has no connections.
+	 * @param userId    the userId
+	 * @return  all connections the current user has across all providers.
+	 */
+	@NonNull
+	MultiValueMap<String, ConnectionDto> listAllConnections(@NonNull String userId);
 }

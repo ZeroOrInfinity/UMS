@@ -35,8 +35,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.common.utils.JsonUtil;
+import top.dcenter.ums.security.core.api.oauth.dto.ConnectionDto;
 import top.dcenter.ums.security.core.api.oauth.entity.AuthTokenPo;
 import top.dcenter.ums.security.core.api.oauth.entity.ConnectionData;
 import top.dcenter.ums.security.core.api.oauth.entity.ConnectionKey;
@@ -53,6 +56,9 @@ import top.dcenter.ums.security.core.oauth.justauth.util.JustAuthUtil;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 默认的第三方授权登录时自动注册处理器。<br>
@@ -197,6 +203,28 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
     public List<ConnectionData> findConnectionByProviderIdAndProviderUserId(@NonNull String providerId,
                                                                             @NonNull String providerUserId) {
         return usersConnectionRepository.findConnectionByProviderIdAndProviderUserId(providerId, providerUserId);
+    }
+
+    @NonNull
+    @Override
+    public MultiValueMap<String, ConnectionDto> listAllConnections(@NonNull String userId) {
+        MultiValueMap<String, ConnectionData> allConnections = usersConnectionRepository.findAllConnections(userId);
+        Set<Map.Entry<String, List<ConnectionData>>> entrySet = allConnections.entrySet();
+        MultiValueMap<String, ConnectionDto> connectionMap = new LinkedMultiValueMap<>(allConnections.size());
+        for (Map.Entry<String, List<ConnectionData>> entry : entrySet) {
+            List<ConnectionDto> connectionDtoList =
+                    entry.getValue()
+                         .stream()
+                         .map(data -> ConnectionDto.builder()
+                                                   .tokenId(data.getTokenId())
+                                                   .providerId(data.getProviderId())
+                                                   .providerUserId(data.getProviderUserId())
+                                                   .build())
+                         .collect(Collectors.toList());
+            connectionMap.put(entry.getKey(), connectionDtoList);
+        }
+
+        return connectionMap;
     }
 
     /**
