@@ -10,7 +10,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.auth.config.SecurityAutoConfiguration;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
+import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.handler.UmsAuthenticationSuccessHandler;
+import top.dcenter.ums.security.jwt.properties.JwtProperties;
 import top.dcenter.ums.security.properties.UmsProperties;
 
 /**
@@ -28,9 +30,14 @@ public class UmsAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler")
     public BaseAuthenticationSuccessHandler baseAuthenticationSuccessHandler(ClientProperties clientProperties,
+                                                                             Auth2Properties auth2Properties,
+                                                                             JwtProperties jwtProperties,
                                                                              RedisConnectionFactory redisConnectionFactory,
                                                                              UmsProperties umsProperties) {
-        return new UmsAuthenticationSuccessHandler(clientProperties, null,
+        return new UmsAuthenticationSuccessHandler(clientProperties,
+                                                   auth2Properties.getRedirectUrlPrefix(),
+                                                   auth2Properties.getDomain(),
+                                                   jwtProperties.bearer.getRefreshTokenHeaderName(),
                                                    redisConnectionFactory,
                                                    umsProperties);
     }
