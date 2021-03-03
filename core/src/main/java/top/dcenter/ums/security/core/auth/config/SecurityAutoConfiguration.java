@@ -23,7 +23,6 @@
 
 package top.dcenter.ums.security.core.auth.config;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -37,6 +36,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import top.dcenter.ums.security.common.api.jackson2.SimpleModuleHolder;
 import top.dcenter.ums.security.core.advice.SecurityControllerAdviceHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
@@ -48,7 +48,7 @@ import top.dcenter.ums.security.core.auth.handler.ClientAuthenticationSuccessHan
 import top.dcenter.ums.security.core.auth.handler.DefaultLogoutSuccessHandler;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
 import top.dcenter.ums.security.core.auth.provider.UsernamePasswordAuthenticationProvider;
-import top.dcenter.ums.security.core.redis.jackson2.AuthJackson2Module;
+import top.dcenter.ums.security.core.redis.jackson2.AuthJackson2ModuleHolder;
 import top.dcenter.ums.security.core.util.MvcUtil;
 
 import java.lang.reflect.Field;
@@ -73,7 +73,7 @@ public class SecurityAutoConfiguration implements InitializingBean {
 
     private final ClientProperties clientProperties;
 
-    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection", "SpringJavaInjectionPointsAutowiringInspection"})
+    @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired
     private UmsUserDetailsService umsUserDetailsService;
 
@@ -100,8 +100,8 @@ public class SecurityAutoConfiguration implements InitializingBean {
     }
 
     @Bean
-    public SimpleModule authJackson2Module() {
-        return new AuthJackson2Module();
+    public SimpleModuleHolder authJackson2ModuleHolder() {
+        return new AuthJackson2ModuleHolder();
     }
 
     @Bean

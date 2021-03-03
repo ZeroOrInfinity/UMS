@@ -22,7 +22,6 @@
  */
 package top.dcenter.ums.security.jwt.config;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -40,6 +39,7 @@ import org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import top.dcenter.ums.security.common.api.jackson2.SimpleModuleHolder;
 import top.dcenter.ums.security.common.api.userdetails.converter.AuthenticationToUserDetailsConverter;
 import top.dcenter.ums.security.jwt.advice.JwtControllerAdvice;
 import top.dcenter.ums.security.jwt.api.cache.service.JwtCacheTransformService;
@@ -55,7 +55,7 @@ import top.dcenter.ums.security.jwt.claims.service.impl.UmsAuthoritiesClaimsSetS
 import top.dcenter.ums.security.jwt.claims.service.impl.UmsGenerateClaimsSetServiceImpl;
 import top.dcenter.ums.security.jwt.decoder.UmsNimbusJwtDecoder;
 import top.dcenter.ums.security.jwt.id.service.impl.UuidJwtIdServiceImpl;
-import top.dcenter.ums.security.jwt.jackson2.JwtJackson2Module;
+import top.dcenter.ums.security.jwt.jackson2.JwtJackson2ModuleHolder;
 import top.dcenter.ums.security.jwt.properties.BearerTokenProperties;
 import top.dcenter.ums.security.jwt.properties.JwtProperties;
 import top.dcenter.ums.security.jwt.resolver.UmsBearerTokenResolver;
@@ -88,8 +88,8 @@ import static top.dcenter.ums.security.jwt.config.JwtAutoConfiguration.PRINCIPAL
 public class JwtServiceAutoConfiguration {
 
     @Bean
-    public SimpleModule jwtJackson2Module() {
-        return new JwtJackson2Module();
+    public SimpleModuleHolder jwtJackson2ModuleHolder() {
+        return new JwtJackson2ModuleHolder();
     }
 
     @Bean

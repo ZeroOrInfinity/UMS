@@ -74,6 +74,7 @@ import org.springframework.security.web.jackson2.WebServletJackson2Module;
 import org.springframework.security.web.server.jackson2.WebServerJackson2Module;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import top.dcenter.ums.security.common.api.jackson2.SimpleModuleHolder;
 import top.dcenter.ums.security.core.redis.cache.RedisHashCacheManager;
 import top.dcenter.ums.security.core.redis.key.generator.RemoveConnectionsByConnectionKeyWithUserIdKeyGenerator;
 import top.dcenter.ums.security.core.redis.properties.RedisCacheProperties;
@@ -86,6 +87,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -123,15 +125,15 @@ public class RedisCacheAutoConfiguration {
     private final RedisProperties properties;
     private final RedisSentinelConfiguration sentinelConfiguration;
     private final RedisClusterConfiguration clusterConfiguration;
-    private final Map<String, SimpleModule> jackson2ModuleMap;
+    private final Map<String, SimpleModuleHolder> jackson2ModuleHolderMap;
 
     public RedisCacheAutoConfiguration(RedisCacheProperties redisCacheProperties,
                                        RedisProperties properties,
                                        ObjectProvider<RedisSentinelConfiguration> sentinelConfigurationProvider,
                                        ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider,
-                                       @Autowired(required = false) Map<String, SimpleModule> jackson2ModuleMap) {
+                                       @Autowired(required = false) Map<String, SimpleModuleHolder> jackson2ModuleHolderMap) {
         this.redisCacheProperties = redisCacheProperties;
-        this.jackson2ModuleMap = jackson2ModuleMap;
+        this.jackson2ModuleHolderMap = jackson2ModuleHolderMap;
         Set<String> cacheNames = redisCacheProperties.getCache().getCacheNames();
         cacheNames.add(USER_CONNECTION_CACHE_NAME);
         cacheNames.add(USER_CONNECTION_HASH_CACHE_NAME);
@@ -157,11 +159,14 @@ public class RedisCacheAutoConfiguration {
         om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         Set<SimpleModule> simpleModuleSet;
-        if (isNull(this.jackson2ModuleMap)) {
+        if (isNull(this.jackson2ModuleHolderMap)) {
             simpleModuleSet = new HashSet<>(5, 1.F);
         }
         else {
-            simpleModuleSet = new HashSet<>(this.jackson2ModuleMap.values());
+            simpleModuleSet = this.jackson2ModuleHolderMap.values()
+                                                          .stream()
+                                                          .map(SimpleModuleHolder::getSimpleModule)
+                                                          .collect(Collectors.toSet());
         }
         simpleModuleSet.add(new CoreJackson2Module());
         simpleModuleSet.add(new WebJackson2Module());
