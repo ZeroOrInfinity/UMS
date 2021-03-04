@@ -320,6 +320,10 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
         final String codeImageAbsPath = getAbsPath(slider.getCodeImageDirectory());
         final File fileDirs = Paths.get(codeImageAbsPath).toFile();
 
+        if (!fileDirs.exists() && !fileDirs.mkdirs()) {
+             throw new RuntimeException("创建滑块验证码图片缓存目录失败!");
+        }
+
         if (fileDirs.isDirectory() && fileDirs.canRead()) {
             final List<File> fileList = Arrays.stream(Optional.ofNullable(fileDirs.listFiles()).orElse(new File[0]))
                                               .filter(File::isFile)

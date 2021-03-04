@@ -154,6 +154,11 @@ public class DefaultImageCodeFactory implements ImageCodeFactory {
         final ValidateCodeProperties.ImageCodeProperties image = validateCodeProperties.getImage();
         final String imageAbsPath = getAbsPath(image.getImageCacheDirectory());
         final File file = Paths.get(imageAbsPath).toFile();
+
+        if (!file.exists() && !file.mkdirs()) {
+            throw new RuntimeException("创建图片验证码图片缓存目录失败!");
+        }
+
         if (file.isDirectory() && file.canRead()) {
             final List<File> fileList = Arrays.stream(Optional.ofNullable(file.listFiles()).orElse(new File[0]))
                                               .filter(File::isFile)
