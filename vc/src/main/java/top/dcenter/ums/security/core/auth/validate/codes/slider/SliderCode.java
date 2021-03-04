@@ -59,6 +59,7 @@ public class SliderCode extends ValidateCode {
     /**
      * 是否二次校验. 流程: 第一次用户滑块完成校验一次, 并设置此属性为 true, 第二次再次校验 token
      */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Boolean secondCheck;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

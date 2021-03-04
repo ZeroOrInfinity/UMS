@@ -38,7 +38,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.StringUtils;
-import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.jackson.SimpleGrantedAuthorityMixin;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static top.dcenter.ums.security.common.consts.SecurityConstants.CHARSET_UTF8;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.HEADER_ACCEPT;
 
 /**
@@ -104,7 +104,7 @@ public final class JsonUtil {
         if (!response.isCommitted()) {
             response.setStatus(status);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding(SecurityConstants.CHARSET_UTF8);
+            response.setCharacterEncoding(CHARSET_UTF8);
             PrintWriter writer = response.getWriter();
             writer.write(result);
             writer.flush();

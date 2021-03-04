@@ -92,6 +92,8 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
             Integer locationX = sliderCode.getLocationX();
             // 发生到前端数据时 移除 locationX 数据,
             sliderCode.setLocationX(null);
+            // 移除不必要的字段以防前端误解
+            sliderCode.setSecondCheck(null);
             String resultJson = JsonUtil.toJsonString(sliderCode);
             // 设置回 locationX 数据, 用于后续缓存操作
             sliderCode.setLocationX(locationX);
@@ -135,7 +137,7 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         // 检测是否是第二此校验
         if (sliderCodeInCache.getSecondCheck())
         {
-            defaultValidate(request, slider.getTokenRequestParamName(),
+            defaultValidate(request, slider.getRequestParamName(),
                             SliderCode.class, this.validateCodeCacheType, this.redisConnectionFactory);
             return;
         }
