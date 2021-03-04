@@ -92,29 +92,10 @@ public enum ValidateCodeType {
         }
     };
 
-    private Integer expireIn;
-
     /**
      * 返回相应的 SessionKey
      * @return SessionKey
      */
     public abstract String getKeyPrefix();
-
-    /**
-     * 获取验证码的过期时间, 单位: 秒
-     * @return  过期时间
-     */
-    public Integer getExpireIn() {
-        return this.expireIn;
-    }
-
-//    /**
-//     * 设置验证码过期时间, 单位: 秒
-//     * @param expireIn  过期时间
-//     */
-//    public void setExpireIn(Integer expireIn) {
-//        this.expireIn = expireIn;
-//    }
-
 
 }

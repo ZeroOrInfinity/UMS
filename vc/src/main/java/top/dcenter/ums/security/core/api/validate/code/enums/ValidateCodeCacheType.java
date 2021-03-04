@@ -114,7 +114,7 @@ public enum ValidateCodeCacheType {
             byte[] value = JsonUtil.toJsonString(validateCode).getBytes(UTF_8);
             try (RedisConnection connection = redisConnectionFactory.getConnection())
             {
-                return Optional.ofNullable(connection.setEx(key, validateCodeType.getExpireIn() - 1, value)).orElse(false);
+                return Optional.ofNullable(connection.setEx(key, validateCode.getExpireIn() - 1, value)).orElse(false);
             }
             catch (Exception e)
             {
