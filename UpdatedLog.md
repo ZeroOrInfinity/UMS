@@ -1,3 +1,13 @@
+## 2.2.26
+### Fixes and Improvements:
+1. vc/修复: 校验码 redis 缓存设置过期时间问题.
+2. vc/修复: 滑块校验码在缓存滑块图片时可能出现的 NPE 问题.
+3. vc/修复: 创建验证码图片缓存时, 对于配置存储缓存的目录不存在时, 不能自动创建目录的问题.
+4. vc/改进: 优化滑块验证码校验逻辑与 返回的 json 信息.
+5. vc/优化: json 序列化的优化.
+6. vc/示例: 优化.
+
+
 ## 2.2.25
 ### Fixes and Improvements:
 1. ums/修复: 第三方登录成功时可能获取不到 refresh token 的问题以及 targetUrl 不带 ContextPath 的问题.
