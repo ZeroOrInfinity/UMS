@@ -56,7 +56,9 @@ public class RolePermissionsServiceAspect implements ApplicationContextAware {
     public void handlerUpdateRolesAuthoritiesMethod(JoinPoint jp, boolean result, Long roleId, Long... resourceIds) {
         if (jp.getTarget() instanceof RolePermissionsService) {
             if (result) {
-                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.ROLE));
+                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true,
+                                                                              ResourcesType.ALL_ROLE,
+                                                                              null, null));
             }
         }
     }
@@ -64,20 +66,25 @@ public class RolePermissionsServiceAspect implements ApplicationContextAware {
 
     @AfterReturning(pointcut = "execution(boolean *..updateAuthoritiesOfAllTenant(..)) && args(tenantAuthority, roleId, resourceIds)",
                     returning = "result", argNames = "jp, result, tenantAuthority, roleId, resourceIds")
-    public void handlerUpdateTenantsAuthoritiesMethod(JoinPoint jp, boolean result, String tenantAuthority, Long roleId, Long... resourceIds) {
+    public void handlerUpdateTenantsAuthoritiesMethod(JoinPoint jp, boolean result, String tenantAuthority,
+                                                      Long roleId, Long... resourceIds) {
         if (jp.getTarget() instanceof RolePermissionsService) {
             if (result) {
-                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.TENANT));
+                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true,
+                                                                              ResourcesType.ALL_TENANT,
+                                                                              null, null));
             }
         }
     }
 
     @AfterReturning(pointcut = "execution(boolean *..updateAuthoritiesOfAllScopes(..)) && args(scopeAuthority, roleId, resourceIds)",
                     returning = "result", argNames = "jp, result, scopeAuthority, roleId, resourceIds")
-    public void handlerUpdateScopesAuthoritiesMethod(JoinPoint jp, boolean result, String scopeAuthority, Long roleId, Long... resourceIds) {
+    public void handlerUpdateScopesAuthoritiesMethod(JoinPoint jp, boolean result, String scopeAuthority,
+                                                     Long roleId, Long... resourceIds) {
         if (jp.getTarget() instanceof RolePermissionsService) {
             if (result) {
-                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.SCOPE));
+                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.ALL_SCOPE,
+                                                                              null, null));
             }
         }
     }

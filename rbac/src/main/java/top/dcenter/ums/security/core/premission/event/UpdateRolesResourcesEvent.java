@@ -25,6 +25,8 @@ package top.dcenter.ums.security.core.premission.event;
 
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import top.dcenter.ums.security.core.premission.enums.ResourcesType;
 
 /**
@@ -37,13 +39,22 @@ public class UpdateRolesResourcesEvent extends ApplicationEvent {
 
     @Getter
     private final ResourcesType type;
+    @Getter
+    private final Integer tenantId;
+    @Getter
+    private final String role;
     /**
      * Create a new {@code ApplicationEvent}.
-     *
-     * @param isUpdate 是否更新
+     * @param isUpdate  是否更新
+     * @param type      资源类型
+     * @param tenantId  租户 ID, 当 type 的类型为 ROLE, TENANT, SCOPE, MENU, RESOURCES, PERMISSION 不为 null
+     * @param role      角色(带 ROLE_ 前缀), 当 type 的类型为 ROLE, MENU, RESOURCES, PERMISSION 不为 null
      */
-    public UpdateRolesResourcesEvent(Boolean isUpdate, ResourcesType type) {
+    public UpdateRolesResourcesEvent(@NonNull Boolean isUpdate, @NonNull ResourcesType type,
+                                     @Nullable Integer tenantId, @Nullable String role) {
         super(isUpdate);
         this.type = type;
+        this.tenantId = tenantId;
+        this.role = role;
     }
 }

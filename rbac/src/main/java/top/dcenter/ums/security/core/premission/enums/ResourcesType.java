@@ -31,6 +31,18 @@ import top.dcenter.ums.security.core.premission.event.UpdateRolesResourcesEvent;
  */
 public enum ResourcesType {
     /**
+     * 基于所有角色的资源类型
+     */
+    ALL_ROLE,
+    /**
+     * 基于所有多租户的资源类型
+     */
+    ALL_TENANT,
+    /**
+     * 基于所有 SCOPE 的多租户类型
+     */
+    ALL_SCOPE,
+    /**
      * 基于角色的资源类型
      */
     ROLE,
@@ -41,5 +53,18 @@ public enum ResourcesType {
     /**
      * 基于 SCOPE 的多租户类型
      */
-    SCOPE
+    SCOPE,
+    /**
+     * 菜单的资源类型
+     */
+    MENU,
+    /**
+     * 资源的资源类型
+     */
+    RESOURCES,
+    /**
+     * 权限的资源类型
+     */
+    PERMISSION,
+
 }

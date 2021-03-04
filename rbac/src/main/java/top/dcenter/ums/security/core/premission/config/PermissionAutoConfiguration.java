@@ -61,12 +61,14 @@ public class PermissionAutoConfiguration {
 
     @Bean
     @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.premission.service.UpdateAndCacheRolesResourcesService")
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.premission.listener.UpdateRolesResourcesListener")
     public UpdateRolesResourcesListener updateRolesAuthoritiesListener(UpdateAndCacheRolesResourcesService updateAndCacheRolesResourcesService) {
         return new UpdateRolesResourcesListener(updateAndCacheRolesResourcesService);
     }
 
     @Bean
     @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.premission.service.UpdateAndCacheRolesResourcesService")
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.premission.aspect.RolePermissionsServiceAspect")
     public RolePermissionsServiceAspect rolePermissionsServiceAspect() {
         return new RolePermissionsServiceAspect();
     }
