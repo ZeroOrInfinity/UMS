@@ -469,13 +469,16 @@
                 $(".huakuai").html("向右滑动滑块填充拼图");
                 $(".imgBg").css("background",'#fff url("data:image/jpg;base64,'+data.sourceImage+'")');
                 $(".imgBtn").css('top',data.locationY+'px');
-                $(".imgBtn").find("img").attr("src","data:image/png;base64,"+data.newImage)
+                $(".imgBtn").find("img").attr("src","data:image/png;base64,"+data.markImage)
                 tokenId=data.token;
                 y=data.locationY;
                 $(".hkinnerWrap").removeClass("red green");
                 $(".v_rightBtn").css("left",0);
                 $(".imgBtn").css("left",0);
                 $(".hkinnerWrap input[name='sliderToken']").val(tokenId);
+
+                // 注意: 这里可以直接提交表单的动作, 为了演示这里需要用户点击提交表单的按钮
+
             },error:function(err){
                 console.log(err)
             }

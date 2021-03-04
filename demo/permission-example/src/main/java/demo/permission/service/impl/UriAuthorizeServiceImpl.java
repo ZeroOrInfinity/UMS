@@ -64,6 +64,9 @@ public class UriAuthorizeServiceImpl extends AbstractUriAuthorizeService impleme
     public void updateAuthoritiesOfAllRoles() {
 
         synchronized (lock) {
+            if (this.rolesAuthoritiesMap != null) {
+                return;
+            }
             // 更新并缓存所有角色 uri(资源) 权限 Map<role, Map<uri, Set<permission>>>
             this.rolesAuthoritiesMap = updateRolesAuthorities();
         }
@@ -90,7 +93,11 @@ public class UriAuthorizeServiceImpl extends AbstractUriAuthorizeService impleme
         if (this.rolesAuthoritiesMap != null) {
             return this.rolesAuthoritiesMap;
         }
-        else {
+        synchronized (lock) {
+            if (this.rolesAuthoritiesMap != null) {
+                return this.rolesAuthoritiesMap;
+            }
+            // 更新并缓存所有角色 uri(资源) 权限 Map<role, Map<uri, Set<permission>>>
             return updateRolesAuthorities();
         }
 

@@ -23,7 +23,6 @@
 
 package demo.security.validate.code;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -188,7 +187,6 @@ public class DemoImageCodeFactory implements ImageCodeFactory {
 
     }
 
-    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     @SuppressWarnings("ConstantConditions")
     @Override
     public void refreshValidateCodeJob() {
