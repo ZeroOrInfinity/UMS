@@ -138,7 +138,7 @@
         <tr>
             <td>滑块验证码：</td>
             <td>
-                <input type="hidden" name="sliderToken">
+                <input type="hidden" name="sliderCode">
                 <div class="comImageValidate rightValidate">
                     <div class="hkinnerWrap" style="height: 33px;position: relative">
                         <span  class="v_rightBtn " th:data-uri="@{/slider/check}"><em class="notSel">→</em></span>
@@ -431,12 +431,12 @@
             dataType:'json',
             type: "POST",
             success:function (data) {
-                if(data.code === 0){
+                if(data.code === 200){
                     console.log(data);
                     $(".hkinnerWrap").addClass("green").removeClass("red");
-                    $(".hkinnerWrap input[name='sliderToken']").val(data.data);
+                    $("#sli-form input[name='sliderCode']").val(data.data);
                 }
-                else if (data.code === 606) {
+                else if (data.code >= 606 || data.code < 700) {
                     console.log("不刷新, 用户重新操作: " + data);
                     $(".hkinnerWrap").addClass("red").removeClass("green");
                     $(".v_rightBtn").css("left", 0);

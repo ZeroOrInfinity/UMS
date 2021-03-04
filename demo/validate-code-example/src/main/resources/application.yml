@@ -158,15 +158,13 @@ ums:
       # 设置滑块验证码校验证的 uri, 默认: /slider/check, 默认: /slider/check
       slider-check-url: /slider/check
       # 提交验证码请求时，请求中带的验证码变量名，默认 sliderCode.
-      # 与 tokenRequestParamName, xRequestParamName, yRequestParamName 互斥关系;
-      # 当使用此参数时, 把另外三个参数(kv键值对形式, 键值对之间用逗号风隔) 组装到此参数.
-      # 注意: 默认传递参数是用另外的三个参数实现验证码校验, 如要使用此参数, 请重新实现 ValidateCodeProcessor#validate(ServletWebRequest)
+      # 用于滑块验证码第二次校验的参数名称.
       request-param-name: sliderCode
-      # request token param name, 默认: sliderToken. 与 requestParamName 互斥关系.
+      # request token param name, 默认: sliderToken.
       token-request-param-name: sliderToken
-      # request X param name, 默认: x. 与 requestParamName 互斥关系.
+      # request X param name, 默认: x.
       x-request-param-name: x
-      # request Y param name, 默认: y. 与 requestParamName 互斥关系.
+      # request Y param name, 默认: y.
       y-request-param-name: y
       # 在模板上抠图区灰阶等级: 4-10, 数值越高, 灰色越深, 默认: 5
       grayscale: 5
