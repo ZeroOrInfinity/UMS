@@ -163,7 +163,8 @@ public class SliderCoderProcessor extends AbstractValidateCodeProcessor {
         checkParam(sliderType, request, sliderCodeInCache.isExpired(), VALIDATE_CODE_EXPIRED, token, sliderCodeInCache);
 
         // 验证码校验
-        boolean verify = sliderCodeInCache.getLocationY().equals(locationY)
+        boolean verify = sliderCodeInCache.getToken().equals(token)
+                         && sliderCodeInCache.getLocationY().equals(locationY)
                          && Math.abs(sliderCodeInCache.getLocationX() - locationX) < slider.getRedundancyValue();
         if (!verify)
         {

@@ -23,6 +23,7 @@
 
 package top.dcenter.ums.security.core.auth.validate.codes.slider;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -45,7 +46,7 @@ public class SliderCode extends ValidateCode {
     /** 标记 @Transient 时, 缓存 ValidateCode 时会自动清除 */
     @ToString.Exclude
     @Transient
-    private transient String newImage;
+    private transient String markImage;
     @ToString.Exclude
     @Transient
     private transient String sourceImage;
@@ -60,6 +61,7 @@ public class SliderCode extends ValidateCode {
      */
     private Boolean secondCheck;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer locationX;
 
     private Integer locationY;
@@ -69,7 +71,7 @@ public class SliderCode extends ValidateCode {
     private Integer sourceHeight;
 
     public SliderCode() {
-        this.newImage = null;
+        this.markImage = null;
         this.sourceImage = null;
         this.secondCheck = false;
     }
@@ -79,7 +81,7 @@ public class SliderCode extends ValidateCode {
      * @param code          验证码
      * @param expireIn      秒
      * @param token         token
-     * @param newImage      newImage
+     * @param markImage      markImage
      * @param sourceImage   sourceImage
      * @param sourceWidth   sourceWidth
      * @param sourceHeight  sourceHeight
@@ -87,11 +89,11 @@ public class SliderCode extends ValidateCode {
      * @param locationY             locationY
      */
     public SliderCode(String code, int expireIn, String token,
-                      String newImage, String sourceImage, Integer x, Integer locationY,
+                      String markImage, String sourceImage, Integer x, Integer locationY,
                       Integer sourceWidth, Integer sourceHeight) {
         super(code, expireIn);
         this.token = token;
-        this.newImage = newImage;
+        this.markImage = markImage;
         this.sourceImage = sourceImage;
         this.locationX = x;
         this.locationY = locationY;
