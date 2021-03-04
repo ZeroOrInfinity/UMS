@@ -135,14 +135,8 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
         this.grayscale = slider.getGrayscale();
         this.totalImages = validateCodeProperties.getTotalImages();
         this.expireIn = slider.getExpire();
-        if (slider.getAuthUrls().size() > 0) {
-            this.templateImagePaths = getImagesAbsPaths(slider.getTemplateImageDirectory(), slider.getImageSuffix());
-            this.originalImagePaths = getImagesAbsPaths(slider.getOriginalImageDirectory(), slider.getImageSuffix());
-        }
-        else {
-            this.templateImagePaths = null;
-            this.originalImagePaths = null;
-        }
+        this.templateImagePaths = getImagesAbsPaths(slider.getTemplateImageDirectory(), slider.getImageSuffix());
+        this.originalImagePaths = getImagesAbsPaths(slider.getOriginalImageDirectory(), slider.getImageSuffix());
     }
 
     @PostConstruct
@@ -225,7 +219,8 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
     public void refreshValidateCodeJob() {
 
         // 是否配置滑块验证码, 没有配置验证码直接忽视定时刷新任务
-        if (this.validateCodeProperties.getSlider().getAuthUrls().size() < 1) {
+        ValidateCodeProperties.SliderCodeProperties slider = this.validateCodeProperties.getSlider();
+        if (slider.getAuthUrls().size() < 1) {
             return;
         }
 
@@ -233,7 +228,6 @@ public class SimpleSliderCodeFactory implements SliderCodeFactory {
         final ThreadLocalRandom random = ThreadLocalRandom.current();
         String[] oldCodeImagePaths = this.codeImagePaths;
         final String[] newImageCodePaths = new String[totalImages];
-        ValidateCodeProperties.SliderCodeProperties slider = validateCodeProperties.getSlider();
         final String codeImageAbsPath = getAbsPath(slider.getCodeImageDirectory());
 
         // 1. 创建新验证码图片
