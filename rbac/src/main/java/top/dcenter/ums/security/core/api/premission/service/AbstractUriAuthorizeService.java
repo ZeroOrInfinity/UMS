@@ -44,6 +44,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import static top.dcenter.ums.security.common.consts.RbacConstants.DEFAULT_ROLE_PREFIX;
+import static top.dcenter.ums.security.common.consts.RbacConstants.DEFAULT_SCOPE_PREFIX;
 import static top.dcenter.ums.security.common.consts.TenantConstants.DEFAULT_TENANT_PREFIX;
 
 /**
@@ -51,7 +53,7 @@ import static top.dcenter.ums.security.common.consts.TenantConstants.DEFAULT_TEN
  * 实现 {@link AbstractUriAuthorizeService} 抽象类并注入 IOC 容器即可替换
  * {@link DefaultUriAuthorizeService}.<br><br>
  * 注意:
- * 1. 推荐实现 {@link AbstractUriAuthorizeService} 同时实现 {@link UpdateAndCacheRolesResourcesService} 更新与缓存权限服务,
+ * 1. 推荐实现 {@link AbstractUriAuthorizeService} 同时实现 {@link UpdateCacheOfRolesResourcesService} 更新与缓存权限服务,
  * 有助于提高授权服务性能.<br>
  * 2. 对传入的 {@link Authentication} 的 authorities 硬性要求: <br>
  * <pre>
@@ -73,23 +75,8 @@ import static top.dcenter.ums.security.common.consts.TenantConstants.DEFAULT_TEN
  */
 public abstract class AbstractUriAuthorizeService implements UriAuthorizeService {
 
-    /**
-     * 角色权限前缀
-     */
-    public static final String DEFAULT_ROLE_PREFIX = "ROLE_";
-    /**
-     * 资源权限前缀
-     */
-    public static final String DEFAULT_SCOPE_PREFIX = "SCOPE_";
-
-    /**
-     * 权限分隔符
-     */
-    public static final String PERMISSION_DELIMITER = ",";
-
     @Getter
     protected AntPathMatcher antPathMatcher = new AntPathMatcher();
-
 
     /**
      * 根据 authentication 来判断是否有 request 所代表的 资源 的访问权限, <br>
@@ -162,11 +149,11 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
         int size = authoritySet.size();
         // 存储用户角色的集合
-        final Set<String> roleSet = new HashSet<>(size);
+        final Set<String> roleSet = new HashSet<>(size, 1.F);
         // 存储多组户 ID
         final String[] tenantAuthority = new String[]{null};
         // 存储 SCOPE 的集合
-        final Set<String> scopeSet = new HashSet<>(size);
+        final Set<String> scopeSet = new HashSet<>(size, 1.F);
 
         authoritySet.forEach(authority -> {
             if (authority.startsWith(DEFAULT_ROLE_PREFIX)) {
