@@ -29,6 +29,7 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.validation.annotation.Validated;
 import top.dcenter.ums.security.common.enums.CsrfTokenRepositoryType;
 import top.dcenter.ums.security.common.enums.LoginProcessType;
@@ -288,7 +289,8 @@ public class ClientProperties {
         private SessionCreationPolicy sessionCreationPolicy = SessionCreationPolicy.ALWAYS;
 
         /**
-         * 无效 session 处理请求的方式: true 表示创建新的 session 并转发, false 表示重定向(invalidSessionUrl). 默认: true
+         * 无效 session 处理请求的方式: true 表示创建新的 session 并转发, false 表示重定向(invalidSessionUrl). 默认: true,
+         * 注意: 必须手动配置属性, {@link InvalidSessionStrategy} 依赖此配置加载.
          */
         private Boolean forwardOrRedirect = Boolean.TRUE;
 

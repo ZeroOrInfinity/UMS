@@ -103,6 +103,10 @@ ums:
       - /user/me
     login-page: /login
     success-url: /demo/index.html
+    session:
+      # 无效 session 处理请求的方式: true 表示创建新的 session 并转发, false 表示重定向(invalidSessionUrl). 默认: true
+      # 注意: 必须手动配置属性, InvalidSessionStrategy 依赖此配置加载.
+      forward-or-redirect: true
 
   # ================ 基于 SLF4J MDC 机制的日志链路追踪配置属性 ================
   mdc:
@@ -314,6 +318,7 @@ ums:
     # 其他的有: 数据库表名称, 字段名称, curd sql 语句 等设置, 一般不需要更改,
     # 如果要添加字段: 具体查看 RepositoryProperties 与 Auth2JdbcUsersConnectionRepository
   # =============== end: user_connection repository 配置 ===============
+
 
 ---
 spring:

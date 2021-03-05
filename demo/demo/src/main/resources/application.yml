@@ -144,6 +144,7 @@ ums:
       # concurrent session 失效后跳转地址(必须自己实现), login-process-type=redirect 时有效. 默认: /
       invalid-session-of-concurrent-url: /concurrentSession.html
       # 无效 session 处理请求的方式: true 表示创建新的 session 并转发, false 表示重定向(invalidSessionUrl). 默认: true
+      # 注意: 必须手动配置属性, InvalidSessionStrategy 依赖此配置加载.
       forward-or-redirect: true
       # session 失效后跳转地址, login-process-type=redirect 时有效. 默认: /session/invalid,
       # 注意: forwardOrRedirect 为 false 时有效.

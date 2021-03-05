@@ -100,6 +100,11 @@ ums:
     # 设置登录时用户密码的 request 参数名称, 默认为 password
     passwordParameter: password
 
+    session:
+      # 无效 session 处理请求的方式: true 表示创建新的 session 并转发, false 表示重定向(invalidSessionUrl). 默认: true
+      # 注意: 必须手动配置属性, InvalidSessionStrategy 依赖此配置加载.
+      forward-or-redirect: true
+
   # ================ 验证码配置 ================
   # 同一个 uri 由多种验证码同时配置, **优先级**如下:
   #  `SMS > CUSTOMIZE > SELECTION > TRACK > SLIDER > IMAGE`
