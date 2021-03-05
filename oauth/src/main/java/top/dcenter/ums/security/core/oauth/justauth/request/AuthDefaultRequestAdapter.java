@@ -39,15 +39,13 @@ import me.zhyd.oauth.utils.StringUtils;
 import me.zhyd.oauth.utils.UuidUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import top.dcenter.ums.security.core.api.oauth.entity.AuthTokenPo;
 import top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest;
 import top.dcenter.ums.security.core.exception.RefreshTokenFailureException;
-import top.dcenter.ums.security.core.api.oauth.entity.AuthTokenPo;
 import top.dcenter.ums.security.core.oauth.justauth.Auth2RequestHolder;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import static top.dcenter.ums.security.core.api.oauth.justauth.request.Auth2DefaultRequest.determineState;
 
 /**
  * {@link AuthDefaultRequest} 的适配器
@@ -89,7 +87,7 @@ public class AuthDefaultRequestAdapter extends AuthDefaultRequest implements Aut
         }
 
         // 缓存 state
-        this.authStateCache.cache(determineState(this.authStateCache, state, this.source), state);
+        this.authStateCache.cache(state, state);
         return state;
     }
 
@@ -106,7 +104,7 @@ public class AuthDefaultRequestAdapter extends AuthDefaultRequest implements Aut
         try {
             AuthChecker.checkCode(this.source, authCallback);
             if (!this.config.isIgnoreCheckState()) {
-                AuthChecker.checkState(determineState(this.authStateCache, authCallback.getState(), this.source),
+                AuthChecker.checkState(authCallback.getState(),
                                        this.source, this.authStateCache);
             }
 
