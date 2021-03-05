@@ -30,6 +30,7 @@ import demo.service.SysResourcesService;
 import demo.service.SysRoleResourcesService;
 import demo.service.SysRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,6 +44,7 @@ import top.dcenter.ums.security.core.exception.RolePermissionsException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * uri 权限服务.<br> 此实现只是为了测试方便, 实际项目中建议实现 {@link RolePermissionsService} 接口来实现角色的资源权限的增删改查<br>
@@ -50,7 +52,7 @@ import java.util.List;
  * <pre>
  *     // 修改或添加权限一定要更新 updateRolesAuthorities 缓存, 有两种方式：一种发布事件，另一种是直接调用服务；推荐用发布事件(异步执行)。
  *     // 1. 推荐用发布事件(异步执行)
- *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.ROLE));
+ *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
  *     // 2. 直接调用服务
  *     abstractUriAuthorizeService.updateRolesAuthorities();
  * </pre>
@@ -74,7 +76,7 @@ public class RolePermissionServiceImpl implements RolePermissionsService<SysReso
 
     @Override
     @Transactional(rollbackFor = {Error.class, Exception.class}, propagation = Propagation.REQUIRED)
-    public boolean updateResourcesOfRole(Long roleId, Long... resourceIds) throws RolePermissionsException {
+    public boolean updateResourcesByRoleId(@NonNull Long roleId, Long... resourceIds) throws RolePermissionsException {
 
         // 1. 删除已有的角色资源
         List<SysRoleResources> roleResources = sysRoleResourcesService.findByRoleId(roleId);
@@ -95,15 +97,16 @@ public class RolePermissionServiceImpl implements RolePermissionsService<SysReso
         return true;
     }
 
+    @NonNull
     @Override
-    public List<SysResources> findAllResourcesByRole(String role) {
+    public List<SysResources> findAllResourcesByRoleId(@NonNull Long roleId) {
         // 1. 获取角色
-        SysRole sysRole = sysRoleService.findByName(role);
-
+        Optional<SysRole> sysRoleOptional = sysRoleService.findById(roleId);
         // 角色不存在
-        if (sysRole == null) {
+        if (!sysRoleOptional.isPresent()) {
             return new ArrayList<>();
         }
+        SysRole sysRole = sysRoleOptional.get();
 
         // start: 判断是否有权限获取此角色
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -123,6 +126,12 @@ public class RolePermissionServiceImpl implements RolePermissionsService<SysReso
 
         // 2. 获取角色 uri 的对应权限资源,
         return sysResourcesService.findByRoleId(sysRole.getId());
+    }
+
+    @NonNull
+    @Override
+    public Class<SysResources> getUpdateResourcesClass() {
+        return SysResources.class;
     }
 
 }

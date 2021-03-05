@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.premission.service.RolePermissionsService;
-import top.dcenter.ums.security.core.api.premission.service.UpdateAndCacheRolesResourcesService;
+import top.dcenter.ums.security.core.api.premission.service.UpdateCacheOfRolesResourcesService;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.premission.enums.PermissionType;
 import top.dcenter.ums.security.common.vo.ResponseResult;
@@ -55,20 +55,28 @@ import java.util.Map;
  * 注意: <br>
  * 1. 在添加资源时, 通过{@link PermissionType#getPermission()} 来规范的权限格式, 因为要支持 restful 风格的 Api,
  * 在授权时需要对 {@link HttpMethod} 与对应的权限进行匹配判断<br>
- * 2. 如果实现了 {@link UpdateAndCacheRolesResourcesService} 接口, 未实现 {@link RolePermissionsService} 接口, 修改或添加基于"角色/多租户/SCOPE
- * "的资源权限时一定要调用 {@link UpdateAndCacheRolesResourcesService} 对应的方法, 有两种方式: 一种发布事件, 另一种是直接调用对应服务;<br>
+ * 2. 如果实现了 {@link UpdateCacheOfRolesResourcesService} 接口, 未实现 {@link RolePermissionsService} 接口, 修改或添加基于"角色/多租户/SCOPE
+ * "的资源权限时一定要调用 {@link UpdateCacheOfRolesResourcesService} 对应的方法, 有两种方式: 一种发布事件, 另一种是直接调用对应服务;<br>
  * <pre>
  *     // 1. 推荐用发布事件(异步执行)
- *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.ROLE));
- *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.TENANT));
- *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.SCOPE));
+ *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
+ *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
+ *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
  *     // 2. 直接调用服务
  *     // 基于角色
- *     UpdateAndCacheRolesResourcesService.updateAuthoritiesOfAllRoles();
+ *     UpdateCacheOfRolesResourcesService.updateAuthoritiesOfAllRoles();
  *     // 基于多租户
- *     UpdateAndCacheRolesResourcesService.updateAuthoritiesOfAllTenant();
+ *     UpdateCacheOfRolesResourcesService.updateAuthoritiesOfAllTenant();
  *     // 基于 SCOPE
- *     UpdateAndCacheRolesResourcesService.updateAuthoritiesOfAllScopes();
+ *     UpdateCacheOfRolesResourcesService.updateAuthoritiesOfAllScopes();
+ *     // 角色权限资源
+ *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByRoleId(roleId, resourceClass, resourceIds);
+ *     // 多租户的角色权限资源
+ *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByRoleIdOfTenant(tenantId, roleId, resourceClass, resourceIds);
+ *     // SCOPE 的角色权限资源
+ *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByScopeId(scopeId, roleId, resourceClass, resourceIds);
+ *     // 多租户的 SCOPE 的角色权限资源
+ *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByScopeIdOfTenant(tenantId, scopeId, roleId, resourceClass, resourceIds);
  * </pre>
  * 3. 实现此 {@link RolePermissionsService} 接口, 不需要执行上两种方法的操作, 已通过 AOP 方式实现发布 UpdateRolesResourcesEvent 事件.
  * @author YongWu zheng
@@ -200,7 +208,7 @@ public class PermissionController {
     @GetMapping("/addPermissionData/{roleId}")
     public ResponseResult updateResourcesOfRole(@PathVariable("roleId") Long roleId, Long... resourceIds) {
         try {
-            final boolean isUpdated = rolePermissionService.updateResourcesOfRole(roleId, resourceIds);
+            final boolean isUpdated = rolePermissionService.updateResourcesByRoleId(roleId, resourceIds);
             if (!isUpdated)
             {
                 return ResponseResult.fail(ErrorCodeEnum.ADD_ROLE_PERMISSION_FAILURE);
