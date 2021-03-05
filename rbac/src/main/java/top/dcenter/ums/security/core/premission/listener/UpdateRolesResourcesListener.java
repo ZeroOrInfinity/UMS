@@ -25,8 +25,11 @@ package top.dcenter.ums.security.core.premission.listener;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
-import top.dcenter.ums.security.core.api.premission.service.UpdateAndCacheRolesResourcesService;
+import top.dcenter.ums.security.core.api.premission.service.UpdateCacheOfRolesResourcesService;
+import top.dcenter.ums.security.core.premission.dto.UpdateRoleResourcesDto;
 import top.dcenter.ums.security.core.premission.event.UpdateRolesResourcesEvent;
+
+import static java.util.Objects.isNull;
 
 /**
  * uri 权限更新监听器
@@ -35,10 +38,10 @@ import top.dcenter.ums.security.core.premission.event.UpdateRolesResourcesEvent;
  */
 public class UpdateRolesResourcesListener implements ApplicationListener<UpdateRolesResourcesEvent> {
 
-    private final UpdateAndCacheRolesResourcesService updateAndCacheRolesResourcesService;
+    private final UpdateCacheOfRolesResourcesService updateCacheOfRolesResourcesService;
 
-    public UpdateRolesResourcesListener(UpdateAndCacheRolesResourcesService updateAndCacheRolesResourcesService) {
-        this.updateAndCacheRolesResourcesService = updateAndCacheRolesResourcesService;
+    public UpdateRolesResourcesListener(UpdateCacheOfRolesResourcesService updateCacheOfRolesResourcesService) {
+        this.updateCacheOfRolesResourcesService = updateCacheOfRolesResourcesService;
     }
 
     @Async
@@ -47,19 +50,65 @@ public class UpdateRolesResourcesListener implements ApplicationListener<UpdateR
         Object source = event.getSource();
         if (source instanceof Boolean && ((Boolean) source))
         {
-            switch(event.getType()) {
+            UpdateRoleResourcesDto<Object> updateRoleResourcesDto = event.getUpdateRoleResourcesDto();
+            switch(updateRoleResourcesDto.getUpdateType()) {
                 case ROLE:
-                    this.updateAndCacheRolesResourcesService.updateAuthoritiesOfAllRoles();
+                    updateCacheOfRole(updateRoleResourcesDto);
                     break;
                 case TENANT:
-                    this.updateAndCacheRolesResourcesService.updateAuthoritiesOfAllTenant();
+                    updateCacheOfTenant(updateRoleResourcesDto);
                     break;
                 case SCOPE:
-                    this.updateAndCacheRolesResourcesService.updateAuthoritiesOfAllScopes();
+                    updateCacheOfScope(updateRoleResourcesDto);
                     break;
                 default:
                     break;
             }
         }
+    }
+
+    private void updateCacheOfRole(UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
+        updateRoleResourcesDto
+                .getRoleResources()
+                .forEach((key, value) ->
+                                 this.updateCacheOfRolesResourcesService
+                                         .updateAuthoritiesByRoleId(key,
+                                                                    updateRoleResourcesDto.getResourceClass(),
+                                                                    value.toArray(new Long[0])));
+    }
+    private void updateCacheOfTenant(UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
+        updateRoleResourcesDto
+                .getRoleResources()
+                .forEach((key, value) ->
+                                 this.updateCacheOfRolesResourcesService
+                                         .updateAuthoritiesByRoleIdOfTenant(updateRoleResourcesDto.getTenantId(),
+                                                                            key,
+                                                                            updateRoleResourcesDto.getResourceClass(),
+                                                                            value.toArray(new Long[0])));
+
+    }
+    private void updateCacheOfScope(UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
+        // 非多租户
+        if (isNull(updateRoleResourcesDto.getTenantId())) {
+            updateRoleResourcesDto
+                    .getRoleResources()
+                    .forEach((key, value) ->
+                                     this.updateCacheOfRolesResourcesService
+                                             .updateAuthoritiesByScopeId(updateRoleResourcesDto.getScopeId(),
+                                                                         key,
+                                                                         updateRoleResourcesDto.getResourceClass(),
+                                                                         value.toArray(new Long[0])));
+            return;
+        }
+        // 多租户
+        updateRoleResourcesDto
+                .getRoleResources()
+                .forEach((key, value) ->
+                                 this.updateCacheOfRolesResourcesService
+                                         .updateAuthoritiesByScopeIdOfTenant(updateRoleResourcesDto.getTenantId(),
+                                                                             updateRoleResourcesDto.getScopeId(),
+                                                                             key,
+                                                                             updateRoleResourcesDto.getResourceClass(),
+                                                                             value.toArray(new Long[0])));
     }
 }

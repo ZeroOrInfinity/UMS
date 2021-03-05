@@ -31,10 +31,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.EnableAsync;
-import top.dcenter.ums.security.core.api.premission.service.UpdateAndCacheRolesResourcesService;
+import top.dcenter.ums.security.core.api.premission.service.RolePermissionsServiceAspect;
+import top.dcenter.ums.security.core.api.premission.service.UpdateCacheOfRolesResourcesService;
 import top.dcenter.ums.security.core.api.premission.service.UriAuthorizeService;
 import top.dcenter.ums.security.core.premission.advice.PermissionAdviceHandler;
-import top.dcenter.ums.security.core.premission.aspect.RolePermissionsServiceAspect;
+import top.dcenter.ums.security.core.premission.aspect.LocalRolePermissionsServiceAspect;
 import top.dcenter.ums.security.core.premission.evaluator.UriAuthoritiesPermissionEvaluator;
 import top.dcenter.ums.security.core.premission.listener.UpdateRolesResourcesListener;
 import top.dcenter.ums.security.core.premission.service.DefaultUriAuthorizeService;
@@ -60,17 +61,17 @@ public class PermissionAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.premission.service.UpdateAndCacheRolesResourcesService")
+    @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.premission.service.UpdateCacheOfRolesResourcesService")
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.premission.listener.UpdateRolesResourcesListener")
-    public UpdateRolesResourcesListener updateRolesAuthoritiesListener(UpdateAndCacheRolesResourcesService updateAndCacheRolesResourcesService) {
-        return new UpdateRolesResourcesListener(updateAndCacheRolesResourcesService);
+    public UpdateRolesResourcesListener updateRolesAuthoritiesListener(UpdateCacheOfRolesResourcesService updateCacheOfRolesResourcesService) {
+        return new UpdateRolesResourcesListener(updateCacheOfRolesResourcesService);
     }
 
     @Bean
-    @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.premission.service.UpdateAndCacheRolesResourcesService")
-    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.premission.aspect.RolePermissionsServiceAspect")
+    @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.premission.service.UpdateCacheOfRolesResourcesService")
+    @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.premission.service.RolePermissionsServiceAspect")
     public RolePermissionsServiceAspect rolePermissionsServiceAspect() {
-        return new RolePermissionsServiceAspect();
+        return new LocalRolePermissionsServiceAspect();
     }
 
     @Bean

@@ -25,23 +25,11 @@ package top.dcenter.ums.security.core.premission.enums;
 import top.dcenter.ums.security.core.premission.event.UpdateRolesResourcesEvent;
 
 /**
- * 资源的类型, 用于 {@link UpdateRolesResourcesEvent}
+ * 更新权限资源的类型, 用于 {@link UpdateRolesResourcesEvent}
  * @author YongWu zheng
  * @version V2.0  Created by 2020/11/9 10:47
  */
-public enum ResourcesType {
-    /**
-     * 基于所有角色的资源类型
-     */
-    ALL_ROLE,
-    /**
-     * 基于所有多租户的资源类型
-     */
-    ALL_TENANT,
-    /**
-     * 基于所有 SCOPE 的多租户类型
-     */
-    ALL_SCOPE,
+public enum UpdateRolesResourcesType {
     /**
      * 基于角色的资源类型
      */
@@ -54,17 +42,5 @@ public enum ResourcesType {
      * 基于 SCOPE 的多租户类型
      */
     SCOPE,
-    /**
-     * 菜单的资源类型
-     */
-    MENU,
-    /**
-     * 资源的资源类型
-     */
-    RESOURCES,
-    /**
-     * 权限的资源类型
-     */
-    PERMISSION,
 
 }

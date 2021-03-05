@@ -26,8 +26,7 @@ package top.dcenter.ums.security.core.premission.event;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-import top.dcenter.ums.security.core.premission.enums.ResourcesType;
+import top.dcenter.ums.security.core.premission.dto.UpdateRoleResourcesDto;
 
 /**
  * 更新角色权限事件
@@ -38,23 +37,15 @@ public class UpdateRolesResourcesEvent extends ApplicationEvent {
     private static final long serialVersionUID = 6858134429988117542L;
 
     @Getter
-    private final ResourcesType type;
-    @Getter
-    private final Integer tenantId;
-    @Getter
-    private final String role;
+    private final UpdateRoleResourcesDto<Object> updateRoleResourcesDto;
     /**
      * Create a new {@code ApplicationEvent}.
-     * @param isUpdate  是否更新
-     * @param type      资源类型
-     * @param tenantId  租户 ID, 当 type 的类型为 ROLE, TENANT, SCOPE, MENU, RESOURCES, PERMISSION 不为 null
-     * @param role      角色(带 ROLE_ 前缀), 当 type 的类型为 ROLE, MENU, RESOURCES, PERMISSION 不为 null
+     * @param isUpdate                  是否更新
+     * @param updateRoleResourcesDto    更新权限资源 DTO
      */
-    public UpdateRolesResourcesEvent(@NonNull Boolean isUpdate, @NonNull ResourcesType type,
-                                     @Nullable Integer tenantId, @Nullable String role) {
+    public UpdateRolesResourcesEvent(@NonNull Boolean isUpdate,
+                                     @NonNull UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
         super(isUpdate);
-        this.type = type;
-        this.tenantId = tenantId;
-        this.role = role;
+        this.updateRoleResourcesDto = updateRoleResourcesDto;
     }
 }
