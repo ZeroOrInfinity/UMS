@@ -1,8 +1,11 @@
 package top.dcenter.ums.security.core.premission.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import top.dcenter.ums.security.core.premission.enums.UpdateRolesResourcesType;
 import top.dcenter.ums.security.core.premission.event.UpdateRolesResourcesEvent;
 
@@ -16,9 +19,12 @@ import java.util.Map;
  * @weixin z56133
  * @since 2021.3.5 12:28
  */
-@Data
-@NoArgsConstructor
+@Setter
+@Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 public class UpdateRoleResourcesDto<T> implements Serializable {
 
     private static final long serialVersionUID = -8135205986821450358L;
