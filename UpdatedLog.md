@@ -1,3 +1,13 @@
+## 2.2.27
+### Fixes and Improvements:
+1. rbac/新增: 权限资源更新与缓存更细化的接口, 支持以单个角色为最小单位的更新缓存; 新增 RolePermissionsServiceAspect.java 针对权限更新的切面接口, 方便发布角色权限更新事件.
+2. rbac/改进: 改进权限资源的更新与缓存策略.
+3. rbac/commons/迁移常量.
+4. oauth/优化: 第三方登录中 state 缓存 key 策略.
+5. ums/第三方登录demo/优化: 第三方登录成功获取 token 的流程.
+6. demo/示例: 修复因版本更新而启动异常.
+
+
 ## 2.2.26
 ### Fixes and Improvements:
 1. vc/修复: 校验码 redis 缓存设置过期时间问题.
@@ -374,8 +384,8 @@
 4. 特性: 新增 多租户与SCOPE 的权限控制逻辑. 以及优化基于角色的权限控制逻辑.
 5. 新增: RolePermissionsService 角色资源服务接口. 主要用于给角色添加权限的操作; 新增 RolePermissionsException
     与 对应的异常处理器, 以及错误响应码; 新增 RolePermissionsServiceAspect 角色权限服务接口切面: 主要功能是基于 角色/多租户/SCOPE 的资源权限更新时, 发布更新角色权限事件. 
-6. 新增: UpdateAndCacheRolesResourcesService 权限的更新与缓存服务接口.
-7. 新增: 新增 ResourcesType 枚举来区分 角色/多租户/SCOPE 的类型.
+6. 新增: UpdateCacheOfRolesResourcesService 权限的更新与缓存服务接口.
+7. 新增: 新增 UpdateRolesResourcesType 枚举来区分 角色/多租户/SCOPE 的类型.
 8. 改进: 添加 enableRestfulApi 与 restfulAccessExp 属性, 当 enableRestfulApi=false 或者有 @EnableGlobalMethodSecurity 注释时 accessExp
     权限表达式生效; 当 enableRestfulApi=true 时且没有 @EnableGlobalMethodSecurity 注释时 restfulAccessExp
      权限表达式生效; 去除 UriAuthorizeAutoConfigurerAware 的 ConditionalOnMissingBean 条件.

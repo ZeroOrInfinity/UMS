@@ -26,7 +26,7 @@ note right client: 服务器启动\n\
 * 设置默认权限表达式 **hasPermission(request, authentication)**:\n\
   httpSecurity.authorizeRequests().anyRequest()\n\
   .access("hasPermission(request, authentication)")\n\
-* 如果用户实现 **UpdateAndCacheRolesResourcesService** 则加载:\n\
+* 如果用户实现 **UpdateCacheOfRolesResourcesService** 则加载:\n\
   **UpdateRolesResourcesListener** 用于监听资源更新事件\n\
 * 如果用户实现 **RolePermissionsService** 则加载:\n\
   **RolePermissionsServiceAspect** 用于监控\n\
@@ -43,7 +43,7 @@ participant "PermissionController"
 participant "RolePermissionsService" #1565c0
 participant "RolePermissionsServiceAspect"
 participant "UpdateRolesResourcesListener"
-participant "UpdateAndCacheRolesResourcesService" #1565c0
+participant "UpdateCacheOfRolesResourcesService" #1565c0
 
 note right RolePermissionsServiceAspect: **注意:**\n\
 此切面生效前提, 事务的 Order 的值必须 大于 1, \n\
@@ -70,11 +70,11 @@ end
 opt UpdateRolesResourcesListener 监听到角色资源权限更新事件
 RolePermissionsServiceAspect -> UpdateRolesResourcesListener: 接收到角色资源更新事件
 activate UpdateRolesResourcesListener
-UpdateRolesResourcesListener -> UpdateAndCacheRolesResourcesService: updateAuthoritiesOfAllRoles()
-activate UpdateAndCacheRolesResourcesService
-UpdateAndCacheRolesResourcesService --> UpdateAndCacheRolesResourcesService: 更新或缓存所有角色的资源权限
-UpdateAndCacheRolesResourcesService --> UpdateRolesResourcesListener: 返回
-deactivate UpdateAndCacheRolesResourcesService
+UpdateRolesResourcesListener -> UpdateCacheOfRolesResourcesService: updateAuthoritiesOfAllRoles()
+activate UpdateCacheOfRolesResourcesService
+UpdateCacheOfRolesResourcesService --> UpdateCacheOfRolesResourcesService: 更新或缓存所有角色的资源权限
+UpdateCacheOfRolesResourcesService --> UpdateRolesResourcesListener: 返回
+deactivate UpdateCacheOfRolesResourcesService
 deactivate UpdateRolesResourcesListener
 end
 RolePermissionsService --> PermissionController: 5 返回

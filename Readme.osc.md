@@ -6,7 +6,7 @@
 
 <p align="center">
 	<a target="_blank" href="https://search.maven.org/search?q=g:top.dcenter%20AND%20a:ums-spring-boot-starter">
-		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.26-green.svg" />
+		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.27-green.svg" />
 	</a>
 	<a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">
 		<img alt='license' src="https://img.shields.io/badge/license-MIT-yellow.svg" />
@@ -126,7 +126,7 @@
          容器即可替换 DefaultUriAuthorizeService.  
         - 注意: 
         
-          1\. 推荐实现 AbstractUriAuthorizeService 同时实现 UpdateAndCacheRolesResourcesService 更新与缓存权限服务, 有助于提高授权服务性能. 
+          1\. 推荐实现 AbstractUriAuthorizeService 同时实现 UpdateCacheOfRolesResourcesService 更新与缓存权限服务, 有助于提高授权服务性能. 
           
           2\. 对传入的 Authentication 的 authorities 硬性要求: 
           ```java
@@ -142,10 +142,10 @@
           如果不是 restful 风格的 API, 请使用 `hasPermission(Authentication, String, String)` 接口的访问权限控制, 
           此接口使用注解的方式 `@PerAuthorize("hasPermission('/users', 'list')")` 来实现, 使用注解需先开启 `@EnableGlobalMethodSecurity(prePostEnabled = true)` 注解.
 
-    - [UpdateAndCacheRolesResourcesService](https://gitee.com/pcore/UMS/blob/master/rbac/src/main/java/top/dcenter/ums/security/core/api/permission/service/UpdateAndCacheRolesResourcesService.java):
+    - [UpdateCacheOfRolesResourcesService](https://gitee.com/pcore/UMS/blob/master/rbac/src/main/java/top/dcenter/ums/security/core/api/permission/service/UpdateCacheOfRolesResourcesService.java):
     
-        - 用于更新或缓存基于(角色/多租户/SCOPE)角色的权限的服务接口, 每次更新角色的 uri(资源)权限时,需要调用此接口, 推荐实现此 RolePermissionsService 接口, 会自动通过 AOP
-         方式实现发布 UpdateRolesResourcesEvent 事件, 从而调用 UpdateAndCacheRolesResourcesService 对应的方法.
+        - 用于更新并缓存基于(角色/多租户/SCOPE)角色的权限的服务接口, 每次更新角色的 uri(资源)权限时,需要调用此接口, 推荐实现此 RolePermissionsService 接口, 会自动通过 AOP
+         方式实现发布 UpdateRolesResourcesEvent 事件, 从而调用 UpdateCacheOfRolesResourcesService 对应的方法.
         - 建议:
          
             1\. 基于 角色 的权限控制: 实现所有角色 uri(资源) 的权限 Map(role, map(uri, Set(permission))) 的更新与缓存本机内存. 
@@ -162,20 +162,28 @@
             1\. 在添加资源时, 通过PermissionType.getPermission() 来规范的权限格式, 因为要支持 restful 风格的 Api, 
                 在授权时需要对 HttpMethod 与对应的权限进行匹配判断 
             
-            2\. 如果实现了 UpdateAndCacheRolesResourcesService 接口, 未实现 RolePermissionsService 接口, 
-                修改或添加基于"角色/多租户/SCOPE "的资源权限时一定要调用 UpdateAndCacheRolesResourcesService 对应的方法, 有两种方式: 一种发布事件, 另一种是直接调用对应服务; 
+            2\. 如果实现了 UpdateCacheOfRolesResourcesService 接口, 未实现 RolePermissionsService 接口, 
+                修改或添加基于"角色/多租户/SCOPE "的资源权限时一定要调用 UpdateCacheOfRolesResourcesService 对应的方法, 有两种方式: 一种发布事件, 另一种是直接调用对应服务; 
             ```java
             // 1. 推荐用发布事件(异步执行)
-            applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.ROLE));
-            applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.TENANT));
-            applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, ResourcesType.SCOPE));
+            applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
+            applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
+            applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
             // 2. 直接调用服务
             // 基于角色
-            UpdateAndCacheRolesResourcesService.updateAuthoritiesOfAllRoles();
+            UpdateCacheOfRolesResourcesService.updateAuthoritiesOfAllRoles();
             // 基于多租户
-            UpdateAndCacheRolesResourcesService.updateAuthoritiesOfAllTenant();
+            UpdateCacheOfRolesResourcesService.updateAuthoritiesOfAllTenant();
             // 基于 SCOPE
-            UpdateAndCacheRolesResourcesService.updateAuthoritiesOfAllScopes();
+            UpdateCacheOfRolesResourcesService.updateAuthoritiesOfAllScopes();
+            // 角色权限资源
+            UpdateCacheOfRolesResourcesService.updateAuthoritiesByRoleId(roleId, resourceClass, resourceIds);
+            // 多租户的角色权限资源
+            UpdateCacheOfRolesResourcesService.updateAuthoritiesByRoleIdOfTenant(tenantId, roleId, resourceClass, resourceIds);
+            // SCOPE 的角色权限资源
+            UpdateCacheOfRolesResourcesService.updateAuthoritiesByScopeId(scopeId, roleId, resourceClass, resourceIds);
+            // 多租户的 SCOPE 的角色权限资源
+            UpdateCacheOfRolesResourcesService.updateAuthoritiesByScopeIdOfTenant(tenantId, scopeId, roleId, resourceClass, resourceIds);
             ```
              
             3\. 实现此 RolePermissionsService 接口, 不需要执行上两种方法的操作, 已通过 AOP 方式实现发布 UpdateRolesResourcesEvent 事件.
