@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.common.vo.ResponseResult;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
+import top.dcenter.ums.security.core.vo.AuthTokenVo;
 import top.dcenter.ums.security.properties.UmsProperties;
 
-import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 
 import static java.util.Objects.nonNull;
@@ -49,25 +49,43 @@ public class Oauth2TokenHandlerController {
 
 
     @RequestMapping(value = "/oauth2Token", method = {RequestMethod.GET})
-    public String auth2Token(Model model, HttpServletRequest request) {
-        String oauth2Token = (String) request.getSession().getAttribute(umsProperties.getOauth2TokenParamName());
-        model.addAttribute(umsProperties.getOauth2TokenParamName(), oauth2Token);
-        return "oauth2token";
+    public String auth2Token(@RequestParam("tk") String tk,
+                             @RequestParam("username") String username,
+                             @RequestParam("id") String id, Model model) {
+        model.addAttribute(umsProperties.getOauth2TokenParamName(), tk);
+        model.addAttribute("username", username);
+        model.addAttribute("id", id);
+        return "oauth2Token";
     }
 
     @RequestMapping(value = "/oauth2Callback", method = {RequestMethod.POST})
     @ResponseBody
-    public ResponseResult oAuth2LoginSuccessCallback(@RequestParam("tk") String tk) {
-        try (RedisConnection connection = getConnection()) {
-            if (hasText(tk)) {
-                byte[] bytes =
-                        connection.get((umsProperties.getTempOauth2TokenPrefix() + tk).getBytes(StandardCharsets.UTF_8));
-                if (nonNull(bytes)) {
-                    return ResponseResult.success(null, new String(bytes, StandardCharsets.UTF_8));
+    public ResponseResult oAuth2LoginSuccessCallback(@RequestParam("tk") String tk,
+                                                     @RequestParam("username") String username,
+                                                     @RequestParam("id") String id) {
+        if (hasText(tk)) {
+            byte[] bytes =
+                    getConnection().get((umsProperties.getTempOauth2TokenPrefix() + tk).getBytes(StandardCharsets.UTF_8));
+            if (nonNull(bytes)) {
+                // tokenInfo = jwtToken#@#refreshToken#@#url 或 tokenInfo = jwtToken#@#url
+                String tokenInfo = new String(bytes, StandardCharsets.UTF_8);
+                if (!hasText(tokenInfo)) {
+                    return ResponseResult.fail(ErrorCodeEnum.UNAUTHORIZED);
                 }
+                String[] split = tokenInfo.split(umsProperties.getDelimiterOfTokenAndRefreshToken());
+                int length = split.length;
+                AuthTokenVo authTokenVo = new AuthTokenVo();
+                authTokenVo.setId(id);
+                authTokenVo.setUsername(username);
+                authTokenVo.setToken(split[0]);
+                authTokenVo.setTargetUrl(split[length - 1]);
+                if (length - 1 != 1) {
+                    authTokenVo.setRefreshToken(split[1]);
+                }
+                return ResponseResult.success("成功获取 token", authTokenVo);
             }
-            return ResponseResult.fail(ErrorCodeEnum.NOT_FOUND);
         }
+        return ResponseResult.fail(ErrorCodeEnum.UNAUTHORIZED);
     }
 
     @NonNull

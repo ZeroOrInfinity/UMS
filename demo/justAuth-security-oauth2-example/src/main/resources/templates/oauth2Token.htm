@@ -10,29 +10,27 @@
 </head>
 <body>
 登陆中...
+<br>
+从浏览器控制台查看获取的token
+<br>
+<a href="#" onclick="index()">目标页</a>
 <script>
+    var targetUrl;
     window.onload = function () {
+        console.log('tk: ' + '[[${tk}]]')
+        console.log('username: ' + '[[${username}]]')
+        console.log('id: ' + '[[${id}]]')
         $.ajax({
             // 如果用的是模板，则 url 可以使用注入的方式，会跟着配置动态改变
-            url: '[[@{/oauth2Callback}]]?tk=[[${tk}]]',
+            url: '[[@{/oauth2Callback}]]',
             type: "POST",
+            data: 'tk=[[${tk}]]&username=[[${username}]]&id=[[${id}]]',
             dataType: "json",
-            contentType: 'application/json; charset=UTF-8',
             success: function (data) {
                 console.log("--------> 获取 /oauth2Callback 数据 成功")
-                console.log("data = jwtToken#@#refreshToken#@#url 或 data = jwtToken#@#url")
+                console.log("--------> 获取 token 数据")
                 console.log(data)
-                let splits = data.data.split("#@#");
-                console.log(splits.length)
-                if (splits.length > 2) {
-                    console.log("jwtToken: " + splits[0])
-                    console.log("refreshToken: " + splits[1])
-                    console.log("url: " + splits[2])
-                } else {
-                    console.log("jwtToken: " + splits[0])
-                    console.log("url: " + splits[1])
-                }
-                console.log();
+                targetUrl = data.data.targetUrl;
             },
             error: function (data) {
                 console.log("........> 获取 /oauth2Callback 数据 错误")
@@ -41,6 +39,10 @@
             }
         });
 
+    }
+
+    index = function () {
+        window.location.href = targetUrl;
     }
 </script>
 </body>

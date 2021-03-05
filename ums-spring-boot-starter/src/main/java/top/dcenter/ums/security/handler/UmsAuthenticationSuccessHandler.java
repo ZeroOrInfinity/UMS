@@ -31,7 +31,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
@@ -125,8 +124,6 @@ public class UmsAuthenticationSuccessHandler extends BaseAuthenticationSuccessHa
         log.info("登录成功: uid={}, ip={}, ua={}, sid={}",
                  username, ip, userAgent, sid);
 
-        AbstractAuthenticationToken token = (AbstractAuthenticationToken) authentication;
-
         try
         {
 
@@ -140,37 +137,7 @@ public class UmsAuthenticationSuccessHandler extends BaseAuthenticationSuccessHa
                 //noinspection unchecked
                 AbstractOAuth2TokenAuthenticationToken<Jwt> jwtAuthentication =
                         (AbstractOAuth2TokenAuthenticationToken<Jwt>) authentication;
-                String uuid = UuidUtils.getUUID();
-                request.getSession().setAttribute(umsProperties.getOauth2TokenParamName(), uuid);
-                String tkValue = jwtAuthentication.getToken().getTokenValue();
-                String delimiterOfTokenAndRefreshToken = umsProperties.getDelimiterOfTokenAndRefreshToken();
-
-                String jwtRefreshTokenFromSession = JwtContext.getJwtRefreshTokenFromSession();
-                if (hasText(jwtRefreshTokenFromSession)) {
-                    tkValue = tkValue.concat(delimiterOfTokenAndRefreshToken)
-                                     .concat(jwtRefreshTokenFromSession);
-                }
-                else {
-                    String refreshTokenFromHeader = response.getHeader(refreshTokenHeaderName);
-                    if (hasText(refreshTokenFromHeader)) {
-                        tkValue = tkValue.concat(delimiterOfTokenAndRefreshToken)
-                                         .concat(refreshTokenFromHeader);
-                    }
-                }
-                //noinspection AlibabaUndefineMagicConstant
-                if ((domain + "/").equals(targetUrl) || domain.equals(targetUrl)) {
-                    targetUrl = domain + request.getContextPath();
-                }
-                tkValue = tkValue.concat(delimiterOfTokenAndRefreshToken)
-                                 .concat(targetUrl);
-                try (RedisConnection connection = getConnection()) {
-                    connection.setEx((umsProperties.getTempOauth2TokenPrefix() + uuid).getBytes(StandardCharsets.UTF_8),
-                                     umsProperties.getTempOauth2TokenTimeout().getSeconds(),
-                                     tkValue.getBytes(StandardCharsets.UTF_8));
-                }
-
-                clearAuthenticationAttributes(request);
-                request.getRequestDispatcher(umsProperties.getAutoGetTokenUri()).forward(request, response);
+                oauth2CallbackUrl(request, response, targetUrl, jwtAuthentication);
                 return ;
             }
 
@@ -288,6 +255,53 @@ public class UmsAuthenticationSuccessHandler extends BaseAuthenticationSuccessHa
     public void setUseReferer(boolean useReferer) {
         super.setUseReferer(useReferer);
         this.useReferer = useReferer;
+    }
+
+    private void oauth2CallbackUrl(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+                                   @NonNull String targetUrl,
+                                   @NonNull AbstractOAuth2TokenAuthenticationToken<Jwt> jwtAuthentication)
+            throws IOException {
+        String uuid = UuidUtils.getUUID();
+        request.getSession().setAttribute(umsProperties.getOauth2TokenParamName(), uuid);
+        String tkValue = jwtAuthentication.getToken().getTokenValue();
+        String delimiterOfTokenAndRefreshToken = umsProperties.getDelimiterOfTokenAndRefreshToken();
+
+        String jwtRefreshTokenFromSession = JwtContext.getJwtRefreshTokenFromSession();
+        if (hasText(jwtRefreshTokenFromSession)) {
+            tkValue = tkValue.concat(delimiterOfTokenAndRefreshToken)
+                             .concat(jwtRefreshTokenFromSession);
+        }
+        else {
+            String refreshTokenFromHeader = response.getHeader(refreshTokenHeaderName);
+            if (hasText(refreshTokenFromHeader)) {
+                tkValue = tkValue.concat(delimiterOfTokenAndRefreshToken)
+                                 .concat(refreshTokenFromHeader);
+            }
+        }
+        //noinspection AlibabaUndefineMagicConstant
+        if ((domain + "/").equals(targetUrl) || domain.equals(targetUrl)) {
+            targetUrl = domain + request.getContextPath();
+        }
+        tkValue = tkValue.concat(delimiterOfTokenAndRefreshToken)
+                         .concat(targetUrl);
+        try (RedisConnection connection = getConnection()) {
+            connection.setEx((umsProperties.getTempOauth2TokenPrefix() + uuid).getBytes(StandardCharsets.UTF_8),
+                             umsProperties.getTempOauth2TokenTimeout().getSeconds(),
+                             tkValue.getBytes(StandardCharsets.UTF_8));
+        }
+
+        clearAuthenticationAttributes(request);
+        //noinspection StringBufferReplaceableByString
+        StringBuilder url = new StringBuilder(request.getContextPath() + umsProperties.getAutoGetTokenUri());
+        url.append("?")
+           .append(umsProperties.getOauth2TokenParamName())
+           .append("=")
+           .append(uuid)
+           .append("&username=")
+           .append(jwtAuthentication.getName())
+           .append("&id=")
+           .append(jwtAuthentication.getName());
+        response.sendRedirect(url.toString());
     }
 
     /**
