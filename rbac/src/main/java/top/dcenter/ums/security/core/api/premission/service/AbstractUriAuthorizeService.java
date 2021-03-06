@@ -79,6 +79,19 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     protected AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     /**
+     * 用于基于 角色 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口
+     */
+    protected abstract void updateAuthoritiesOfAllRoles();
+    /**
+     * 用于基于 多租户 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口
+     */
+    protected abstract void updateAuthoritiesOfAllTenant();
+    /**
+     * 用于基于 SCOPE 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口
+     */
+    protected abstract void updateAuthoritiesOfAllScopes();
+
+    /**
      * 根据 authentication 来判断是否有 request 所代表的 资源 的访问权限, <br>
      * 用于 {@code httpSecurity.authorizeRequests().anyRequest().access("hasPermission(request, authentication)")} 判断,
      * 使用此接口的前提条件是: restful 风格的 API.

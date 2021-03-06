@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * request 的 uri 访问权限控制服务.<br>
  * 注意: 角色的 uri(资源) 权限更新与缓存<br>
- * 1. 基于 角色 的权限控制: 简单的实现 {@link UpdateCacheOfRolesResourcesService#updateAuthoritiesOfAllRoles()} 的接口, 实现所有角色 uri(资源) 的权限
+ * 1. 基于 角色 的权限控制: 简单的实现 {@link #updateAuthoritiesOfAllRoles()} 的接口, 实现所有角色 uri(资源) 的权限
  * Map(role, map(uri, Set(permission))) 的更新与缓存本机内存.
  * 2. 基于 SCOPE 的权限控制: 情况复杂一点, 但 SCOPE 类型比较少, 也还可以像 1 的方式实现缓存本机内存与更新.
  * 3. 基于 多租户 的权限控制: 情况比较复杂, 租户很少的情况下, 也还可以全部缓存在本机内存, 通常情况下全部缓存本机内存不现实, 只能借助于类似 redis 等的内存缓存.
@@ -75,10 +75,38 @@ public class UriAuthorizeServiceImpl extends AbstractUriAuthorizeService impleme
     }
 
     @Override
+    protected void updateAuthoritiesOfAllTenant() {
+        // do nothing, 需要时实现此逻辑
+        throw new RuntimeException("未实现基于 多租户 的权限控制的更新或缓存所有角色的权限服务");
+    }
+
+    @Override
+    protected void updateAuthoritiesOfAllScopes() {
+        // do nothing, 需要时实现此逻辑
+        throw new RuntimeException("未实现基于 SCOPE 的权限控制的更新或缓存所有角色的权限服务");
+    }
+
+    @Override
     public void afterPropertiesSet() {
         // 更新并缓存所有角色 uri(资源) 权限 Map<role, Map<uri, Set<permission>>>
         updateAuthoritiesOfAllRoles();
 
+    }
+
+    /**
+     * 更新并缓存所有角色 uri(资源) 权限 Map<role, Map<uri, Set<permission>>>.<br>
+     * @return 所有角色 uri(资源) 权限 Map<role, Map<uri, Set<permission>>>
+     */
+    @NonNull
+    private Map<String, Map<String, Set<String>>> updateRolesAuthorities() {
+
+        // 从数据源获取所有角色的权限
+        final Map<String, Map<String, Set<String>>> rolesAuthoritiesMap = sysRoleService.getRolesAuthorities();
+
+
+        this.rolesAuthoritiesMap = rolesAuthoritiesMap;
+
+        return rolesAuthoritiesMap;
     }
 
     /**
@@ -102,22 +130,6 @@ public class UriAuthorizeServiceImpl extends AbstractUriAuthorizeService impleme
             return new ConcurrentHashMap<>(updateRolesAuthorities());
         }
 
-    }
-
-    /**
-     * 更新并缓存所有角色 uri(资源) 权限 Map<role, Map<uri, Set<permission>>>.<br>
-     * @return 所有角色 uri(资源) 权限 Map<role, Map<uri, Set<permission>>>
-     */
-    @NonNull
-    private Map<String, Map<String, Set<String>>> updateRolesAuthorities() {
-
-        // 从数据源获取所有角色的权限
-        final Map<String, Map<String, Set<String>>> rolesAuthoritiesMap = sysRoleService.getRolesAuthorities();
-
-
-        this.rolesAuthoritiesMap = rolesAuthoritiesMap;
-
-        return rolesAuthoritiesMap;
     }
 
 }

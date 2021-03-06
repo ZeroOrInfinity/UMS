@@ -173,12 +173,6 @@ Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-
             applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
             applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
             // 2. 直接调用服务
-            // 基于角色
-            UpdateCacheOfRolesResourcesService.updateAuthoritiesOfAllRoles();
-            // 基于多租户
-            UpdateCacheOfRolesResourcesService.updateAuthoritiesOfAllTenant();
-            // 基于 SCOPE
-            UpdateCacheOfRolesResourcesService.updateAuthoritiesOfAllScopes();
             // 角色权限资源
             UpdateCacheOfRolesResourcesService.updateAuthoritiesByRoleId(roleId, resourceClass, resourceIds);
             // 多租户的角色权限资源

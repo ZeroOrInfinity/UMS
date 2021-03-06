@@ -39,28 +39,6 @@ import top.dcenter.ums.security.core.exception.RolePermissionsException;
 public interface UpdateCacheOfRolesResourcesService {
 
     /**
-     * 用于基于 角色 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口
-     */
-    default void updateAuthoritiesOfAllRoles() {
-        // do nothing, 需要时实现此逻辑
-        throw new RuntimeException("未实现基于 角色 的权限控制的更新或缓存所有角色的权限服务");
-    }
-    /**
-     * 用于基于 多租户 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口
-     */
-    default void updateAuthoritiesOfAllTenant() {
-        // do nothing, 需要时实现此逻辑
-        throw new RuntimeException("未实现基于 多租户 的权限控制的更新或缓存所有角色的权限服务");
-    }
-    /**
-     * 用于基于 SCOPE 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口
-     */
-    default void updateAuthoritiesOfAllScopes() {
-        // do nothing, 需要时实现此逻辑
-        throw new RuntimeException("未实现基于 SCOPE 的权限控制的更新或缓存所有角色的权限服务");
-    }
-
-    /**
      * 更新角色(roleId)所拥有的 resourceIds 资源信息缓存.
      * @param roleId        角色 Id
      * @param resourceClass 更新的资源 class

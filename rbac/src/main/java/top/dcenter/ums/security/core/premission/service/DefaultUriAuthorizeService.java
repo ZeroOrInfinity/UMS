@@ -62,4 +62,22 @@ public class DefaultUriAuthorizeService extends AbstractUriAuthorizeService {
         throw new RuntimeException("未实现获取 SCOPE 的所有角色的 uri(资源) 的权限的接口 AbstractUriAuthorizeService 或 UriAuthorizeService");
     }
 
+    @Override
+    public void updateAuthoritiesOfAllRoles() {
+        // do nothing, 需要时实现此逻辑
+        throw new RuntimeException("未实现 更新角色(roleId)所拥有的 resourceIds 资源信息缓存的接口逻辑");
+    }
+
+    @Override
+    protected void updateAuthoritiesOfAllTenant() {
+        // do nothing, 需要时实现此逻辑
+        throw new RuntimeException("未实现基于 多租户 的权限控制的更新或缓存所有角色的权限服务");
+    }
+
+    @Override
+    protected void updateAuthoritiesOfAllScopes() {
+        // do nothing, 需要时实现此逻辑
+        throw new RuntimeException("未实现基于 SCOPE 的权限控制的更新或缓存所有角色的权限服务");
+    }
+
 }
