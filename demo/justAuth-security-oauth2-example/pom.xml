@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ums-demo</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>2.1.8</version>
+        <version>2.2.0</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -18,7 +18,7 @@
         <dependency>
             <groupId>top.dcenter</groupId>
             <artifactId>ums-spring-boot-starter</artifactId>
-            <version>[2.2.2,)</version>
+            <version>${ums.version}</version>
         </dependency>
 
         <!-- 第三方授权登录默认会按照下面的优先级自行寻找一种 HTTP 工具依赖，java 11 HttpClient -> OkHttp3 -> apache HttpClient -> hutool-http
