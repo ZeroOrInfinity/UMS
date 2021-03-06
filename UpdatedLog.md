@@ -1,3 +1,10 @@
+## 2.2.28
+### Fixes and Improvements:
+1. rbac/重构: UpdateCacheOfRolesResourcesService 中 updateAuthoritiesOfAllxxx 三个方法移入 AbstractUriAuthorizeService 中.
+2. rbac/优化:
+3. ums/优化: 依赖.
+
+
 ## 2.2.27
 ### Fixes and Improvements:
 1. rbac/新增: 权限资源更新与缓存更细化的接口, 支持以单个角色为最小单位的更新缓存; 新增 RolePermissionsServiceAspect.java 针对权限更新的切面接口, 方便发布角色权限更新事件.
