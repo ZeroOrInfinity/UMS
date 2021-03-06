@@ -153,7 +153,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         // 存储多组户 ID
         final String[] tenantAuthority = new String[]{null};
         // 存储 SCOPE 的集合
-        final Set<String> scopeSet = new HashSet<>(size, 1.F);
+        final Set<String> scopeAuthoritySet = new HashSet<>(size, 1.F);
 
         authoritySet.forEach(authority -> {
             if (authority.startsWith(DEFAULT_ROLE_PREFIX)) {
@@ -163,7 +163,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
                 tenantAuthority[0] = authority;
             }
             else if (authority.startsWith(DEFAULT_SCOPE_PREFIX)) {
-                scopeSet.add(authority);
+                scopeAuthoritySet.add(authority);
             }
         });
 
@@ -182,9 +182,9 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         // 基于用户 roleSet 的 Map<uri, Set<permission>>
         final Map<String, Set<String>> uriPermissionsOfUserRole = getUriAuthoritiesOfUserRole(rolesAuthorities, roleSet);
 
-        if (scopeSet.size() > 0) {
-            // 获取此 scopeSet 的所有角色的资源权限的 Map<role, Map<uri, Set<permission>>>
-            final Map<String, Map<String, Set<String>>> uriPermissionsOfScope = getScopeAuthoritiesOfScope(scopeSet);
+        if (scopeAuthoritySet.size() > 0) {
+            // 获取此 scopeAuthoritySet 的所有角色的资源权限的 Map<role, Map<uri, Set<permission>>>
+            final Map<String, Map<String, Set<String>>> uriPermissionsOfScope = getScopeAuthoritiesOfScope(scopeAuthoritySet);
             // 把 scope 的资源权限与 role 资源权限合并
             if (!uriPermissionsOfScope.isEmpty()) {
                 uriPermissionsOfScope.values().forEach(map2mapConsumer(uriPermissionsOfUserRole));

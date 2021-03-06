@@ -133,8 +133,8 @@ public interface UriAuthorizeService {
     }
 
     /**
-     * 获取指定 scopeSet 的所有对应 role 的 uri(资源) 的权限 Map(role, Map(uri, Set(permission))). 在微服务中, 对资源的权限控制有粗粒度权限控制
-     * 与细粒度权限控制, 使用细粒度权限控制时: 实现此接口.<br>
+     * 获取指定 scopeAuthoritySet 的所有对应 role 的 uri(资源) 的权限 Map(role, Map(uri, Set(permission))). 在微服务中,
+     * 对资源的权限控制有粗粒度权限控制与细粒度权限控制, 使用细粒度权限控制时: 实现此接口.<br>
      * <pre>
      * // 当为 restful 风格的 Api 时, uri 与 permission 是一对一关系:
      *  uri         permission
@@ -151,13 +151,13 @@ public interface UriAuthorizeService {
      *
      * // 但最终返回的结果时是一样的; Map{["user/*", Set[list,add,edit,delete]]..}
      * </pre>
-     * @param scopeSet          包含 SCOPE_ 前缀的租户权限 Set, 例如: SCOPE_scope
+     * @param scopeAuthoritySet 包含 SCOPE_ 前缀的租户权限 Set, 例如: SCOPE_scope
      * @return                  Map(role, Map(uri, Set(permission))): <br>
      *     key: 必须包含"ROLE_"前缀的角色名称(如: ROLE_read), <br>
      *     value: map(key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为权限字符串({@link PermissionType#getPermission()}) Set).
      */
     @NonNull
-    default Map<String, Map<String, Set<String>>> getScopeAuthoritiesOfScope(Set<String> scopeSet) {
+    default Map<String, Map<String, Set<String>>> getScopeAuthoritiesOfScope(Set<String> scopeAuthoritySet) {
         // 默认为空, SCOPE 使用者需自己实现此逻辑
         return Collections.emptyMap();
     }
