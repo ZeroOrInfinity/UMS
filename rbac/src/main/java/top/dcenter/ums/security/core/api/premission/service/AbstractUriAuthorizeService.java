@@ -37,13 +37,16 @@ import top.dcenter.ums.security.core.premission.evaluator.UriAuthoritiesPermissi
 import top.dcenter.ums.security.core.premission.service.DefaultUriAuthorizeService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import static java.util.Objects.isNull;
 import static top.dcenter.ums.security.common.consts.RbacConstants.DEFAULT_GROUP_PREFIX;
 import static top.dcenter.ums.security.common.consts.RbacConstants.DEFAULT_ROLE_PREFIX;
 import static top.dcenter.ums.security.common.consts.RbacConstants.DEFAULT_SCOPE_PREFIX;
@@ -100,7 +103,17 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
      * @return  group 所拥有的所有角色集合
      */
     @NonNull
-    protected abstract Set<String> getRolesOfGroup(@NonNull String groupAuthority);
+    protected abstract Set<String> getRolesByGroup(@NonNull String groupAuthority);
+
+    /**
+     * 根据 groupAuthority 获取 group 所拥有的所有角色
+     * @param tenantAuthority   多租户权限
+     * @param groupAuthority    用户的 group 权限
+     * @return  group 所拥有的所有角色集合
+     */
+    @NonNull
+    protected abstract Set<String> getRolesByGroupOfTenant(@NonNull String tenantAuthority,
+                                                           @NonNull String groupAuthority);
 
     /**
      * 根据 authentication 来判断是否有 request 所代表的 资源 的访问权限, <br>
@@ -216,6 +229,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
                                             @NonNull Set<String> toRoleSet,
                                             @NonNull String[] toTenantAuthority,
                                             @NonNull Set<String> toScopeAuthoritySet) {
+        List<String> groupList = null;
         // 对 authoritySet 根据 role/tenant/scope 进行分组
         for (String authority : authoritySet) {
             int indexOf = authority.indexOf(PERMISSION_SEPARATOR);
@@ -231,11 +245,26 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
                         toScopeAuthoritySet.add(authority);
                         break;
                     case DEFAULT_GROUP_PREFIX:
-                        Set<String> groupRoleSet = getRolesOfGroup(authority);
-                        toRoleSet.addAll(groupRoleSet);
+                        if (isNull(groupList)) {
+                        	groupList = new ArrayList<>();
+                        }
+                        groupList.add(authority);
                         break;
                     default:
                 }
+            }
+        }
+        if (null != groupList && groupList.size() > 0) {
+            String tenantAuthority = toTenantAuthority[0];
+            Set<String> groupRoleSet;
+            for (String groupAuthority : groupList) {
+                if (isNull(tenantAuthority)) {
+                    groupRoleSet = this.getRolesByGroup(groupAuthority);
+                }
+                else {
+                    groupRoleSet = this.getRolesByGroupOfTenant(tenantAuthority, groupAuthority);
+                }
+                toRoleSet.addAll(groupRoleSet);
             }
         }
     }
