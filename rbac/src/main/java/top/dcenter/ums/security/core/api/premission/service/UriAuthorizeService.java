@@ -65,9 +65,10 @@ public interface UriAuthorizeService {
      * Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
      * // 此 authorities 可以包含:  [ROLE_A, ROLE_B, TENANT_110110, SCOPE_read, SCOPE_write]
      * // authorities 要求:
-     * //    1. 角色数量    >= 1
+     * //    1. 角色数量    >= 0
      * //    2. SCOPE 数量 >= 0
      * //    3. 多租户数量  1 或 0
+     * //    4. 角色数量 + SCOPE 数量  >= 1
      * </pre>
      * @param authentication    {@link Authentication}
      * @return  用户所拥有的角色与 scope 的 uri(资源) 权限 Map(uri, Set(permission))

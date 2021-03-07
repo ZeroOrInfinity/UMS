@@ -46,6 +46,7 @@ import java.util.function.Predicate;
 
 import static top.dcenter.ums.security.common.consts.RbacConstants.DEFAULT_ROLE_PREFIX;
 import static top.dcenter.ums.security.common.consts.RbacConstants.DEFAULT_SCOPE_PREFIX;
+import static top.dcenter.ums.security.common.consts.RbacConstants.PERMISSION_SEPARATOR;
 import static top.dcenter.ums.security.common.consts.TenantConstants.DEFAULT_TENANT_PREFIX;
 
 /**
@@ -59,9 +60,10 @@ import static top.dcenter.ums.security.common.consts.TenantConstants.DEFAULT_TEN
  * <pre>
  * // 此 authorities 可以包含:  [ROLE_A, ROLE_B, ROLE_xxx TENANT_110110, SCOPE_read, SCOPE_write, SCOPE_xxx]
  * // 如上所示:
- * //    1. 角色数量    >= 1
+ * //    1. 角色数量    >= 0
  * //    2. SCOPE 数量 >= 0
- * //    3. 多租户数量  = 1 或 0
+ * //    3. 多租户数量  1 或 0
+ * //    4. 角色数量 + SCOPE 数量  >= 1
  * Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
  * </pre>
  * 3. 此框架默认实现 {@link #hasPermission(Authentication, HttpServletRequest)} 方法访问权限控制, 通过
@@ -146,9 +148,10 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
      * Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
      * // 此 authorities 可以包含:  [ROLE_A, ROLE_B, TENANT_110110, SCOPE_read, SCOPE_write]
      * // authorities 要求:
-     * //    1. 角色数量    >= 1
+     * //    1. 角色数量    >= 0
      * //    2. SCOPE 数量 >= 0
      * //    3. 多租户数量  1 或 0
+     * //    4. 角色数量 + SCOPE 数量  >= 1
      * </pre>
      * @param authentication    {@link Authentication}
      * @return  用户所拥有的角色与 scope 的 uri(资源) 权限 Map(uri, Set(permission))
@@ -168,28 +171,21 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         // 存储 SCOPE 的集合
         final Set<String> scopeAuthoritySet = new HashSet<>(size, 1.F);
 
-        authoritySet.forEach(authority -> {
-            if (authority.startsWith(DEFAULT_ROLE_PREFIX)) {
-                roleSet.add(authority);
-            }
-            else if (authority.startsWith(DEFAULT_TENANT_PREFIX)) {
-                tenantAuthority[0] = authority;
-            }
-            else if (authority.startsWith(DEFAULT_SCOPE_PREFIX)) {
-                scopeAuthoritySet.add(authority);
-            }
-        });
+        groupByRoleOrTenantOrScope(authoritySet, roleSet, tenantAuthority, scopeAuthoritySet);
 
         // 用户所拥有的所有角色的 uri(资源) 权限 Map(uri, Set(permission))
         final Map<String, Map<String, Set<String>>> rolesAuthorities;
 
-        if (null == tenantAuthority[0]) {
+        if (null != tenantAuthority[0]) {
+            // 获取此租户 ID 的所有角色的资源权限的 Map
+            rolesAuthorities = getRolesAuthoritiesOfTenant(tenantAuthority[0]);
+        }
+        else if (roleSet.size() > 0) {
             // 获取所有角色的资源权限的 Map
             rolesAuthorities = getRolesAuthorities();
         }
         else {
-            // 获取此租户 ID 的所有角色的资源权限的 Map
-            rolesAuthorities = getRolesAuthoritiesOfTenant(tenantAuthority[0]);
+            rolesAuthorities = new HashMap<>(0);
         }
 
         // 基于用户 roleSet 的 Map<uri, Set<permission>>
@@ -207,6 +203,31 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
     }
 
+    private void groupByRoleOrTenantOrScope(@NonNull Set<String> authoritySet,
+                                            @NonNull Set<String> toRoleSet,
+                                            @NonNull String[] toTenantAuthority,
+                                            @NonNull Set<String> toScopeAuthoritySet) {
+
+        for (String authority : authoritySet) {
+            int indexOf = authority.indexOf(PERMISSION_SEPARATOR);
+            if (indexOf != -1) {
+                switch (authority.substring(0, indexOf + 1)) {
+                    case DEFAULT_ROLE_PREFIX:
+                        toRoleSet.add(authority);
+                        break;
+                    case DEFAULT_TENANT_PREFIX:
+                        toTenantAuthority[0] = authority;
+                        break;
+                    case DEFAULT_SCOPE_PREFIX:
+                        toScopeAuthoritySet.add(authority);
+                        break;
+                    default:
+                }
+            }
+        }
+    }
+
+
     /**
      * 获取用户角色的 uri 权限 Map
      * @param rolesAuthoritiesMap   所有角色 uri(资源) 权限 Map(role, map(uri, Set(permission)))
@@ -214,8 +235,8 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
      * @return 用户角色的 uri 权限 Map(uri, Set(permission))
      */
     @NonNull
-    private Map<String, Set<String>> getUriAuthoritiesOfUserRole(Map<String, Map<String, Set<String>>> rolesAuthoritiesMap,
-                                                                 final Set<String> userRoleSet) {
+    private Map<String, Set<String>> getUriAuthoritiesOfUserRole(@NonNull Map<String, Map<String, Set<String>>> rolesAuthoritiesMap,
+                                                                 @NonNull final Set<String> userRoleSet) {
 
         // Map<uri, Set<permission>>
         Map<String, Set<String>> uriAuthoritiesMap = new HashMap<>(rolesAuthoritiesMap.size());
@@ -230,7 +251,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     }
 
     @NonNull
-    private Consumer<Map<String, Set<String>>> map2mapConsumer(final Map<String, Set<String>> uriAuthoritiesMap) {
+    private Consumer<Map<String, Set<String>>> map2mapConsumer(@NonNull final Map<String, Set<String>> uriAuthoritiesMap) {
         return map -> map.forEach(
                 (key, value) -> uriAuthoritiesMap.compute(key, (k, v) ->
                         {
