@@ -83,7 +83,14 @@ public class DefaultUriAuthorizeService extends AbstractUriAuthorizeService {
 
     @NonNull
     @Override
-    protected Set<String> getRolesOfGroup(@NonNull String groupAuthority) {
+    protected Set<String> getRolesByGroup(@NonNull String groupAuthority) {
+        return Collections.emptySet();
+    }
+
+    @NonNull
+    @Override
+    protected Set<String> getRolesByGroupOfTenant(@NonNull String tenantAuthority,
+                                                  @NonNull String groupAuthority) {
         return Collections.emptySet();
     }
 

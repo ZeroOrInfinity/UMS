@@ -1,3 +1,10 @@
+## 2.2.29
+### Fixes and Improvements:
+1. rbac/新增: 角色组(Group)的概念: 增加更新权限组接口, 更新权限组缓存接口, 更新权限组缓存切面, 更新权限组缓存监听器接口.
+2. rbac/改进: AbstractUriAuthorizeService#getUriAuthoritiesOfUser(Authentication) 的业务逻辑. 避免在 Authentication.authorities 中没有 role 时的问题.
+3. rbac/重构: 重命名 RolePermissionsService#updateResourcesByScopeId -> updateResourcesByRoleIdOfScopeId, 删除 RolePermissionsService#findAllResourcesByScopeIdOfTenant, 以及 RolePermissionsServiceAspect/UpdateCacheOfRolesResourcesService/UpdateRolesResourcesListener.java 中与其对应的方法重命名与删除.
+4. rbac/重构: UpdateCacheOfRolesResourcesService 中 updateAuthoritiesOfAllxxx 三个方法移入 AbstractUriAuthorizeService 中.
+
 ## 2.2.28
 ### Fixes and Improvements:
 1. rbac/重构: UpdateCacheOfRolesResourcesService 中 updateAuthoritiesOfAllxxx 三个方法移入 AbstractUriAuthorizeService 中.
