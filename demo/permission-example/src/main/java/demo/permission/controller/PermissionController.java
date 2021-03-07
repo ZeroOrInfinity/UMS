@@ -60,8 +60,6 @@ import java.util.Map;
  * <pre>
  *     // 1. 推荐用发布事件(异步执行)
  *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
- *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
- *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
  *     // 2. 直接调用服务
  *     // 角色权限资源
  *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByRoleId(roleId, resourceClass, resourceIds);
@@ -69,6 +67,10 @@ import java.util.Map;
  *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByRoleIdOfTenant(tenantId, roleId, resourceClass, resourceIds);
  *     // SCOPE 的角色权限资源
  *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByScopeId(scopeId, roleId, resourceClass, resourceIds);
+ *     // 角色组权限资源
+ *     UpdateCacheOfRolesResourcesService.updateRolesByGroupId(groupId, roleIds);
+ *     // 多租户的角色组权限资源
+ *     UpdateCacheOfRolesResourcesService.updateRolesByGroupIdOfTenant(tenantId, groupId, roleIds);
  * </pre>
  * 3. 实现此 {@link RolePermissionsService} 接口, 不需要执行上两种方法的操作, 已通过 AOP 方式实现发布 UpdateRolesResourcesEvent 事件.
  * @author YongWu zheng

@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import top.dcenter.ums.security.core.api.premission.service.RolePermissionsService;
+import top.dcenter.ums.security.core.api.premission.service.UpdateCacheOfRolesResourcesService;
 import top.dcenter.ums.security.core.exception.RolePermissionsException;
 
 import java.util.ArrayList;
@@ -49,12 +50,22 @@ import java.util.Optional;
 /**
  * uri 权限服务.<br> 此实现只是为了测试方便, 实际项目中建议实现 {@link RolePermissionsService} 接口来实现角色的资源权限的增删改查<br>
  * 注意：<br>
+ * 如果实现了 {@link UpdateCacheOfRolesResourcesService} 接口, 未实现 {@link RolePermissionsService} 接口, 修改或添加基于"角色/多租户/SCOPE
+ * "的资源权限时一定要调用 {@link UpdateCacheOfRolesResourcesService} 对应的方法, 有两种方式: 一种发布事件, 另一种是直接调用对应服务;<br>
  * <pre>
- *     // 修改或添加权限一定要更新 updateRolesAuthorities 缓存, 有两种方式：一种发布事件，另一种是直接调用服务；推荐用发布事件(异步执行)。
  *     // 1. 推荐用发布事件(异步执行)
  *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
  *     // 2. 直接调用服务
- *     abstractUriAuthorizeService.updateRolesAuthorities();
+ *     // 角色权限资源
+ *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByRoleId(roleId, resourceClass, resourceIds);
+ *     // 多租户的角色权限资源
+ *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByRoleIdOfTenant(tenantId, roleId, resourceClass, resourceIds);
+ *     // SCOPE 的角色权限资源
+ *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByScopeId(scopeId, roleId, resourceClass, resourceIds);
+ *     // 角色组权限资源
+ *     UpdateCacheOfRolesResourcesService.updateRolesByGroupId(groupId, roleIds);
+ *     // 多租户的角色组权限资源
+ *     UpdateCacheOfRolesResourcesService.updateRolesByGroupIdOfTenant(tenantId, groupId, roleIds);
  * </pre>
  *
  * @author YongWu zheng

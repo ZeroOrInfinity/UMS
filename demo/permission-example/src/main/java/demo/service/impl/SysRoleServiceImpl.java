@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static top.dcenter.ums.security.common.consts.RbacConstants.PERMISSION_DELIMITER;
+import static top.dcenter.ums.security.common.consts.RbacConstants.DATABASE_AUTHORITY_DELIMITER;
 
 /**
  * 资源服务
@@ -88,7 +88,7 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRole, Long> implement
                     if (value == null) {
                         value = new HashSet<>(1);
                     }
-                    Set<String> permissionSet = ConvertUtil.string2Set(arr[2], PERMISSION_DELIMITER);
+                    Set<String> permissionSet = ConvertUtil.string2Set(arr[2], DATABASE_AUTHORITY_DELIMITER);
                     value.addAll(permissionSet);
                     return value;
                 });

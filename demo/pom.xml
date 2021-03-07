@@ -5,28 +5,28 @@
     <parent>
         <artifactId>ums</artifactId>
         <groupId>top.dcenter</groupId>
-        <version>2.2.28</version>
+        <version>2.2.29</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ums-demo</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.29</version>
     <packaging>pom</packaging>
 
     <name>ums-demo</name>
     <description>用户管理脚手架(ums) ums-demo: 详细的 example 请查看各个子模块</description>
 
 <!--    <modules>
-        <module>validate-code-example</module>
-        <module>tenant-example</module>
-        <module>session-detail-example</module>
-        <module>quickStart</module>
-        <module>permission-example</module>
-        <module>jwt-example</module>
-        <module>justAuth-security-oauth2-example</module>
-        <module>demo</module>
         <module>basic-detail-example</module>
         <module>basic-example</module>
+        <module>demo</module>
+        <module>justAuth-security-oauth2-example</module>
+        <module>jwt-example</module>
+        <module>permission-example</module>
+        <module>quickStart</module>
+        <module>session-detail-example</module>
+        <module>tenant-example</module>
+        <module>validate-code-example</module>
     </modules>-->
 
 
