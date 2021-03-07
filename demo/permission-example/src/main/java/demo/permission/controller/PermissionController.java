@@ -69,8 +69,6 @@ import java.util.Map;
  *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByRoleIdOfTenant(tenantId, roleId, resourceClass, resourceIds);
  *     // SCOPE 的角色权限资源
  *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByScopeId(scopeId, roleId, resourceClass, resourceIds);
- *     // 多租户的 SCOPE 的角色权限资源
- *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByScopeIdOfTenant(tenantId, scopeId, roleId, resourceClass, resourceIds);
  * </pre>
  * 3. 实现此 {@link RolePermissionsService} 接口, 不需要执行上两种方法的操作, 已通过 AOP 方式实现发布 UpdateRolesResourcesEvent 事件.
  * @author YongWu zheng

@@ -29,8 +29,6 @@ import top.dcenter.ums.security.core.api.premission.service.UpdateCacheOfRolesRe
 import top.dcenter.ums.security.core.premission.dto.UpdateRoleResourcesDto;
 import top.dcenter.ums.security.core.premission.event.UpdateRolesResourcesEvent;
 
-import static java.util.Objects.isNull;
-
 /**
  * uri 权限更新监听器
  * @author YongWu zheng
@@ -88,25 +86,11 @@ public class UpdateRolesResourcesListener implements ApplicationListener<UpdateR
 
     }
     private void updateCacheOfScope(UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
-        // 非多租户
-        if (isNull(updateRoleResourcesDto.getTenantId())) {
-            updateRoleResourcesDto
-                    .getRoleResources()
-                    .forEach((key, value) ->
-                                     this.updateCacheOfRolesResourcesService
-                                             .updateAuthoritiesByScopeId(updateRoleResourcesDto.getScopeId(),
-                                                                         key,
-                                                                         updateRoleResourcesDto.getResourceClass(),
-                                                                         value.toArray(new Long[0])));
-            return;
-        }
-        // 多租户
         updateRoleResourcesDto
                 .getRoleResources()
                 .forEach((key, value) ->
                                  this.updateCacheOfRolesResourcesService
-                                         .updateAuthoritiesByScopeIdOfTenant(updateRoleResourcesDto.getTenantId(),
-                                                                             updateRoleResourcesDto.getScopeId(),
+                                         .updateAuthoritiesByRoleIdOfScopeId(updateRoleResourcesDto.getScopeId(),
                                                                              key,
                                                                              updateRoleResourcesDto.getResourceClass(),
                                                                              value.toArray(new Long[0])));

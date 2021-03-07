@@ -110,8 +110,8 @@ public class LocalRolePermissionsServiceAspect implements RolePermissionsService
     @Override
     @AfterReturning(pointcut = "execution(boolean *..updateResourcesByScopeId(..)) && args(scopeId, roleId, resourceIds)",
             returning = "result", argNames = "jp, result, scopeId, roleId, resourceIds")
-    public void handlerUpdateResourcesByScopeIdMethod(JoinPoint jp, boolean result, Long scopeId,
-                                                      Long roleId, Long... resourceIds) {
+    public void handlerUpdateResourcesByRoleIdOfScopeIdMethod(JoinPoint jp, boolean result, Long scopeId,
+                                                              Long roleId, Long... resourceIds) {
         if (jp.getTarget() instanceof RolePermissionsService) {
             RolePermissionsService<Object> rolePermissionsService = (RolePermissionsService<Object>) jp.getTarget();
             if (result) {
@@ -121,31 +121,6 @@ public class LocalRolePermissionsServiceAspect implements RolePermissionsService
                                                .collect(Collectors.toList()));
                 UpdateRoleResourcesDto<Object> updateRoleResourcesDto =
                         UpdateRoleResourcesDto.builder()
-                                              .scopeId(scopeId)
-                                              .updateType(UpdateRolesResourcesType.SCOPE)
-                                              .roleResources(roleIdResourcesIdMap)
-                                              .resourceClass(rolePermissionsService.getUpdateResourcesClass())
-                                              .build();
-                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, updateRoleResourcesDto));
-            }
-        }
-    }
-
-    @Override
-    @AfterReturning(pointcut = "execution(boolean *..updateResourcesByScopeIdOfTenant(..)) && args(tenantId, scopeId, roleId, resourceIds)",
-            returning = "result", argNames = "jp, result, tenantId, scopeId, roleId, resourceIds")
-    public void handlerUpdateResourcesByScopeIdOfTenantMethod(JoinPoint jp, boolean result, Long tenantId,
-                                                              Long scopeId, Long roleId, Long... resourceIds) {
-        if (jp.getTarget() instanceof RolePermissionsService) {
-            RolePermissionsService<Object> rolePermissionsService = (RolePermissionsService<Object>) jp.getTarget();
-            if (result) {
-                Map<Long, List<Long>> roleIdResourcesIdMap = new HashMap<>(1);
-                roleIdResourcesIdMap.put(roleId,
-                                         Arrays.stream(resourceIds)
-                                               .collect(Collectors.toList()));
-                UpdateRoleResourcesDto<Object> updateRoleResourcesDto =
-                        UpdateRoleResourcesDto.builder()
-                                              .tenantId(tenantId)
                                               .scopeId(scopeId)
                                               .updateType(UpdateRolesResourcesType.SCOPE)
                                               .roleResources(roleIdResourcesIdMap)

@@ -49,8 +49,6 @@ import java.util.List;
  *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByRoleIdOfTenant(tenantId, roleId, resourceClass, resourceIds);
  *     // SCOPE 的角色权限资源
  *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByScopeId(scopeId, roleId, resourceClass, resourceIds);
- *     // 多租户的 SCOPE 的角色权限资源
- *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByScopeIdOfTenant(tenantId, scopeId, roleId, resourceClass, resourceIds);
  * </pre>
  * 3. 实现此 {@link RolePermissionsService} 接口, 不需要执行上两种方法的操作, 已通过 AOP 方式实现发布 UpdateRolesResourcesEvent 事件.
  * @author YongWu zheng
@@ -90,33 +88,16 @@ public interface RolePermissionsService<T> {
      * 更新 scopeId 的角色(roleId)所拥有的资源信息.
      * 注意: 此方法既有新增逻辑, 也有更新逻辑, 还有删除逻辑; 逻辑比较复杂, 通用做法是先根据角色 Id 删除角色所拥有的资源, 再根据(resourceIds)新增资源.
      * 建议角色资源关系表的主键为(roleId, resourceId)的组合主键, 不设置自增主键.
-     * @param scopeId           scope id
-     * @param roleId            角色 Id
-     * @param resourceIds       资源 Ids
-     * @return  是否操作成功
-     * @throws RolePermissionsException 更新角色资源信息失败
-     */
-    default boolean updateResourcesByScopeId(@NonNull Long scopeId, @NonNull Long roleId,
-                                             Long... resourceIds) throws RolePermissionsException {
-        throw new RuntimeException("未实现 更新 scopeId 的角色(roleId)所拥有的资源信息的接口逻辑");
-    }
-
-    /**
-     * 更新多租户的 scopeId 的角色(roleId)所拥有的资源信息.
-     * 注意: 此方法既有新增逻辑, 也有更新逻辑, 还有删除逻辑; 逻辑比较复杂, 通用做法是先根据角色 Id 删除角色所拥有的资源, 再根据(resourceIds)新增资源.
-     * 建议角色资源关系表的主键为(roleId, resourceId)的组合主键, 不设置自增主键.
      *
-     * @param tenantId        多租户 ID
-     * @param scopeId         scope id
-     * @param roleId          角色 Id
-     * @param resourceIds     资源 Ids
+     * @param scopeId     scope id
+     * @param roleId      角色 Id
+     * @param resourceIds 资源 Ids
      * @return 是否操作成功
      * @throws RolePermissionsException 更新角色资源信息失败
      */
-    default boolean updateResourcesByScopeIdOfTenant(@NonNull Long tenantId, @NonNull Long scopeId,
-                                                     @NonNull Long roleId,
+    default boolean updateResourcesByRoleIdOfScopeId(@NonNull Long scopeId, @NonNull Long roleId,
                                                      Long... resourceIds) throws RolePermissionsException {
-        throw new RuntimeException("未实现 更新多租户的 scopeId 的角色(roleId)所拥有的资源信息的接口逻辑");
+        throw new RuntimeException("未实现 更新 scopeId 的角色(roleId)所拥有的资源信息的接口逻辑");
     }
 
     /**
@@ -163,35 +144,16 @@ public interface RolePermissionsService<T> {
      * 那么角色: ROLE_B.
      * 可以获取: ROLE_B, ROLE_C 角色信息.
      * </pre>
-     * @param scopeId           scope id
-     * @param roleId            角色 ID
-     * @return                  返回资源信息列表
+     *
+     * @param scopeId scope id
+     * @param roleId  角色 ID
+     * @return 返回资源信息列表
      * @throws RolePermissionsException 查询角色资源信息失败
      */
     @NonNull
-    default List<T> findAllResourcesByScopeId(@NonNull Long scopeId,
-                                            @NonNull Long roleId) throws RolePermissionsException {
+    default List<T> findAllResourcesByRoleIdOfScopeId(@NonNull Long scopeId,
+                                                      @NonNull Long roleId) throws RolePermissionsException {
         throw new RuntimeException("未实现根据 scopeId 获取指定 roleId 的所有的资源(Resources)信息的接口逻辑");
-    }
-
-    /**
-     * 根据多租户的 scopeId 获取所有的资源(Resources)信息, 注意实现此方法时注意在逻辑里鉴权, 即只能获取本角色资源的信息列表,
-     * 如有角色继承关系{@link RoleHierarchy}, 还可以获取继承角色的角色信息. 例如:
-     * <pre>
-     * 角色继承: ROLE_A &gt; ROLE_B &gt; ROLE_C.
-     * 那么角色: ROLE_B.
-     * 可以获取: ROLE_B, ROLE_C 角色信息.
-     * </pre>
-     * @param tenantId          多租户 ID
-     * @param scopeId           scope id
-     * @param roleId            角色 ID
-     * @return                  返回资源信息列表
-     * @throws RolePermissionsException 查询角色资源信息失败
-     */
-    @NonNull
-    default List<T> findAllResourcesByScopeIdOfTenant(@NonNull String tenantId, @NonNull Long scopeId,
-                                                     @NonNull Long roleId) throws RolePermissionsException {
-        throw new RuntimeException("未实现根据多租户的 scopeId 获取所有的资源(Resources)信息的接口逻辑");
     }
 
     /**

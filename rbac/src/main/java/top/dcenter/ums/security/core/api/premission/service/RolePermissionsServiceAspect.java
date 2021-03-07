@@ -50,20 +50,7 @@ public interface RolePermissionsServiceAspect {
      */
     @AfterReturning(pointcut = "execution(boolean *..updateResourcesByScopeId(..)) && args(scopeId, roleId, resourceIds)",
             returning = "result", argNames = "jp, result, scopeId, roleId, resourceIds")
-    void handlerUpdateResourcesByScopeIdMethod(JoinPoint jp, boolean result, Long scopeId,
-                                               Long roleId, Long... resourceIds);
+    void handlerUpdateResourcesByRoleIdOfScopeIdMethod(JoinPoint jp, boolean result, Long scopeId,
+                                                       Long roleId, Long... resourceIds);
 
-    /**
-     * 更新多租户的 scopeId 的角色(roleId)所拥有的资源信息的切面方法
-     * @param jp            {@link JoinPoint}
-     * @param result        目标方法返回值
-     * @param tenantId      目标方法参数: 租户 id
-     * @param scopeId       目标方法参数: scope id
-     * @param roleId        目标方法参数: 角色 id
-     * @param resourceIds   目标方法参数: 资源 ids
-     */
-    @AfterReturning(pointcut = "execution(boolean *..updateResourcesByScopeIdOfTenant(..)) && args(tenantId, scopeId, roleId, resourceIds)",
-            returning = "result", argNames = "jp, result, tenantId, scopeId, roleId, resourceIds")
-    void handlerUpdateResourcesByScopeIdOfTenantMethod(JoinPoint jp, boolean result, Long tenantId,
-                                                       Long scopeId, Long roleId, Long... resourceIds);
 }
