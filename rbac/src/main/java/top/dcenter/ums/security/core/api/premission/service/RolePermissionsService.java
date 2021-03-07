@@ -29,6 +29,7 @@ import top.dcenter.ums.security.core.exception.RolePermissionsException;
 import top.dcenter.ums.security.core.premission.enums.PermissionType;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 更新与查询基于(角色/多租户/SCOPE)的角色资源服务接口. 主要用于给角色添加权限的操作.<br>
@@ -40,8 +41,6 @@ import java.util.List;
  * <pre>
  *     // 1. 推荐用发布事件(异步执行)
  *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
- *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
- *     applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, UpdateRoleResourcesDto);
  *     // 2. 直接调用服务
  *     // 角色权限资源
  *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByRoleId(roleId, resourceClass, resourceIds);
@@ -49,6 +48,10 @@ import java.util.List;
  *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByRoleIdOfTenant(tenantId, roleId, resourceClass, resourceIds);
  *     // SCOPE 的角色权限资源
  *     UpdateCacheOfRolesResourcesService.updateAuthoritiesByScopeId(scopeId, roleId, resourceClass, resourceIds);
+ *     // 角色组权限资源
+ *     UpdateCacheOfRolesResourcesService.updateRolesByGroupId(groupId, roleIds);
+ *     // 多租户的角色组权限资源
+ *     UpdateCacheOfRolesResourcesService.updateRolesByGroupIdOfTenant(tenantId, groupId, roleIds);
  * </pre>
  * 3. 实现此 {@link RolePermissionsService} 接口, 不需要执行上两种方法的操作, 已通过 AOP 方式实现发布 UpdateRolesResourcesEvent 事件.
  * @author YongWu zheng
@@ -101,6 +104,35 @@ public interface RolePermissionsService<T> {
     }
 
     /**
+     * 根据 groupId 更新 groupId 所拥有角色信息
+     * @param groupId    用户的 groupId
+     * @param roleIds    用户的角色 ids
+     * @return 是否操作成功
+     * @throws RolePermissionsException 更新组的角色资源信息失败
+     */
+    @NonNull
+    default boolean updateRolesByGroupId(@NonNull Long groupId,
+                                         Long... roleIds) throws RolePermissionsException {
+        throw new RuntimeException("未实现根据 groupId 更新 groupId 所拥有角色信息的接口逻辑");
+    }
+
+    /**
+     * 基于多租户, 根据 groupId 更新 groupId 所拥有角色信息
+     *
+     * @param tenantId  多租户 ID
+     * @param groupId   用户的 groupId
+     * @param roleIds   用户的角色 ids
+     * @return 是否操作成功
+     * @throws RolePermissionsException 更新组的角色资源信息失败
+     */
+    @NonNull
+    default boolean updateRolesByGroupIdOfTenant(@NonNull Long tenantId,
+                                                 @NonNull Long groupId,
+                                                 Long... roleIds) throws RolePermissionsException {
+        throw new RuntimeException("未实现基于多租户, 根据 groupId 更新 groupId 所拥有角色信息的接口逻辑");
+    }
+
+    /**
      * 根据 roleId 获取所有的资源(Resources)信息, 注意实现此方法时注意在逻辑里鉴权, 即只能获取本角色资源的信息列表,
      * 如有角色继承关系{@link RoleHierarchy}, 还可以获取继承角色的角色信息. 例如:
      * <pre>
@@ -125,14 +157,15 @@ public interface RolePermissionsService<T> {
      * 那么角色: ROLE_B.
      * 可以获取: ROLE_B, ROLE_C 角色信息.
      * </pre>
-     * @param tenantId          多租户 ID
-     * @param roleId            角色 Id
-     * @return                  返回资源信息列表
+     *
+     * @param tenantId 多租户 ID
+     * @param roleId   角色 Id
+     * @return 返回资源信息列表
      * @throws RolePermissionsException 查询角色资源信息失败
      */
     @NonNull
     default List<T> findAllResourcesByRoleIdOfTenant(@NonNull Long tenantId,
-                                             @NonNull Long roleId) throws RolePermissionsException {
+                                                     @NonNull Long roleId) throws RolePermissionsException {
         throw new RuntimeException("未实现根据 租户Id 获取 指定 roleId 所有的资源(Resources)信息的接口逻辑");
     }
 
@@ -154,6 +187,28 @@ public interface RolePermissionsService<T> {
     default List<T> findAllResourcesByRoleIdOfScopeId(@NonNull Long scopeId,
                                                       @NonNull Long roleId) throws RolePermissionsException {
         throw new RuntimeException("未实现根据 scopeId 获取指定 roleId 的所有的资源(Resources)信息的接口逻辑");
+    }
+
+    /**
+     * 根据 groupId 获取 groupId 所拥有的所有角色 ID
+     * @param groupId    用户的 groupId
+     * @return  groupId 所拥有的所有角色集合, Set(roleId).
+     */
+    @NonNull
+    default Set<String> findRolesByGroupId(@NonNull Long groupId) throws RolePermissionsException {
+        throw new RuntimeException("未实现根据 groupId 获取 groupId 所拥有的所有角色 ID 的接口逻辑");
+    }
+
+    /**
+     * 基于多租户, 根据 groupId 获取 groupId 所拥有的所有角色 ID
+     * @param tenantId    多租户 ID
+     * @param groupId    用户的 groupId
+     * @return  groupId 所拥有的所有角色集合, Set(roleId).
+     */
+    @NonNull
+    default Set<String> findRolesByGroupIdOfTenant(@NonNull Long tenantId,
+                                                   @NonNull Long groupId) throws RolePermissionsException {
+        throw new RuntimeException("未实现基于多租户, 根据 groupId 获取 groupId 所拥有的所有角色 ID 的接口逻辑");
     }
 
     /**

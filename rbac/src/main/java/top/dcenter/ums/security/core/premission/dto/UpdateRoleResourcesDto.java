@@ -12,6 +12,7 @@ import top.dcenter.ums.security.core.premission.event.UpdateRolesResourcesEvent;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 更新权限资源 DTO, 用于 {@link UpdateRolesResourcesEvent}
@@ -44,7 +45,13 @@ public class UpdateRoleResourcesDto<T> implements Serializable {
      */
     private Long scopeId;
     /**
-     * 更新角色资源 Map(roleId, List(resourceId))
+     * 更新组角色资源 Map(groupId, Set(roleId)),
+     * 当 {@link UpdateRolesResourcesType} 为 GROUP 不为 null
+     */
+    private Map<Long, Set<Long>> groupRoles;
+    /**
+     * 更新角色资源 Map(roleId, List(resourceId)),
+     * 当 {@link UpdateRolesResourcesType} 为 GROUP 为 null
      */
     private Map<Long, List<Long>> roleResources;
     /**

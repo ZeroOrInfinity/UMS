@@ -67,17 +67,47 @@ public interface UpdateCacheOfRolesResourcesService {
 
     /**
      * 更新 scopeId 的角色(roleId)所拥有的资源信息缓存.
-     * @param scopeId           scope id
-     * @param roleId            角色 Id
-     * @param resourceClass     更新的资源 class
-     * @param resourceIds       资源 Ids
-     * @return  是否操作成功
+     *
+     * @param scopeId       scope id
+     * @param roleId        角色 Id
+     * @param resourceClass 更新的资源 class
+     * @param resourceIds   资源 Ids
+     * @return 是否操作成功
      * @throws RolePermissionsException 更新缓存角色资源信息失败
      */
     default boolean updateAuthoritiesByRoleIdOfScopeId(@NonNull Long scopeId, @NonNull Long roleId,
-                                               @NonNull Class<?> resourceClass,
-                                               Long... resourceIds) throws RolePermissionsException {
+                                                       @NonNull Class<?> resourceClass,
+                                                       Long... resourceIds) throws RolePermissionsException {
         throw new RuntimeException("未实现 更新 scopeId 的角色(roleId)所拥有的资源信息缓存的接口逻辑");
+    }
+
+    /**
+     * 根据 groupId 更新 groupId 所拥有角色信息缓存
+     * @param groupId    用户的 groupId
+     * @param roleIds    用户的角色 ids
+     * @return 是否操作成功
+     * @throws RolePermissionsException 更新组的角色资源信息缓存失败
+     */
+    @NonNull
+    default boolean updateRolesByGroupId(@NonNull Long groupId,
+                                         Long... roleIds) throws RolePermissionsException {
+        throw new RuntimeException("未实现根据 groupId 更新 groupId 所拥有角色信息缓存的接口逻辑");
+    }
+
+    /**
+     * 基于多租户, 根据 groupId 更新 groupId 所拥有角色信息缓存
+     *
+     * @param tenantId  多租户 ID
+     * @param groupId   用户的 groupId
+     * @param roleIds   用户的角色 ids
+     * @return 是否操作成功
+     * @throws RolePermissionsException 更新组的角色资源信息缓存失败
+     */
+    @NonNull
+    default boolean updateRolesByGroupIdOfTenant(@NonNull Long tenantId,
+                                                 @NonNull Long groupId,
+                                                 Long... roleIds) throws RolePermissionsException {
+        throw new RuntimeException("未实现基于多租户, 根据 groupId 更新 groupId 所拥有角色信息缓存的接口逻辑");
     }
 
 }

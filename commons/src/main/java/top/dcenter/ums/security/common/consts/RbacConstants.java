@@ -13,6 +13,10 @@ public interface RbacConstants {
      */
     String DEFAULT_ROLE_PREFIX = "ROLE_";
     /**
+     * 角色组权限前缀
+     */
+    String DEFAULT_GROUP_PREFIX = "GROUP_";
+    /**
      * 资源权限前缀
      */
     String DEFAULT_SCOPE_PREFIX = "SCOPE_";
@@ -20,5 +24,10 @@ public interface RbacConstants {
     /**
      * 权限分隔符
      */
-    String PERMISSION_DELIMITER = ",";
+    String PERMISSION_SEPARATOR = "_";
+
+    /**
+     * 数据库 AUTHORITY 分隔符
+     */
+    String DATABASE_AUTHORITY_DELIMITER = ",";
 }

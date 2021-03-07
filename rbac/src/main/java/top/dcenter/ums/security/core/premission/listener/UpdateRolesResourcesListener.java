@@ -29,6 +29,8 @@ import top.dcenter.ums.security.core.api.premission.service.UpdateCacheOfRolesRe
 import top.dcenter.ums.security.core.premission.dto.UpdateRoleResourcesDto;
 import top.dcenter.ums.security.core.premission.event.UpdateRolesResourcesEvent;
 
+import static java.util.Objects.isNull;
+
 /**
  * uri 权限更新监听器
  * @author YongWu zheng
@@ -59,6 +61,9 @@ public class UpdateRolesResourcesListener implements ApplicationListener<UpdateR
                 case SCOPE:
                     updateCacheOfScope(updateRoleResourcesDto);
                     break;
+                case GROUP:
+                    updateCacheOfGroup(updateRoleResourcesDto);
+                    break;
                 default:
                     break;
             }
@@ -68,31 +73,52 @@ public class UpdateRolesResourcesListener implements ApplicationListener<UpdateR
     private void updateCacheOfRole(UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
         updateRoleResourcesDto
                 .getRoleResources()
-                .forEach((key, value) ->
+                .forEach((roleId, resourceIds) ->
                                  this.updateCacheOfRolesResourcesService
-                                         .updateAuthoritiesByRoleId(key,
+                                         .updateAuthoritiesByRoleId(roleId,
                                                                     updateRoleResourcesDto.getResourceClass(),
-                                                                    value.toArray(new Long[0])));
+                                                                    resourceIds.toArray(new Long[0])));
     }
+
     private void updateCacheOfTenant(UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
         updateRoleResourcesDto
                 .getRoleResources()
-                .forEach((key, value) ->
+                .forEach((roleId, resourceIds) ->
                                  this.updateCacheOfRolesResourcesService
                                          .updateAuthoritiesByRoleIdOfTenant(updateRoleResourcesDto.getTenantId(),
-                                                                            key,
+                                                                            roleId,
                                                                             updateRoleResourcesDto.getResourceClass(),
-                                                                            value.toArray(new Long[0])));
+                                                                            resourceIds.toArray(new Long[0])));
 
     }
+
     private void updateCacheOfScope(UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
         updateRoleResourcesDto
                 .getRoleResources()
-                .forEach((key, value) ->
+                .forEach((roleId, resourceIds) ->
                                  this.updateCacheOfRolesResourcesService
                                          .updateAuthoritiesByRoleIdOfScopeId(updateRoleResourcesDto.getScopeId(),
-                                                                             key,
+                                                                             roleId,
                                                                              updateRoleResourcesDto.getResourceClass(),
-                                                                             value.toArray(new Long[0])));
+                                                                             resourceIds.toArray(new Long[0])));
+    }
+
+    private void updateCacheOfGroup(UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
+        final Long tenantId = updateRoleResourcesDto.getTenantId();
+        if (isNull(tenantId)) {
+            updateRoleResourcesDto
+                    .getGroupRoles()
+                    .forEach((groupId, roleIds) ->
+                                     this.updateCacheOfRolesResourcesService
+                                             .updateRolesByGroupId(groupId, roleIds.toArray(new Long[0])));
+            return;
+        }
+        updateRoleResourcesDto
+                .getGroupRoles()
+                .forEach((groupId, roleIds) ->
+                                 this.updateCacheOfRolesResourcesService
+                                         .updateRolesByGroupIdOfTenant(tenantId, groupId,
+                                                                       roleIds.toArray(new Long[0])));
+
     }
 }

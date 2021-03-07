@@ -23,7 +23,8 @@ public interface RolePermissionsServiceAspect {
      */
     @AfterReturning(pointcut = "execution(boolean *..updateResourcesByRoleId(..)) && args(roleId, resourceIds)",
             returning = "result", argNames = "jp, result, roleId, resourceIds")
-    void handlerUpdateResourcesByRoleIdMethod(JoinPoint jp, boolean result, Long roleId, Long... resourceIds);
+    void handlerUpdateResourcesByRoleIdMethod(JoinPoint jp, boolean result,
+                                              Long roleId, Long... resourceIds);
 
     /**
      * 更新多租户的角色(roleId)所拥有的 resourceIds 资源信息的切面方法
@@ -36,8 +37,8 @@ public interface RolePermissionsServiceAspect {
      */
     @AfterReturning(pointcut = "execution(boolean *..updateResourcesByRoleIdOfTenant(..)) && args(tenantId, roleId, resourceIds)",
             returning = "result", argNames = "jp, result, tenantId, roleId, resourceIds")
-    void handlerUpdateResourcesByRoleIdOfTenantMethod(JoinPoint jp, boolean result, Long tenantId,
-                                                      Long roleId, Long... resourceIds);
+    void handlerUpdateResourcesByRoleIdOfTenantMethod(JoinPoint jp, boolean result,
+                                                      Long tenantId, Long roleId, Long... resourceIds);
 
     /**
      * 更新 scopeId 的角色(roleId)所拥有的资源信息的切面方法
@@ -50,7 +51,33 @@ public interface RolePermissionsServiceAspect {
      */
     @AfterReturning(pointcut = "execution(boolean *..updateResourcesByScopeId(..)) && args(scopeId, roleId, resourceIds)",
             returning = "result", argNames = "jp, result, scopeId, roleId, resourceIds")
-    void handlerUpdateResourcesByRoleIdOfScopeIdMethod(JoinPoint jp, boolean result, Long scopeId,
-                                                       Long roleId, Long... resourceIds);
+    void handlerUpdateResourcesByRoleIdOfScopeIdMethod(JoinPoint jp, boolean result,
+                                                       Long scopeId, Long roleId, Long... resourceIds);
+
+    /**
+     * 根据 groupId 更新 groupId 所拥有角色信息的切面方法
+     * @param jp          {@link JoinPoint}
+     * @param result      目标方法返回值
+     * @param groupId     用户的 groupId
+     * @param roleIds     用户的角色 ids
+     */
+    @AfterReturning(pointcut = "execution(boolean *..updateRolesByGroupId(..)) && args(groupId, roleIds)",
+            returning = "result", argNames = "jp, result, groupId, roleIds")
+    void handlerUpdateRolesByGroupIdMethod(JoinPoint jp, boolean result,
+                                           Long groupId, Long... roleIds);
+
+    /**
+     * 基于多租户, 根据 groupId 更新 groupId 所拥有角色信息的切面方法
+     *
+     * @param jp       {@link JoinPoint}
+     * @param result   目标方法返回值
+     * @param tenantId 多租户 ID
+     * @param groupId  用户的 groupId
+     * @param roleIds  用户的角色 ids
+     */
+    @AfterReturning(pointcut = "execution(boolean *..updateRolesByGroupIdOfTenant(..)) && args(tenantId, groupId, roleIds)",
+            returning = "result", argNames = "jp, result, tenantId, groupId, roleIds")
+    void handlerUpdateRolesByGroupIdOfTenantMethod(JoinPoint jp, boolean result,
+                                                   Long tenantId, Long groupId, Long... roleIds);
 
 }

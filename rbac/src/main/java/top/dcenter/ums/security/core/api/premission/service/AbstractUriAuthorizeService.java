@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import static top.dcenter.ums.security.common.consts.RbacConstants.DEFAULT_GROUP_PREFIX;
 import static top.dcenter.ums.security.common.consts.RbacConstants.DEFAULT_ROLE_PREFIX;
 import static top.dcenter.ums.security.common.consts.RbacConstants.DEFAULT_SCOPE_PREFIX;
 import static top.dcenter.ums.security.common.consts.RbacConstants.PERMISSION_SEPARATOR;
@@ -92,6 +93,14 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
      * 用于基于 SCOPE 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口
      */
     protected abstract void updateAuthoritiesOfAllScopes();
+
+    /**
+     * 根据 groupAuthority 获取 group 所拥有的所有角色
+     * @param groupAuthority    用户的 group 权限
+     * @return  group 所拥有的所有角色集合
+     */
+    @NonNull
+    protected abstract Set<String> getRolesOfGroup(@NonNull String groupAuthority);
 
     /**
      * 根据 authentication 来判断是否有 request 所代表的 资源 的访问权限, <br>
@@ -207,7 +216,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
                                             @NonNull Set<String> toRoleSet,
                                             @NonNull String[] toTenantAuthority,
                                             @NonNull Set<String> toScopeAuthoritySet) {
-
+        // 对 authoritySet 根据 role/tenant/scope 进行分组
         for (String authority : authoritySet) {
             int indexOf = authority.indexOf(PERMISSION_SEPARATOR);
             if (indexOf != -1) {
@@ -221,12 +230,15 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
                     case DEFAULT_SCOPE_PREFIX:
                         toScopeAuthoritySet.add(authority);
                         break;
+                    case DEFAULT_GROUP_PREFIX:
+                        Set<String> groupRoleSet = getRolesOfGroup(authority);
+                        toRoleSet.addAll(groupRoleSet);
+                        break;
                     default:
                 }
             }
         }
     }
-
 
     /**
      * 获取用户角色的 uri 权限 Map

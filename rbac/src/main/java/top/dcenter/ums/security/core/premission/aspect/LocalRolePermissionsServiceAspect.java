@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static top.dcenter.ums.security.common.consts.TransactionalConstants.ONE_PRECEDENCE;
@@ -130,6 +131,54 @@ public class LocalRolePermissionsServiceAspect implements RolePermissionsService
             }
         }
     }
+
+    @Override
+    @AfterReturning(pointcut = "execution(boolean *..updateRolesByGroupId(..)) && args(groupId, roleIds)",
+            returning = "result", argNames = "jp, result, groupId, roleIds")
+    public void handlerUpdateRolesByGroupIdMethod(JoinPoint jp, boolean result,
+                                                  Long groupId, Long... roleIds) {
+        if (jp.getTarget() instanceof RolePermissionsService) {
+            RolePermissionsService<Object> rolePermissionsService = (RolePermissionsService<Object>) jp.getTarget();
+            if (result) {
+                Map<Long, Set<Long>> groupIdRoleIdsMap = new HashMap<>(1);
+                groupIdRoleIdsMap.put(groupId,
+                                      Arrays.stream(roleIds)
+                                            .collect(Collectors.toSet()));
+                UpdateRoleResourcesDto<Object> updateRoleResourcesDto =
+                        UpdateRoleResourcesDto.builder()
+                                              .updateType(UpdateRolesResourcesType.GROUP)
+                                              .groupRoles(groupIdRoleIdsMap)
+                                              .resourceClass(rolePermissionsService.getUpdateResourcesClass())
+                                              .build();
+                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, updateRoleResourcesDto));
+            }
+        }
+    }
+
+    @Override
+    @AfterReturning(pointcut = "execution(boolean *..updateRolesByGroupIdOfTenant(..)) && args(tenantId, groupId, roleIds)",
+            returning = "result", argNames = "jp, result, tenantId, groupId, roleIds")
+    public void handlerUpdateRolesByGroupIdOfTenantMethod(JoinPoint jp, boolean result,
+                                                          Long tenantId, Long groupId, Long... roleIds) {
+        if (jp.getTarget() instanceof RolePermissionsService) {
+            RolePermissionsService<Object> rolePermissionsService = (RolePermissionsService<Object>) jp.getTarget();
+            if (result) {
+                Map<Long, Set<Long>> groupIdRoleIdsMap = new HashMap<>(1);
+                groupIdRoleIdsMap.put(groupId,
+                                      Arrays.stream(roleIds)
+                                            .collect(Collectors.toSet()));
+                UpdateRoleResourcesDto<Object> updateRoleResourcesDto =
+                        UpdateRoleResourcesDto.builder()
+                                              .tenantId(tenantId)
+                                              .updateType(UpdateRolesResourcesType.GROUP)
+                                              .groupRoles(groupIdRoleIdsMap)
+                                              .resourceClass(rolePermissionsService.getUpdateResourcesClass())
+                                              .build();
+                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, updateRoleResourcesDto));
+            }
+        }
+    }
+
 
     @Override
     public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {

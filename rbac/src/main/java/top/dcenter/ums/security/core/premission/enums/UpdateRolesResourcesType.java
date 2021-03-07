@@ -42,5 +42,9 @@ public enum UpdateRolesResourcesType {
      * 基于 SCOPE 的多租户类型
      */
     SCOPE,
+    /**
+     * 角色组类型
+     */
+    GROUP,
 
 }

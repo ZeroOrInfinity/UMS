@@ -28,6 +28,7 @@ import org.springframework.lang.NonNull;
 import top.dcenter.ums.security.core.api.premission.service.AbstractUriAuthorizeService;
 import top.dcenter.ums.security.core.api.premission.service.UpdateCacheOfRolesResourcesService;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -78,6 +79,12 @@ public class DefaultUriAuthorizeService extends AbstractUriAuthorizeService {
     protected void updateAuthoritiesOfAllScopes() {
         // do nothing, 需要时实现此逻辑
         throw new RuntimeException("未实现基于 SCOPE 的权限控制的更新或缓存所有角色的权限服务");
+    }
+
+    @NonNull
+    @Override
+    protected Set<String> getRolesOfGroup(@NonNull String groupAuthority) {
+        return Collections.emptySet();
     }
 
 }
