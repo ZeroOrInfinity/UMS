@@ -87,6 +87,11 @@ public class UriAuthorizeServiceImpl extends AbstractUriAuthorizeService impleme
     }
 
     @Override
+    protected void updateAllGroupsOfAllTenant() {
+        throw new RuntimeException("未实现基于 角色组(Group) 更新或缓存所有角色组的权限服务");
+    }
+
+    @Override
     public void afterPropertiesSet() {
         // 更新并缓存所有角色 uri(资源) 权限 Map<role, Map<uri, Set<permission>>>
         updateAuthoritiesOfAllRoles();

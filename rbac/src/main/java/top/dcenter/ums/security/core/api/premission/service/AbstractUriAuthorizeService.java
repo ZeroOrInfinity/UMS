@@ -85,35 +85,25 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
     protected AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     /**
-     * 用于基于 角色 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口
+     * 用于基于 角色 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口.<br>
+     * 注意: 要考虑并发更新问题.
      */
     protected abstract void updateAuthoritiesOfAllRoles();
     /**
-     * 用于基于 多租户 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口
+     * 用于基于 多租户 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口.<br>
+     * 注意: 要考虑并发更新问题.
      */
     protected abstract void updateAuthoritiesOfAllTenant();
     /**
-     * 用于基于 SCOPE 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口
+     * 用于基于 SCOPE 的权限控制的更新或缓存所有角色的权限服务, 每次更新 uri(资源)权限时,需要调用此接口.<br>
+     * 注意: 要考虑并发更新问题.
      */
     protected abstract void updateAuthoritiesOfAllScopes();
-
     /**
-     * 根据 groupAuthority 获取 group 所拥有的所有角色
-     * @param groupAuthority    用户的 group 权限
-     * @return  group 所拥有的所有角色集合
+     * 用于 角色组(Group) 的组角色的更新或缓存所有角色的权限服务, 每次更新组角色时,需要调用此接口.<br>
+     * 注意: 要考虑并发更新问题.
      */
-    @NonNull
-    protected abstract Set<String> getRolesByGroup(@NonNull String groupAuthority);
-
-    /**
-     * 根据 groupAuthority 获取 group 所拥有的所有角色
-     * @param tenantAuthority   多租户权限
-     * @param groupAuthority    用户的 group 权限
-     * @return  group 所拥有的所有角色集合
-     */
-    @NonNull
-    protected abstract Set<String> getRolesByGroupOfTenant(@NonNull String tenantAuthority,
-                                                           @NonNull String groupAuthority);
+    protected abstract void updateAllGroupsOfAllTenant();
 
     /**
      * 根据 authentication 来判断是否有 request 所代表的 资源 的访问权限, <br>

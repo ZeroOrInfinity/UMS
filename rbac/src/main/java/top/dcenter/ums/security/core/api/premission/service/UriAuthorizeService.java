@@ -164,6 +164,28 @@ public interface UriAuthorizeService {
     }
 
     /**
+     * 根据 groupAuthority 获取 group 所拥有的所有角色
+     * @param groupAuthority    用户的 group 权限
+     * @return  group 所拥有的所有角色集合, Set(roleAuthority)
+     */
+    @NonNull
+    default Set<String> getRolesByGroup(@NonNull String groupAuthority) {
+        throw new RuntimeException("未实现根据 groupAuthority 获取 group 所拥有的所有角色的权限服务");
+    }
+
+    /**
+     * 根据 groupAuthority 获取 group 所拥有的所有角色
+     * @param tenantAuthority   多租户权限
+     * @param groupAuthority    用户的 group 权限
+     * @return  group 所拥有的所有角色集合, Set(roleAuthority)
+     */
+    @NonNull
+    default Set<String> getRolesByGroupOfTenant(@NonNull String tenantAuthority,
+                                                           @NonNull String groupAuthority) {
+        throw new RuntimeException("未实现基于多租户根据 groupAuthority 获取 group 所拥有的所有角色的权限服务");
+    }
+
+    /**
      * 获取 AntPathMatcher
      * @return AntPathMatcher
      */

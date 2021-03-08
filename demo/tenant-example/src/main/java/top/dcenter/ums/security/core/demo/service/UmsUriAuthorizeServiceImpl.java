@@ -27,7 +27,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import top.dcenter.ums.security.core.api.premission.service.AbstractUriAuthorizeService;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -73,16 +72,9 @@ public class UmsUriAuthorizeServiceImpl extends AbstractUriAuthorizeService {
         throw new RuntimeException("未实现基于 SCOPE 的权限控制的更新或缓存所有角色的权限服务");
     }
 
-    @NonNull
     @Override
-    protected Set<String> getRolesByGroup(@NonNull String groupAuthority) {
-        return Collections.emptySet();
+    protected void updateAllGroupsOfAllTenant() {
+        throw new RuntimeException("未实现基于 角色组(Group) 更新或缓存所有角色组的权限服务");
     }
 
-    @NonNull
-    @Override
-    protected Set<String> getRolesByGroupOfTenant(@NonNull String tenantAuthority,
-                                                  @NonNull String groupAuthority) {
-        return Collections.emptySet();
-    }
 }
