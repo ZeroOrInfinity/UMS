@@ -33,6 +33,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,6 +44,8 @@ import top.dcenter.ums.security.jwt.api.endpoind.service.JwkEndpointPermissionSe
 import top.dcenter.ums.security.jwt.exception.JwkSetUriAccessDeniedException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 import java.util.Map;
@@ -68,14 +71,15 @@ public class JwkEndpoint implements InitializingBean, ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
-    @SuppressWarnings({"CastCanBeRemovedNarrowingVariableType", "unchecked", "ConstantConditions"})
+    @SuppressWarnings({"unchecked", "ConstantConditions"})
     public JwkEndpoint(@NonNull RSAPublicKey rsaPublicKey, @NonNull String jksAlgorithm,
-                       @NonNull JwkEndpointPermissionService jwkEndpointPermissionService, @Nullable String kid) {
+                       @NonNull JwkEndpointPermissionService jwkEndpointPermissionService, @Nullable String kid) throws InvocationTargetException, IllegalAccessException {
         this.jwkEndpointPermissionService = jwkEndpointPermissionService;
         RSAKey key = new RSAKey.Builder(rsaPublicKey).build();
         JWKSet jwkSet = new JWKSet(key);
-        Object jwk = jwkSet.toJSONObject();
-
+        // 改用反射方式调用, 增加对 nimbus-jose-jwt:9.x.x/8.x.x 的兼容性
+        Method toJsonObjectMethod = ReflectionUtils.findMethod(JWKSet.class, "toJSONObject");
+        Object jwk = toJsonObjectMethod.invoke(jwkSet);
         Map<String, Object> publicKey;
         JSONObject jsonObject = null;
         if (jwk instanceof JSONObject) 

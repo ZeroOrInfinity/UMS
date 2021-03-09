@@ -67,6 +67,7 @@ import top.dcenter.ums.security.jwt.properties.JwtBlacklistProperties;
 import top.dcenter.ums.security.jwt.properties.JwtProperties;
 
 import javax.crypto.spec.SecretKeySpec;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPublicKey;
@@ -258,7 +259,8 @@ public class JwtAutoConfiguration implements InitializingBean {
 
     @Bean
     @ConditionalOnProperty(prefix = "ums.jwt", name = "expose-jwk-set-uri", havingValue = "true")
-    public JwkEndpoint jwkEndpoint(JwtProperties jwtProperties, JwkEndpointPermissionService jwkEndpointPermissionService) {
+    public JwkEndpoint jwkEndpoint(JwtProperties jwtProperties, JwkEndpointPermissionService jwkEndpointPermissionService)
+            throws InvocationTargetException, IllegalAccessException {
         requireNonNull(this.publicKey, "jks-key-pair-location cannot bu null");
         requireNonNull(jwkEndpointPermissionService, "jwkEndpointPermissionService cannot bu null");
         return new JwkEndpoint(this.publicKey, jwtProperties.getJwsAlgorithms(),
