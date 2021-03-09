@@ -33,7 +33,6 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
@@ -129,6 +128,12 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
     @Override
     public void configure(HttpSecurity http) {
 
+        // 添加第三方登录入口过滤器
+        String authorizationRequestBaseUri = auth2Properties.getAuthLoginUrlPrefix();
+        Auth2DefaultRequestRedirectFilter auth2DefaultRequestRedirectFilter =
+                new Auth2DefaultRequestRedirectFilter(authorizationRequestBaseUri, this.auth2StateCoder, tenantContextHolder, baseAuthenticationFailureHandler);
+        http.addFilterBefore(postProcess(auth2DefaultRequestRedirectFilter), AbstractPreAuthenticatedProcessingFilter.class);
+
         // 添加第三方登录回调接口过滤器
         String filterProcessesUrl = auth2Properties.getRedirectUrlPrefix();
         Auth2LoginAuthenticationFilter auth2LoginAuthenticationFilter =
@@ -143,13 +148,7 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
                                                             userDetailsService,
                                                             rememberMeServices,
                                                             rememberMe);
-        http.addFilterBefore(postProcess(auth2LoginAuthenticationFilter), OAuth2AuthorizationRequestRedirectFilter.class);
-
-        // 添加第三方登录入口过滤器
-        String authorizationRequestBaseUri = auth2Properties.getAuthLoginUrlPrefix();
-        Auth2DefaultRequestRedirectFilter auth2DefaultRequestRedirectFilter =
-                new Auth2DefaultRequestRedirectFilter(authorizationRequestBaseUri, this.auth2StateCoder, tenantContextHolder, baseAuthenticationFailureHandler);
-        http.addFilterBefore(postProcess(auth2DefaultRequestRedirectFilter), AbstractPreAuthenticatedProcessingFilter.class);
+        http.addFilterBefore(postProcess(auth2LoginAuthenticationFilter), Auth2DefaultRequestRedirectFilter.class);
 
         // 添加 provider
         Auth2LoginAuthenticationProvider auth2LoginAuthenticationProvider = new Auth2LoginAuthenticationProvider(
