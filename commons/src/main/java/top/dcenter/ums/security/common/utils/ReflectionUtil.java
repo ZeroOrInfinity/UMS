@@ -35,8 +35,10 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -52,6 +54,27 @@ public final class ReflectionUtil {
     private ReflectionUtil() { }
 
     private static final Logger log = LoggerFactory.getLogger(ReflectionUtil.class);
+
+    /**
+     * 调用 {@code com.nimbusds.jose} 下相关类的 {@code toJSONObject()} 方法. <br>
+     * 注意: 此方法的目的, 增加对 nimbus-jose-jwt:9.x.x/8.x.x 的兼容性.
+     * @param target                目标对象
+     * @param toJsonObjectMethod    目标方法(toJSONObject)
+     * @return  返回调用结果
+     * @throws IllegalAccessException       调用异常
+     * @throws InvocationTargetException    调用异常
+     */
+    @NonNull
+    public static Map<String, Object> invokeToJsonObjectMethod(@NonNull Object target, @Nullable Method toJsonObjectMethod)
+            throws IllegalAccessException, InvocationTargetException {
+        // 增加对 nimbus-jose-jwt:9.x.x/8.x.x 的兼容性.
+        if (toJsonObjectMethod != null) {
+            //noinspection unchecked
+            return new LinkedHashMap<>((Map<String, Object>) toJsonObjectMethod.invoke(target));
+        }
+        throw new IllegalAccessException(target.getClass().getName() + " 没有 toJSONObject() 方法");
+    }
+
     /**
      * 反射设置字段值
      * @param fieldName     字段名称

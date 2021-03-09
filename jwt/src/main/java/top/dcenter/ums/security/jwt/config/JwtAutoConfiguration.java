@@ -155,7 +155,7 @@ public class JwtAutoConfiguration implements InitializingBean {
     private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
     private final JwtIdService jwtIdService;
     private final JwtCacheTransformService<?> jwtCacheTransformService;
-    private String principalClaimName;
+    private final String principalClaimName;
     /**
      * JWT 的有效期
      */

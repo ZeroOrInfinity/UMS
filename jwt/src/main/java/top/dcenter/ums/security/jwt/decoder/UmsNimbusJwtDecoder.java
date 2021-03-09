@@ -16,6 +16,7 @@
 
 package top.dcenter.ums.security.jwt.decoder;
 
+import com.nimbusds.jose.Header;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
@@ -63,6 +64,7 @@ import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
@@ -75,6 +77,7 @@ import top.dcenter.ums.security.jwt.exception.JwtInvalidException;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
@@ -85,7 +88,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -93,6 +95,7 @@ import java.util.function.Consumer;
 
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
+import static top.dcenter.ums.security.common.utils.ReflectionUtil.invokeToJsonObjectMethod;
 import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
 import static top.dcenter.ums.security.jwt.JwtContext.getClockSkew;
 
@@ -118,6 +121,11 @@ import static top.dcenter.ums.security.jwt.JwtContext.getClockSkew;
 public final class UmsNimbusJwtDecoder implements JwtDecoder {
 
 	private static final String DECODING_ERROR_MESSAGE_TEMPLATE = "An error occurred while attempting to decode the Jwt: %s";
+
+	/**
+	 * {@link Header#toJSONObject()} 的 {@link Method}, 增加对 nimbus-jose-jwt:9.x.x/8.x.x 的兼容性.
+	 */
+	private static final Method TO_JSON_OBJECT_METHOD = ReflectionUtils.findMethod(Header.class, "toJSONObject");
 
 	private final JWTProcessor<SecurityContext> jwtProcessor;
 	private final JwtRefreshHandlerPolicy refreshHandlerPolicy;
@@ -233,7 +241,8 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 			JWT parsedJwt = JWTParser.parse(token);
 			// Verify the signature
 			JWTClaimsSet jwtClaimsSet = parsedJwt.getJWTClaimsSet();
-			Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
+			// 增加对 nimbus-jose-jwt:9.x.x/8.x.x 的兼容性.
+			Map<String, Object> headers = invokeToJsonObjectMethod(parsedJwt, TO_JSON_OBJECT_METHOD);
 			Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
 
 			requireNonNull(claims, "转换 jwtClaimsSet 到 claims 是返回 null 值");
@@ -263,7 +272,8 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 
 			// Verify the signature
 			JWTClaimsSet jwtClaimsSet = this.jwtProcessor.process(parsedJwt, null);
-			Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
+			// 增加对 nimbus-jose-jwt:9.x.x/8.x.x 的兼容性.
+			Map<String, Object> headers = invokeToJsonObjectMethod(parsedJwt, TO_JSON_OBJECT_METHOD);
 			Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
 
 			requireNonNull(claims, "转换 jwtClaimsSet 到 claims 是返回 null 值");
@@ -314,7 +324,8 @@ public final class UmsNimbusJwtDecoder implements JwtDecoder {
 		try {
 			// Verify the signature
 			JWTClaimsSet jwtClaimsSet = this.jwtProcessor.process(parsedJwt, null);
-			Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
+			// 增加对 nimbus-jose-jwt:9.x.x/8.x.x 的兼容性.
+			Map<String, Object> headers = invokeToJsonObjectMethod(parsedJwt, TO_JSON_OBJECT_METHOD);
 			Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
 			// @formatter:off
 			//noinspection ConstantConditions

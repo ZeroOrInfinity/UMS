@@ -52,6 +52,7 @@ import org.springframework.security.oauth2.server.resource.authentication.Abstra
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -75,6 +76,8 @@ import top.dcenter.ums.security.jwt.properties.JwtBlacklistProperties;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -98,6 +101,7 @@ import static org.springframework.data.redis.connection.RedisStringCommands.SetO
 import static org.springframework.data.redis.connection.RedisStringCommands.SetOption.UPSERT;
 import static org.springframework.util.StringUtils.hasText;
 import static org.springframework.web.context.request.RequestAttributes.SCOPE_SESSION;
+import static top.dcenter.ums.security.common.utils.ReflectionUtil.invokeToJsonObjectMethod;
 import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
 import static top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy.AUTO_RENEW;
 import static top.dcenter.ums.security.jwt.enums.JwtRefreshHandlerPolicy.REFRESH_TOKEN;
@@ -120,6 +124,11 @@ public final class JwtContext {
      * 临时存储 jwt refresh token 的值
      */
     public static final String TEMPORARY_JWT_REFRESH_TOKEN = "TEMPORARY_JWT_REFRESH_TOKEN";
+
+    /**
+     * {@link JWSHeader#toJSONObject()} 的 {@link Method}, 增加对 nimbus-jose-jwt:9.x.x/8.x.x 的兼容性.
+     */
+    private static final Method TO_JSON_OBJECT_METHOD = ReflectionUtils.findMethod(JWSHeader.class, "toJSONObject");
 
     /**
      * JSON Web Signature (JWS) signer.<br>
@@ -415,9 +424,6 @@ public final class JwtContext {
 
         // 2. 获取用户信息, 并创建 Authentication
         UserDetails userDetails = umsUserDetailsService.loadUserByUserId(userIdByRefreshToken);
-        if (isNull(userDetails)) {
-            throw new RefreshTokenInvalidException(ErrorCodeEnum.JWT_REFRESH_TOKEN_INVALID, getMdcTraceId());
-        }
 
         // 3. 检查旧的 jwt 是否在刷新的时间访问内()
         Jwt newJwt = null;
@@ -1327,10 +1333,14 @@ public final class JwtContext {
         if (nonNull(issueTime)) {
             issueAt = Instant.ofEpochSecond(issueTime);
         }
-
-        return new Jwt(tokenValue, issueAt,
-                       Instant.ofEpochSecond(claimsSet.getLongClaim(JwtClaimNames.EXP)),
-                       jwsHeader.toJSONObject(), claimsSet.getClaims());
+        try {
+            return new Jwt(tokenValue, issueAt,
+                           Instant.ofEpochSecond(claimsSet.getLongClaim(JwtClaimNames.EXP)),
+                           invokeToJsonObjectMethod(jwsHeader, TO_JSON_OBJECT_METHOD), claimsSet.getClaims());
+        }
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new JOSEException(e.getMessage());
+        }
     }
 
     /**
