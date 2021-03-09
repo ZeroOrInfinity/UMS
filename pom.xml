@@ -6,7 +6,7 @@
 
     <groupId>top.dcenter</groupId>
     <artifactId>ums</artifactId>
-    <version>2.2.29</version>
+    <version>2.2.30</version>
 
     <packaging>pom</packaging>
     <name>ums</name>
@@ -15,7 +15,7 @@
         access control function, support multi-tenancy, jwt, and sign etc...
     </description>
 
-<!--    <modules>
+    <modules>
         <module>commons</module>
         <module>mdc</module>
         <module>vc</module>
@@ -25,7 +25,7 @@
         <module>core</module>
         <module>ums-spring-boot-starter</module>
         <module>demo</module>
-    </modules>-->
+    </modules>
 
     <url>https://github.com/ZeroOrInfinity/UMS</url>
 
@@ -75,9 +75,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <java.version>1.8</java.version>
 
-        <nimbus-jose-jwt.version>8.19</nimbus-jose-jwt.version>
-        <ums-dependencies.version>2.2.29</ums-dependencies.version>
-
         <spring-boot.version>2.3.4.RELEASE</spring-boot.version>
         <spring-security.version>5.4.1</spring-security.version>
 
@@ -99,10 +96,43 @@
 
             <dependency>
                 <groupId>top.dcenter</groupId>
-                <artifactId>ums-dependencies</artifactId>
-                <version>${ums-dependencies.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <artifactId>ums-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.dcenter</groupId>
+                <artifactId>ums-vc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.dcenter</groupId>
+                <artifactId>ums-mdc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.dcenter</groupId>
+                <artifactId>ums-rbac</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.dcenter</groupId>
+                <artifactId>ums-jwt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.dcenter</groupId>
+                <artifactId>ums-oauth</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.dcenter</groupId>
+                <artifactId>ums-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.dcenter</groupId>
+                <artifactId>ums-spring-boot-starter</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>

@@ -6,7 +6,7 @@
 
     <groupId>top.dcenter</groupId>
     <artifactId>ums-dependencies</artifactId>
-    <version>2.2.29</version>
+    <version>2.2.30</version>
     <name>ums-dependencies</name>
     <packaging>pom</packaging>
     <description>UMS Dependencies</description>
@@ -53,61 +53,48 @@
         </repository>
     </distributionManagement>
 
-    <properties>
-
-        <nimbus-jose-jwt.version>8.19</nimbus-jose-jwt.version>
-        <ums.version>2.2.29</ums.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
 
             <dependency>
                 <groupId>top.dcenter</groupId>
                 <artifactId>ums-commons</artifactId>
-                <version>${ums.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.dcenter</groupId>
                 <artifactId>ums-vc</artifactId>
-                <version>${ums.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.dcenter</groupId>
                 <artifactId>ums-mdc</artifactId>
-                <version>${ums.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.dcenter</groupId>
                 <artifactId>ums-rbac</artifactId>
-                <version>${ums.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.dcenter</groupId>
                 <artifactId>ums-jwt</artifactId>
-                <version>${ums.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.dcenter</groupId>
                 <artifactId>ums-oauth</artifactId>
-                <version>${ums.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.dcenter</groupId>
                 <artifactId>ums-core</artifactId>
-                <version>${ums.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.dcenter</groupId>
                 <artifactId>ums-spring-boot-starter</artifactId>
-                <version>${ums.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.nimbusds</groupId>
-                <artifactId>nimbus-jose-jwt</artifactId>
-                <scope>compile</scope>
-                <version>${nimbus-jose-jwt.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
         </dependencies>

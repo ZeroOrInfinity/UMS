@@ -1,3 +1,9 @@
+## 2.2.30
+### Fixes and Improvements:
+1. jwt/兼容性: 增加对 nimbus-jose-jwt:9.x.x/8.x.x 的兼容性.
+2. rbac/重构: getRolesByGroup 与 getRolesByGroupOfTenant 接口从 AbstractUriAuthorizeService 移动到 UriAuthorizeService. AbstractUriAuthorizeService 添加 updateAllGroupsOfAllTenant 接口.
+3. oauth/优化: 依赖, 删除对 spring-security-oauth2-client 的依赖.
+
 ## 2.2.29
 ### Fixes and Improvements:
 1. rbac/新增: 角色组(Group)的概念: 增加更新权限组接口, 更新权限组缓存接口, 更新权限组缓存切面, 更新权限组缓存监听器接口.
