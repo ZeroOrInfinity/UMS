@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
+import top.dcenter.ums.security.common.utils.JsonUtil;
 import top.dcenter.ums.security.common.utils.ReflectionUtil;
 import top.dcenter.ums.security.jwt.api.endpoind.service.JwkEndpointPermissionService;
 import top.dcenter.ums.security.jwt.exception.JwkSetUriAccessDeniedException;
@@ -50,7 +51,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Objects.nonNull;
 import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcTraceId;
 
 /**
@@ -81,7 +81,7 @@ public class JwkEndpoint implements InitializingBean, ApplicationContextAware {
         Method toJsonObjectMethod = ReflectionUtils.findMethod(JWKSet.class, "toJSONObject");
         Object jwk = toJsonObjectMethod.invoke(jwkSet);
         Map<String, Object> publicKey;
-        JSONObject jsonObject = null;
+        JSONObject jsonObject;
         if (jwk instanceof JSONObject) 
         {
             jsonObject = ((JSONObject) jwk);
@@ -100,12 +100,7 @@ public class JwkEndpoint implements InitializingBean, ApplicationContextAware {
         if (StringUtils.hasText(kid)) {
             publicKey.put("kid", kid);
         }
-        if (nonNull(jsonObject)) {
-            this.jwsSetJsonString = jsonObject.toJSONString();
-            return;
-        }
-        // 对 nimbus-jose-jwt:9.1.x 的兼容.
-        this.jwsSetJsonString = jwk.toString();
+        this.jwsSetJsonString = JsonUtil.toJsonString(jwk);
     }
 
     @RequestMapping(path = JWS_SET_URI, method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
