@@ -1,4 +1,10 @@
-## 2.2.30
+## 2.2.32
+### Fixes and Improvements:
+1. jwt/修复: jwsSetJsonString 格式不正确.
+2. jwt/修复: jwt decode bug.
+3. jwt/新增: AuthenticationEntryPoint 认证错误, 返回 json 错误信息的配置.
+
+## 2.2.31
 ### Fixes and Improvements:
 1. jwt/兼容性: 增加 JwtContext 与 UmsNimbusJwtDecoder 对 nimbus-jose-jwt:9.x.x/8.x.x 的兼容性.
 
