@@ -33,6 +33,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.ser
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtBearerTokenAuthenticationConverter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import top.dcenter.ums.security.common.access.UmsAccessDeniedHandlerImpl;
 import top.dcenter.ums.security.common.api.config.HttpSecurityAware;
@@ -57,14 +58,17 @@ public class JwtAutoConfigurerAware implements HttpSecurityAware {
     private final JwtDecoder jwtDecoder;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
     private final JwtBearerTokenAuthenticationConverter jwtBearerTokenAuthenticationConverter;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public JwtAutoConfigurerAware(JwtDecoder jwtDecoder,
                                   @Autowired(required = false) JwtBearerTokenAuthenticationConverter jwtBearerTokenAuthenticationConverter,
-                                  @Autowired(required = false) JwtAuthenticationConverter jwtAuthenticationConverter) {
+                                  @Autowired(required = false) JwtAuthenticationConverter jwtAuthenticationConverter,
+                                  AuthenticationEntryPoint authenticationEntryPoint) {
         this.jwtDecoder = jwtDecoder;
         this.jwtAuthenticationConverter = jwtAuthenticationConverter;
         this.jwtBearerTokenAuthenticationConverter = jwtBearerTokenAuthenticationConverter;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Override
@@ -84,7 +88,9 @@ public class JwtAutoConfigurerAware implements HttpSecurityAware {
         final OAuth2ResourceServerConfigurer<HttpSecurity>.JwtConfigurer jwt =
                 http.oauth2ResourceServer()
                     .accessDeniedHandler(new UmsAccessDeniedHandlerImpl())
+                    .authenticationEntryPoint(this.authenticationEntryPoint)
                     .jwt();
+
         if (nonNull(this.jwtAuthenticationConverter)) {
             jwt.jwtAuthenticationConverter(this.jwtAuthenticationConverter);
         }
@@ -92,6 +98,8 @@ public class JwtAutoConfigurerAware implements HttpSecurityAware {
             jwt.jwtAuthenticationConverter(this.jwtBearerTokenAuthenticationConverter);
         }
         jwt.decoder(this.jwtDecoder);
+
+
 
     }
 

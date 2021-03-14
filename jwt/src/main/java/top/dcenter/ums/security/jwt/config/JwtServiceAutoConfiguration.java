@@ -39,6 +39,7 @@ import org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import top.dcenter.ums.security.common.api.jackson2.SimpleModuleHolder;
 import top.dcenter.ums.security.common.api.userdetails.converter.AuthenticationToUserDetailsConverter;
 import top.dcenter.ums.security.jwt.advice.JwtControllerAdvice;
@@ -49,6 +50,7 @@ import top.dcenter.ums.security.jwt.api.supplier.JwtClaimTypeConverterSupplier;
 import top.dcenter.ums.security.jwt.api.supplier.JwtGrantedAuthoritiesConverterSupplier;
 import top.dcenter.ums.security.jwt.api.validator.service.CustomClaimValidateService;
 import top.dcenter.ums.security.jwt.api.validator.service.ReAuthService;
+import top.dcenter.ums.security.jwt.bearer.UmsBearerTokenAuthenticationEntryPoint;
 import top.dcenter.ums.security.jwt.cache.service.UmsJwtCacheTransformServiceImpl;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 import top.dcenter.ums.security.jwt.claims.service.impl.UmsAuthoritiesClaimsSetServiceImpl;
@@ -86,6 +88,14 @@ import static top.dcenter.ums.security.jwt.config.JwtAutoConfiguration.PRINCIPAL
 @ConditionalOnProperty(prefix = "ums.jwt", name = "enable", havingValue = "true")
 @Slf4j
 public class JwtServiceAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean(type = {"org.springframework.security.web.AuthenticationEntryPoint"})
+    public AuthenticationEntryPoint authenticationEntryPoint(JwtProperties jwtProperties) {
+        BearerTokenProperties bearer = jwtProperties.getBearer();
+        return new UmsBearerTokenAuthenticationEntryPoint(bearer.getBearerTokenHeaderName(),
+                                                          bearer.getBearerTokenParameterName());
+    }
 
     @Bean
     public SimpleModuleHolder jwtJackson2ModuleHolder() {
