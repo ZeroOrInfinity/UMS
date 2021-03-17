@@ -42,11 +42,13 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.springframework.util.StringUtils.hasText;
 import static top.dcenter.ums.security.common.consts.MdcConstants.MDC_KEY;
 import static top.dcenter.ums.security.core.mdc.utils.MdcUtil.getMdcId;
 
 /**
- * MDC 机制实现日志的链路追踪: 在输出日志中加上 mdcKey
+ * MDC 机制实现日志的链路追踪: 在输出日志中加上 mdcKey.<br>
+ * 支持微服务之间传递日志链路追踪 ID, 请求微服务时在请求头添加: headerKey=MDC_KEY, headerValue=MDC 日志链路追踪 ID.
  * @author YongWu zheng
  * @version V2.0  Created by 2020/10/31 18:19
  */
@@ -83,13 +85,15 @@ public class MdcLogFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         if (isEnableMdc(request)) {
-            String token = getMdcId(this.idType, this.mdcIdGenerator);
+            String token = request.getHeader(MDC_KEY);
+            if (!hasText(token)) {
+                token = getMdcId(this.idType, this.mdcIdGenerator);
+            }
             MDC.put(MDC_KEY, token);
             try {
                 filterChain.doFilter(request, response);
             }
             catch (Exception e) {
-                log.error(e.getMessage(), e);
                 request.setAttribute(MDC_KEY, token);
                 MDC.remove(MDC_KEY);
                 throw e;
