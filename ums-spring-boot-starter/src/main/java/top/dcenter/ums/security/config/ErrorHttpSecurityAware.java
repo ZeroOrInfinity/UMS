@@ -11,7 +11,6 @@ import top.dcenter.ums.security.common.bean.UriHttpMethodTuple;
 import top.dcenter.ums.security.common.config.SecurityCoreAutoConfigurer;
 import top.dcenter.ums.security.filter.ErrorHandlerFilter;
 
-import javax.servlet.Filter;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -45,15 +44,7 @@ public class ErrorHttpSecurityAware implements HttpSecurityAware {
 
     @Override
     public void postConfigure(HttpSecurity http) {
-        try {
-            //noinspection unchecked
-            Class<? extends Filter> aClass =
-                    (Class<? extends Filter>) Class.forName("top.dcenter.ums.security.core.mdc.filter.MdcLogFilter");
-            http.addFilterBefore(new ErrorHandlerFilter(), aClass);
-        }
-        catch (ClassNotFoundException e) {
-            http.addFilterBefore(new ErrorHandlerFilter(), WebAsyncManagerIntegrationFilter.class);
-        }
+        http.addFilterAfter(new ErrorHandlerFilter(), WebAsyncManagerIntegrationFilter.class);
     }
 
     @Override
