@@ -136,8 +136,9 @@ public enum ErrorCodeEnum {
     CREDENTIALS_EXPIRED(984, "凭证过期"),
 
 
-    USER_REGISTER_OAUTH2_FAILURE(999, "本地用户注册成功, 第三方信息保存失败");
+    USER_REGISTER_OAUTH2_FAILURE(999, "本地用户注册成功, 第三方信息保存失败"),
 
+    MAX_UPLOAD_SIZE_EXCEEDED_EXCEPTION(7960, "超出最大上传尺寸");
 
     /**
      * 错误代码

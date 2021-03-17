@@ -94,6 +94,7 @@ public class MdcLogFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
             }
             catch (Exception e) {
+                log.error(e.getMessage(),e);
                 request.setAttribute(MDC_KEY, token);
                 MDC.remove(MDC_KEY);
                 throw e;

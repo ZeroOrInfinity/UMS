@@ -27,6 +27,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.util.NestedServletException;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.exception.BusinessException;
 
@@ -36,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static java.util.Objects.nonNull;
 import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
 import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
 import static top.dcenter.ums.security.common.vo.ResponseResult.fail;
@@ -67,6 +70,28 @@ public class ErrorHandlerFilter extends OncePerRequestFilter {
                 errorCodeEnum = ((BusinessException) e).getErrorCodeEnum();
             }
             responseWithJson(response, status, toJsonString(fail(errorCodeEnum, e.getMessage())));
+        }
+        catch (NestedServletException e) {
+            String msg = e.getMessage();
+            log.error(msg, e);
+            Throwable cause = e.getCause();
+
+            int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
+            ErrorCodeEnum errorCode = ErrorCodeEnum.INTERNAL_SERVER_ERROR;
+            String errorMsg = msg;
+            if (cause instanceof MaxUploadSizeExceededException) {
+                MaxUploadSizeExceededException maxUploadSizeExceededException = ((MaxUploadSizeExceededException) cause);
+                errorCode = ErrorCodeEnum.MAX_UPLOAD_SIZE_EXCEEDED_EXCEPTION;
+                String message = maxUploadSizeExceededException.getMessage();
+                if (nonNull(message)) {
+                    errorMsg = message.substring(message.lastIndexOf(":") + 2);
+                }
+                else {
+                    errorMsg = errorCode.getMsg();
+                }
+
+            }
+            responseWithJson(response, status, toJsonString(fail(errorCode, errorMsg)));
         }
         catch (ServletException e) {
             log.error(e.getMessage(),e);
