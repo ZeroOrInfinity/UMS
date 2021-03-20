@@ -22,23 +22,19 @@
  */
 package top.dcenter.ums.security.core.demo.tenant;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
 import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.exception.TenantIdNotFoundException;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 多租户上下文存储器, 多租户应用必须实现 {@link TenantContextHolder} 接口
@@ -46,19 +42,18 @@ import java.util.concurrent.TimeUnit;
  * @version V2.0  Created by 2020.12.1 13:31
  */
 @Component
+@Slf4j
 public class UmsTenantContextHolder implements TenantContextHolder {
 
-    /**
-     * 租户 ID 缓存的时间, 单位秒
-     */
-    public static final int TIMEOUT = 30;
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    private final ThreadLocal<String> context = new ThreadLocal<>();
+    private final Auth2Properties auth2Properties;
+    private final String systemTenantId = "0000";
 
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired
-    private Auth2Properties auth2Properties;
+
+
+    public UmsTenantContextHolder(Auth2Properties auth2Properties) {
+        this.auth2Properties = auth2Properties;
+    }
 
     @Override
     @NonNull
@@ -86,12 +81,13 @@ public class UmsTenantContextHolder implements TenantContextHolder {
 
                 tenantId = uri.substring(uri.lastIndexOf("/") + 1);
             }
-            // 示例直接用 redis 作为缓存 tenantId, 当然 tenantId 也可以存储在 session
-            this.stringRedisTemplate.opsForValue().set(sessionId, tenantId, TIMEOUT, TimeUnit.SECONDS);
+            // 存储 租户ID
+            context.set(tenantId);
             return tenantId;
         }
         catch (Exception e) {
-            throw new TenantIdNotFoundException(ErrorCodeEnum.TENANT_ID_NOT_FOUND, null, sessionId);
+            log.error(ErrorCodeEnum.TENANT_ID_NOT_FOUND.getMsg(),e);
+            return this.systemTenantId;
         }
     }
 
@@ -106,20 +102,23 @@ public class UmsTenantContextHolder implements TenantContextHolder {
             return getTenantId(authentication);
         }
 
-        // 未登录用户获取租户 id
-        String sessionId = null;
         try {
-            RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-            sessionId = requestAttributes.getSessionId();
-            String tenantId = this.stringRedisTemplate.opsForValue().get(sessionId);
+            String tenantId = this.context.get();
             if (tenantId == null) {
-                throw new TenantIdNotFoundException(ErrorCodeEnum.TENANT_ID_NOT_FOUND, null, sessionId);
+                throw new TenantIdNotFoundException(ErrorCodeEnum.TENANT_ID_NOT_FOUND, null, null);
             }
             return tenantId;
         }
         catch (Exception e) {
-            throw new TenantIdNotFoundException(ErrorCodeEnum.TENANT_ID_NOT_FOUND, null, sessionId);
+            throw new TenantIdNotFoundException(ErrorCodeEnum.TENANT_ID_NOT_FOUND, null, null);
         }
+    }
+
+    /**
+     * 清除当前线程的值.
+     */
+    public void removeContext() {
+        context.remove();
     }
 }
 

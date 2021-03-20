@@ -87,8 +87,8 @@ public class UserController {
     @PostMapping("/user/signUp/{tenantId}")
     @ResponseBody
     public String signUp(@PathVariable("tenantId") String tenantId, HttpServletRequest request) {
-        // 生产上可以通过 aop 切面实现此功能
-        tenantContextHolder.tenantIdHandle(request, tenantId);
+        // 生产上可以通过 aop 切面实现此功能, 通过请求头等参数传递 租户ID 可以通过 Filter 实现此功能
+        // tenantContextHolder.tenantIdHandle(request, tenantId);
 
         UserDetails userDetails = userDetailsRegisterService.registerUser(new ServletWebRequest(request));
 
