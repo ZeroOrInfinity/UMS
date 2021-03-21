@@ -23,6 +23,7 @@
 
 package top.dcenter.ums.security.core.premission.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -61,14 +62,14 @@ public class PermissionAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.premission.service.UpdateCacheOfRolesResourcesService")
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.premission.listener.UpdateRolesResourcesListener")
-    public UpdateRolesResourcesListener updateRolesAuthoritiesListener(UpdateCacheOfRolesResourcesService updateCacheOfRolesResourcesService) {
+    public UpdateRolesResourcesListener updateRolesAuthoritiesListener(
+            @Autowired(required = false) UpdateCacheOfRolesResourcesService updateCacheOfRolesResourcesService) {
         return new UpdateRolesResourcesListener(updateCacheOfRolesResourcesService);
     }
 
     @Bean
-    @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.premission.service.UpdateCacheOfRolesResourcesService")
+    @ConditionalOnBean(type = "top.dcenter.ums.security.core.api.premission.service.RolePermissionsService")
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.premission.service.RolePermissionsServiceAspect")
     public RolePermissionsServiceAspect rolePermissionsServiceAspect() {
         return new LocalRolePermissionsServiceAspect();

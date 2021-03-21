@@ -26,9 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;
 import top.dcenter.ums.security.core.api.premission.service.RolePermissionsService;
@@ -57,9 +56,9 @@ import static top.dcenter.ums.security.common.consts.TransactionalConstants.ONE_
 @Aspect
 @Slf4j
 @Order(ONE_PRECEDENCE)
-public class LocalRolePermissionsServiceAspect implements RolePermissionsServiceAspect, ApplicationContextAware {
+public class LocalRolePermissionsServiceAspect implements RolePermissionsServiceAspect, ApplicationEventPublisherAware {
 
-    private ApplicationContext applicationContext;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @AfterReturning(pointcut = "execution(boolean *..updateResourcesByRoleId(..)) && args(roleId, resourceIds)",
@@ -78,7 +77,7 @@ public class LocalRolePermissionsServiceAspect implements RolePermissionsService
                                               .roleResources(roleIdResourcesIdMap)
                                               .resourceClass(rolePermissionsService.getUpdateResourcesClass())
                                               .build();
-                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, updateRoleResourcesDto));
+                applicationEventPublisher.publishEvent(new UpdateRolesResourcesEvent(this, updateRoleResourcesDto, null));
             }
         }
     }
@@ -103,7 +102,7 @@ public class LocalRolePermissionsServiceAspect implements RolePermissionsService
                                               .updateType(UpdateRolesResourcesType.TENANT)
                                               .resourceClass(rolePermissionsService.getUpdateResourcesClass())
                                               .build();
-                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, updateRoleResourcesDto));
+                applicationEventPublisher.publishEvent(new UpdateRolesResourcesEvent(this, updateRoleResourcesDto, null));
             }
         }
     }
@@ -127,7 +126,7 @@ public class LocalRolePermissionsServiceAspect implements RolePermissionsService
                                               .roleResources(roleIdResourcesIdMap)
                                               .resourceClass(rolePermissionsService.getUpdateResourcesClass())
                                               .build();
-                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, updateRoleResourcesDto));
+                applicationEventPublisher.publishEvent(new UpdateRolesResourcesEvent(this, updateRoleResourcesDto, null));
             }
         }
     }
@@ -150,7 +149,7 @@ public class LocalRolePermissionsServiceAspect implements RolePermissionsService
                                               .groupRoles(groupIdRoleIdsMap)
                                               .resourceClass(rolePermissionsService.getUpdateResourcesClass())
                                               .build();
-                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, updateRoleResourcesDto));
+                applicationEventPublisher.publishEvent(new UpdateRolesResourcesEvent(this, updateRoleResourcesDto, null));
             }
         }
     }
@@ -174,15 +173,15 @@ public class LocalRolePermissionsServiceAspect implements RolePermissionsService
                                               .groupRoles(groupIdRoleIdsMap)
                                               .resourceClass(rolePermissionsService.getUpdateResourcesClass())
                                               .build();
-                applicationContext.publishEvent(new UpdateRolesResourcesEvent(true, updateRoleResourcesDto));
+                applicationEventPublisher.publishEvent(new UpdateRolesResourcesEvent(this, updateRoleResourcesDto, null));
             }
         }
     }
 
 
     @Override
-    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+    public void setApplicationEventPublisher(@NonNull ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
 }

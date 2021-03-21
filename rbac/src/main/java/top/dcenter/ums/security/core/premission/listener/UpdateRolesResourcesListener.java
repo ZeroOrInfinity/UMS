@@ -23,102 +23,49 @@
 
 package top.dcenter.ums.security.core.premission.listener;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
+import org.springframework.lang.NonNull;
 import org.springframework.scheduling.annotation.Async;
 import top.dcenter.ums.security.core.api.premission.service.UpdateCacheOfRolesResourcesService;
 import top.dcenter.ums.security.core.premission.dto.UpdateRoleResourcesDto;
 import top.dcenter.ums.security.core.premission.event.UpdateRolesResourcesEvent;
 
-import static java.util.Objects.isNull;
+import static top.dcenter.ums.security.core.premission.util.RbacUtils.localCacheRbacPermissionsUpdate;
 
 /**
  * uri 权限更新监听器
  * @author YongWu zheng
  * @version V1.0  Created by 2020/10/2 19:53
  */
-public class UpdateRolesResourcesListener implements ApplicationListener<UpdateRolesResourcesEvent> {
+public class UpdateRolesResourcesListener implements ApplicationListener<UpdateRolesResourcesEvent>, ApplicationEventPublisherAware {
 
-    private final UpdateCacheOfRolesResourcesService updateCacheOfRolesResourcesService;
+    protected final UpdateCacheOfRolesResourcesService updateCacheOfRolesResourcesService;
+    private ApplicationEventPublisher applicationEventPublisher;
 
-    public UpdateRolesResourcesListener(UpdateCacheOfRolesResourcesService updateCacheOfRolesResourcesService) {
+    public UpdateRolesResourcesListener(@Autowired(required = false)
+                                        UpdateCacheOfRolesResourcesService updateCacheOfRolesResourcesService) {
         this.updateCacheOfRolesResourcesService = updateCacheOfRolesResourcesService;
     }
 
     @Async
     @Override
     public void onApplicationEvent(UpdateRolesResourcesEvent event) {
-        Object source = event.getSource();
-        if (source instanceof Boolean && ((Boolean) source))
-        {
-            UpdateRoleResourcesDto<Object> updateRoleResourcesDto = event.getUpdateRoleResourcesDto();
-            switch(updateRoleResourcesDto.getUpdateType()) {
-                case ROLE:
-                    updateCacheOfRole(updateRoleResourcesDto);
-                    break;
-                case TENANT:
-                    updateCacheOfTenant(updateRoleResourcesDto);
-                    break;
-                case SCOPE:
-                    updateCacheOfScope(updateRoleResourcesDto);
-                    break;
-                case GROUP:
-                    updateCacheOfGroup(updateRoleResourcesDto);
-                    break;
-                default:
-                    break;
-            }
+        UpdateRoleResourcesDto<Object> updateRoleResourcesDto = event.getUpdateRoleResourcesDto();
+        ApplicationEvent remoteApplicationEvent = event.getRemoteApplicationEvent();
+        // 发送 (中间件/MQ) 权限更新事件
+        if (null != remoteApplicationEvent) {
+            this.applicationEventPublisher.publishEvent(remoteApplicationEvent);
         }
+        // 本地缓存权限更新
+        localCacheRbacPermissionsUpdate(updateRoleResourcesDto, this.updateCacheOfRolesResourcesService);
     }
 
-    private void updateCacheOfRole(UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
-        updateRoleResourcesDto
-                .getRoleResources()
-                .forEach((roleId, resourceIds) ->
-                                 this.updateCacheOfRolesResourcesService
-                                         .updateAuthoritiesByRoleId(roleId,
-                                                                    updateRoleResourcesDto.getResourceClass(),
-                                                                    resourceIds.toArray(new Long[0])));
-    }
-
-    private void updateCacheOfTenant(UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
-        updateRoleResourcesDto
-                .getRoleResources()
-                .forEach((roleId, resourceIds) ->
-                                 this.updateCacheOfRolesResourcesService
-                                         .updateAuthoritiesByRoleIdOfTenant(updateRoleResourcesDto.getTenantId(),
-                                                                            roleId,
-                                                                            updateRoleResourcesDto.getResourceClass(),
-                                                                            resourceIds.toArray(new Long[0])));
-
-    }
-
-    private void updateCacheOfScope(UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
-        updateRoleResourcesDto
-                .getRoleResources()
-                .forEach((roleId, resourceIds) ->
-                                 this.updateCacheOfRolesResourcesService
-                                         .updateAuthoritiesByRoleIdOfScopeId(updateRoleResourcesDto.getScopeId(),
-                                                                             roleId,
-                                                                             updateRoleResourcesDto.getResourceClass(),
-                                                                             resourceIds.toArray(new Long[0])));
-    }
-
-    private void updateCacheOfGroup(UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
-        final Long tenantId = updateRoleResourcesDto.getTenantId();
-        if (isNull(tenantId)) {
-            updateRoleResourcesDto
-                    .getGroupRoles()
-                    .forEach((groupId, roleIds) ->
-                                     this.updateCacheOfRolesResourcesService
-                                             .updateRolesByGroupId(groupId, roleIds.toArray(new Long[0])));
-            return;
-        }
-        updateRoleResourcesDto
-                .getGroupRoles()
-                .forEach((groupId, roleIds) ->
-                                 this.updateCacheOfRolesResourcesService
-                                         .updateRolesByGroupIdOfTenant(tenantId, groupId,
-                                                                       roleIds.toArray(new Long[0])));
-
+    @Override
+    public void setApplicationEventPublisher(@NonNull ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 }

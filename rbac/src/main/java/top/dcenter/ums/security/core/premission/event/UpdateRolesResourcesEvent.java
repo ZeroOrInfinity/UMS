@@ -26,6 +26,7 @@ package top.dcenter.ums.security.core.premission.event;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import top.dcenter.ums.security.core.premission.dto.UpdateRoleResourcesDto;
 
 /**
@@ -38,14 +39,21 @@ public class UpdateRolesResourcesEvent extends ApplicationEvent {
 
     @Getter
     private final UpdateRoleResourcesDto<Object> updateRoleResourcesDto;
+    @Getter
+    private final ApplicationEvent remoteApplicationEvent;
     /**
      * Create a new {@code ApplicationEvent}.
-     * @param isUpdate                  是否更新
+     * @param source                    source
      * @param updateRoleResourcesDto    更新权限资源 DTO
+     * @param remoteApplicationEvent    发送权限更新事件(如: 向 中间件/MQ 发送权限更新消息).
+     *                                  微服务应用时, 通常需要发送权限更新事件, 方便使用权限的微服务更新权限;
+     *                                  当为单体应用时, 不需要再发送权限更新事件, 可以为 null.
      */
-    public UpdateRolesResourcesEvent(@NonNull Boolean isUpdate,
-                                     @NonNull UpdateRoleResourcesDto<Object> updateRoleResourcesDto) {
-        super(isUpdate);
+    public UpdateRolesResourcesEvent(@NonNull Object source,
+                                     @NonNull UpdateRoleResourcesDto<Object> updateRoleResourcesDto,
+                                     @Nullable ApplicationEvent remoteApplicationEvent) {
+        super(source);
         this.updateRoleResourcesDto = updateRoleResourcesDto;
+        this.remoteApplicationEvent = remoteApplicationEvent;
     }
 }
