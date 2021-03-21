@@ -1,3 +1,10 @@
+## 2.2.33
+### Fixes and Improvements:
+1. rbac/改进: 权限缓存更新逻辑.
+2. ums/改进: 添加错误过滤器; 添加 NestedServletException 与 MaxUploadSizeExceededException 异常的处理.
+3. mdc/新增: 支持微服务之间传递日志链路追踪 ID, 请求微服务时在请求头添加: headerKey=MDC_KEY, headerValue=MDC 日志链路追踪 ID.
+4. demo/tenant/示例: 改进.
+
 ## 2.2.32
 ### Fixes and Improvements:
 1. jwt/修复: jwsSetJsonString 格式不正确.
