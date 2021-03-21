@@ -6,7 +6,7 @@
 
 <p align="center">
 	<a target="_blank" href="https://search.maven.org/search?q=g:top.dcenter%20AND%20a:ums-spring-boot-starter">
-		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.32-green.svg" />
+		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.33-green.svg" />
 	</a>
 	<a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">
 		<img alt='license' src="https://img.shields.io/badge/license-MIT-yellow.svg" />
@@ -448,6 +448,8 @@ new Thread(() -> {
     r.run();
 }, "testMDC").start();
 ```
+
+- 支持微服务之间传递日志链路追踪 ID, 请求微服务时在请求头添加: headerKey=MDC_KEY, headerValue=MDC 日志链路追踪 ID.
 
 ## 友情链接
 
