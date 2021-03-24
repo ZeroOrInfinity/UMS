@@ -6,7 +6,7 @@
 
 <p align="center">
 	<a target="_blank" href="https://search.maven.org/search?q=g:top.dcenter%20AND%20a:ums-spring-boot-starter">
-		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.33-green.svg" />
+		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.34-green.svg" />
 	</a>
 	<a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">
 		<img alt='license' src="https://img.shields.io/badge/license-MIT-yellow.svg" />
@@ -189,6 +189,10 @@
     - 时序图
 
 ![授权逻辑时序图](doc/SequenceDiagram/permission.png)     
+
+    - 权限更新及权限缓存实时更新时序图
+
+![权限更新及权限缓存实时更新时序图](doc/RBAC%20权限更新及权限缓存实时更新流程.png)
 
 3. 短信验证码: `默认空实现`
     - [SmsCodeSender](https://gitee.com/pcore/UMS/blob/master/vc/src/main/java/top/dcenter/ums/security/core/api/validate/code/sms/SmsCodeSender.java)

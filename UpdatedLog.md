@@ -1,3 +1,9 @@
+## 2.2.34
+### Fixes and Improvements:
+1. rbac/重构: UpdateCacheOfRolesResourcesService 添加 initAllAuthorities() 接口, AbstractUriAuthorizeService 删除 updateAuthoritiesOfAllXXX() 接口,
+   UpdateRolesResourcesType 添加 ALL 类型用于初始化所有权限.
+2. 示例: 改进权限服务, permission-example 示例改进, 添加权限缓存更新时序图.
+
 ## 2.2.33
 ### Fixes and Improvements:
 1. rbac/改进: 权限缓存更新逻辑.

@@ -6,7 +6,7 @@
 
     <groupId>top.dcenter</groupId>
     <artifactId>ums-dependencies</artifactId>
-    <version>2.2.33</version>
+    <version>2.2.34</version>
     <name>ums-dependencies</name>
     <packaging>pom</packaging>
     <description>UMS Dependencies</description>
