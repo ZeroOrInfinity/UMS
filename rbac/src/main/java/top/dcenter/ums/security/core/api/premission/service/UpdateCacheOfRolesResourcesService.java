@@ -110,4 +110,13 @@ public interface UpdateCacheOfRolesResourcesService {
         throw new RuntimeException("未实现基于多租户, 根据 groupId 更新 groupId 所拥有角色信息缓存的接口逻辑");
     }
 
+    /**
+     * 初始化所有权限信息并缓存
+     * 注意: 要考虑并发更新问题.
+     * @throws RolePermissionsException 初始化所有权限信息并缓存失败
+     */
+    default void initAllAuthorities() throws RolePermissionsException {
+        throw new RuntimeException("未实现初始化所有权限信息并缓存的接口逻辑");
+    }
+
 }

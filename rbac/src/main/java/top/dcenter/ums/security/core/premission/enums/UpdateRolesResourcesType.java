@@ -46,5 +46,9 @@ public enum UpdateRolesResourcesType {
      * 角色组类型
      */
     GROUP,
+    /**
+     * 所有类型: 包括上面的所有类型. 一般用于应用启动时初始化权限
+     */
+    ALL,
 
 }

@@ -39,8 +39,23 @@ public class RbacUtils {
             case GROUP:
                 updateCacheOfGroup(updateRoleResourcesDto, updateCacheOfRolesResourcesService);
                 break;
+            case ALL:
+                initAllAuthorities(updateCacheOfRolesResourcesService);
+                break;
             default:
                 break;
+        }
+    }
+
+    /**
+     * 更新所有权限缓存
+     *
+     * @param updateCacheOfRolesResourcesService {@link UpdateCacheOfRolesResourcesService}, 支持 null 值.
+     */
+    public static void initAllAuthorities(@Nullable UpdateCacheOfRolesResourcesService updateCacheOfRolesResourcesService) {
+
+        if (null != updateCacheOfRolesResourcesService) {
+            updateCacheOfRolesResourcesService.initAllAuthorities();
         }
     }
 
