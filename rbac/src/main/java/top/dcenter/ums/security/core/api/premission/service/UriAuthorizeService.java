@@ -174,15 +174,64 @@ public interface UriAuthorizeService {
     }
 
     /**
-     * 根据 groupAuthority 获取 group 所拥有的所有角色
+     * 根据 tenantAuthority 与 groupAuthority 获取 group 所拥有的所有角色
      * @param tenantAuthority   多租户权限
      * @param groupAuthority    用户的 group 权限
      * @return  group 所拥有的所有角色集合, Set(roleAuthority)
      */
     @NonNull
-    default Set<String> getRolesByGroupOfTenant(@NonNull String tenantAuthority,
-                                                           @NonNull String groupAuthority) {
+    default Set<String> getRolesByGroupOfTenant(@NonNull String tenantAuthority, @NonNull String groupAuthority) {
         throw new RuntimeException("未实现基于多租户根据 groupAuthority 获取 group 所拥有的所有角色的权限服务");
+    }
+
+    /**
+     * 根据 authentication 获取用户的角色集合.
+     * @param authentication   {@link Authentication}
+     * @return  用户拥有的角色集合
+     */
+    @NonNull
+    default Set<String> getRolesOfUser(@NonNull Authentication authentication) {
+        throw new RuntimeException("未实现根据 authentication 获取用户的角色集合的权限服务");
+    }
+
+    /**
+     * 根据 authentication 获取用户的菜单权限, 此接口适用于 菜单 与 权限分开设计的模型.
+     * @param authentication   {@link Authentication}
+     * @param <T>              菜单实体
+     * @return  所拥有的菜单权限集合,
+     * Map(Menu[level,sorted], Set(Menu[sorted])), 中括号中的排序字段.
+     */
+    @NonNull
+    default <T> Map<T, Set<T>> getMenusOfUser(@NonNull Authentication authentication) {
+        throw new RuntimeException("未实现根据 authentication 获取用户的菜单权限的权限服务");
+    }
+
+    /**
+     * 根据 roleAuthority 获取指定角色的菜单权限, 此接口适用于 菜单 与 权限分开设计的模型.
+     * @param roleAuthority    用户的角色权限
+     * @param <T>              菜单实体
+     * @return  所拥有的菜单权限集合,
+     * Map(Menu[level,sorted], Set(Menu[sorted])), 中括号中的排序字段.
+     */
+    @NonNull
+    default <T> Map<T, Set<T>> getMenuByRole(@NonNull String roleAuthority) {
+        throw new RuntimeException("未实现根据 roleAuthority 获取指定角色的菜单权限的权限服务");
+    }
+
+    /**
+     * 根据 tenantAuthority 与 roleAuthority 获取指定角色的菜单权限, 此接口适用于 菜单 与 权限分开设计的模型.
+     *
+     * @param tenantAuthority 多租户权限
+     * @param roleAuthority   用户的角色权限
+     * @param <T>             菜单实体
+     * @return 所拥有的所有菜单权限集合,
+     * Map(Menu[level,sorted], Set(Menu[sorted])), 中括号中的排序字段.
+     */
+    @NonNull
+    default <T> Map<T, Set<T>> getMenuByRoleOfTenant(@NonNull String tenantAuthority,
+                                                      @NonNull String roleAuthority) {
+
+        throw new RuntimeException("未实现基于多租户根据 roleAuthority 获取取指定角色的菜单权限的权限服务");
     }
 
     /**

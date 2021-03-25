@@ -194,6 +194,25 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
     }
 
+    @Override
+    @NonNull
+    public Set<String> getRolesOfUser(@NonNull Authentication authentication) {
+        // 角色集合
+        Set<String> roleSet = new HashSet<>(16);
+        // 获取角色权限集合
+        Set<String> authoritySet = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+        // 对 authoritySet 根据 role/tenant/scope 进行分组
+        for (String authority : authoritySet) {
+            if (authority.startsWith(DEFAULT_GROUP_PREFIX)) {
+                roleSet.addAll(getRolesByGroup(authority));
+            }
+            else if (authority.startsWith(DEFAULT_ROLE_PREFIX)) {
+                roleSet.add(authority);
+            }
+        }
+        return roleSet;
+    }
+
     private void groupByRoleOrTenantOrScope(@NonNull Set<String> authoritySet,
                                             @NonNull Set<String> toRoleSet,
                                             @NonNull String[] toTenantAuthority,
