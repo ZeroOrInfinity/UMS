@@ -1,3 +1,7 @@
+## 2.2.35
+### Fixes and Improvements:
+1. rbac/新增: 添加 getMenuByRole 与 getMenuByRoleOfTenant 接口, 以适用与菜单 与 权限分开设计的权限模型; 添加 getRolesOfUser 与 getMenusOfUser 接口并实现 getRolesOfUser 接口.
+
 ## 2.2.34
 ### Fixes and Improvements:
 1. rbac/重构: UpdateCacheOfRolesResourcesService 添加 initAllAuthorities() 接口, AbstractUriAuthorizeService 删除 updateAuthoritiesOfAllXXX() 接口,
