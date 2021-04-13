@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import top.dcenter.ums.security.common.executor.DefaultThreadFactory;
 import top.dcenter.ums.security.common.executor.MdcScheduledThreadPoolExecutor;
-import top.dcenter.ums.security.common.executor.MdcThreadPoolTaskExecutor;
+import top.dcenter.ums.security.common.executor.MdcThreadPoolExecutor;
 import top.dcenter.ums.security.core.executor.properties.ExecutorProperties;
 
 import java.util.concurrent.ExecutorService;
@@ -41,7 +41,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 实现 基于 SLF4J MDC 机制的日志链路追踪功能的 {@link MdcScheduledThreadPoolExecutor} 与 {@link MdcThreadPoolTaskExecutor}
+ * 实现 基于 SLF4J MDC 机制的日志链路追踪功能的 {@link MdcScheduledThreadPoolExecutor} 与 {@link MdcThreadPoolExecutor}
  * 1. 第三方授权登录 AccessToken 维护有效期定时任务配置.<br>
  * 2. 第三方授权登录时, 异步更新用户的第三方授权用户信息的 Executor 属性配置
  * @author YongWu zheng
@@ -66,13 +66,13 @@ public class ExecutorAutoConfiguration implements DisposableBean {
     public ExecutorService refreshTokenTaskExecutor() {
         ExecutorProperties.RefreshTokenExecutorProperties refreshToken = executorProperties.getRefreshToken();
         ThreadPoolExecutor threadPoolExecutor =
-                new MdcThreadPoolTaskExecutor(refreshToken.getCorePoolSize(),
-                                              refreshToken.getMaximumPoolSize(),
-                                              refreshToken.getKeepAliveTime(),
-                                              refreshToken.getTimeUnit(),
-                                              new LinkedBlockingQueue<>(refreshToken.getBlockingQueueCapacity()),
-                                              getThreadFactory(refreshToken.getPoolName()),
-                                              refreshToken.getRejectedExecutionHandlerPolicy().getRejectedHandler());
+                new MdcThreadPoolExecutor(refreshToken.getCorePoolSize(),
+                                          refreshToken.getMaximumPoolSize(),
+                                          refreshToken.getKeepAliveTime(),
+                                          refreshToken.getTimeUnit(),
+                                          new LinkedBlockingQueue<>(refreshToken.getBlockingQueueCapacity()),
+                                          getThreadFactory(refreshToken.getPoolName()),
+                                          refreshToken.getRejectedExecutionHandlerPolicy().getRejectedHandler());
 
         this.refreshTokenExecutorService = threadPoolExecutor;
         return threadPoolExecutor;
@@ -83,13 +83,13 @@ public class ExecutorAutoConfiguration implements DisposableBean {
     public ExecutorService updateConnectionTaskExecutor() {
         ExecutorProperties.UserConnectionUpdateExecutorProperties userConnectionUpdate = executorProperties.getUserConnectionUpdate();
         ThreadPoolExecutor threadPoolExecutor =
-                new MdcThreadPoolTaskExecutor(userConnectionUpdate.getCorePoolSize(),
-                                              userConnectionUpdate.getMaximumPoolSize(),
-                                              userConnectionUpdate.getKeepAliveTime(),
-                                              userConnectionUpdate.getTimeUnit(),
-                                              new LinkedBlockingQueue<>(userConnectionUpdate.getBlockingQueueCapacity()),
-                                              getThreadFactory(userConnectionUpdate.getPoolName()),
-                                              userConnectionUpdate.getRejectedExecutionHandlerPolicy().getRejectedHandler());
+                new MdcThreadPoolExecutor(userConnectionUpdate.getCorePoolSize(),
+                                          userConnectionUpdate.getMaximumPoolSize(),
+                                          userConnectionUpdate.getKeepAliveTime(),
+                                          userConnectionUpdate.getTimeUnit(),
+                                          new LinkedBlockingQueue<>(userConnectionUpdate.getBlockingQueueCapacity()),
+                                          getThreadFactory(userConnectionUpdate.getPoolName()),
+                                          userConnectionUpdate.getRejectedExecutionHandlerPolicy().getRejectedHandler());
         this.updateConnectionExecutorService = threadPoolExecutor;
         return threadPoolExecutor;
     }

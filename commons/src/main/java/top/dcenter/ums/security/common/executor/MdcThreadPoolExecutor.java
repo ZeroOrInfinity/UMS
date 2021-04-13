@@ -29,7 +29,6 @@ import top.dcenter.ums.security.common.utils.UuidUtils;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -45,33 +44,33 @@ import static top.dcenter.ums.security.common.consts.MdcConstants.MDC_KEY;
 
 /**
  * 实现 基于 SLF4J MDC 机制的日志链路追踪功能. <br>
- * {@link MdcThreadPoolTaskExecutor#remove(Runnable)} 类内部调用有效, 通过实例调用此方法失效
+ * {@link MdcThreadPoolExecutor#remove(Runnable)} 类内部调用有效, 通过实例调用此方法失效
  * @author YongWu zheng
  * @version V2.0  Created by  2020-12-22 10:52
  */
-public class MdcThreadPoolTaskExecutor extends ThreadPoolExecutor {
+public class MdcThreadPoolExecutor extends ThreadPoolExecutor {
 
-    public MdcThreadPoolTaskExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
+    public MdcThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
     }
 
-    public MdcThreadPoolTaskExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
+    public MdcThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
     }
 
-    public MdcThreadPoolTaskExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, RejectedExecutionHandler handler) {
+    public MdcThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, RejectedExecutionHandler handler) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, handler);
     }
 
-    public MdcThreadPoolTaskExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
+    public MdcThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
     }
 
     @Override
     public void execute(@NonNull Runnable runnable) {
         // 获取父线程 MDC 中的内容
-        final Map<String, String> context = MDC.getCopyOfContextMap();
-        final Runnable r = decorateRunnable(runnable, context);
+        final String mdcTraceId = MDC.get(MDC_KEY);
+        final Runnable r = decorateRunnable(runnable, mdcTraceId);
         super.execute(r);
     }
 
@@ -79,8 +78,8 @@ public class MdcThreadPoolTaskExecutor extends ThreadPoolExecutor {
     @NonNull
     public Future<?> submit(@NonNull Runnable task) {
         // 获取父线程 MDC 中的内容
-        final Map<String, String> context = MDC.getCopyOfContextMap();
-        final Runnable r = decorateRunnable(task, context);
+        final String mdcTraceId = MDC.get(MDC_KEY);
+        final Runnable r = decorateRunnable(task, mdcTraceId);
         return super.submit(r);
     }
 
@@ -88,8 +87,8 @@ public class MdcThreadPoolTaskExecutor extends ThreadPoolExecutor {
     @NonNull
     public <T> Future<T> submit(@NonNull Callable<T> task) {
         // 获取父线程 MDC 中的内容
-        final Map<String, String> context = MDC.getCopyOfContextMap();
-        final Callable<T> c = decorateCallable(task, context);
+        final String mdcTraceId = MDC.get(MDC_KEY);
+        final Callable<T> c = decorateCallable(task, mdcTraceId);
         return super.submit(c);
     }
 
@@ -97,8 +96,8 @@ public class MdcThreadPoolTaskExecutor extends ThreadPoolExecutor {
     @NonNull
     public <T> Future<T> submit(Runnable task, T result) {
         // 获取父线程 MDC 中的内容
-        final Map<String, String> context = MDC.getCopyOfContextMap();
-        final Runnable r = decorateRunnable(task, context);
+        final String mdcTraceId = MDC.get(MDC_KEY);
+        final Runnable r = decorateRunnable(task, mdcTraceId);
         return super.submit(r, result);
     }
 
@@ -106,15 +105,15 @@ public class MdcThreadPoolTaskExecutor extends ThreadPoolExecutor {
     @NonNull
     public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
         // 获取父线程 MDC 中的内容
-        final Map<String, String> context = MDC.getCopyOfContextMap();
-        return super.invokeAny(tasks.stream().map(task -> decorateCallable(task, context)).collect(Collectors.toList()));
+        final String mdcTraceId = MDC.get(MDC_KEY);
+        return super.invokeAny(tasks.stream().map(task -> decorateCallable(task, mdcTraceId)).collect(Collectors.toList()));
     }
 
     @Override
     public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
         // 获取父线程 MDC 中的内容
-        final Map<String, String> context = MDC.getCopyOfContextMap();
-        return super.invokeAny(tasks.stream().map(task -> decorateCallable(task, context)).collect(Collectors.toList()),
+        final String mdcTraceId = MDC.get(MDC_KEY);
+        return super.invokeAny(tasks.stream().map(task -> decorateCallable(task, mdcTraceId)).collect(Collectors.toList()),
                                timeout, unit);
     }
 
@@ -122,16 +121,16 @@ public class MdcThreadPoolTaskExecutor extends ThreadPoolExecutor {
     @NonNull
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException {
         // 获取父线程 MDC 中的内容
-        final Map<String, String> context = MDC.getCopyOfContextMap();
-        return super.invokeAll(tasks.stream().map(task -> decorateCallable(task, context)).collect(Collectors.toList()));
+        final String mdcTraceId = MDC.get(MDC_KEY);
+        return super.invokeAll(tasks.stream().map(task -> decorateCallable(task, mdcTraceId)).collect(Collectors.toList()));
     }
 
     @Override
     @NonNull
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException {
         // 获取父线程 MDC 中的内容
-        final Map<String, String> context = MDC.getCopyOfContextMap();
-        return super.invokeAll(tasks.stream().map(task -> decorateCallable(task, context)).collect(Collectors.toList()),
+        final String mdcTraceId = MDC.get(MDC_KEY);
+        return super.invokeAll(tasks.stream().map(task -> decorateCallable(task, mdcTraceId)).collect(Collectors.toList()),
                                timeout, unit);
     }
 
@@ -139,12 +138,12 @@ public class MdcThreadPoolTaskExecutor extends ThreadPoolExecutor {
      * 子线程任务
      *
      * @param runnable {@link Runnable}
-     * @param context  父线程 MDC 内容
+     * @param mdcTraceId  mdc trace id
      */
-    private void run(@NonNull Runnable runnable, @Nullable Map<String, String> context) {
+    private void run(@NonNull Runnable runnable, @Nullable String mdcTraceId) {
         // 设置 MDC 内容给子线程
-        if (context != null) {
-            MDC.setContextMap(context);
+        if (mdcTraceId != null) {
+            MDC.put(MDC_KEY, mdcTraceId);
         }
         else {
             MDC.put(MDC_KEY, UuidUtils.getUUID());
@@ -162,13 +161,13 @@ public class MdcThreadPoolTaskExecutor extends ThreadPoolExecutor {
      * 子线程任务
      *
      * @param task    {@link Callable}
-     * @param context 父线程 MDC 内容
+     * @param mdcTraceId mdc trace id
      */
     @NonNull
-    private <V> V call(@NonNull Callable<V> task, @Nullable Map<String, String> context) throws Exception {
+    private <V> V call(@NonNull Callable<V> task, @Nullable String mdcTraceId) throws Exception {
         // 设置 MDC 内容给子线程
-        if (context != null) {
-            MDC.setContextMap(context);
+        if (mdcTraceId != null) {
+            MDC.put(MDC_KEY, mdcTraceId);
         }
         else {
             MDC.put(MDC_KEY, UuidUtils.getUUID());
@@ -183,12 +182,12 @@ public class MdcThreadPoolTaskExecutor extends ThreadPoolExecutor {
     }
 
     @NonNull
-    private Runnable decorateRunnable(@NonNull Runnable runnable, @Nullable Map<String, String> context) {
-        return () -> run(runnable, context);
+    private Runnable decorateRunnable(@NonNull Runnable runnable, @Nullable String mdcTraceId) {
+        return () -> run(runnable, mdcTraceId);
     }
 
     @NonNull
-    private <V> Callable<V> decorateCallable(@NonNull Callable<V> task, @Nullable Map<String, String> context) {
-        return () -> call(task, context);
+    private <V> Callable<V> decorateCallable(@NonNull Callable<V> task, @Nullable String mdcTraceId) {
+        return () -> call(task, mdcTraceId);
     }
 }
