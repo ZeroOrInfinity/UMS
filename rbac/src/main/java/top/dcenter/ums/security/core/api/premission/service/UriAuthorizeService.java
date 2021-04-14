@@ -77,7 +77,7 @@ public interface UriAuthorizeService {
     Map<String, Set<String>> getUriAuthoritiesOfUser(@NonNull Authentication authentication);
 
     /**
-     * 获取所有角色的 uri(资源) 的权限 Map(role, Map(uri, Set(permission))).<br>
+     * 获取所有角色的 uri(资源) 的权限 Map(roleAuthority, Map(uri, Set(permission))).<br>
      * <pre>
      * // 当为 restful 风格的 Api 时, uri 与 permission 是一对一关系:
      *  uri         permission
@@ -94,7 +94,7 @@ public interface UriAuthorizeService {
      *
      * // 但最终返回的结果时是一样的; Map{["user/*", Set[list,add,edit,delete]]..}
      * </pre>
-     * @return Map(role, Map(uri, Set(permission))): <br>
+     * @return Map(roleAuthority, Map(uri, Set(permission))): <br>
      *     key: 必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), <br>
      *     value: map(key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为权限字符串({@link PermissionType#getPermission()}) Set).
      */
@@ -105,7 +105,7 @@ public interface UriAuthorizeService {
     }
 
     /**
-     * 获取 指定租户 所有角色的 uri(资源) 的权限 Map(role, Map(uri, Set(permission))).<br>
+     * 获取 指定租户 所有角色的 uri(资源) 的权限 Map(roleAuthority, Map(uri, Set(permission))).<br>
      * <pre>
      * // 当为 restful 风格的 Api 时, uri 与 permission 是一对一关系:
      *  uri         permission
@@ -123,7 +123,7 @@ public interface UriAuthorizeService {
      * // 但最终返回的结果时是一样的; Map{["user/*", Set[list,add,edit,delete]]..}
      * </pre>
      * @param tenantAuthority   包含 TENANT_ 前缀的租户权限, 例如: TENANT_租户ID
-     * @return                  Map(role, Map(uri, Set(permission))): <br>
+     * @return                  Map(roleAuthority, Map(uri, Set(permission))): <br>
      *     key: 必须包含"ROLE_"前缀的角色名称(如: ROLE_ADMIN), <br>
      *     value: map(key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为权限字符串({@link PermissionType#getPermission()}) Set).
      */
@@ -134,7 +134,7 @@ public interface UriAuthorizeService {
     }
 
     /**
-     * 获取指定 scopeAuthoritySet 的所有对应 role 的 uri(资源) 的权限 Map(role, Map(uri, Set(permission))). 在微服务中,
+     * 获取指定 scopeAuthoritySet 的所有对应 role 的 uri(资源) 的权限 Map(roleAuthority, Map(uri, Set(permission))). 在微服务中,
      * 对资源的权限控制有粗粒度权限控制与细粒度权限控制, 使用细粒度权限控制时: 实现此接口.<br>
      * <pre>
      * // 当为 restful 风格的 Api 时, uri 与 permission 是一对一关系:
@@ -153,7 +153,7 @@ public interface UriAuthorizeService {
      * // 但最终返回的结果时是一样的; Map{["user/*", Set[list,add,edit,delete]]..}
      * </pre>
      * @param scopeAuthoritySet 包含 SCOPE_ 前缀的租户权限 Set, 例如: SCOPE_scope
-     * @return                  Map(role, Map(uri, Set(permission))): <br>
+     * @return                  Map(roleAuthority, Map(uri, Set(permission))): <br>
      *     key: 必须包含"ROLE_"前缀的角色名称(如: ROLE_read), <br>
      *     value: map(key 为 uri, 此 uri 可以为 antPath 通配符路径,如 /user/**; value 为权限字符串({@link PermissionType#getPermission()}) Set).
      */

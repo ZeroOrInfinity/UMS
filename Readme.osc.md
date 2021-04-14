@@ -149,7 +149,7 @@
          方式实现发布 UpdateRolesResourcesEvent 事件, 从而调用 UpdateCacheOfRolesResourcesService 对应的方法.
         - 建议:
          
-            1\. 基于 角色 的权限控制: 实现所有角色 uri(资源) 的权限 Map(role, map(uri, Set(permission))) 的更新与缓存本机内存. 
+            1\. 基于 角色 的权限控制: 实现所有角色 uri(资源) 的权限 Map(roleAuthority, map(uri, Set(permission))) 的更新与缓存本机内存. 
             
             2\. 基于 SCOPE 的权限控制: 情况复杂一点, 但 SCOPE 类型比较少, 也还可以像 1 的方式实现缓存本机内存与更新. 
             

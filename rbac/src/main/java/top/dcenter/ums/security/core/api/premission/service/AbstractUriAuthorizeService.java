@@ -183,7 +183,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
         final Map<String, Set<String>> uriPermissionsOfUserRole = getUriAuthoritiesOfUserRole(rolesAuthorities, roleSet);
 
         if (scopeAuthoritySet.size() > 0) {
-            // 获取此 scopeAuthoritySet 的所有角色的资源权限的 Map<role, Map<uri, Set<permission>>>
+            // 获取此 scopeAuthoritySet 的所有角色的资源权限的 Map<roleAuthority, Map<uri, Set<permission>>>
             final Map<String, Map<String, Set<String>>> uriPermissionsOfScope = getScopeAuthoritiesOfScope(scopeAuthoritySet);
             // 把 scope 的资源权限与 role 资源权限合并
             if (!uriPermissionsOfScope.isEmpty()) {
@@ -259,7 +259,7 @@ public abstract class AbstractUriAuthorizeService implements UriAuthorizeService
 
     /**
      * 获取用户角色的 uri 权限 Map
-     * @param rolesAuthoritiesMap   所有角色 uri(资源) 权限 Map(role, map(uri, Set(permission)))
+     * @param rolesAuthoritiesMap   所有角色 uri(资源) 权限 Map(roleAuthority, map(uri, Set(permission)))
      * @param userRoleSet           用户所拥有的角色集合
      * @return 用户角色的 uri 权限 Map(uri, Set(permission))
      */

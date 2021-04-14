@@ -30,7 +30,7 @@ import top.dcenter.ums.security.core.exception.RolePermissionsException;
  * 推荐实现此 {@link RolePermissionsService} 接口, 会自动通过 AOP 方式实现发布 UpdateRolesResourcesEvent 事件,
  * 从而调用 {@link UpdateCacheOfRolesResourcesService} 对应的方法.<br>
  * 建议: <br>
- * 1. 基于 角色 的权限控制: 实现所有角色 uri(资源) 的权限 Map(role, map(uri, Set(permission))) 的更新与缓存本机内存.
+ * 1. 基于 角色 的权限控制: 实现所有角色 uri(资源) 的权限 Map(roleAuthority, map(uri, Set(permission))) 的更新与缓存本机内存.
  * 2. 基于 SCOPE 的权限控制: 情况复杂一点, 但 SCOPE 类型比较少, 也还可以像 1 的方式实现缓存本机内存与更新.
  * 3. 基于 多租户 的权限控制: 情况比较复杂, 租户很少的情况下, 也还可以全部缓存在本机内存, 通常情况下全部缓存内存不现实, 只能借助于类似 redis 等的内存缓存.
  * @author YongWu zheng
