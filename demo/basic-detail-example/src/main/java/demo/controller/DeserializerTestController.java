@@ -44,7 +44,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.jackson2.CoreJackson2Module;
-import org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2Module;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -59,8 +58,8 @@ import top.dcenter.ums.security.common.utils.JsonUtil;
 import top.dcenter.ums.security.common.utils.UuidUtils;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationToken;
-import top.dcenter.ums.security.core.redis.jackson2.Auth2Jackson2Module;
 import top.dcenter.ums.security.core.redis.config.RedisCacheAutoConfiguration;
+import top.dcenter.ums.security.core.redis.jackson2.Auth2Jackson2Module;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
@@ -110,7 +109,7 @@ public class DeserializerTestController {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.registerModules(new CoreJackson2Module(), new WebJackson2Module(),
                                new JavaTimeModule(), new WebServerJackson2Module(),
-                               new OAuth2ClientJackson2Module(), new Auth2Jackson2Module());
+                               new Auth2Jackson2Module(), new Auth2Jackson2Module());
 
         // 测试 redis 序列化 与 反序列化
 

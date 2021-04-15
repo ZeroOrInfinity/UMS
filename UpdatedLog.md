@@ -1,3 +1,8 @@
+## 2.2.36
+### Fixes and Improvements:
+1. rbac/包重命名: top.dcenter.ums.security.core.premission -> top.dcenter.ums.security.core.permission.
+2. commons/优化: Executor MDC trace id 性能 与 commons/优化: 设置 JsonUtil 序列化时当字段值为 null 时不显示.
+
 ## 2.2.35
 ### Fixes and Improvements:
 1. rbac/新增: 添加 getMenuByRole 与 getMenuByRoleOfTenant 接口, 以适用与菜单 与 权限分开设计的权限模型; 添加 getRolesOfUser 与 getMenusOfUser 接口并实现 getRolesOfUser 接口.
