@@ -20,30 +20,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package demo.service;
+package top.dcenter.ums.security.core.permission.enums;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
-import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import top.dcenter.ums.security.core.permission.event.UpdateRolesResourcesEvent;
 
 /**
+ * 更新权限资源的类型, 用于 {@link UpdateRolesResourcesEvent}
  * @author YongWu zheng
- * @version V2.0  Created by 2020/11/11 17:09
+ * @version V2.0  Created by 2020/11/9 10:47
  */
-@Component
-@Slf4j
-public class DemoUriAuthorizeServiceImpl extends AbstractUriAuthorizeService {
-
-    @Override
-    @NonNull
-    public Map<String, Map<String, Set<String>>> getRolesAuthorities() {
-        // do nothing 具体看 permission-example 的 demo.permission.service.impl.UriAuthorizeServiceImpl
-        return new HashMap<>(0);
-    }
+public enum UpdateRolesResourcesType {
+    /**
+     * 基于角色的资源类型
+     */
+    ROLE,
+    /**
+     * 基于多租户的资源类型
+     */
+    TENANT,
+    /**
+     * 基于 SCOPE 的多租户类型
+     */
+    SCOPE,
+    /**
+     * 角色组类型
+     */
+    GROUP,
+    /**
+     * 所有类型: 包括上面的所有类型. 一般用于应用启动时初始化权限
+     */
+    ALL,
 
 }

@@ -20,30 +20,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package demo.service;
+package top.dcenter.ums.security.core.permission.config;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
-import top.dcenter.ums.security.core.api.permission.service.AbstractUriAuthorizeService;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import top.dcenter.ums.security.core.permission.properties.PermissionProperties;
 
 /**
+ * 权限属性配置类
  * @author YongWu zheng
- * @version V2.0  Created by 2020/11/11 17:09
+ * @version V2.0  Created by 2020.12.17 16:59
  */
-@Component
-@Slf4j
-public class DemoUriAuthorizeServiceImpl extends AbstractUriAuthorizeService {
-
-    @Override
-    @NonNull
-    public Map<String, Map<String, Set<String>>> getRolesAuthorities() {
-        // do nothing 具体看 permission-example 的 demo.permission.service.impl.UriAuthorizeServiceImpl
-        return new HashMap<>(0);
-    }
-
+@Configuration
+@Order(98)
+@EnableConfigurationProperties({PermissionProperties.class})
+public class RbacPropertiesAutoConfiguration {
 }
