@@ -54,6 +54,7 @@ import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UnBindingException;
 import top.dcenter.ums.security.core.oauth.justauth.util.JustAuthUtil;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
+import top.dcenter.ums.security.core.oauth.properties.HttpConfigProperties;
 
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,7 @@ import java.util.stream.Collectors;
 public class DefaultConnectionServiceImpl implements ConnectionService {
     /**
      * {@link HttpConfig#getTimeout()}, 单位毫秒,
-     * 返回用户设置的超时时间{@link Auth2Properties.HttpConfigProperties#getTimeout()}，单位毫秒.
+     * 返回用户设置的超时时间{@link HttpConfigProperties#getTimeout()}，单位毫秒.
      */
     private final Integer timeout;
 

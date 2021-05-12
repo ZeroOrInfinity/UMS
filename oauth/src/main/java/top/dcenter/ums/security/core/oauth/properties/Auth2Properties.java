@@ -23,7 +23,6 @@
 
 package top.dcenter.ums.security.core.oauth.properties;
 
-import com.xkcoding.http.config.HttpConfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -32,14 +31,11 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.validation.annotation.Validated;
-import top.dcenter.ums.security.core.oauth.filter.login.Auth2LoginAuthenticationFilter;
 import top.dcenter.ums.security.core.api.oauth.job.RefreshTokenJob;
+import top.dcenter.ums.security.core.oauth.filter.login.Auth2LoginAuthenticationFilter;
 import top.dcenter.ums.security.core.oauth.userdetails.TemporaryUser;
 
 import javax.validation.constraints.NotNull;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.time.Duration;
 
 /**
  * 第三方登录属性
@@ -339,56 +335,7 @@ public class Auth2Properties {
      *
      * @since 1.15.5
      */
+    @NestedConfigurationProperty
     private HttpConfigProperties proxy = new HttpConfigProperties();
-    
 
-    @Getter
-    @Setter
-    public static class HttpConfigProperties {
-
-        /**
-         * 当 enable = true 时, 返回 HttpConfig 对象, 否则返回为 null.
-         * @return  当 enable = true 时, 返回 HttpConfig 对象, 否则返回为 null.
-         */
-        public HttpConfig getHttpConfig() {
-            if (!enable)
-            {
-                return HttpConfig.builder().timeout((int) timeout.toMillis()).build();
-            }
-            return HttpConfig.builder()
-                    .proxy(new Proxy(proxy, new InetSocketAddress(hostname, port)))
-                    .timeout((int) timeout.toMillis())
-                    .build();
-        }
-
-        /**
-         * 是否支持代理, 默认为: false. <br>
-         */
-        private Boolean enable = false;
-
-        /**
-         * 针对国外服务可以单独设置代理类型, 默认 Proxy.Type.HTTP, enable = true 时生效.
-         */
-        private Proxy.Type proxy = Proxy.Type.HTTP;
-
-        /**
-         * 代理 host, enable = true 时生效.
-         */
-        private String hostname;
-
-        /**
-         * 代理端口, enable = true 时生效.
-         */
-        private Integer port;
-
-        /**
-         * 代理超时, 默认 PT3S
-         */
-        private Duration timeout = Duration.ofSeconds(3);
-        /**
-         * 用于国外网站代理超时, 默认 PT15S
-         */
-        private Duration foreignTimeout = Duration.ofSeconds(15);
-
-    }
 }

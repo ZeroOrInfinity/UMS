@@ -53,6 +53,7 @@ import top.dcenter.ums.security.core.oauth.justauth.enums.StateCacheType;
 import top.dcenter.ums.security.core.oauth.justauth.request.AuthDefaultRequestAdapter;
 import top.dcenter.ums.security.core.oauth.properties.Auth2Properties;
 import top.dcenter.ums.security.core.oauth.properties.BaseAuth2Properties;
+import top.dcenter.ums.security.core.oauth.properties.HttpConfigProperties;
 import top.dcenter.ums.security.core.oauth.properties.JustAuthProperties;
 
 import java.lang.reflect.Field;
@@ -346,7 +347,7 @@ public final class Auth2RequestHolder implements InitializingBean, ApplicationCo
         List<String> scopes = getScopesBySource(auth2Properties, source);
         config.setScopes(scopes);
         // 设置是否启用代理
-        Auth2Properties.HttpConfigProperties proxy = auth2Properties.getProxy();
+        HttpConfigProperties proxy = auth2Properties.getProxy();
         config.setHttpConfig(proxy.getHttpConfig());
         // 设置是否忽略 state 检测
         config.setIgnoreCheckState(justAuth.getIgnoreCheckState());
