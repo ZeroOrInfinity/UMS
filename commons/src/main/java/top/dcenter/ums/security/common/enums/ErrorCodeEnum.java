@@ -126,6 +126,7 @@ public enum ErrorCodeEnum {
     UN_BINDING_LOGGED_ERROR(965, "不能解绑的已登录的账号"),
     UN_BINDING_NOT_OAUTH2(966, "只能解绑第三方的账号"),
     UN_BINDING_ILLEGAL(967, "不能解绑的不属于自己的第三方账号"),
+    QUERY_MOBILE_FAILURE_OF_ONE_CLICK_LOGIN(968, "一键登录获取手机号失败"),
 
 
     TENANT_ID_NOT_FOUND(970, "获取不到租户 ID "),

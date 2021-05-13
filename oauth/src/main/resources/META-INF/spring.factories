@@ -6,5 +6,7 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   top.dcenter.ums.security.core.executor.config.ExecutorAutoConfiguration,\
   top.dcenter.ums.security.core.oauth.config.Auth2AutoConfiguration,\
   top.dcenter.ums.security.core.oauth.config.Auth2AutoConfigurer,\
+  top.dcenter.ums.security.core.oauth.config.OneClickLoginAutoConfigurer,\
+  top.dcenter.ums.security.core.oauth.config.OneClickLoginHttpSecurityAware,\
   top.dcenter.ums.security.core.redis.config.RedisCacheAutoConfiguration,\
   top.dcenter.ums.security.core.oauth.config.Auth2AutoHttpSecurityAware
