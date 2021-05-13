@@ -38,7 +38,6 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationFailureHandler;
 import top.dcenter.ums.security.core.api.authentication.handler.BaseAuthenticationSuccessHandler;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
-import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationFilter;
 import top.dcenter.ums.security.core.auth.mobile.SmsCodeLoginAuthenticationProvider;
 import top.dcenter.ums.security.core.auth.properties.ClientProperties;
@@ -70,9 +69,6 @@ public class SmsCodeLoginAutoAuthenticationConfigurer extends SecurityConfigurer
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
     @Autowired(required = false)
     private PersistentTokenRepository persistentTokenRepository;
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired(required = false)
-    private TenantContextHolder tenantContextHolder;
     @SuppressWarnings({"SpringJavaAutowiredFieldsWarningInspection"})
     @Autowired(required = false)
     private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
@@ -102,8 +98,10 @@ public class SmsCodeLoginAutoAuthenticationConfigurer extends SecurityConfigurer
 
         SmsCodeLoginAuthenticationFilter smsCodeLoginAuthenticationFilter =
                 new SmsCodeLoginAuthenticationFilter(validateCodeProperties, smsCodeLoginAuthenticationProperties,
-                                                     tenantContextHolder, authenticationDetailsSource);
+                                                     authenticationDetailsSource);
         smsCodeLoginAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
+        smsCodeLoginAuthenticationFilter.setAuthenticationSuccessHandler(baseAuthenticationSuccessHandler);
+        smsCodeLoginAuthenticationFilter.setAuthenticationFailureHandler(baseAuthenticationFailureHandler);
         registerHandlerAndRememberMeServices(smsCodeLoginAuthenticationFilter,
                                              baseAuthenticationSuccessHandler,
                                              baseAuthenticationFailureHandler,

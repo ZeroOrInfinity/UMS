@@ -131,7 +131,8 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
         // 添加第三方登录入口过滤器
         String authorizationRequestBaseUri = auth2Properties.getAuthLoginUrlPrefix();
         Auth2DefaultRequestRedirectFilter auth2DefaultRequestRedirectFilter =
-                new Auth2DefaultRequestRedirectFilter(authorizationRequestBaseUri, this.auth2StateCoder, tenantContextHolder, baseAuthenticationFailureHandler);
+                new Auth2DefaultRequestRedirectFilter(authorizationRequestBaseUri, this.auth2StateCoder,
+                                                      tenantContextHolder, baseAuthenticationFailureHandler);
         http.addFilterBefore(postProcess(auth2DefaultRequestRedirectFilter), AbstractPreAuthenticatedProcessingFilter.class);
 
         // 添加第三方登录回调接口过滤器
@@ -141,6 +142,18 @@ public class Auth2AutoConfigurer extends SecurityConfigurerAdapter<DefaultSecuri
                                                    authenticationDetailsSource, redisConnectionFactory);
         AuthenticationManager sharedObject = http.getSharedObject(AuthenticationManager.class);
         auth2LoginAuthenticationFilter.setAuthenticationManager(sharedObject);
+        //noinspection ConstantConditions
+        if (baseAuthenticationFailureHandler != null)
+        {
+            // 添加认证失败处理器
+            auth2LoginAuthenticationFilter.setAuthenticationFailureHandler(baseAuthenticationFailureHandler);
+        }
+        if (baseAuthenticationSuccessHandler != null)
+        {
+            // 添加认证成功处理器
+            auth2LoginAuthenticationFilter.setAuthenticationSuccessHandler(baseAuthenticationSuccessHandler);
+        }
+
         AppContextUtil.registerHandlerAndRememberMeServices(auth2LoginAuthenticationFilter,
                                                             baseAuthenticationSuccessHandler,
                                                             baseAuthenticationFailureHandler,

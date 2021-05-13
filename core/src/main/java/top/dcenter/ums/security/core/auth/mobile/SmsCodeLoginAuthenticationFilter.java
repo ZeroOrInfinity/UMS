@@ -36,7 +36,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.common.consts.SecurityConstants;
 import top.dcenter.ums.security.common.enums.ErrorCodeEnum;
-import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.auth.properties.SmsCodeLoginAuthenticationProperties;
 import top.dcenter.ums.security.core.auth.properties.ValidateCodeProperties;
 import top.dcenter.ums.security.core.exception.LoginFailureException;
@@ -59,19 +58,16 @@ public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProc
     private String mobileParameter;
     private boolean postOnly = true;
     private final ValidateCodeProperties validateCodeProperties;
-    private final TenantContextHolder tenantContextHolder;
 
     // ~ Constructors
     // ===================================================================================================
 
     public SmsCodeLoginAuthenticationFilter(@NonNull ValidateCodeProperties validateCodeProperties,
                                             @NonNull SmsCodeLoginAuthenticationProperties smsCodeLoginAuthenticationProperties,
-                                            @Nullable TenantContextHolder tenantContextHolder,
                                             @Nullable AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
         super(new AntPathRequestMatcher(smsCodeLoginAuthenticationProperties.getLoginProcessingUrlMobile(), SecurityConstants.POST_METHOD));
         this.validateCodeProperties = validateCodeProperties;
         this.mobileParameter = validateCodeProperties.getSms().getRequestParamMobileName();
-        this.tenantContextHolder = tenantContextHolder;
         if (authenticationDetailsSource != null) {
             setAuthenticationDetailsSource(authenticationDetailsSource);
         }
@@ -94,10 +90,6 @@ public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProc
             throw new LoginFailureException(ErrorCodeEnum.MOBILE_NOT_EMPTY,
                                             this.validateCodeProperties.getSms().getRequestParamMobileName(),
                                             request.getSession(true).getId());
-        }
-
-        if (this.tenantContextHolder != null) {
-            this.tenantContextHolder.tenantIdHandle(request, null);
         }
 
         mobile = mobile.trim();
@@ -140,10 +132,10 @@ public class SmsCodeLoginAuthenticationFilter extends AbstractAuthenticationProc
      * Sets the parameter name which will be used to obtain the username from the login
      * request.
      *
-     * @param mobileParameter the parameter name. Defaults to "username".
+     * @param mobileParameter the parameter name. Defaults to "mobile".
      */
     public void setMobileParameter(String mobileParameter) {
-        Assert.hasText(mobileParameter, "Username parameter must not be empty or null");
+        Assert.hasText(mobileParameter, "mobile parameter must not be empty or null");
         this.mobileParameter = mobileParameter;
     }
 
