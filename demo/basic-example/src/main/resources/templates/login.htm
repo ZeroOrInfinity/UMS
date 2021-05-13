@@ -44,6 +44,16 @@
         </tr>
     </table>
 </form>
+<br><br>
+<h3>一键登录</h3>
+<form id="one-click-form" th:action="@{/authentication/one-click}" method="post">
+    <!-- 测试用, 生成环境根据实际情况设置 -->
+    <input type="hidden" name="imei" value="huaweiMate9">
+    <!-- 生产环境需要前端调用服务商的一键登录 sdk 获取服务商的 token -->
+    <input type="hidden" name="accessToken" value="20beb57cf6b940b49ebba06893dff93c">
+    <button id="btn-one-click" type="button">一键登录x</button>
+</form>
+<br><br>
 <h3>手机登录</h3>
 <form id="mobile-form" th:action="@{/authentication/mobile}" method="post">
     <table>
@@ -211,6 +221,10 @@
 
     $("#btn-reg").click(
         submitFormByAjax($("#reg-form").attr("action"), "#reg-form", "#error-name", "#error-code", ".img")
+    )
+
+    $("#btn-one-click").click(
+        submitFormByAjax($("#one-click-form").attr("action"), "#one-click-form", "#error-name", "#error-code", ".img")
     )
 </script>
 </html>

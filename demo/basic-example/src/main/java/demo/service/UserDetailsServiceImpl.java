@@ -44,6 +44,7 @@ import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.UserNotExistException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *  用户密码与手机短信登录与注册服务：<br><br>
@@ -146,6 +147,12 @@ public class UserDetailsServiceImpl implements UmsUserDetailsService {
         }
 
         return user;
+    }
+
+    @Override
+    @NonNull
+    public UserDetails registerUser(@NonNull String mobile, Map<String, String> otherParamMap) throws RegisterUserFailureException {
+        return registerUser(mobile);
     }
 
     @Override
