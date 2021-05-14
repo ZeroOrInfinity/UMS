@@ -1,10 +1,14 @@
+## 2.2.38
+### Fixes and Improvements:
+1. oauth/修复: 自定义scope不能覆盖默认scope 的 bug. 感谢 luodada.
+2. vc/修改接口: SmsCodeSender.sendSms(String, String) -> SmsCodeSender.sendSms(String, ValidateCode).
+   
 ## 2.2.37
 ### Fixes and Improvements:
 1. oauth/commons/新增: 一键登录功能.
 2. demo/添加: 一键登录 example.
 3. core/oauth/改进: 手机登录与第三方登录添加登录成功与登录失败处理器, 已经其他优化.
 4. oauth/优化
-
 
 ## 2.2.36
 ### Fixes and Improvements:

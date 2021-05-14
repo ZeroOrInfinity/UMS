@@ -6,12 +6,12 @@
 
     <groupId>top.dcenter</groupId>
     <artifactId>ums</artifactId>
-    <version>2.2.37</version>
+    <version>2.2.38</version>
 
     <packaging>pom</packaging>
     <name>ums</name>
     <description>
-        User management scaffolding integration: validate code, mobile login, OAuth2, RBAC-based uri
+        User management scaffolding integration: validate code, mobile login, one-click login, OAuth2, RBAC-based uri
         access control function, support multi-tenancy, jwt, and sign etc...
     </description>
 
