@@ -123,7 +123,8 @@ public class SmsValidateCodeProcessor extends AbstractValidateCodeProcessor {
                 int indexOf = smsCode.indexOf(SMS_CODE_SEPARATOR);
                 smsCode = smsCode.substring(indexOf + SMS_CODE_SEPARATOR.length());
 
-                final boolean result = smsCodeSender.sendSms(mobile, smsCode);
+                final boolean result = smsCodeSender.sendSms(mobile,
+                                                             new ValidateCode(smsCode,validateCode.getExpireIn()));
                 responseWithJson(response, OK.value(), toJsonString(success("", validateCode.getExpireIn())));
 
                 return result;

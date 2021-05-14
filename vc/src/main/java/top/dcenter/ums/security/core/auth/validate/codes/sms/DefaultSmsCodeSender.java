@@ -49,8 +49,10 @@ public class DefaultSmsCodeSender implements SmsCodeSender {
     }
 
     @Override
-    public boolean sendSms(String mobile, String validateCode) {
-        log.warn("你正在通过默认实现的发送短信验证码, 请实现 SmsCodeSender 接口: 验证码={}", validateCode);
+    public boolean sendSms(String mobile, ValidateCode validateCode) {
+        log.warn("你正在通过默认实现的发送短信验证码, 请实现 SmsCodeSender 接口: 验证码={}, {} 秒后失效",
+                 validateCode.getCode(),
+                 validateCode.getExpireIn());
         return true;
     }
 

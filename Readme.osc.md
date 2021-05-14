@@ -36,7 +36,7 @@
 
 </p>
 UMS 是一个非侵入式、与业务高度解耦、可自定义的用户管理脚手架.
-用户管理脚手架集成：用户密码登录、手机登录、支持所有 JustAuth 支持的第三方授权登录、验证码、基于 RBAC 的访问权限控制功能, 支持多租户、JWT、SLF4J-MDC、签到等功能。
+用户管理脚手架集成：用户密码登录、手机登录、一键登录、支持所有 JustAuth 支持的第三方授权登录、验证码、基于 RBAC 的访问权限控制功能, 支持多租户、JWT、SLF4J-MDC、签到等功能。
 通过配置文件与实现 **用户服务, 短信发送服务, 获取角色权限服务** 等几个 API 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑。
 
 ![ums-arch](doc/ums-arch.png)
@@ -44,19 +44,21 @@ UMS 是一个非侵入式、与业务高度解耦、可自定义的用户管理�
 
 ## 一、`UMS 功能列表`：
 
-  - 验证码（图片，短信, 滑块）校验功能。
-  - 手机登录功能，登录后自动注册, 支持多租户。
-  - 支持所有 JustAuth 支持的第三方授权登录，登录后自动注册或绑定或创建临时用户([TemporaryUser](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/oauth/userdetails/TemporaryUser.java))。
-      - 支持定时刷新 accessToken, 支持分布式定时任务。
-      - 支持第三方授权登录的用户信息表与 token 信息表的缓存功能。
+  - 验证码（图片，短信, 滑块）校验功能.
+  - 手机登录功能，登录后自动注册, 支持多租户.
+  - 支持所有 JustAuth 支持的第三方授权登录，登录后自动注册或绑定或创建临时用户([TemporaryUser](https://gitee.
+    com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/oauth/userdetails/TemporaryUser.java)).
+      - 支持定时刷新 accessToken, 支持分布式定时任务.
+      - 支持第三方授权登录的用户信息表与 token 信息表的缓存功能.
       - 支持第三方绑定与解绑及查询接口(top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository).
-  - 访问权限控制功能, 支持多租户。
-  - 简化 session、remember me、csrf、cors等配置。
-  - 根据设置的响应方式（JSON 与 REDIRECT）返回 json 或 html 数据。
-  - 签到功能。
-  - 支持基于 SLF4J MDC 机制的日志链路追踪功能。
+  - 一键登录.
+  - 访问权限控制功能, 支持多租户.
+  - 简化 session、remember me、csrf、cors等配置.
+  - 根据设置的响应方式（JSON 与 REDIRECT）返回 json 或 html 数据.
+  - 签到功能.
+  - 支持基于 SLF4J MDC 机制的日志链路追踪功能.
   - JWT 创建(通过接口自定义 Claims, 通过配置设置算法等), 校验(通过接口自定义校验规则), 刷新(自动刷新, 直接拒绝, 通过 refreshToken 刷新), 刷新的 JWT 使旧的 JWT
-    失效引发的并发访问问题及黑名单。
+    失效引发的并发访问问题及黑名单.
   
 ### 模块功能 
 

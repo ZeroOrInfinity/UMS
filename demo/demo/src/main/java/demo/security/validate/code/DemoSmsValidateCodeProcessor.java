@@ -80,7 +80,7 @@ public class DemoSmsValidateCodeProcessor extends SmsValidateCodeProcessor {
             if (StringUtils.isNotBlank(mobile) && mobile.matches(RegexConstants.MOBILE_PATTERN))
             {
                 log.info("短信验证码发生成功：{} = {}", mobile, validateCode.getCode());
-                return smsCodeSender.sendSms(mobile, validateCode.getCode());
+                return smsCodeSender.sendSms(mobile, validateCode);
             }
         }
         catch (ServletRequestBindingException e)

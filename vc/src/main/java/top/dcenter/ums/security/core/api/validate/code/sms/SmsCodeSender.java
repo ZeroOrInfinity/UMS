@@ -47,7 +47,7 @@ public interface SmsCodeSender {
      * @param validateCode  验证码
      * @return  发送验证码是否成功的状态
      */
-    boolean sendSms(String mobile, String validateCode);
+    boolean sendSms(String mobile, ValidateCode validateCode);
 
     /**
      * 生成验证码

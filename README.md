@@ -39,7 +39,7 @@
 
 UMS is a non-intrusive, highly decoupled from business, customizable user management scaffolding.
 User management scaffolding, integration: User password login, mobile login, OAuth2 login(Based on JustAuth), 
-Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-MDC, signed etc...
+one click login, Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-MDC, signed etc...
 
 ![ums-arch](doc/ums-arch.png)
 ------
@@ -51,6 +51,7 @@ Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-
       - Support timing refresh accessToken, support distributed timing tasks.
       - Support the caching function of user table and token table by OAuth2 login.
       - Support third-party binding and unbinding and query interfaces.
+  - one click login.
   - Access control function, support multi tenancy.
   - Simplify session、remember me、csrf cors etc configuration.
   - Return json or html data according to the set response method (JSON and REDIRECT).

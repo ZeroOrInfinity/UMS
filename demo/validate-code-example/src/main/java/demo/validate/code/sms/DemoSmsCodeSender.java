@@ -43,16 +43,16 @@ import static java.util.Objects.nonNull;
 @Slf4j
 public class DemoSmsCodeSender implements SmsCodeSender {
 
+    private final ValidateCodeProperties validateCodeProperties;
+
     public DemoSmsCodeSender(ValidateCodeProperties validateCodeProperties) {
         this.validateCodeProperties = validateCodeProperties;
     }
 
-    private ValidateCodeProperties validateCodeProperties;
-
     @Override
-    public boolean sendSms(String mobile, String validateCode) {
+    public boolean sendSms(String mobile, ValidateCode validateCode) {
         // ... 业务逻辑
-        log.info("Demo =====>: 短信验证码发送成功：{}", validateCode);
+        log.info("Demo =====>: 短信验证码发送成功：{}, {} 秒后失效", validateCode.getCode(), validateCode.getExpireIn());
         return true;
     }
 
