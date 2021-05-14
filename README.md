@@ -1,13 +1,18 @@
-# User management scaffolding
+# 
+
+<div align=center>
+
+![logo](doc/logo.png)
+</div>
 
 
-<p align="center" style="font-size: 32px">
-  <strong>UMS is a non-intrusive, highly decoupled from business, customizable user management scaffolding</strong>
+<p align="center" style="font-size: 32px">    
+    <strong>User management scaffolding</strong>  
 </p>
 
 <p align="center">
 	<a target="_blank" href="https://search.maven.org/search?q=g:top.dcenter%20AND%20a:ums-spring-boot-starter">
-		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.36-green.svg" />
+		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.37-green.svg" />
 	</a>
 	<a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">
 		<img alt='license' src="https://img.shields.io/badge/license-MIT-yellow.svg" />
@@ -32,7 +37,7 @@
 
 </p>
 
-
+UMS is a non-intrusive, highly decoupled from business, customizable user management scaffolding.
 User management scaffolding, integration: User password login, mobile login, OAuth2 login(Based on JustAuth), 
 Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-MDC, signed etc...
 
@@ -62,7 +67,7 @@ Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-
   | [core](https://github.com/ZeroOrInfinity/UMS/tree/master/core)   | Username password login/Mobile login and automatic registration/signed/Simplify session、remember me、csrf cors etc configuration/session redis cache/Return json or html data according to the set response method (JSON and REDIRECT)/JWT/mdc model |
   | [vc](https://github.com/ZeroOrInfinity/UMS/tree/master/vc)   | validate code(image, SMS, slider) verification function, integrated mdc model |
   | [mdc](https://github.com/ZeroOrInfinity/UMS/tree/master/mdc)   | Support log link tracking function based on SLF4J MDC mechanism |
-  | [oauth](https://github.com/ZeroOrInfinity/UMS/tree/master/oauth)   | OAuth2 login by JustAuth, integrated jwt/mdc model |
+  | [oauth](https://github.com/ZeroOrInfinity/UMS/tree/master/oauth)   | OAuth2 login by JustAuth, one-click login, integrated jwt/mdc model |
   | [rbac](https://github.com/ZeroOrInfinity/UMS/tree/master/rbac)   | RBAC-based access control, supports multi-tenancy, integrated mdc model |
   | [jwt](https://github.com/ZeroOrInfinity/UMS/tree/master/jwt)   | JWT function, integrated mdc model |
   | [dependencies](https://github.com/ZeroOrInfinity/UMS/tree/master/ums-dependencies)   | UMS Dependencies |
@@ -72,7 +77,7 @@ Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-
 
   | **demo**                   | **demo function**                                                     |
   | ---------------------- | ------------------------------------------------------------ |
-  | [basic-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-example)         | Basic function: the simplest configuration                             |
+  | [basic-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-example)         | Basic function: the simplest configuration/one-click login                         |
   | [basic-detail-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/basic-detail-example)   | Detailed configuration of basic functions: anonymous/session simple configuration/rememberMe/csrf/cors/login routing/signed |
   | [permission-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/permission-example)     | RBAC-based permission function settings                          |
   | [quickStart](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/quickStart)             | quick start example                                                 |
@@ -270,6 +275,8 @@ Support multi-tenancy, jwt , validate code(image, sms, sliderCode), RBAC, SLF4J-
     - 任务处理器接口, 继承此接口并注入 IOC 容器, top.dcenter.ums.security.core.tasks.config.ScheduleAutoConfiguration 会自动注册到 ScheduledTaskRegistrar 中.
     
 17. JWT 接口请看 [jwt-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/jwt-example).
+
+18. [OneClickLoginService](https://github.com/ZeroOrInfinity/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/oneclicklogin/service/OneClickLoginService.java): 一键登录`必须实现`此接口, 根据 accessToken 从服务商获取用户手机号.
 
 ------
 ## 六、Configurations:

@@ -1,3 +1,11 @@
+## 2.2.37
+### Fixes and Improvements:
+1. oauth/commons/新增: 一键登录功能.
+2. demo/添加: 一键登录 example.
+3. core/oauth/改进: 手机登录与第三方登录添加登录成功与登录失败处理器, 已经其他优化.
+4. oauth/优化
+
+
 ## 2.2.36
 ### Fixes and Improvements:
 1. rbac/包重命名: top.dcenter.ums.security.core.premission -> top.dcenter.ums.security.core.permission.

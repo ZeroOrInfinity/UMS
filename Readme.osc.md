@@ -1,12 +1,17 @@
-# UMS 用户管理脚手架
+#
 
 <p align="center" style="font-size: 32px">
-  <strong>UMS 是一个非侵入式、与业务高度解耦、可自定义的用户管理脚手架</strong>
+    <a target="_blank" href="https://gitee.com/pcore/UMS">
+		<img alt='maven' src="https://images.gitee.com/uploads/images/2021/0512/222710_ceff6bf1_1157580.png" />
+	</a>    
+</p>
+<p align="center" style="font-size: 32px">    
+    <strong>UMS 用户管理脚手架</strong>  
 </p>
 
 <p align="center">
 	<a target="_blank" href="https://search.maven.org/search?q=g:top.dcenter%20AND%20a:ums-spring-boot-starter">
-		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.36-green.svg" />
+		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.37-green.svg" />
 	</a>
 	<a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">
 		<img alt='license' src="https://img.shields.io/badge/license-MIT-yellow.svg" />
@@ -30,7 +35,7 @@
     <img alt="JustAuth" src="https://img.shields.io/badge/JustAuth-1.15.9-green.svg"/>
 
 </p>
-
+UMS 是一个非侵入式、与业务高度解耦、可自定义的用户管理脚手架.
 用户管理脚手架集成：用户密码登录、手机登录、支持所有 JustAuth 支持的第三方授权登录、验证码、基于 RBAC 的访问权限控制功能, 支持多租户、JWT、SLF4J-MDC、签到等功能。
 通过配置文件与实现 **用户服务, 短信发送服务, 获取角色权限服务** 等几个 API 接口就可以实现上述功能，实现快速开发，只需要专注于业务逻辑。
 
@@ -62,7 +67,7 @@
   | [core](https://gitee.com/pcore/UMS/tree/master/core)   | 用户名密码登录/手机登录且自动注册/签到/简化HttpSecurity(session、remember me、csrf、跨域等)配置/session redis 缓存/可配置的响应方式(JSON 与 REDIRECT)返回 json 或 html 数据, 集成 jwt/mdc 模块 |
   | [vc](https://gitee.com/pcore/UMS/tree/master/vc)   | 验证码, 集成 mdc 模块 |
   | [mdc](https://gitee.com/pcore/UMS/tree/master/mdc)   | 基于 SLF4J MDC 机制的日志链路追踪功能 |
-  | [oauth](https://gitee.com/pcore/UMS/tree/master/oauth)   | OAuth2 login by JustAuth, 集成 jwt/mdc 模块 |
+  | [oauth](https://gitee.com/pcore/UMS/tree/master/oauth)   | OAuth2 login by JustAuth, 一键登录, 集成 jwt/mdc 模块 |
   | [rbac](https://gitee.com/pcore/UMS/tree/master/rbac)   | 基于角色的访问权限控制,支持多租户, 集成 mdc 模块 |
   | [jwt](https://gitee.com/pcore/UMS/tree/master/jwt)   | JWT 功能, 集成 mdc 模块 |
   | [Dependencies](https://gitee.com/pcore/UMS/tree/master/ums-dependencies)   | UMS Dependencies |
@@ -71,7 +76,7 @@
  
   | **demo**                   | **演示功能**                                                     |
   | ---------------------- | ------------------------------------------------------------ |
-  | [basic-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-example)         | 基本功能: 最简单的配置                              |
+  | [basic-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-example)         | 基本功能: 最简单的配置/一键登录 |
   | [basic-detail-example](https://gitee.com/pcore/UMS/tree/master/demo/basic-detail-example)   | 基本功能详细的配置: 含anonymous/session简单配置/rememberMe/csrf/跨域/登录路由/签到, 不包含session详细配置/验证码/手机登录/权限. |
   | [permission-example](https://gitee.com/pcore/UMS/tree/master/demo/permission-example)     | 基于 RBAC 的权限功能设置                          |
   | [quickStart](https://gitee.com/pcore/UMS/tree/master/demo/quickStart)             | 快速开始示例                                                 |
@@ -268,6 +273,9 @@
     - 任务处理器接口, 继承此接口并注入 IOC 容器, top.dcenter.ums.security.core.tasks.config.ScheduleAutoConfiguration 会自动注册到 ScheduledTaskRegistrar 中.
     
 17. JWT 接口请看 [jwt-example](https://gitee.com/pcore/UMS/tree/master/demo/jwt-example).   
+
+18. [OneClickLoginService](https://gitee.com/pcore/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/oneclicklogin/service/OneClickLoginService.java): 一键登录`必须实现`此接口, 根据 accessToken 从服务商获取用户手机号.
+
 
 ------
 ## 六、Configurations:
