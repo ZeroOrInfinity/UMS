@@ -23,6 +23,8 @@
 package top.dcenter.ums.security.core.api.oauth.justauth.customize;
 
 import me.zhyd.oauth.config.AuthSource;
+import me.zhyd.oauth.enums.scope.AuthScope;
+import org.springframework.lang.Nullable;
 
 /**
  * 抽象类, 实现此自定义的 {@link AuthCustomizeSource} 且注入 ioc 容器的同时, 必须实现  {@link AuthCustomizeRequest} ,
@@ -45,6 +47,15 @@ public abstract class AuthCustomizeSource implements AuthSource {
     @Override
     public final String getName() {
         return this.name;
+    }
+
+    /**
+     * 获取默认的 scopes, 默认返回 null.
+     * @return  默认的 scopes, 默认返回 null.
+     */
+    @Nullable
+    public AuthScope[] getDefaultScopes() {
+        return null;
     }
 
     /**
