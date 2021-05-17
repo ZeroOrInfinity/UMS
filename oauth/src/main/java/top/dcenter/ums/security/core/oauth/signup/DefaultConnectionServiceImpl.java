@@ -27,6 +27,7 @@ import com.xkcoding.http.config.HttpConfig;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthToken;
 import me.zhyd.oauth.model.AuthUser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -61,6 +62,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.nonNull;
+
 /**
  * 默认的第三方授权登录时自动注册处理器。<br>
  * {@link #signUp(AuthUser, String, String)} 功能：第三方登录自动注册时, 根据 第三方的 authUser 注册为本地账户的用户,
@@ -88,7 +91,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
     public DefaultConnectionServiceImpl(UmsUserDetailsService userDetailsService,
                                         Auth2Properties auth2Properties,
                                         UsersConnectionRepository usersConnectionRepository,
-                                        UsersConnectionTokenRepository usersConnectionTokenRepository,
+                                        @Autowired(required = false) UsersConnectionTokenRepository usersConnectionTokenRepository,
                                         Auth2StateCoder auth2StateCoder) {
         this.userDetailsService = userDetailsService;
         this.defaultAuthorities = auth2Properties.getDefaultAuthorities();
@@ -166,7 +169,9 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
             // 更新 connectionData
             usersConnectionRepository.updateConnection(connectionData);
             // 更新 AuthTokenPo
-            usersConnectionTokenRepository.updateAuthToken(authToken);
+            if (nonNull(usersConnectionTokenRepository)) {
+                usersConnectionTokenRepository.updateAuthToken(authToken);
+            }
         }
         catch (Exception e)
         {
@@ -245,7 +250,9 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
 
         try {
             // 添加 token
-            usersConnectionTokenRepository.saveAuthToken(authToken);
+            if (nonNull(usersConnectionTokenRepository)) {
+                usersConnectionTokenRepository.saveAuthToken(authToken);
+            }
 
             // 添加到 第三方登录记录表
             addConnectionData(providerId, authUser, userDetails.getUsername(), authToken);
@@ -256,7 +263,9 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
             {
                 try {
                     // 再次添加 token
-                    usersConnectionTokenRepository.saveAuthToken(authToken);
+                    if (nonNull(usersConnectionTokenRepository)) {
+                        usersConnectionTokenRepository.saveAuthToken(authToken);
+                    }
                     // 再次添加到 第三方登录记录表
                     addConnectionData(providerId, authUser, userDetails.getUsername(), authToken);
                 }

@@ -37,6 +37,7 @@ import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.util.StringUtils;
 import top.dcenter.ums.security.common.api.jackson2.SimpleModuleHolder;
+import top.dcenter.ums.security.common.api.userdetails.converter.AuthenticationToUserDetailsConverter;
 import top.dcenter.ums.security.core.api.oauth.repository.factory.UsersConnectionRepositoryFactory;
 import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionRepository;
 import top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository;
@@ -54,6 +55,7 @@ import top.dcenter.ums.security.core.oauth.repository.jdbc.Auth2JdbcUsersConnect
 import top.dcenter.ums.security.core.oauth.service.DefaultAuth2UserServiceImpl;
 import top.dcenter.ums.security.core.oauth.signup.DefaultConnectionServiceImpl;
 import top.dcenter.ums.security.core.redis.jackson2.Auth2Jackson2ModuleHolder;
+import top.dcenter.ums.security.jwt.userdetails.converter.Oauth2TokenAuthenticationTokenToUserConverter;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -62,8 +64,6 @@ import java.sql.ResultSet;
 import java.util.concurrent.ExecutorService;
 
 import static top.dcenter.ums.security.common.consts.SecurityConstants.QUERY_TABLE_EXIST_SQL_RESULT_SET_COLUMN_INDEX;
-
-
 
 /**
  * OAuth2 grant flow auto configuration
@@ -82,7 +82,8 @@ public class Auth2AutoConfiguration implements InitializingBean {
     private final Auth2Properties auth2Properties;
     private final DataSource dataSource;
 
-    public Auth2AutoConfiguration(RepositoryProperties repositoryProperties, Auth2Properties auth2Properties, DataSource dataSource) {
+    public Auth2AutoConfiguration(RepositoryProperties repositoryProperties, Auth2Properties auth2Properties,
+                                  DataSource dataSource) {
         this.repositoryProperties = repositoryProperties;
         this.auth2Properties = auth2Properties;
         this.dataSource = dataSource;
@@ -94,12 +95,9 @@ public class Auth2AutoConfiguration implements InitializingBean {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-refresh-token-job", havingValue = "true")
-    public RefreshTokenJobHandler refreshTokenJobHandler(UsersConnectionTokenRepository usersConnectionTokenRepository,
-                                           UsersConnectionRepository usersConnectionRepository,
-                                           @Qualifier("refreshTokenTaskExecutor") ExecutorService refreshTokenTaskExecutor) {
-        return new RefreshTokenJobHandler(usersConnectionRepository, usersConnectionTokenRepository,
-                                          auth2Properties, refreshTokenTaskExecutor);
+    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.common.api.userdetails.converter.AuthenticationToUserDetailsConverter"})
+    public AuthenticationToUserDetailsConverter authenticationToUserDetailsConverter() {
+        return new Oauth2TokenAuthenticationTokenToUserConverter();
     }
 
     @Bean
@@ -109,11 +107,14 @@ public class Auth2AutoConfiguration implements InitializingBean {
     }
 
     @Bean
+    @ConditionalOnMissingBean(type = "org.springframework.jdbc.core.JdbcTemplate")
+    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-user-connection-and-auth-token-table", havingValue = "true")
     public JdbcTemplate auth2UserConnectionJdbcTemplate() {
         return new JdbcTemplate(dataSource);
     }
 
     @Bean
+    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-user-connection-and-auth-token-table", havingValue = "true")
     public UsersConnectionRepository usersConnectionRepository(UsersConnectionRepositoryFactory usersConnectionRepositoryFactory,
                                                                JdbcTemplate auth2UserConnectionJdbcTemplate,
                                                                @Qualifier("connectionTextEncryptor") TextEncryptor connectionTextEncryptor) {
@@ -123,14 +124,8 @@ public class Auth2AutoConfiguration implements InitializingBean {
     }
 
     @Bean
-    @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository"})
-    public UsersConnectionTokenRepository usersConnectionTokenRepository(TextEncryptor connectionTextEncryptor,
-                                                                         JdbcTemplate auth2UserConnectionJdbcTemplate) {
-        return new Auth2JdbcUsersConnectionTokenRepository(auth2UserConnectionJdbcTemplate, connectionTextEncryptor);
-    }
-
-    @Bean
     @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.core.api.oauth.repository.factory.UsersConnectionRepositoryFactory"})
+    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-user-connection-and-auth-token-table", havingValue = "true")
     public UsersConnectionRepositoryFactory usersConnectionRepositoryFactory() {
         return new Auth2JdbcUsersConnectionRepositoryFactory();
     }
@@ -141,11 +136,11 @@ public class Auth2AutoConfiguration implements InitializingBean {
                                repositoryProperties.getTextEncryptorSalt());
     }
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean
     @ConditionalOnMissingBean(type = "top.dcenter.ums.security.core.api.oauth.signup.ConnectionService")
+    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-user-connection-and-auth-token-table", havingValue = "true")
     public ConnectionService connectionSignUp(UmsUserDetailsService userDetailsService,
-                                              UsersConnectionTokenRepository usersConnectionTokenRepository,
+                                              @Autowired(required = false) UsersConnectionTokenRepository usersConnectionTokenRepository,
                                               UsersConnectionRepository usersConnectionRepository,
                                               @Autowired(required = false) Auth2StateCoder auth2StateCoder) {
         return new DefaultConnectionServiceImpl(userDetailsService, auth2Properties,
@@ -163,7 +158,8 @@ public class Auth2AutoConfiguration implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        if (!repositoryProperties.getEnableStartUpInitializeTable()) {
+        if (!repositoryProperties.getEnableStartUpInitializeTable()
+                || !auth2Properties.getEnableUserConnectionAndAuthTokenTable()) {
             // 不支持在启动时检查并自动创建 userConnectionTableName 与 authTokenTableName, 直接退出
             return;
         }
@@ -212,6 +208,10 @@ public class Auth2AutoConfiguration implements InitializingBean {
                     }
                 }
 
+                // 不支持第三方 token 表(auth_token) 直接退出
+                if (!auth2Properties.getEnableAuthTokenTable()) {
+                    return;
+                }
                 //noinspection TryStatementWithMultipleResources,TryStatementWithMultipleResources
                 try (final PreparedStatement preparedStatement2 =
                              connection.prepareStatement(repositoryProperties.getQueryAuthTokenTableExistSql(database));
@@ -238,6 +238,41 @@ public class Auth2AutoConfiguration implements InitializingBean {
                 throw new Exception(String.format("初始化第三方登录的 %s 用户表时发生错误",
                                                   repositoryProperties.getUserConnectionTableName()));
             }
+        }
+
+    }
+
+    @Configuration
+    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-user-connection-and-auth-token-table", havingValue = "true")
+    static class JobAutoConfiguration {
+
+        private final Auth2Properties auth2Properties;
+
+        public JobAutoConfiguration(Auth2Properties auth2Properties) {
+            this.auth2Properties = auth2Properties;
+        }
+
+        @Bean
+        @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-refresh-token-job", havingValue = "true")
+        public RefreshTokenJobHandler refreshTokenJobHandler(@Autowired(required = false)
+                                                             UsersConnectionTokenRepository usersConnectionTokenRepository,
+                                                             UsersConnectionRepository usersConnectionRepository,
+                                                             @Qualifier("refreshTokenTaskExecutor") ExecutorService refreshTokenTaskExecutor) {
+            return new RefreshTokenJobHandler(usersConnectionRepository, usersConnectionTokenRepository,
+                                              auth2Properties, refreshTokenTaskExecutor);
+        }
+    }
+
+    @Configuration
+    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-user-connection-and-auth-token-table", havingValue = "true")
+    static class AuthTokenAutoConfiguration {
+
+        @Bean
+        @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository"})
+        @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-auth-token-table", havingValue = "true")
+        public UsersConnectionTokenRepository usersConnectionTokenRepository(TextEncryptor connectionTextEncryptor,
+                                                                             JdbcTemplate auth2UserConnectionJdbcTemplate) {
+            return new Auth2JdbcUsersConnectionTokenRepository(auth2UserConnectionJdbcTemplate, connectionTextEncryptor);
         }
 
     }

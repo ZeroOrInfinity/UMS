@@ -50,6 +50,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings({"unused"})
 @Configuration
 @AutoConfigureAfter(value = {ExecutorPropertiesAutoConfiguration.class})
+@ConditionalOnProperty(prefix = "ums.oauth", name = "enabled", havingValue = "true")
 @EnableScheduling
 public class ExecutorAutoConfiguration implements DisposableBean {
 
@@ -62,7 +63,7 @@ public class ExecutorAutoConfiguration implements DisposableBean {
     }
 
     @Bean()
-    @ConditionalOnProperty(prefix = "ums.oauth", name = "enabled", havingValue = "true")
+    @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-refresh-token-job", havingValue = "true")
     public ExecutorService refreshTokenTaskExecutor() {
         ExecutorProperties.RefreshTokenExecutorProperties refreshToken = executorProperties.getRefreshToken();
         ThreadPoolExecutor threadPoolExecutor =
@@ -79,7 +80,6 @@ public class ExecutorAutoConfiguration implements DisposableBean {
     }
 
     @Bean(destroyMethod = "shutdown")
-    @ConditionalOnProperty(prefix = "ums.oauth", name = "enabled", havingValue = "true")
     public ExecutorService updateConnectionTaskExecutor() {
         ExecutorProperties.UserConnectionUpdateExecutorProperties userConnectionUpdate = executorProperties.getUserConnectionUpdate();
         ThreadPoolExecutor threadPoolExecutor =
