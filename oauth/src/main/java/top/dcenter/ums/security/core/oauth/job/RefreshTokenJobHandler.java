@@ -83,7 +83,6 @@ public class RefreshTokenJobHandler implements JobHandler {
                                   @Qualifier("refreshTokenTaskExecutor") ExecutorService refreshTokenTaskExecutor) {
         Assert.notNull(refreshTokenTaskExecutor, "refreshTokenTaskExecutor cannot be null");
         Assert.notNull(usersConnectionRepository, "usersConnectionRepository cannot be null");
-        Assert.notNull(usersConnectionTokenRepository, "usersConnectionTokenRepository cannot be null");
         Assert.notNull(auth2Properties, "auth2Properties cannot be null");
 
         this.refreshTokenTaskExecutor = refreshTokenTaskExecutor;

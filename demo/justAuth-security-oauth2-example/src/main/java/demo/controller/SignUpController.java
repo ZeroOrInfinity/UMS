@@ -104,7 +104,7 @@ public class SignUpController {
     private UmsUserDetailsService umsUserDetailsService;
     @Autowired
     private UsersConnectionRepository usersConnectionRepository;
-    @Autowired
+    @Autowired(required = false)
     private UsersConnectionTokenRepository usersConnectionTokenRepository;
     @Autowired
     private Auth2StateCoder auth2StateCoder;
