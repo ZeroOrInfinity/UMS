@@ -1,3 +1,12 @@
+## 2.2.39
+### Fixes and Improvements:
+1. oauth/修复: 自定义第三方时: 获取 AuthScope 异常的bug.
+2. oauth/修复: Auth2JdbcUsersConnectionTokenRepository 不能动态替换 authTokenTableName 的bug. 感谢: jueding920.
+3. ums/修复: redirect 时 url 中文乱码的bug. 感谢: jueding920.
+4. oauth/修复: RefreshTokenJobHandler NPE bug.
+5. oauth/新增: 取消OAuth2的内置数据库的属性设置. ums.oauth.enableUserConnectionAndAuthTokenTable 与 ums.oauth.enableAuthTokenTable. 具体看: 取消OAuth2内置数据库说明.md.
+6. 其他优化.
+
 ## 2.2.38
 ### Fixes and Improvements:
 1. oauth/修复: 自定义scope不能覆盖默认scope 的 bug. 感谢 luodada.

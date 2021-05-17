@@ -12,7 +12,7 @@
 
 <p align="center">
 	<a target="_blank" href="https://search.maven.org/search?q=g:top.dcenter%20AND%20a:ums-spring-boot-starter">
-		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.38-green.svg" />
+		<img alt='maven' src="https://img.shields.io/badge/UMS-2.2.39-green.svg" />
 	</a>
 	<a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">
 		<img alt='license' src="https://img.shields.io/badge/license-MIT-yellow.svg" />
@@ -203,37 +203,69 @@ one click login, Support multi-tenancy, jwt , validate code(image, sms, sliderCo
 
 ![权限更新及权限缓存实时更新时序图](doc/RBAC%20权限更新及权限缓存实时更新流程.png)
 
-3. 短信验证码(SMS validate code): `默认空实现`
+3. 验证码(ValidateCode)
+   
+  - 短信验证码(SMS validate code): `默认空实现`
     - [SmsCodeSender](https://github.com/ZeroOrInfinity/UMS/blob/master/vc/src/main/java/top/dcenter/ums/security/core/api/validate/code/sms/SmsCodeSender.java)
 
-4. 图片验证码(image validate code): 已实现缓存功能, 支持定时刷新缓存功能, 可以自定义缓存验证码图片的输出路径与缓存数量
+  - 图片验证码(image validate code): 已实现缓存功能, 支持定时刷新缓存功能, 可以自定义缓存验证码图片的输出路径与缓存数量
     - [ImageCodeFactory](https://github.com/ZeroOrInfinity/UMS/blob/master/vc/src/main/java/top/dcenter/ums/security/core/api/validate/code/image/ImageCodeFactory.java)
 
-5. 滑块验证码(Slider validate code): 已实现缓存功能, 支持定时刷新缓存功能, 可以自定义缓存验证码图片的输出路径与缓存数量, 支持自定义源图片路径与模板图片路径(源图片与模板图片参考[validate-code-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/validate-code-example))
+  - 滑块验证码(Slider validate code): 已实现缓存功能, 支持定时刷新缓存功能, 可以自定义缓存验证码图片的输出路径与缓存数量, 支持自定义源图片路径与模板图片路径(源图片与模板图片参考
+  [validate-code-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/validate-code-example))
     - [SimpleSliderCodeFactory](https://github.com/ZeroOrInfinity/UMS/blob/master/vc/src/main/java/top/dcenter/ums/security/core/api/validate/code/slider/SliderCodeFactory.java) 
 
-6. 自定义验证码(customize validate code):
+  - 自定义验证码(customize validate code):
     - [AbstractValidateCodeProcessor](https://github.com/ZeroOrInfinity/UMS/blob/master/vc/src/main/java/top/dcenter/ums/security/core/api/validate/code/AbstractValidateCodeProcessor.java)
     - [ValidateCodeGenerator](https://github.com/ZeroOrInfinity/UMS/blob/master/vc/src/main/java/top/dcenter/ums/security/core/api/validate/code/ValidateCodeGenerator.java)
 
-7. [Auth2StateCoder](https://github.com/ZeroOrInfinity/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/oauth/state/service/Auth2StateCoder.java): `用户需要时实现`, 对第三方授权登录流程中的 state 进行自定义编解码. 可以传递必要的信息, 
-     如: 第三方登录成功的跳转地址等 注意此接口的两个方法必须同时实现对应的编解码逻辑, 实现此接口后注入 IOC 容器即可, 如有前端向后端获取 authorizeUrl
-     时向后端传递额外参数 且用作注册时的信息, 需配合 UmsUserDetailsService.registerUser(AuthUser, String, String, String) 方法实现.
+4. OAuth2
 
-8. [Auth2UserService](https://github.com/ZeroOrInfinity/UMS/blob/master/oauth/src/main/java/top/dcenter/ums/security/core/api/oauth/service/Auth2UserService.java): 获取第三方用户信息的接口, 一般**不需要用户实现**, 除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
+  - 对 OAuth2 流程中的 state 进行自定义编解码. 可以传递必要的信息   
+    - [Auth2StateCoder](https://github.com/ZeroOrInfinity/UMS/blob/master/core/src/main/java/top/dcenter/ums/security/core/api/oauth/state/service/Auth2StateCoder.java): `用户需要时实现`, 对第三方授权登录流程中的 state 进行自定义编解码. 可以传递必要的信息, 
+         如: 第三方登录成功的跳转地址等 注意此接口的两个方法必须同时实现对应的编解码逻辑, 实现此接口后注入 IOC 容器即可, 如有前端向后端获取 authorizeUrl
+         时向后端传递额外参数 且用作注册时的信息, 需配合 UmsUserDetailsService.registerUser(AuthUser, String, String, String) 方法实现.
 
-9. [UsersConnectionRepository](https://github.com/ZeroOrInfinity/UMS/blob/master/oauth/src/main/java/top/dcenter/ums/security/core/api/oauth/repository/jdbc/UsersConnectionRepository.java): 第三方授权登录的第三方用户信息增删改查, 绑定与解绑及查询是否绑定与解绑接口, 一般**不需要用户实现**. 
-     除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
+  - 获取第三方用户信息的接口 
+    - [Auth2UserService](https://github.com/ZeroOrInfinity/UMS/blob/master/oauth/src/main/java/top/dcenter/ums/security/core/api/oauth/service/Auth2UserService.java): 获取第三方用户信息的接口, 一般**不需要用户实现**, 除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
 
-10. [UsersConnectionTokenRepository](https://github.com/ZeroOrInfinity/UMS/blob/master/oauth/src/main/java/top/dcenter/ums/security/core/api/oauth/repository/jdbc/UsersConnectionTokenRepository.java): 第三方授权登录用户 accessToken 信息表增删改查接口, 一般**不需要用户实现**. 
-      除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
+  - 第三方授权登录用户的注册, 绑定, 更新第三方用户信息与 accessToken 信息的接口
+    - [ConnectionService](https://github.com/ZeroOrInfinity/UMS/blob/master/oauth/src/main/java/top/dcenter/ums/security/core/api/oauth/signup/ConnectionService.java): 第三方授权登录用户的注册, 绑定, 更新第三方用户信息与 accessToken 信息的接口, 一般**不需要用户实现**.
+    除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
 
-11. [ConnectionService](https://github.com/ZeroOrInfinity/UMS/blob/master/oauth/src/main/java/top/dcenter/ums/security/core/api/oauth/signup/ConnectionService.java): 第三方授权登录用户的注册, 绑定, 更新第三方用户信息与 accessToken 信息的接口, 一般**不需要用户实现**.
-      除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
-    - 注意:  要替换内置 `auth_token` 与 `user_connection` 表的实现逻辑, 实现此接口注入 IOC 容器即可, 且设置属性 `ums.repository.
-      enableStartUpInitializeTable = false` .
+      - 注意:  要关闭应用启动时自动创建内置的 `auth_token` 与 `user_connection` 表设置属性 `ums.repository.enableStartUpInitializeTable = false` .
 
-12. 自定义 OAuth2 Login 扩展接口: 内置两个自定义 providerId(ums.oauth.customize 与 ums.oauth.gitlabPrivate)
+      -  [UsersConnectionRepository](https://github.com/ZeroOrInfinity/UMS/blob/master/oauth/src/main/java/top/dcenter/ums/security/core/api/oauth/repository/jdbc/UsersConnectionRepository.java): 第三方授权登录的第三方用户信息增删改查, 绑定与解绑及查询是否绑定与解绑接口, 一般**不需要用户实现**. 
+         除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
+
+      -  [UsersConnectionTokenRepository](https://github.com/ZeroOrInfinity/UMS/blob/master/oauth/src/main/java/top/dcenter/ums/security/core/api/oauth/repository/jdbc/UsersConnectionTokenRepository.java): 第三方授权登录用户 accessToken 信息表增删改查接口, 一般**不需要用户实现**. 
+          除非想自定义获取第三方用户信息的逻辑, 实现此接口注入 IOC 容器即可替代.
+
+    > # 取消 OAuth2 的内置数据库说明
+    >
+    > ## 一. 同时取消第三方登录的 user_connection 与 auth_token 表
+    > ### 1. 属性配置
+    >
+    > ```yaml
+    > ums:
+    >   oauth:
+    >     # 是否支持内置的第三方登录用户表(user_connection) 和 auth_token 表. 默认: true.
+    >     # 注意: 如果为 false, 则必须重新实现 ConnectionService 接口.
+    >     enable-user-connection-and-auth-token-table: false
+    > ```
+    > ### 2. 必须重新实现 `top.dcenter.ums.security.core.api.oauth.signup.ConnectionService` 接口
+    >
+    > ## 二. 取消第三方登录 auth_token 表
+    > ### 1. 属性配置
+    >
+    > ```yaml
+    > ums:
+    >   oauth:
+    >     # 是否支持内置的第三方登录 token 表(auth_token). 默认: true.
+    >     enable-auth-token-table: false
+    > ```
+
+  - 自定义 OAuth2 Login 扩展接口: 内置两个自定义 providerId(ums.oauth.customize 与 ums.oauth.gitlabPrivate)
     
     - [AuthGitlabPrivateSource](https://github.com/ZeroOrInfinity/UMS/blob/master/oauth/src/main/java/top/dcenter/ums/security/core/api/oauth/justauth/customize/AuthGitlabPrivateSource.java): 抽象类, 实现此自定义的 AuthGitlabPrivateSource 且注入 ioc 容器的同时, 必须实现 AuthCustomizeRequest , 会自动集成进 OAuth2 Login 逻辑流程中, 只需要像 JustAuth 默认实现的第三方登录一样, 配置相应的属性(ums.oauth.gitlabPrivate.[clientId|clientSecret]等属性)即可.
     
@@ -241,16 +273,15 @@ one click login, Support multi-tenancy, jwt , validate code(image, sms, sliderCo
     
     - [AuthCustomizeRequest](https://github.com/ZeroOrInfinity/UMS/blob/master/oauth/src/main/java/top/dcenter/ums/security/core/api/oauth/justauth/customize/AuthCustomizeRequest.java): 抽象类, 实现此自定义的 AuthCustomizeRequest 同时, 必须实现 AuthCustomizeSource 或 AuthGitlabPrivateSource 且注入 ioc 容器, 会自动集成进 OAuth2 Login 逻辑流程中, 只需要像 JustAuth 默认实现的第三方登录一样, 配置相应的属性(ums.oauth.customize.[clientId|clientSecret]等属性)即可.
 
-13. 自定义前后端认证 token 以及通信方式
+5. 自定义用户登录成功与失败处理器时, 请继承下面两个抽象类; 方便 ums 自动注入登录功能.
 
     - [BaseAuthenticationSuccessHandler](https://github.com/ZeroOrInfinity/UMS/blob/master/commons/src/main/java/top/dcenter/ums/security/core/api/authentication/handler/BaseAuthenticationSuccessHandler.java): 认证成功处理器
     
     - [BaseAuthenticationFailureHandler](https://github.com/ZeroOrInfinity/UMS/blob/master/commons/src/main/java/top/dcenter/ums/security/core/api/authentication/handler/BaseAuthenticationFailureHandler.java): 认证失败处理器
 
-14. 如果应用为多租户系统, 且使用 RememberMe 功能: 默认的 RememberMeServices 不支持多租户, 则需要自定义实现 `org.springframework.security.web
-.authentication.RememberMeServices` 接口, 使其支持多租户系统, 不过一般情况下多租户系统不使用 RememberMe 功能.
+6. 多租户系统(Multi-tenant)
 
-15. [TenantContextHolder](https://github.com/ZeroOrInfinity/UMS/blob/master/commons/src/main/java/top/dcenter/ums/security/core/api/tenant/handler/TenantContextHolder.java):
+  - [TenantContextHolder](https://github.com/ZeroOrInfinity/UMS/blob/master/commons/src/main/java/top/dcenter/ums/security/core/api/tenant/handler/TenantContextHolder.java):
     - 多租户上下文存储器. 实现此接口并注入 IOC 容器后, 会自动注入 UMS 默认实现的注册/登录/授权组件, 要实现 ums 框架具有多租户功能, 必须实现此接口并注入 IOC 容器.
     
     - 功能: 
@@ -271,13 +302,16 @@ one click login, Support multi-tenancy, jwt , validate code(image, sms, sliderCo
         
         3\. 如果自定义的注册或登录逻辑, 需要自己先调用 `TenantContextHolder.tenantIdHandle(HttpServletRequest, String)` 逻辑, 再在
         实现 `UserCache/UmsUserDetailsService` 等接口中需要 `tenantId` 时, 调用 `TenantContextHolder.getTenantId()` 方法即可.
-        
-16. [JobHandler](https://github.com/ZeroOrInfinity/UMS/blob/master/commons/src/main/java/top/dcenter/ums/security/common/api/tasks/handler/JobHandler.java)
+
+6. 任务处理器接口(job)
+
+  - [JobHandler](https://github.com/ZeroOrInfinity/UMS/blob/master/commons/src/main/java/top/dcenter/ums/security/common/api/tasks/handler/JobHandler.java)
     - 任务处理器接口, 继承此接口并注入 IOC 容器, top.dcenter.ums.security.core.tasks.config.ScheduleAutoConfiguration 会自动注册到 ScheduledTaskRegistrar 中.
     
-17. JWT 接口请看 [jwt-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/jwt-example).
+7. JWT 接口请看 [jwt-example](https://github.com/ZeroOrInfinity/UMS/tree/master/demo/jwt-example).
 
-18. [OneClickLoginService](https://github.com/ZeroOrInfinity/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/oneclicklogin/service/OneClickLoginService.java): 一键登录`必须实现`此接口, 根据 accessToken 从服务商获取用户手机号.
+8. 一键登录(运营商)接口(one-click login)
+  - [OneClickLoginService](https://github.com/ZeroOrInfinity/UMS/blob/master/src/main/java/top/dcenter/ums/security/core/api/oauth/oneclicklogin/service/OneClickLoginService.java): 一键登录`必须实现`此接口, 根据 accessToken 从服务商获取用户手机号.
 
 ------
 ## 六、Configurations:
