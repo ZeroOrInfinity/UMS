@@ -44,12 +44,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.KEY_VALUE_SEPARATOR;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SERVLET_CONTEXT_PERMIT_ALL_SET_KEY;
 import static top.dcenter.ums.security.common.consts.SecurityConstants.SESSION_REDIRECT_URL_KEY;
+import static top.dcenter.ums.security.common.consts.SecurityConstants.URL_PARAMETER_SEPARATOR;
 import static top.dcenter.ums.security.common.utils.JsonUtil.isAjaxOrJson;
 import static top.dcenter.ums.security.common.utils.JsonUtil.responseWithJson;
 import static top.dcenter.ums.security.common.utils.JsonUtil.toJsonString;
@@ -246,6 +254,26 @@ public final class AuthenticationUtil {
 
         String queryString = request.getQueryString();
         if (StringUtils.hasText(queryString)) {
+            queryString = Arrays.stream(queryString.split(URL_PARAMETER_SEPARATOR))
+                                .map(kv -> {
+                                    String[] splits = ConvertUtil.split(kv, KEY_VALUE_SEPARATOR, 2);
+                                    int len = splits.length;
+                                    if (len == 0) {
+                                        return null;
+                                    }
+                                    else if (len < 2) {
+                                        return splits[0];
+                                    }
+                                    try {
+                                        splits[1] = URLEncoder.encode(splits[1], StandardCharsets.UTF_8.name());
+                                        return String.join(KEY_VALUE_SEPARATOR, splits);
+                                    }
+                                    catch (UnsupportedEncodingException e) {
+                                        return String.join(KEY_VALUE_SEPARATOR, splits);
+                                    }
+                                })
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.joining(URL_PARAMETER_SEPARATOR));
             queryString = "?" + queryString;
         }
 

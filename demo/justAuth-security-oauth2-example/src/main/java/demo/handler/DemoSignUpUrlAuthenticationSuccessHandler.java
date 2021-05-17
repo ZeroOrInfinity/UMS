@@ -74,8 +74,11 @@ public class DemoSignUpUrlAuthenticationSuccessHandler extends SavedRequestAware
         }
         else {
             String targetUrlParameter = getTargetUrlParameter();
-            if (targetUrlParameter != null && StringUtils.hasText(request.getParameter(targetUrlParameter))) {
-                targetUrl = targetUrlParameter;
+            if (targetUrlParameter != null) {
+                String parameterUrl = request.getParameter(targetUrlParameter);
+                if (StringUtils.hasText(parameterUrl)) {
+                    targetUrl = parameterUrl;
+                }
             }
             else {
                 // Use the DefaultSavedRequest URL

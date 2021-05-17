@@ -54,6 +54,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import static java.util.Objects.nonNull;
@@ -298,9 +299,9 @@ public class UmsAuthenticationSuccessHandler extends BaseAuthenticationSuccessHa
            .append("=")
            .append(uuid)
            .append("&username=")
-           .append(jwtAuthentication.getName())
+           .append(URLEncoder.encode(jwtAuthentication.getName(), StandardCharsets.UTF_8.name()))
            .append("&id=")
-           .append(jwtAuthentication.getName());
+           .append(URLEncoder.encode(jwtAuthentication.getName(), StandardCharsets.UTF_8.name()));
         response.sendRedirect(url.toString());
     }
 
