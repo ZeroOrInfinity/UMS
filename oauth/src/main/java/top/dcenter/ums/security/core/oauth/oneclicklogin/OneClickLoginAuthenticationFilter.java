@@ -93,7 +93,7 @@ public class OneClickLoginAuthenticationFilter extends AbstractAuthenticationPro
 
         String accessToken = obtainAccessToken(request);
         if (StringUtils.isEmpty(accessToken)) {
-            throw new LoginFailureException(ErrorCodeEnum.MOBILE_NOT_EMPTY,
+            throw new LoginFailureException(ErrorCodeEnum.ACCESS_TOKEN_NOT_EMPTY,
                                             this.tokenParamName,
                                             request.getSession(true).getId());
         }
