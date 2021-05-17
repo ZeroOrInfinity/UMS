@@ -43,6 +43,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import static java.util.Objects.isNull;
 import static top.dcenter.ums.security.common.consts.RedisCacheConstants.USER_CONNECTION_CACHE_NAME;
 import static top.dcenter.ums.security.core.oauth.enums.EnableRefresh.NO;
 import static top.dcenter.ums.security.core.oauth.enums.EnableRefresh.YES;
@@ -70,7 +71,8 @@ public class Auth2JdbcUsersConnectionTokenRepository implements UsersConnectionT
 
     @Cacheable(cacheNames = USER_CONNECTION_CACHE_NAME, key = "'s:token:' + #tokenId")
     @Override
-    public AuthTokenPo findAuthTokenById(String tokenId) throws DataAccessException {
+    @NonNull
+    public AuthTokenPo findAuthTokenById(@NonNull String tokenId) throws DataAccessException {
         return jdbcTemplate.queryForObject("SELECT `id`, `enableRefresh`, `providerId`, `accessToken`, `expireIn`, " +
                                                    "`refreshTokenExpireIn`, " +
                                                    "`refreshToken`, `uid`, `openId`, `accessCode`, `unionId`, `scope`, " +
@@ -85,7 +87,8 @@ public class Auth2JdbcUsersConnectionTokenRepository implements UsersConnectionT
     @Transactional(rollbackFor = {Exception.class}, propagation = Propagation.REQUIRED)
     @CachePut(cacheNames = USER_CONNECTION_CACHE_NAME, key = "'s:token:' + #result.id")
     @Override
-    public AuthTokenPo saveAuthToken(AuthTokenPo authToken) throws DataAccessException {
+    @NonNull
+    public AuthTokenPo saveAuthToken(@NonNull AuthTokenPo authToken) throws DataAccessException {
         jdbcTemplate.update("INSERT INTO `" + authTokenTableName + "`(`enableRefresh` ,`providerId`, `accessToken`, " +
                                     "`expireIn`, `refreshTokenExpireIn`, " +
                                     "`refreshToken`, `uid`, `openId`, `accessCode`, `unionId`, `scope`, `tokenType`, " +
@@ -128,6 +131,7 @@ public class Auth2JdbcUsersConnectionTokenRepository implements UsersConnectionT
     @CachePut(cacheNames = USER_CONNECTION_CACHE_NAME, key = "'s:token:' + #result.id")
     @Transactional(rollbackFor = {Exception.class}, propagation = Propagation.REQUIRED)
     @Override
+    @NonNull
     public AuthTokenPo updateAuthToken(@NonNull AuthTokenPo authToken) throws DataAccessException {
         if (authToken.getId() == null)
         {
@@ -197,11 +201,17 @@ public class Auth2JdbcUsersConnectionTokenRepository implements UsersConnectionT
     }
 
     @Override
+    @NonNull
     public Long getMaxTokenId() throws IncorrectResultSizeDataAccessException {
-        return jdbcTemplate.queryForObject("SELECT MAX(`id`) FROM `" + authTokenTableName + "`", Long.class);
+        Long max = jdbcTemplate.queryForObject("SELECT MAX(`id`) FROM `" + authTokenTableName + "`", Long.class);
+        if (isNull(max)) {
+        	return 1L;
+        }
+        return max;
     }
 
     @Override
+    @NonNull
     public List<AuthTokenPo> findAuthTokenByExpireTimeAndBetweenId(@NonNull Long expiredTime, @NonNull Long startId,
                                                                    @NonNull Long endId) throws DataAccessException {
         return jdbcTemplate.query("SELECT `id`, `enableRefresh`, `providerId`, `accessToken`, `expireIn`, " +
