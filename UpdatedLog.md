@@ -1,3 +1,7 @@
+## 2.2.40
+### Fixes and Improvements:
+1. oauth/添加: 一键登录 OneClickLoginService#otherParamsHandler(userDetails, otherParamMap) 接口方法. 因与手机登录注册方法逻辑重复, 故删除 UserDetailsRegisterService#registerUser(mobile,otherParamMap) 默认接口方法;
+
 ## 2.2.39
 ### Fixes and Improvements:
 1. oauth/修复: 自定义第三方时: 获取 AuthScope 异常的bug.
