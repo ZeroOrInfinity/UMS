@@ -28,8 +28,6 @@ import org.springframework.lang.Nullable;
 import top.dcenter.ums.security.core.api.mdc.MdcIdGenerator;
 import top.dcenter.ums.security.core.mdc.MdcIdType;
 
-import java.util.Map;
-
 import static org.springframework.util.StringUtils.hasText;
 import static top.dcenter.ums.security.common.consts.MdcConstants.MDC_KEY;
 
@@ -101,9 +99,9 @@ public final class MdcUtil {
     public static Runnable decorateTasks(@NonNull Runnable task, @NonNull MdcIdType idType,
                                          @Nullable MdcIdGenerator idGenerator) {
         return () -> {
-            Map<String, String> contextMap = MDC.getCopyOfContextMap();
+            String mdcTraceId = MDC.get(MDC_KEY);
             boolean isRemoveMdcId = false;
-            if (contextMap == null) {
+            if (mdcTraceId == null) {
                 MDC.put(MDC_KEY, getMdcId(idType, idGenerator));
                 isRemoveMdcId = true;
             }

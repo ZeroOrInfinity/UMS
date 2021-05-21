@@ -67,7 +67,8 @@ public class OneClickLoginAutoConfigurer extends SecurityConfigurerAdapter<Defau
         oneClickLoginAuthenticationFilter.setAuthenticationSuccessHandler(baseAuthenticationSuccessHandler);
         oneClickLoginAuthenticationFilter.setAuthenticationFailureHandler(baseAuthenticationFailureHandler);
         OneClickLoginAuthenticationProvider oneClickLoginAuthenticationProvider =
-                new OneClickLoginAuthenticationProvider(userDetailsService, generateClaimsSetService);
+                new OneClickLoginAuthenticationProvider(userDetailsService, oneClickLoginService,
+                                                        generateClaimsSetService);
         http.authenticationProvider(postProcess(oneClickLoginAuthenticationProvider))
             .addFilterAfter(postProcess(oneClickLoginAuthenticationFilter), AbstractPreAuthenticatedProcessingFilter.class);
 

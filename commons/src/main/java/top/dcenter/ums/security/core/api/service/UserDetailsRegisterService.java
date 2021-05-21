@@ -33,8 +33,6 @@ import top.dcenter.ums.security.core.api.tenant.handler.TenantContextHolder;
 import top.dcenter.ums.security.core.exception.RegisterUserFailureException;
 import top.dcenter.ums.security.core.exception.RegisterUserNotImplementException;
 
-import java.util.Map;
-
 /**
  * 用户名密码注册、手机短信登录与 OAuth 登录的用户注册接口.
  * 如果是多租户系统, 注册时通过 {@link TenantContextHolder#getTenantId()} 来获取租户 id, {@link TenantContextHolder} 需自己实现.<br><br>
@@ -43,18 +41,6 @@ import java.util.Map;
  * @version V1.0 Created by 2020/5/16 10:48
  */
 public interface UserDetailsRegisterService {
-    /**
-     * 一键登录用户注册接口, 如果是多租户系统, 注册时通过 {@link TenantContextHolder#getTenantId()} 来获取租户 id.
-     * @param mobile        手机号
-     * @param otherParamMap 其他请求参数 map(包括请求头参数), map(paramName, paramValue)
-     * @return  注册后的 UserDetails 信息
-     * @throws RegisterUserFailureException 用户注册失败
-     */
-    @NonNull
-    default UserDetails registerUser(@NonNull String mobile,
-                                     @Nullable Map<String, String> otherParamMap) throws RegisterUserFailureException {
-        throw new RegisterUserNotImplementException(ErrorCodeEnum.USER_REGISTER_FAILURE, null);
-    }
 
     /**
      * 手机短信登录用户注册接口, 如果是多租户系统, 注册时通过 {@link TenantContextHolder#getTenantId()} 来获取租户 id.

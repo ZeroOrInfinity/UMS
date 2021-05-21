@@ -29,9 +29,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import top.dcenter.ums.security.core.api.oauth.oneclicklogin.service.OneClickLoginService;
 import top.dcenter.ums.security.core.api.service.UmsUserDetailsService;
 import top.dcenter.ums.security.jwt.claims.service.GenerateClaimsSetService;
 
+import java.util.Map;
+
+import static java.util.Objects.nonNull;
 import static top.dcenter.ums.security.jwt.JwtContext.createJwtAndToJwtAuthenticationToken;
 
 /**
@@ -42,11 +46,14 @@ import static top.dcenter.ums.security.jwt.JwtContext.createJwtAndToJwtAuthentic
  */
 public class OneClickLoginAuthenticationProvider implements AuthenticationProvider {
     private final UmsUserDetailsService userDetailsService;
+    private final OneClickLoginService oneClickLoginService;
     private final GenerateClaimsSetService generateClaimsSetService;
 
     public OneClickLoginAuthenticationProvider(@NonNull UmsUserDetailsService userDetailsService,
-                                              @Nullable GenerateClaimsSetService generateClaimsSetService) {
+                                               @NonNull OneClickLoginService oneClickLoginService,
+                                               @Nullable GenerateClaimsSetService generateClaimsSetService) {
         this.userDetailsService = userDetailsService;
+        this.oneClickLoginService = oneClickLoginService;
         this.generateClaimsSetService = generateClaimsSetService;
     }
 
@@ -70,15 +77,19 @@ public class OneClickLoginAuthenticationProvider implements AuthenticationProvid
             user = null;
         }
 
+        Map<String, String> otherParamMap = null;
         if (user == null)
         {
-            user = this.userDetailsService.registerUser((String) authenticationToken.getPrincipal(),
-                                                        authenticationToken.getOtherParamMap());
-
+            user = this.userDetailsService.registerUser((String) authenticationToken.getPrincipal());
+        }
+        // 一键登录的其他参数处理
+        otherParamMap = authenticationToken.getOtherParamMap();
+        if (nonNull(otherParamMap) && !otherParamMap.isEmpty()) {
+            this.oneClickLoginService.otherParamsHandler(user, otherParamMap);
         }
         OneClickLoginAuthenticationToken authenticationResult =
                 new OneClickLoginAuthenticationToken(user,
-                                                     authenticationToken.getOtherParamMap(),
+                                                     otherParamMap,
                                                      user.getAuthorities());
         authenticationResult.setDetails(authenticationToken.getDetails());
         return createJwtAndToJwtAuthenticationToken(authenticationResult, this.generateClaimsSetService);
