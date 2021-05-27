@@ -275,7 +275,7 @@ public class Auth2AutoConfiguration implements InitializingBean {
         @Bean
         @ConditionalOnMissingBean(type = {"top.dcenter.ums.security.core.api.oauth.repository.jdbc.UsersConnectionTokenRepository"})
         @ConditionalOnProperty(prefix = "ums.oauth", name = "enable-auth-token-table", havingValue = "true")
-        public UsersConnectionTokenRepository usersConnectionTokenRepository(TextEncryptor connectionTextEncryptor,
+        public UsersConnectionTokenRepository usersConnectionTokenRepository(@Qualifier("connectionTextEncryptor") TextEncryptor connectionTextEncryptor,
                                                                              JdbcTemplate auth2UserConnectionJdbcTemplate) {
             return new Auth2JdbcUsersConnectionTokenRepository(auth2UserConnectionJdbcTemplate,
                                                                connectionTextEncryptor,
