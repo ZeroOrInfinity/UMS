@@ -68,7 +68,7 @@ public class SmsCodeLoginAuthenticationProvider implements AuthenticationProvide
         try {
             user = this.userDetailsService.loadUserByUsername((String) authenticationToken.getPrincipal());
         }
-        catch (UsernameNotFoundException e) {
+        catch (Exception e) {
             user = null;
         }
 
