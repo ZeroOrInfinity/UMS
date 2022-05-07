@@ -100,7 +100,7 @@ public final class ValidateCodeUtil {
                 if (imageDirectory.startsWith(CLASS_PATH)) {
                     final URL absClasspathUrl = ResourceUtils.getURL(CLASS_PATH);
                     String absClasspath = absClasspathUrl.getPath();
-                    if (System.getenv(OS_KEY).startsWith(WINDOWS)) {
+                    if (System.getenv(OS_KEY) != null && System.getenv(OS_KEY).startsWith(WINDOWS)) {
                         absClasspath = absClasspath.substring(1);
                     }
                     String correctImageDirectory = imageDirectory.substring(CLASS_PATH.length());
